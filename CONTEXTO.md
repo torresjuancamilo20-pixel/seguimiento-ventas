@@ -63,6 +63,7 @@ create table leads (
   ftd boolean default false,
   clases int[] default '{}',
   membresia boolean default false,
+  zoom_1a1 boolean default false,
   agendo_pago boolean default false,
   fecha_pago date,
   notas text default '',

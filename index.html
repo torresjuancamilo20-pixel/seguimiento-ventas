@@ -3,7 +3,7 @@
 <title>Seguimiento de Membresía · Ventas</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap');
-:root{--ink:#0f2540;--paper:#f4f7fb;--paper2:#e7eef7;--line:#cdd9e8;--sig:#1e6fd6;--sigd:#14508f;--good:#1f7a5c;--goodbg:#dcefe6;--warn:#c98a1a;--mut:#5d6b7e;--white:#fff}
+:root{--ink:#0f2540;--paper:#f4f7fb;--paper2:#e7eef7;--line:#cdd9e8;--sig:#1e6fd6;--sigd:#14508f;--good:#1f7a5c;--goodbg:#dcefe6;--warn:#c98a1a;--mut:#5d6b7e;--red:#c0392b;--redbg:#fdecea;--white:#fff}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
 .wrap{max-width:1140px;margin:0 auto;padding:24px 16px 90px}
@@ -30,7 +30,7 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(22px,3.6vw,
 .whoami .av.dir{background:var(--ink)}
 .whoami .nm{font-weight:600;font-size:14px}.whoami .ro{font-size:10.5px;color:var(--mut);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.05em}
 .whoami .lo{font-size:11px;color:var(--mut);cursor:pointer}.whoami .lo:hover{color:var(--sig)}
-.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin:18px 0}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin:18px 0}
 .kpi{background:var(--paper);padding:13px 12px}
 .kpi .n{font-family:'Space Grotesk';font-weight:700;font-size:23px;line-height:1}
 .kpi .n.sig{color:var(--sig)}.kpi .n.good{color:var(--good)}
@@ -43,6 +43,9 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(22px,3.6vw,
 .lead-card{background:var(--white);border:1px solid var(--line);border-left:4px solid var(--line);padding:14px 16px;margin-bottom:11px}
 .lead-card.paid{border-left-color:var(--good);background:var(--goodbg)}
 .lead-card.hot{border-left-color:var(--sig)}
+.lead-card.red{border-left-color:var(--red);background:var(--redbg)}
+.step.zoom.on{background:#e5eefb;border-color:var(--sig);color:var(--sigd)}
+.step.zoom.on .ck{background:var(--sig);border-color:var(--sig)}
 .lc-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:11px}
 .lead-name{border:none;background:transparent;font-family:'Space Grotesk';font-size:16px;font-weight:700;color:var(--ink);flex:1;padding:3px 2px;border-bottom:1px dashed transparent}
 .lead-name:focus{outline:none;border-bottom-color:var(--mut);background:var(--paper)}
@@ -124,14 +127,19 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(22px,3.6vw,
   <div class="kpi"><div class="n sig" id="k-ftd">0</div><div class="l">Hicieron FTD</div></div>
   <div class="kpi"><div class="n" id="k-clase">0</div><div class="l">En clases</div></div>
   <div class="kpi"><div class="n" id="k-memb">0</div><div class="l">Present. membresía</div></div>
+  <div class="kpi"><div class="n sig" id="k-zoom">0</div><div class="l">Zoom 1 a 1</div></div>
   <div class="kpi"><div class="n good" id="k-pago">0</div><div class="l">Agendó pago</div></div>
  </div>
 
  <div class="bar" id="agentBar">
   <input type="search" id="q" placeholder="Buscar lead…">
   <select id="filt">
-   <option value="">Todos</option><option value="ftd">Con FTD</option><option value="noftd">Sin FTD</option>
-   <option value="memb">En presentación membresía</option><option value="pago">Agendó pago</option>
+   <option value="">Todos</option>
+   <option value="red">🔴 Por empujar</option>
+   <option value="ftd">Con FTD</option><option value="noftd">Sin FTD</option>
+   <option value="memb">Con membresía</option><option value="nomemb">Sin membresía</option>
+   <option value="zoom">Con Zoom 1 a 1</option><option value="nozoom">Sin Zoom 1 a 1</option>
+   <option value="pago">Agendó pago</option><option value="nopago">Sin agendar pago</option>
   </select>
   <button class="mini" id="addLead">+ Agregar lead</button>
   <button class="mini g" id="refreshBtn">↻ Actualizar</button>
@@ -140,6 +148,14 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(22px,3.6vw,
  <div class="bar hide" id="dirBar">
   <input type="search" id="qd" placeholder="Buscar lead o agente…">
   <select id="filtAgente"><option value="">Todos los agentes</option></select>
+  <select id="filtEstado">
+   <option value="">Todos los estados</option>
+   <option value="red">🔴 Por empujar</option>
+   <option value="ftd">Con FTD</option><option value="noftd">Sin FTD</option>
+   <option value="memb">Con membresía</option><option value="nomemb">Sin membresía</option>
+   <option value="zoom">Con Zoom 1 a 1</option><option value="nozoom">Sin Zoom 1 a 1</option>
+   <option value="pago">Agendó pago</option><option value="nopago">Sin agendar pago</option>
+  </select>
   <button class="mini g" id="refreshBtn2">↻ Actualizar</button>
   <button class="mini g" id="exportBtn">⭳ CSV equipo</button>
  </div>
@@ -234,9 +250,27 @@ async function refresh(){
 
 /* ---- RENDER agente ---- */
 function stats(rows){
- let ftd=0,cl=0,mb=0,pg=0;
- rows.forEach(d=>{if(d.ftd)ftd++;if((d.clases||[]).length)cl++;if(d.membresia)mb++;if(d.agendo_pago)pg++;});
- $('k-total').textContent=rows.length;$('k-ftd').textContent=ftd;$('k-clase').textContent=cl;$('k-memb').textContent=mb;$('k-pago').textContent=pg;
+ let ftd=0,cl=0,mb=0,zm=0,pg=0;
+ rows.forEach(d=>{if(d.ftd)ftd++;if((d.clases||[]).length)cl++;if(d.membresia)mb++;if(d.zoom_1a1)zm++;if(d.agendo_pago)pg++;});
+ $('k-total').textContent=rows.length;$('k-ftd').textContent=ftd;$('k-clase').textContent=cl;$('k-memb').textContent=mb;$('k-zoom').textContent=zm;$('k-pago').textContent=pg;
+}
+// Estado visual de un lead: paid > red > hot
+function leadState(d){
+ if(d.agendo_pago)return 'paid';
+ if(d.ftd&&(d.clases||[]).length&&!d.membresia&&!d.zoom_1a1)return 'red';
+ if(d.ftd)return 'hot';
+ return '';
+}
+// ¿coincide un lead con el filtro de estado seleccionado?
+function matchFilter(d,f){
+ switch(f){
+  case 'red':return leadState(d)==='red';
+  case 'ftd':return !!d.ftd; case 'noftd':return !d.ftd;
+  case 'memb':return !!d.membresia; case 'nomemb':return !d.membresia;
+  case 'zoom':return !!d.zoom_1a1; case 'nozoom':return !d.zoom_1a1;
+  case 'pago':return !!d.agendo_pago; case 'nopago':return !d.agendo_pago;
+  default:return true;
+ }
 }
 function render(){
  if(ROLE==='director'){renderDirector();return;}
@@ -244,8 +278,7 @@ function render(){
  const term=$('q').value.trim().toLowerCase(), f=$('filt').value;
  let rows=DATA.filter(d=>{
   if(term&&!(d.nombre||'').toLowerCase().includes(term))return false;
-  if(f==='ftd'&&!d.ftd)return false;if(f==='noftd'&&d.ftd)return false;
-  if(f==='memb'&&!d.membresia)return false;if(f==='pago'&&!d.agendo_pago)return false;
+  if(!matchFilter(d,f))return false;
   return true;
  });
  const list=$('list');
@@ -255,9 +288,9 @@ function render(){
  stats(DATA);
 }
 function cardHTML(d,ro){
- const hot=d.ftd&&!d.agendo_pago;const clases=d.clases||[];
+ const clases=d.clases||[];const state=leadState(d);
  let pills='';for(let i=1;i<=NCLASSES;i++){pills+=`<button class="cpill ${clases.includes(i)?'on':''} ${ro?'ro':''}" ${ro?'':`onclick="toggleClass('${d.id}',${i})"`}>${i}</button>`;}
- return `<div class="lead-card ${d.agendo_pago?'paid':hot?'hot':''}">
+ return `<div class="lead-card ${state}">
   <div class="lc-top">
    <input class="lead-name" value="${(d.nombre||'').replace(/"/g,'&quot;')}" placeholder="Nombre del lead…" ${ro?'readonly':`onchange="setField('${d.id}','nombre',this.value)"`}>
    ${ro?`<span class="agtag">${d.agente}</span>`:`<span class="del" onclick="delLead('${d.id}')">✕</span>`}
@@ -266,6 +299,7 @@ function cardHTML(d,ro){
    <div class="step ftd ${d.ftd?'on':''} ${ro?'ro':''}" ${ro?'':`onclick="tog('${d.id}','ftd')"`}><span class="ck">${d.ftd?'✓':''}</span>Hizo FTD</div>
    <div class="classes"><span class="cl-label">Clases:</span>${pills}</div>
    <div class="step ${d.membresia?'on':''} ${ro?'ro':''}" ${ro?'':`onclick="tog('${d.id}','membresia')"`}><span class="ck">${d.membresia?'✓':''}</span>Present. membresía</div>
+   <div class="step zoom ${d.zoom_1a1?'on':''} ${ro?'ro':''}" ${ro?'':`onclick="tog('${d.id}','zoom_1a1')"`}><span class="ck">${d.zoom_1a1?'✓':''}</span>Zoom 1 a 1</div>
    <div class="step ${d.agendo_pago?'on':''} ${ro?'ro':''}" ${ro?'':`onclick="tog('${d.id}','agendo_pago')"`}><span class="ck">${d.agendo_pago?'✓':''}</span>Agendó pago</div>
   </div>
   <div class="paydate ${d.agendo_pago?'show':''}"><label>Fecha de pago:</label>
@@ -290,9 +324,10 @@ function renderDirector(){
  sum+=`</tbody></table>`;
  $('dirSummary').innerHTML=sum;
  // lista detallada filtrada
- const term=$('qd').value.trim().toLowerCase(), fa=$('filtAgente').value;
+ const term=$('qd').value.trim().toLowerCase(), fa=$('filtAgente').value, fe=$('filtEstado').value;
  let rows=DATA.filter(d=>{
   if(fa&&d.agente!==fa)return false;
+  if(!matchFilter(d,fe))return false;
   if(term&&!((d.nombre||'').toLowerCase().includes(term)||(d.agente||'').toLowerCase().includes(term)))return false;
   return true;
  });
@@ -306,13 +341,13 @@ async function setField(id,k,v){const d=find(id);d[k]=v;try{await apiPatch(id,{[
 async function tog(id,k){const d=find(id);d[k]=!d[k];render();try{await apiPatch(id,{[k]:d[k]});toast();}catch(e){toast('Error al guardar',true);}}
 async function toggleClass(id,n){const d=find(id);d.clases=d.clases||[];const i=d.clases.indexOf(n);if(i>=0)d.clases.splice(i,1);else d.clases.push(n);d.clases.sort((a,b)=>a-b);render();try{await apiPatch(id,{clases:d.clases});toast();}catch(e){toast('Error al guardar',true);}}
 async function delLead(id){if(!confirm('¿Eliminar este lead?'))return;try{await apiDelete(id);DATA=DATA.filter(d=>d.id!==id);render();toast('Eliminado');}catch(e){toast('Error al eliminar',true);}}
-$('addLead').onclick=async()=>{try{const row=await apiPost({agente:ME,nombre:'',ftd:false,clases:[],membresia:false,agendo_pago:false,notas:''});DATA.unshift(row);render();setTimeout(()=>{const f=document.querySelector('.lead-name');if(f)f.focus();},50);toast('Lead creado');}catch(e){toast('Error al crear',true);}};
+$('addLead').onclick=async()=>{try{const row=await apiPost({agente:ME,nombre:'',ftd:false,clases:[],membresia:false,zoom_1a1:false,agendo_pago:false,notas:''});DATA.unshift(row);render();setTimeout(()=>{const f=document.querySelector('.lead-name');if(f)f.focus();},50);toast('Lead creado');}catch(e){toast('Error al crear',true);}};
 $('refreshBtn').onclick=refresh;$('refreshBtn2').onclick=refresh;
 $('q').addEventListener('input',render);$('filt').addEventListener('change',render);
-$('qd').addEventListener('input',renderDirector);$('filtAgente').addEventListener('change',renderDirector);
+$('qd').addEventListener('input',renderDirector);$('filtAgente').addEventListener('change',renderDirector);$('filtEstado').addEventListener('change',renderDirector);
 $('exportBtn').onclick=()=>{
- let csv='Agente,Lead,FTD,Clases,Membresia,Agendo pago,Fecha pago,Notas\n';
- DATA.forEach(d=>{csv+=[d.agente,'"'+(d.nombre||'').replace(/"/g,'""')+'"',d.ftd?'SI':'NO','"'+(d.clases||[]).join(' ')+'"',d.membresia?'SI':'NO',d.agendo_pago?'SI':'NO',d.fecha_pago||'','"'+(d.notas||'').replace(/"/g,'""')+'"'].join(',')+'\n';});
+ let csv='Agente,Lead,FTD,Clases,Membresia,Zoom 1a1,Agendo pago,Fecha pago,Notas\n';
+ DATA.forEach(d=>{csv+=[d.agente,'"'+(d.nombre||'').replace(/"/g,'""')+'"',d.ftd?'SI':'NO','"'+(d.clases||[]).join(' ')+'"',d.membresia?'SI':'NO',d.zoom_1a1?'SI':'NO',d.agendo_pago?'SI':'NO',d.fecha_pago||'','"'+(d.notas||'').replace(/"/g,'""')+'"'].join(',')+'\n';});
  const b=new Blob([csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='equipo_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 };
 

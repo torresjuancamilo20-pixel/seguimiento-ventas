@@ -114,6 +114,8 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(24px,3vw,34
 .lead-card.hot{border-left-color:var(--sig)}
 .lead-card.red{border-left-color:var(--red);background:linear-gradient(180deg,#fff,#fef4f4)}
 .lc-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:13px}
+.lc-right{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.date-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--mut);font-weight:600;background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:4px 10px;white-space:nowrap}
 .lead-name{border:none;background:transparent;font-family:'Space Grotesk';font-size:16.5px;font-weight:700;color:var(--ink);flex:1;padding:3px 4px;border-radius:7px;border:1px solid transparent}
 .lead-name:focus{outline:none;border-color:var(--line);background:var(--paper)}
 .lead-name[readonly]{cursor:default}
@@ -288,6 +290,9 @@ function initials(n){return (n||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]|
 const AVCOLORS=['#2563eb','#7c3aed','#db2777','#ea580c','#16a34a','#0891b2','#ca8a04','#4f46e5','#0d9488','#e11d48'];
 function avColor(n){let s=0;for(const ch of (n||'?'))s+=ch.charCodeAt(0);return AVCOLORS[s%AVCOLORS.length];}
 function avatar(n){return `<span class="av-sm" style="background:${avColor(n)}">${initials(n)}</span>`;}
+const MESES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+function leadDate(d){return d.fecha_ftd||(d.creado?d.creado.slice(0,10):'');}
+function fmtDate(s){if(!s)return '';const p=s.slice(0,10).split('-');if(p.length<3)return '';return `${+p[2]} ${MESES[+p[1]-1]} ${p[0]}`;}
 
 /* ---- API ---- */
 async function apiGet(qs){
@@ -376,6 +381,7 @@ async function refresh(){
  try{
   if(ROLE==='director'){DATA=await apiGet('?select=*&order=agente.asc,creado.desc');}
   else{DATA=await apiGet('?agente=eq.'+encodeURIComponent(ME)+'&order=creado.desc');}
+  DATA.sort((a,b)=>(leadDate(b)||'').localeCompare(leadDate(a)||''));
   render();
  }catch(e){$('list').innerHTML='<div class="loading">Error al cargar: '+e.message+'</div>';toast('Error de conexión',true);}
 }
@@ -447,7 +453,10 @@ function cardHTML(d,ro){
  return `<div class="lead-card ${state}">
   <div class="lc-top">
    <input class="lead-name" value="${(d.nombre||'').replace(/"/g,'&quot;')}" placeholder="Nombre del lead…" ${ro?'readonly':`onchange="setField('${d.id}','nombre',this.value)"`}>
-   ${ro?`<span class="agtag">${d.agente}</span>`:`<span class="del" onclick="delLead('${d.id}')">✕</span>`}
+   <div class="lc-right">
+    ${leadDate(d)?`<span class="date-badge">📅 ${fmtDate(leadDate(d))}</span>`:''}
+    ${ro?`<span class="agtag">${d.agente}</span>`:`<span class="del" onclick="delLead('${d.id}')">✕</span>`}
+   </div>
   </div>
   <div class="steps">
    <div class="step ftd ${d.ftd?'on':''} ${ro?'ro':''}" ${ro?'':`onclick="tog('${d.id}','ftd')"`}><span class="ck">${d.ftd?'✓':''}</span>Hizo FTD</div>

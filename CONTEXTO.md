@@ -88,6 +88,20 @@ create index idx_leads_agente on leads(agente);
 - Director: `apiGet` trae todo (`?select=*&order=agente.asc,creado.desc`), renderiza tabla resumen por agente + tarjetas en modo solo-lectura.
 - Headers de las peticiones: `apikey`, `Authorization: Bearer <anon key>`, `Content-Type: application/json`.
 
+## Integración con GoHighLevel (GHL) — sincronización automática
+
+La app trae automáticamente los leads que hicieron **FTD** en GHL:
+
+- **Puente:** una Edge Function de Supabase llamada `sync-ghl` lee las oportunidades en las etapas de "FTD hecho" de los 5 pipelines, mapea el agente (por el "Asignado a" de GHL → nombre del usuario) y hace *upsert* en la tabla `leads`.
+- **No pisa el trabajo manual:** al re-sincronizar solo actualiza `nombre`, `agente` y `ftd`. Nunca toca `clases`, `membresia`, `zoom_1a1`, `agendo_pago`, `fecha_pago` ni `notas`.
+- **Sin duplicados:** cada lead se identifica por `ghl_opportunity_id` (columna única).
+- **Automático:** un job de `pg_cron` (`sync-ghl-cada-15min`) invoca la función cada 15 minutos vía `pg_net`.
+- **Secretos:** el token de lectura de GHL (Private Integration) y la config viven en la tabla `app_config` (RLS activo, sin políticas → solo el `service_role` del backend la lee). NO están en este repo ni en el frontend.
+
+Columnas añadidas a `leads` para esto: `ghl_opportunity_id` (único), `ghl_contact_id`, `origen` ('manual' | 'ghl'). También se añadió `zoom_1a1 boolean` para el paso Zoom 1 a 1.
+
+Location de GHL: `LyDmZPr3s5ICw2mIFTI5` ("Equipo Legendary"). Etapas de FTD mapeadas por pipeline en `app_config.ghl_ftd_stages`.
+
 ## Limitaciones conocidas / mejoras futuras (NO son la tarea de hoy, solo contexto)
 - La seguridad es básica: la clave del director está en el frontend y las políticas RLS permiten todo. Es aceptable para una herramienta interna de gestión, pero NO para datos sensibles de clientes. Mejora futura: auth real de Supabase con roles.
 - No hay realtime automático; el director actualiza con el botón "↻ Actualizar" o al entrar. Mejora futura: suscripción realtime de Supabase.

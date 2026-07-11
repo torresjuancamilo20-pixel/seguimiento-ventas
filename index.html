@@ -87,6 +87,10 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(24px,3vw,34
 .mini{padding:11px 15px;border:1px solid var(--line);border-radius:11px;font-size:13px;font-weight:600;cursor:pointer;background:var(--sig);color:#fff;border-color:var(--sig);box-shadow:var(--sh);white-space:nowrap}
 .mini:hover{background:var(--sigd)}
 .mini.g{background:var(--white);color:var(--sig)}.mini.g:hover{background:var(--sigbg)}
+.daterange{display:inline-flex;align-items:center;gap:7px}
+.daterange input[type=date]{padding:10px 11px;border:1px solid var(--line);border-radius:11px;background:var(--white);font-family:'Inter';font-size:12.5px;color:var(--ink2);box-shadow:var(--sh)}
+.daterange input[type=date]:focus{outline:none;border-color:var(--sig);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.daterange>span{color:var(--mut)}
 
 /* ---------- CONTENT LAYOUT ---------- */
 .content{display:block}
@@ -245,6 +249,16 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(24px,3vw,34
     <option value="zoom">Con Zoom 1 a 1</option><option value="nozoom">Sin Zoom 1 a 1</option>
     <option value="pago">Agendó pago</option><option value="nopago">Sin agendar pago</option>
    </select>
+   <select id="filtFecha">
+    <option value="">Cualquier fecha</option>
+    <option value="hoy">Hoy</option>
+    <option value="ayer">Ayer</option>
+    <option value="7">Últimos 7 días</option>
+    <option value="30">Últimos 30 días</option>
+    <option value="mes">Este mes</option>
+    <option value="custom">Rango personalizado…</option>
+   </select>
+   <span class="daterange hide" id="dr1"><input type="date" id="fDesde"><span>→</span><input type="date" id="fHasta"></span>
    <button class="mini" id="addLead">+ Agregar lead</button>
    <button class="mini g" id="refreshBtn">↻ Actualizar</button>
   </div>
@@ -260,6 +274,16 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(24px,3vw,34
     <option value="zoom">Con Zoom 1 a 1</option><option value="nozoom">Sin Zoom 1 a 1</option>
     <option value="pago">Agendó pago</option><option value="nopago">Sin agendar pago</option>
    </select>
+   <select id="filtFechaD">
+    <option value="">Cualquier fecha</option>
+    <option value="hoy">Hoy</option>
+    <option value="ayer">Ayer</option>
+    <option value="7">Últimos 7 días</option>
+    <option value="30">Últimos 30 días</option>
+    <option value="mes">Este mes</option>
+    <option value="custom">Rango personalizado…</option>
+   </select>
+   <span class="daterange hide" id="dr2"><input type="date" id="fDesdeD"><span>→</span><input type="date" id="fHastaD"></span>
    <button class="mini g" id="refreshBtn2">↻ Actualizar</button>
    <button class="mini g" id="exportBtn">⭳ CSV equipo</button>
   </div>
@@ -293,6 +317,21 @@ function avatar(n){return `<span class="av-sm" style="background:${avColor(n)}">
 const MESES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 function leadDate(d){return d.fecha_ftd||(d.creado?d.creado.slice(0,10):'');}
 function fmtDate(s){if(!s)return '';const p=s.slice(0,10).split('-');if(p.length<3)return '';return `${+p[2]} ${MESES[+p[1]-1]} ${p[0]}`;}
+function isoLocal(x){return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;}
+function presetRange(p){
+ const now=new Date(), today=isoLocal(now);
+ if(p==='hoy')return [today,today];
+ if(p==='ayer'){const y=new Date();y.setDate(y.getDate()-1);return [isoLocal(y),isoLocal(y)];}
+ if(p==='7'){const s=new Date();s.setDate(s.getDate()-6);return [isoLocal(s),today];}
+ if(p==='30'){const s=new Date();s.setDate(s.getDate()-29);return [isoLocal(s),today];}
+ if(p==='mes'){const s=new Date(now.getFullYear(),now.getMonth(),1);return [isoLocal(s),today];}
+ return null;
+}
+function bounds(preset,desde,hasta){
+ if(preset==='custom')return [desde||'',hasta||''];
+ const r=presetRange(preset);return r||['',''];
+}
+function matchDate(d,from,to){const ld=leadDate(d);if(from&&ld<from)return false;if(to&&ld>to)return false;return true;}
 
 /* ---- API ---- */
 async function apiGet(qs){
@@ -433,9 +472,11 @@ function render(){
  if(ROLE==='director'){renderDirector();return;}
  $('dirSummary').innerHTML='';
  const term=$('q').value.trim().toLowerCase(), f=$('filt').value;
+ const [from,to]=bounds($('filtFecha').value,$('fDesde').value,$('fHasta').value);
  let rows=DATA.filter(d=>{
   if(term&&!(d.nombre||'').toLowerCase().includes(term))return false;
   if(!matchFilter(d,f))return false;
+  if(!matchDate(d,from,to))return false;
   return true;
  });
  stats(DATA);
@@ -486,9 +527,11 @@ function renderDirector(){
  sum+=`</tbody></table></div></div>`;
  $('dirSummary').innerHTML=sum;
  const term=$('qd').value.trim().toLowerCase(), fa=$('filtAgente').value, fe=$('filtEstado').value;
+ const [from,to]=bounds($('filtFechaD').value,$('fDesdeD').value,$('fHastaD').value);
  let rows=DATA.filter(d=>{
   if(fa&&d.agente!==fa)return false;
   if(!matchFilter(d,fe))return false;
+  if(!matchDate(d,from,to))return false;
   if(term&&!((d.nombre||'').toLowerCase().includes(term)||(d.agente||'').toLowerCase().includes(term)))return false;
   return true;
  });
@@ -508,6 +551,10 @@ $('addLead').onclick=async()=>{try{const row=await apiPost({agente:ME,nombre:'',
 $('refreshBtn').onclick=refresh;$('refreshBtn2').onclick=refresh;
 $('q').addEventListener('input',()=>{PAGE=1;render();});$('filt').addEventListener('change',()=>{PAGE=1;render();});
 $('qd').addEventListener('input',()=>{PAGE=1;renderDirector();});$('filtAgente').addEventListener('change',()=>{PAGE=1;renderDirector();});$('filtEstado').addEventListener('change',()=>{PAGE=1;renderDirector();});
+$('filtFecha').addEventListener('change',()=>{$('dr1').classList.toggle('hide',$('filtFecha').value!=='custom');PAGE=1;render();});
+$('fDesde').addEventListener('change',()=>{PAGE=1;render();});$('fHasta').addEventListener('change',()=>{PAGE=1;render();});
+$('filtFechaD').addEventListener('change',()=>{$('dr2').classList.toggle('hide',$('filtFechaD').value!=='custom');PAGE=1;renderDirector();});
+$('fDesdeD').addEventListener('change',()=>{PAGE=1;renderDirector();});$('fHastaD').addEventListener('change',()=>{PAGE=1;renderDirector();});
 function doExport(){
  let csv='Agente,Lead,FTD,Clases,Membresia,Zoom 1a1,Agendo pago,Fecha pago,Notas\n';
  DATA.forEach(d=>{csv+=[d.agente,'"'+(d.nombre||'').replace(/"/g,'""')+'"',d.ftd?'SI':'NO','"'+(d.clases||[]).join(' ')+'"',d.membresia?'SI':'NO',d.zoom_1a1?'SI':'NO',d.agendo_pago?'SI':'NO',d.fecha_pago||'','"'+(d.notas||'').replace(/"/g,'""')+'"'].join(',')+'\n';});

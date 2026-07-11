@@ -1,0 +1,322 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seguimiento de Membresía · Ventas</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap');
+:root{--ink:#0f2540;--paper:#f4f7fb;--paper2:#e7eef7;--line:#cdd9e8;--sig:#1e6fd6;--sigd:#14508f;--good:#1f7a5c;--goodbg:#dcefe6;--warn:#c98a1a;--mut:#5d6b7e;--white:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1140px;margin:0 auto;padding:24px 16px 90px}
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{background:var(--white);border:1px solid var(--line);border-top:5px solid var(--sig);width:100%;max-width:430px;padding:34px 30px;box-shadow:0 10px 40px rgba(15,37,64,.08)}
+.brand{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--sigd);font-weight:700}
+.login-card h1{font-family:'Space Grotesk';font-weight:700;font-size:25px;margin:8px 0 4px}
+.login-card p.sub{color:var(--mut);font-size:13px;margin-bottom:20px;line-height:1.5}
+.roletabs{display:flex;gap:0;margin-bottom:20px;border:1.5px solid var(--ink)}
+.roletab{flex:1;padding:11px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;background:var(--paper)}
+.roletab.on{background:var(--ink);color:#fff}
+label.fl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);font-weight:700;display:block;margin:14px 0 6px}
+.inp{width:100%;padding:12px 14px;border:1.5px solid var(--ink);background:var(--paper);font-family:'Inter';font-size:15px}
+.inp:focus{outline:2px solid var(--sig);outline-offset:1px}
+.btn{width:100%;padding:13px;border:none;background:var(--sig);color:#fff;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;margin-top:18px}
+.btn:hover{background:var(--sigd)}.btn:disabled{opacity:.5;cursor:default}
+.err{color:var(--sigd);font-size:12px;margin-top:10px;font-weight:600;min-height:16px}
+.hide{display:none!important}
+header{border-bottom:2.5px solid var(--ink);padding-bottom:14px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--sigd);font-weight:700}
+h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(22px,3.6vw,32px);line-height:1.05;letter-spacing:-.02em;margin-top:7px}
+.whoami{display:flex;align-items:center;gap:10px}
+.whoami .av{width:38px;height:38px;border-radius:50%;background:var(--sig);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700}
+.whoami .av.dir{background:var(--ink)}
+.whoami .nm{font-weight:600;font-size:14px}.whoami .ro{font-size:10.5px;color:var(--mut);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.05em}
+.whoami .lo{font-size:11px;color:var(--mut);cursor:pointer}.whoami .lo:hover{color:var(--sig)}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin:18px 0}
+.kpi{background:var(--paper);padding:13px 12px}
+.kpi .n{font-family:'Space Grotesk';font-weight:700;font-size:23px;line-height:1}
+.kpi .n.sig{color:var(--sig)}.kpi .n.good{color:var(--good)}
+.kpi .l{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut);margin-top:6px;line-height:1.3}
+.bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.bar input[type=search]{flex:1;min-width:150px;padding:10px 12px;border:1.5px solid var(--ink);background:var(--paper);font-size:13px}
+.bar select{padding:10px;border:1.5px solid var(--ink);background:var(--paper);font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer}
+.mini{padding:9px 14px;border:1.5px solid var(--ink);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;background:var(--ink);color:#fff}
+.mini:hover{background:var(--sigd)}.mini.g{background:transparent;color:var(--ink)}.mini.g:hover{background:var(--paper2)}
+.lead-card{background:var(--white);border:1px solid var(--line);border-left:4px solid var(--line);padding:14px 16px;margin-bottom:11px}
+.lead-card.paid{border-left-color:var(--good);background:var(--goodbg)}
+.lead-card.hot{border-left-color:var(--sig)}
+.lc-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:11px}
+.lead-name{border:none;background:transparent;font-family:'Space Grotesk';font-size:16px;font-weight:700;color:var(--ink);flex:1;padding:3px 2px;border-bottom:1px dashed transparent}
+.lead-name:focus{outline:none;border-bottom-color:var(--mut);background:var(--paper)}
+.lead-name[readonly]{cursor:default}
+.agtag{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--sigd);background:var(--paper2);padding:3px 8px;border-radius:3px;font-weight:700}
+.del{color:var(--mut);cursor:pointer;font-size:16px;line-height:1;padding:4px}.del:hover{color:var(--sigd)}
+.steps{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.step{display:flex;align-items:center;gap:7px;padding:7px 11px;border:1.5px solid var(--line);background:var(--paper);cursor:pointer;user-select:none;font-size:12.5px;font-weight:600;transition:.12s}
+.step.ro{cursor:default;opacity:.92}
+.step .ck{width:17px;height:17px;border:1.5px solid var(--mut);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;flex-shrink:0}
+.step.on{background:var(--goodbg);border-color:var(--good);color:var(--good)}
+.step.on .ck{background:var(--good);border-color:var(--good)}
+.step.ftd.on{background:#e5eefb;border-color:var(--sig);color:var(--sigd)}
+.step.ftd.on .ck{background:var(--sig);border-color:var(--sig)}
+.classes{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.cl-label{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut);font-weight:700}
+.cpill{width:30px;height:30px;border:1.5px solid var(--line);background:var(--paper);border-radius:50%;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--mut);cursor:pointer;transition:.1s}
+.cpill.on{background:var(--sig);border-color:var(--sig);color:#fff}
+.cpill.ro{cursor:default}
+.paydate{margin-top:10px;display:none;gap:8px;align-items:center;flex-wrap:wrap}
+.paydate.show{display:flex}
+.paydate label{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;color:var(--mut);font-weight:700}
+.paydate input[type=date]{border:1.5px solid var(--line);background:#fff;font-family:'JetBrains Mono',monospace;font-size:12px;padding:6px 9px}
+.notes-in{margin-top:9px;width:100%;border:1.5px solid var(--line);background:#fff;font-family:'Inter';font-size:12.5px;padding:7px 10px}
+.notes-in:focus{outline:none;border-color:var(--sig)}
+.notes-in[readonly]{background:var(--paper);cursor:default}
+.empty{text-align:center;padding:50px 20px;color:var(--mut)}
+.empty h3{font-family:'Space Grotesk';font-size:18px;margin-bottom:6px;color:var(--ink)}
+.saved{position:fixed;bottom:16px;right:16px;background:var(--good);color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:9px 15px;border-radius:3px;opacity:0;transition:.3s;pointer-events:none;z-index:50}
+.saved.show{opacity:1}
+.saved.err{background:var(--sigd)}
+.dir-table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border:1px solid var(--line);margin-bottom:26px}
+.dir-table th{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut);padding:11px 9px;border-bottom:2px solid var(--ink);text-align:center;cursor:pointer}
+.dir-table th:first-child{text-align:left}
+.dir-table td{padding:10px 9px;border-bottom:1px solid var(--line);text-align:center;font-family:'JetBrains Mono',monospace;font-weight:600}
+.dir-table td:first-child{text-align:left;font-family:'Inter';font-weight:600}
+.dir-table tr:hover td{background:#faf7f0}
+.section-t{font-family:'Space Grotesk';font-weight:600;font-size:16px;margin:6px 0 13px;display:flex;align-items:baseline;gap:9px}
+.section-t span{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--sigd);font-weight:700}
+.loading{text-align:center;padding:40px;color:var(--mut);font-family:'JetBrains Mono',monospace;font-size:12px}
+.note{background:var(--paper2);border-left:3px solid var(--sig);padding:12px 15px;font-size:11.5px;color:#42536b;margin-top:16px;line-height:1.5}
+@media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}.step{font-size:11.5px;padding:6px 9px}.dir-table{font-size:11px}}
+</style></head><body>
+
+<div class="login-screen" id="loginScreen">
+ <div class="login-card">
+  <div class="brand">Equipo comercial · Seguimiento</div>
+  <h1>Iniciar sesión</h1>
+  <p class="sub">Los agentes registran sus leads; el director ve todo el equipo.</p>
+  <div class="roletabs">
+   <div class="roletab on" data-role="agente" id="tabAgente">Soy agente</div>
+   <div class="roletab" data-role="director" id="tabDirector">Soy director</div>
+  </div>
+  <div id="agenteFields">
+   <label class="fl">Tu nombre de agente</label>
+   <input class="inp" type="text" id="agName" placeholder="Ej: Santiago Lemus" autocomplete="off">
+   <p class="sub" style="margin-top:8px;margin-bottom:0;font-size:12px">Usa siempre el mismo nombre para ver tus leads guardados.</p>
+  </div>
+  <div id="directorFields" class="hide">
+   <label class="fl">Clave de director</label>
+   <input class="inp" type="password" id="dirPass" placeholder="••••••">
+  </div>
+  <div class="err" id="loginErr"></div>
+  <button class="btn" id="enterBtn">Entrar</button>
+ </div>
+</div>
+
+<div class="wrap hide" id="appScreen">
+ <header>
+  <div><div class="eyebrow" id="hEyebrow">Seguimiento de membresía</div><h1 class="title" id="hTitle">Mis leads</h1></div>
+  <div class="whoami">
+   <div class="av" id="myAv">?</div>
+   <div><div class="nm" id="myName"></div><div class="ro" id="myRole"></div><div class="lo" id="logout">Cerrar sesión</div></div>
+  </div>
+ </header>
+
+ <div class="kpis">
+  <div class="kpi"><div class="n" id="k-total">0</div><div class="l" id="l-total">Mis leads</div></div>
+  <div class="kpi"><div class="n sig" id="k-ftd">0</div><div class="l">Hicieron FTD</div></div>
+  <div class="kpi"><div class="n" id="k-clase">0</div><div class="l">En clases</div></div>
+  <div class="kpi"><div class="n" id="k-memb">0</div><div class="l">Present. membresía</div></div>
+  <div class="kpi"><div class="n good" id="k-pago">0</div><div class="l">Agendó pago</div></div>
+ </div>
+
+ <div class="bar" id="agentBar">
+  <input type="search" id="q" placeholder="Buscar lead…">
+  <select id="filt">
+   <option value="">Todos</option><option value="ftd">Con FTD</option><option value="noftd">Sin FTD</option>
+   <option value="memb">En presentación membresía</option><option value="pago">Agendó pago</option>
+  </select>
+  <button class="mini" id="addLead">+ Agregar lead</button>
+  <button class="mini g" id="refreshBtn">↻ Actualizar</button>
+ </div>
+
+ <div class="bar hide" id="dirBar">
+  <input type="search" id="qd" placeholder="Buscar lead o agente…">
+  <select id="filtAgente"><option value="">Todos los agentes</option></select>
+  <button class="mini g" id="refreshBtn2">↻ Actualizar</button>
+  <button class="mini g" id="exportBtn">⭳ CSV equipo</button>
+ </div>
+
+ <div id="dirSummary"></div>
+ <div id="list"></div>
+ <div class="note" id="footNote"></div>
+</div>
+
+<div class="saved" id="saved">✓ Guardado</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script>
+const SUPABASE_URL="https://fhixjvxztmuifrioevze.supabase.co";
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoaXhqdnh6dG11aWZyaW9ldnplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjgxNTUsImV4cCI6MjA5OTM0NDE1NX0.sTBxjWYr5m90-usvIJQyvTXon3TkD9Nk0V9z6IDQtmo";
+const DIRECTOR_PASS="Director2026";  // <-- clave del director (cámbiala luego)
+const REST=SUPABASE_URL+"/rest/v1/leads";
+const NCLASSES=6;
+const HDRS={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
+
+const $=id=>document.getElementById(id);
+let ROLE=null, ME=null, DATA=[];
+let tmr;
+function toast(msg,err){const s=$('saved');s.textContent=msg||'✓ Guardado';s.classList.toggle('err',!!err);s.classList.add('show');clearTimeout(tmr);tmr=setTimeout(()=>s.classList.remove('show'),err?2600:1100);}
+function initials(n){return (n||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase();}
+
+/* ---- API ---- */
+async function apiGet(qs){
+ const r=await fetch(REST+qs,{headers:HDRS});
+ if(!r.ok)throw new Error('GET '+r.status+' '+(await r.text()));
+ return r.json();
+}
+async function apiPost(row){
+ const r=await fetch(REST,{method:'POST',headers:{...HDRS,'Prefer':'return=representation'},body:JSON.stringify(row)});
+ if(!r.ok)throw new Error('POST '+r.status+' '+(await r.text()));
+ return (await r.json())[0];
+}
+async function apiPatch(id,patch){
+ patch.actualizado=new Date().toISOString();
+ const r=await fetch(REST+'?id=eq.'+id,{method:'PATCH',headers:HDRS,body:JSON.stringify(patch)});
+ if(!r.ok)throw new Error('PATCH '+r.status+' '+(await r.text()));
+}
+async function apiDelete(id){
+ const r=await fetch(REST+'?id=eq.'+id,{method:'DELETE',headers:HDRS});
+ if(!r.ok)throw new Error('DELETE '+r.status);
+}
+
+/* ---- LOGIN ---- */
+let loginRole='agente';
+$('tabAgente').onclick=()=>{loginRole='agente';$('tabAgente').classList.add('on');$('tabDirector').classList.remove('on');$('agenteFields').classList.remove('hide');$('directorFields').classList.add('hide');$('loginErr').textContent='';};
+$('tabDirector').onclick=()=>{loginRole='director';$('tabDirector').classList.add('on');$('tabAgente').classList.remove('on');$('directorFields').classList.remove('hide');$('agenteFields').classList.add('hide');$('loginErr').textContent='';};
+$('enterBtn').onclick=async()=>{
+ if(loginRole==='agente'){
+  const n=$('agName').value.trim();
+  if(n.length<2){$('loginErr').textContent='Escribe tu nombre.';return;}
+  ROLE='agente';ME=n;localStorage.setItem('segcloud_role','agente');localStorage.setItem('segcloud_me',n);
+  await enterApp();
+ }else{
+  if($('dirPass').value!==DIRECTOR_PASS){$('loginErr').textContent='Clave incorrecta.';return;}
+  ROLE='director';ME='Director';localStorage.setItem('segcloud_role','director');localStorage.setItem('segcloud_me','Director');
+  await enterApp();
+ }
+};
+$('agName').addEventListener('keydown',e=>{if(e.key==='Enter')$('enterBtn').click();});
+$('dirPass').addEventListener('keydown',e=>{if(e.key==='Enter')$('enterBtn').click();});
+$('logout').onclick=()=>{localStorage.removeItem('segcloud_role');localStorage.removeItem('segcloud_me');location.reload();};
+
+async function enterApp(){
+ $('loginScreen').classList.add('hide');$('appScreen').classList.remove('hide');
+ $('myName').textContent=ME;$('myAv').textContent=ROLE==='director'?'DIR':initials(ME);
+ $('myAv').classList.toggle('dir',ROLE==='director');
+ $('myRole').textContent=ROLE;
+ if(ROLE==='director'){
+  $('hTitle').textContent='Panel del equipo';$('l-total').textContent='Leads totales';
+  $('agentBar').classList.add('hide');$('dirBar').classList.remove('hide');
+  $('footNote').textContent='Vista de director: ves en tiempo real lo que registran todos los agentes. Solo lectura.';
+ }else{
+  $('footNote').textContent='Tus cambios se guardan en la nube al instante y el director los ve en tiempo real.';
+ }
+ await refresh();
+}
+
+/* ---- LOAD ---- */
+async function refresh(){
+ $('list').innerHTML='<div class="loading">Cargando desde la nube…</div>';
+ try{
+  if(ROLE==='director'){DATA=await apiGet('?select=*&order=agente.asc,creado.desc');}
+  else{DATA=await apiGet('?agente=eq.'+encodeURIComponent(ME)+'&order=creado.desc');}
+  render();
+ }catch(e){$('list').innerHTML='<div class="loading">Error al cargar: '+e.message+'</div>';toast('Error de conexión',true);}
+}
+
+/* ---- RENDER agente ---- */
+function stats(rows){
+ let ftd=0,cl=0,mb=0,pg=0;
+ rows.forEach(d=>{if(d.ftd)ftd++;if((d.clases||[]).length)cl++;if(d.membresia)mb++;if(d.agendo_pago)pg++;});
+ $('k-total').textContent=rows.length;$('k-ftd').textContent=ftd;$('k-clase').textContent=cl;$('k-memb').textContent=mb;$('k-pago').textContent=pg;
+}
+function render(){
+ if(ROLE==='director'){renderDirector();return;}
+ $('dirSummary').innerHTML='';
+ const term=$('q').value.trim().toLowerCase(), f=$('filt').value;
+ let rows=DATA.filter(d=>{
+  if(term&&!(d.nombre||'').toLowerCase().includes(term))return false;
+  if(f==='ftd'&&!d.ftd)return false;if(f==='noftd'&&d.ftd)return false;
+  if(f==='memb'&&!d.membresia)return false;if(f==='pago'&&!d.agendo_pago)return false;
+  return true;
+ });
+ const list=$('list');
+ if(!DATA.length){list.innerHTML='<div class="empty"><h3>Aún no tienes leads</h3><p>Toca "+ Agregar lead" para empezar.</p></div>';stats([]);return;}
+ if(!rows.length){list.innerHTML='<div class="empty"><p>Ningún lead coincide con el filtro.</p></div>';stats(DATA);return;}
+ list.innerHTML=rows.map(d=>cardHTML(d,false)).join('');
+ stats(DATA);
+}
+function cardHTML(d,ro){
+ const hot=d.ftd&&!d.agendo_pago;const clases=d.clases||[];
+ let pills='';for(let i=1;i<=NCLASSES;i++){pills+=`<button class="cpill ${clases.includes(i)?'on':''} ${ro?'ro':''}" ${ro?'':`onclick="toggleClass('${d.id}',${i})"`}>${i}</button>`;}
+ return `<div class="lead-card ${d.agendo_pago?'paid':hot?'hot':''}">
+  <div class="lc-top">
+   <input class="lead-name" value="${(d.nombre||'').replace(/"/g,'&quot;')}" placeholder="Nombre del lead…" ${ro?'readonly':`onchange="setField('${d.id}','nombre',this.value)"`}>
+   ${ro?`<span class="agtag">${d.agente}</span>`:`<span class="del" onclick="delLead('${d.id}')">✕</span>`}
+  </div>
+  <div class="steps">
+   <div class="step ftd ${d.ftd?'on':''} ${ro?'ro':''}" ${ro?'':`onclick="tog('${d.id}','ftd')"`}><span class="ck">${d.ftd?'✓':''}</span>Hizo FTD</div>
+   <div class="classes"><span class="cl-label">Clases:</span>${pills}</div>
+   <div class="step ${d.membresia?'on':''} ${ro?'ro':''}" ${ro?'':`onclick="tog('${d.id}','membresia')"`}><span class="ck">${d.membresia?'✓':''}</span>Present. membresía</div>
+   <div class="step ${d.agendo_pago?'on':''} ${ro?'ro':''}" ${ro?'':`onclick="tog('${d.id}','agendo_pago')"`}><span class="ck">${d.agendo_pago?'✓':''}</span>Agendó pago</div>
+  </div>
+  <div class="paydate ${d.agendo_pago?'show':''}"><label>Fecha de pago:</label>
+   <input type="date" value="${d.fecha_pago||''}" ${ro?'disabled':`onchange="setField('${d.id}','fecha_pago',this.value)"`}></div>
+  <input class="notes-in" value="${(d.notas||'').replace(/"/g,'&quot;')}" placeholder="Notas…" ${ro?'readonly':`onchange="setField('${d.id}','notas',this.value)"`}>
+ </div>`;
+}
+
+/* ---- RENDER director ---- */
+function renderDirector(){
+ const agents={};
+ DATA.forEach(d=>{const a=d.agente||'(sin nombre)';if(!agents[a])agents[a]={leads:0,ftd:0,memb:0,pago:0};
+  agents[a].leads++;if(d.ftd)agents[a].ftd++;if(d.membresia)agents[a].memb++;if(d.agendo_pago)agents[a].pago++;});
+ const fSel=$('filtAgente');const cur=fSel.value;
+ fSel.innerHTML='<option value="">Todos los agentes</option>'+Object.keys(agents).sort().map(a=>`<option value="${a}">${a}</option>`).join('');
+ fSel.value=cur;
+ stats(DATA);
+ // tabla resumen
+ const order=Object.keys(agents).sort((a,b)=>agents[b].pago-agents[a].pago||agents[b].ftd-agents[a].ftd);
+ let sum=`<div class="section-t"><span>01</span> Resumen por agente</div><table class="dir-table"><thead><tr><th>Agente</th><th>Leads</th><th>FTD</th><th>Membresía</th><th>Agendó pago</th></tr></thead><tbody>`;
+ order.forEach(a=>{const v=agents[a];sum+=`<tr><td>${a}</td><td>${v.leads}</td><td style="color:var(--sig)">${v.ftd}</td><td>${v.memb}</td><td style="color:var(--good)">${v.pago}</td></tr>`;});
+ sum+=`</tbody></table>`;
+ $('dirSummary').innerHTML=sum;
+ // lista detallada filtrada
+ const term=$('qd').value.trim().toLowerCase(), fa=$('filtAgente').value;
+ let rows=DATA.filter(d=>{
+  if(fa&&d.agente!==fa)return false;
+  if(term&&!((d.nombre||'').toLowerCase().includes(term)||(d.agente||'').toLowerCase().includes(term)))return false;
+  return true;
+ });
+ $('list').innerHTML=`<div class="section-t"><span>02</span> Todos los leads (${rows.length})</div>`+
+   (rows.length?rows.map(d=>cardHTML(d,true)).join(''):'<div class="empty"><p>Sin resultados.</p></div>');
+}
+
+/* ---- ACTIONS (agente) ---- */
+function find(id){return DATA.find(d=>d.id===id);}
+async function setField(id,k,v){const d=find(id);d[k]=v;try{await apiPatch(id,{[k]:v});toast();}catch(e){toast('Error al guardar',true);}}
+async function tog(id,k){const d=find(id);d[k]=!d[k];render();try{await apiPatch(id,{[k]:d[k]});toast();}catch(e){toast('Error al guardar',true);}}
+async function toggleClass(id,n){const d=find(id);d.clases=d.clases||[];const i=d.clases.indexOf(n);if(i>=0)d.clases.splice(i,1);else d.clases.push(n);d.clases.sort((a,b)=>a-b);render();try{await apiPatch(id,{clases:d.clases});toast();}catch(e){toast('Error al guardar',true);}}
+async function delLead(id){if(!confirm('¿Eliminar este lead?'))return;try{await apiDelete(id);DATA=DATA.filter(d=>d.id!==id);render();toast('Eliminado');}catch(e){toast('Error al eliminar',true);}}
+$('addLead').onclick=async()=>{try{const row=await apiPost({agente:ME,nombre:'',ftd:false,clases:[],membresia:false,agendo_pago:false,notas:''});DATA.unshift(row);render();setTimeout(()=>{const f=document.querySelector('.lead-name');if(f)f.focus();},50);toast('Lead creado');}catch(e){toast('Error al crear',true);}};
+$('refreshBtn').onclick=refresh;$('refreshBtn2').onclick=refresh;
+$('q').addEventListener('input',render);$('filt').addEventListener('change',render);
+$('qd').addEventListener('input',renderDirector);$('filtAgente').addEventListener('change',renderDirector);
+$('exportBtn').onclick=()=>{
+ let csv='Agente,Lead,FTD,Clases,Membresia,Agendo pago,Fecha pago,Notas\n';
+ DATA.forEach(d=>{csv+=[d.agente,'"'+(d.nombre||'').replace(/"/g,'""')+'"',d.ftd?'SI':'NO','"'+(d.clases||[]).join(' ')+'"',d.membresia?'SI':'NO',d.agendo_pago?'SI':'NO',d.fecha_pago||'','"'+(d.notas||'').replace(/"/g,'""')+'"'].join(',')+'\n';});
+ const b=new Blob([csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='equipo_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+};
+
+/* auto-login */
+(function(){const r=localStorage.getItem('segcloud_role'),m=localStorage.getItem('segcloud_me');
+ if(r&&m){ROLE=r;ME=m;enterApp();}})();
+</script></body></html>

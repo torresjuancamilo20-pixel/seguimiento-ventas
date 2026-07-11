@@ -100,9 +100,9 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(22px,3.6vw,
    <div class="roletab" data-role="director" id="tabDirector">Soy director</div>
   </div>
   <div id="agenteFields">
-   <label class="fl">Tu nombre de agente</label>
-   <input class="inp" type="text" id="agName" placeholder="Ej: Santiago Lemus" autocomplete="off">
-   <p class="sub" style="margin-top:8px;margin-bottom:0;font-size:12px">Usa siempre el mismo nombre para ver tus leads guardados.</p>
+   <label class="fl">Tu correo electrónico</label>
+   <input class="inp" type="email" id="agEmail" placeholder="Ej: santiago@correo.com" autocomplete="username">
+   <p class="sub" style="margin-top:8px;margin-bottom:0;font-size:12px">Entra con el mismo correo que usas en GoHighLevel para ver tus leads.</p>
   </div>
   <div id="directorFields" class="hide">
    <label class="fl">Clave de director</label>
@@ -188,6 +188,11 @@ async function apiGet(qs){
  if(!r.ok)throw new Error('GET '+r.status+' '+(await r.text()));
  return r.json();
 }
+async function apiGetAgente(qs){
+ const r=await fetch(SUPABASE_URL+'/rest/v1/agentes'+qs,{headers:HDRS});
+ if(!r.ok)throw new Error('GET agentes '+r.status+' '+(await r.text()));
+ return r.json();
+}
 async function apiPost(row){
  const r=await fetch(REST,{method:'POST',headers:{...HDRS,'Prefer':'return=representation'},body:JSON.stringify(row)});
  if(!r.ok)throw new Error('POST '+r.status+' '+(await r.text()));
@@ -209,19 +214,25 @@ $('tabAgente').onclick=()=>{loginRole='agente';$('tabAgente').classList.add('on'
 $('tabDirector').onclick=()=>{loginRole='director';$('tabDirector').classList.add('on');$('tabAgente').classList.remove('on');$('directorFields').classList.remove('hide');$('agenteFields').classList.add('hide');$('loginErr').textContent='';};
 $('enterBtn').onclick=async()=>{
  if(loginRole==='agente'){
-  const n=$('agName').value.trim();
-  if(n.length<2){$('loginErr').textContent='Escribe tu nombre.';return;}
-  ROLE='agente';ME=n;localStorage.setItem('segcloud_role','agente');localStorage.setItem('segcloud_me',n);
-  await enterApp();
+  const email=$('agEmail').value.trim().toLowerCase();
+  if(!email||!email.includes('@')){$('loginErr').textContent='Escribe tu correo electrónico.';return;}
+  $('loginErr').textContent='Verificando…';
+  try{
+   const arr=await apiGetAgente('?email=eq.'+encodeURIComponent(email)+'&select=nombre');
+   if(!arr.length){$('loginErr').textContent='Ese correo no está registrado. Revisa que sea el mismo de GoHighLevel o pídele al director que lo verifique.';return;}
+   ROLE='agente';ME=arr[0].nombre;
+   localStorage.setItem('segcloud_role','agente');localStorage.setItem('segcloud_me',ME);localStorage.setItem('segcloud_email',email);
+   await enterApp();
+  }catch(e){$('loginErr').textContent='Error de conexión. Intenta de nuevo.';}
  }else{
   if($('dirPass').value!==DIRECTOR_PASS){$('loginErr').textContent='Clave incorrecta.';return;}
   ROLE='director';ME='Director';localStorage.setItem('segcloud_role','director');localStorage.setItem('segcloud_me','Director');
   await enterApp();
  }
 };
-$('agName').addEventListener('keydown',e=>{if(e.key==='Enter')$('enterBtn').click();});
+$('agEmail').addEventListener('keydown',e=>{if(e.key==='Enter')$('enterBtn').click();});
 $('dirPass').addEventListener('keydown',e=>{if(e.key==='Enter')$('enterBtn').click();});
-$('logout').onclick=()=>{localStorage.removeItem('segcloud_role');localStorage.removeItem('segcloud_me');location.reload();};
+$('logout').onclick=()=>{localStorage.removeItem('segcloud_role');localStorage.removeItem('segcloud_me');localStorage.removeItem('segcloud_email');location.reload();};
 
 async function enterApp(){
  $('loginScreen').classList.add('hide');$('appScreen').classList.remove('hide');

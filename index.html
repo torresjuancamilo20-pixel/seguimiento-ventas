@@ -13,7 +13,7 @@
  --shl:0 6px 24px rgba(15,23,42,.08);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
+body{background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 .hide{display:none!important}
 
 /* ---------- LOGIN ---------- */
@@ -173,17 +173,42 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(24px,3vw,34
 
 @media(max-width:900px){
  .app{flex-direction:column}
- .sidebar{width:100%;height:auto;position:static;flex-direction:row;align-items:center;padding:12px 14px;gap:14px}
- .logo{border:none;margin:0;padding:0}
- nav{flex-direction:row;overflow-x:auto;gap:6px}
- .nav-item{padding:9px 12px;white-space:nowrap}
- .side-foot{margin:0;padding:0}
- .side-btn{padding:9px 12px}
- .main{padding:20px 16px 60px}
+ .sidebar{width:100%;max-width:100%;height:auto;position:static;flex-direction:row;align-items:center;padding:10px 12px;gap:12px;overflow:hidden}
+ .logo{border:none;margin:0;padding:0;flex-shrink:0}
+ .logo .mk{width:32px;height:32px;font-size:13px}
+ .logo .tx{font-size:13px;letter-spacing:.14em}
+ nav{flex:1 1 auto;min-width:0;flex-direction:row;overflow-x:auto;gap:6px}
+ .nav-item{padding:8px 11px;white-space:nowrap;font-size:13px}
+ .side-foot{display:none}
+ .main{padding:16px 14px 56px;max-width:100%;overflow-x:hidden}
  .app.dir .content{grid-template-columns:1fr}
- .kpis{grid-template-columns:repeat(2,1fr)}
+ .topbar{margin-bottom:16px}
+ h1.title{font-size:24px}
+ .subtitle{font-size:12.5px}
+ /* KPIs compactos */
+ .kpis{grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+ .kpi{padding:11px 10px;border-radius:13px}
+ .kpi-top{flex-direction:column;align-items:flex-start;gap:7px;margin-bottom:7px}
+ .kpi-ic{width:30px;height:30px;font-size:15px;border-radius:9px}
+ .kpi-l{font-size:8.5px;letter-spacing:0}
+ .kpi-n{font-size:21px}
+ .kpi-bar{display:none}
+ .bar{gap:8px}
+ .search{min-width:100%}
+ .lead-card{padding:14px 14px;border-radius:14px}
+ .steps{gap:7px}
+ .step{padding:7px 10px;font-size:12.5px}
+ .cpill{width:30px;height:30px}
 }
-@media(max-width:520px){.kpis{grid-template-columns:repeat(2,1fr)}.kpi-n{font-size:26px}}
+@media(max-width:560px){
+ .kpis{grid-template-columns:repeat(2,1fr)}
+ .kpi-top{flex-direction:row;align-items:center}
+ .kpi-l{font-size:9px}
+ .kpi-n{font-size:23px}
+ .lc-top{flex-wrap:wrap}
+ .lead-name{flex:1 1 100%;margin-bottom:6px}
+ .lc-right{flex-wrap:wrap;gap:6px}
+}
 </style></head><body>
 
 <!-- ================= LOGIN ================= -->

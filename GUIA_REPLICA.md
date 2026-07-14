@@ -79,6 +79,7 @@ create table if not exists public.leads (
   agendo_pago boolean default false,
   fecha_pago date,
   fecha_ftd date,
+  telefono text,
   notas text default '',
   ghl_opportunity_id text,
   ghl_contact_id text,
@@ -235,9 +236,11 @@ Deno.serve(async (req: Request) => {
         const j = await r.json();
         const opps = j.opportunities || [];
         for (const o of opps) {
-          const nm = (((o.contact && o.contact.name) || o.name || "").replace(/\s+/g, " ").trim()) || "Sin nombre";
+          const c = o.contact || {};
+          const nm = ((c.name || o.name || "").replace(/\s+/g, " ").trim()) || "Sin nombre";
           const fechaRaw = o.lastStageChangeAt || o.updatedAt || o.createdAt || null;
           rows.push({ agente: id2name[o.assignedTo] || "sin asignar", nombre: nm, ftd: true,
+            telefono: c.phone || null,
             fecha_ftd: fechaRaw ? String(fechaRaw).slice(0, 10) : null,
             ghl_opportunity_id: o.id, ghl_contact_id: o.contactId, origen: "ghl" });
         }

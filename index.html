@@ -121,6 +121,11 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(24px,3vw,34
 .lc-right{display:flex;align-items:center;gap:9px;flex-shrink:0}
 .date-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--mut);font-weight:600;background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:4px 10px;white-space:nowrap}
 .stale-badge{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;color:#b45309;background:var(--warnbg);border:1px solid #fcd9a3;border-radius:20px;padding:4px 9px;white-space:nowrap}
+.wa-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#fff;background:#25d366;border-radius:20px;padding:6px 12px;text-decoration:none;white-space:nowrap}
+.wa-btn:hover{background:#1eb457}
+.phone-in{margin-top:11px;width:100%;max-width:280px;border:1px solid var(--line);border-radius:10px;background:#fcfdfe;font-family:'Inter';font-size:12.5px;padding:8px 11px}
+.phone-in:focus{outline:none;border-color:var(--sig);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.phone-in[readonly]{background:var(--paper);cursor:default}
 .alert-banner{display:flex;align-items:center;gap:13px;background:linear-gradient(90deg,#fff7ed,#fffbeb);border:1px solid #fcd9a3;border-left:5px solid var(--warn);border-radius:14px;padding:14px 16px;margin-bottom:16px;box-shadow:var(--sh)}
 .alert-banner .ab-ic{font-size:24px;animation:pulse 1.6s ease-in-out infinite}
 .alert-banner .ab-tx{flex:1;font-size:13.5px;color:#7c4a03;line-height:1.4}
@@ -348,6 +353,7 @@ function initials(n){return (n||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]|
 const AVCOLORS=['#2563eb','#7c3aed','#db2777','#ea580c','#16a34a','#0891b2','#ca8a04','#4f46e5','#0d9488','#e11d48'];
 function avColor(n){let s=0;for(const ch of (n||'?'))s+=ch.charCodeAt(0);return AVCOLORS[s%AVCOLORS.length];}
 function avatar(n){return `<span class="av-sm" style="background:${avColor(n)}">${initials(n)}</span>`;}
+function waNum(t){return (t||'').replace(/[^0-9]/g,'');}
 const MESES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 function leadDate(d){return d.fecha_ftd||(d.creado?d.creado.slice(0,10):'');}
 function fmtDate(s){if(!s)return '';const p=s.slice(0,10).split('-');if(p.length<3)return '';return `${+p[2]} ${MESES[+p[1]-1]} ${p[0]}`;}
@@ -543,6 +549,7 @@ function cardHTML(d,ro){
   <div class="lc-top">
    <input class="lead-name" value="${(d.nombre||'').replace(/"/g,'&quot;')}" placeholder="Nombre del lead…" ${ro?'readonly':`onchange="setField('${d.id}','nombre',this.value)"`}>
    <div class="lc-right">
+    ${d.telefono?`<a class="wa-btn" href="https://wa.me/${waNum(d.telefono)}?text=${encodeURIComponent('Hola '+(d.nombre||''))}" target="_blank" rel="noopener">🟢 WhatsApp</a>`:''}
     ${isStale(d)?`<span class="stale-badge">⏰ +48h sin mover</span>`:''}
     ${leadDate(d)?`<span class="date-badge">📅 ${fmtDate(leadDate(d))}</span>`:''}
     ${ro?`<span class="agtag">${d.agente}</span>`:`<span class="del" onclick="delLead('${d.id}')">✕</span>`}
@@ -557,6 +564,7 @@ function cardHTML(d,ro){
   </div>
   <div class="paydate ${d.agendo_pago?'show':''}"><label>Fecha de pago:</label>
    <input type="date" value="${d.fecha_pago||''}" ${ro?'disabled':`onchange="setField('${d.id}','fecha_pago',this.value)"`}></div>
+  <input class="phone-in" type="tel" value="${(d.telefono||'').replace(/"/g,'&quot;')}" placeholder="📞 Teléfono (con código país, ej: +57 300…)" ${ro?'readonly':`onchange="setField('${d.id}','telefono',this.value)"`}>
   <input class="notes-in" value="${(d.notas||'').replace(/"/g,'&quot;')}" placeholder="Notas…" ${ro?'readonly':`onchange="setField('${d.id}','notas',this.value)"`}>
  </div>`;
 }

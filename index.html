@@ -341,10 +341,10 @@ function bounds(preset,desde,hasta){
  const r=presetRange(preset);return r||['',''];
 }
 function matchDate(d,from,to){const ld=leadDate(d);if(from&&ld<from)return false;if(to&&ld>to)return false;return true;}
-// Lead "frío": sin movimiento en +48h y aún sin agendar pago
+// Lead "frío": lleva +48h desde el FTD y NO tiene ningún avance del embudo
 function isStale(d){
- if(d.agendo_pago)return false;
- const t=d.actualizado||d.creado;if(!t)return false;
+ if(d.agendo_pago||d.membresia||d.zoom_1a1||((d.clases||[]).length))return false; // ya hizo algo
+ const t=leadDate(d);if(!t)return false;
  return (Date.now()-Date.parse(t))>48*3600*1000;
 }
 

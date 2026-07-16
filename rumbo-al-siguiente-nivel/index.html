@@ -57,6 +57,13 @@ select.inp option{background:#0d0d0d}
 .reg .nm{font-weight:700;font-size:14.5px}
 .reg .meta{font-size:12px;color:var(--mut);margin-top:3px}
 .reg .wa{flex-shrink:0;background:#25d366;color:#fff;font-weight:700;font-size:12px;text-decoration:none;padding:7px 11px;border-radius:20px;white-space:nowrap}
+.resumen{background:#101010;border:1px solid var(--line);border-radius:12px;padding:12px 15px;margin-bottom:14px}
+.resumen:empty{display:none}
+.resumen h4{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);margin-bottom:9px}
+.resumen .row{display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;border-bottom:1px solid #1e1e1e;color:#ddd}
+.resumen .row:last-child{border-bottom:none}
+.resumen .row b{color:var(--gold)}
+#admFiltro{max-width:180px}
 </style></head><body>
 <div class="bg"></div>
 <div class="wrap">
@@ -100,11 +107,13 @@ select.inp option{background:#0d0d0d}
  <!-- ADMIN -->
  <div class="card admin hide" id="admCard">
   <div class="adm-bar">
-   <div class="cnt">Registros: <b id="admCount">0</b></div>
+   <div class="cnt">Invitados: <b id="admCount">0</b></div>
+   <select class="mini" id="admFiltro"><option value="">Todos los agentes</option></select>
    <button class="mini" id="admRefresh">↻ Actualizar</button>
    <button class="mini" id="admCsv">⭳ CSV</button>
    <button class="mini" id="admClose">Cerrar</button>
   </div>
+  <div class="resumen" id="admResumen"></div>
   <div id="admList"></div>
  </div>
 </div>
@@ -130,6 +139,15 @@ $('enviar').onclick=async()=>{
  try{
   const r=await fetch(REST,{method:'POST',headers:HDRS,body:JSON.stringify({nombre,celular,agente:agente||null})});
   if(!r.ok)throw new Error(await r.text());
+  // Si el registrado ya existe en la plataforma (match por celular), marcar "Present. membresía"
+  try{
+   const last=waNum(celular).slice(-10);
+   if(last.length>=7){
+    await fetch(SUPABASE_URL+'/rest/v1/leads?telefono=like.*'+last+'*',{method:'PATCH',
+     headers:{...HDRS,'Prefer':'return=minimal'},
+     body:JSON.stringify({membresia:true,actualizado:new Date().toISOString()})});
+   }
+  }catch(_){}
   $('formCard').classList.add('hide');$('okCard').classList.remove('hide');
  }catch(e){$('err').textContent='No se pudo registrar. Revisa tu conexión e intenta de nuevo.';$('enviar').disabled=false;$('enviar').textContent='Confirmar mi registro';}
 };
@@ -156,15 +174,31 @@ async function loadReg(){
   const r=await fetch(REST+'?select=*&order=creado.desc',{headers:HDRS});
   REG=await r.json();
   $('admCount').textContent=REG.length;
-  if(!REG.length){$('admList').innerHTML='<p style="color:#888;text-align:center;padding:20px">Aún no hay registros.</p>';return;}
-  $('admList').innerHTML=REG.map(d=>{
-   const f=new Date(d.creado).toLocaleString('es-CO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
-   return `<div class="reg"><div><div class="nm">${esc(d.nombre)}</div>
-     <div class="meta">📱 ${esc(d.celular)} · 👤 ${esc(d.agente||'—')} · 🕐 ${f}</div></div>
-     ${waNum(d.celular).length>=7?`<a class="wa" href="https://wa.me/${waNum(d.celular)}" target="_blank" rel="noopener">WhatsApp</a>`:''}</div>`;
-  }).join('');
+  // resumen por agente
+  const cnt={};
+  REG.forEach(d=>{const a=(d.agente||'').trim()||'(sin especificar)';cnt[a]=(cnt[a]||0)+1;});
+  const orden=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]);
+  $('admResumen').innerHTML= REG.length?('<h4>Invitados por agente</h4>'+orden.map(a=>`<div class="row"><span>${esc(a)}</span><b>${cnt[a]}</b></div>`).join('')):'';
+  // opciones del filtro
+  const fSel=$('admFiltro');const cur=fSel.value;
+  fSel.innerHTML='<option value="">Todos los agentes</option>'+orden.map(a=>`<option value="${esc(a)}">${esc(a)} (${cnt[a]})</option>`).join('');
+  fSel.value=cur;
+  renderList();
  }catch(e){$('admList').innerHTML='<p style="color:#ff6b6b;text-align:center;padding:20px">Error al cargar.</p>';}
 }
+function renderList(){
+ const fa=$('admFiltro').value;
+ const rows=REG.filter(d=>!fa || ((d.agente||'').trim()||'(sin especificar)')===fa);
+ if(!REG.length){$('admList').innerHTML='<p style="color:#888;text-align:center;padding:20px">Aún no hay registros.</p>';return;}
+ if(!rows.length){$('admList').innerHTML='<p style="color:#888;text-align:center;padding:20px">Sin invitados para ese agente.</p>';return;}
+ $('admList').innerHTML=rows.map(d=>{
+  const f=new Date(d.creado).toLocaleString('es-CO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+  return `<div class="reg"><div><div class="nm">${esc(d.nombre)}</div>
+    <div class="meta">📱 ${esc(d.celular)} · 👤 ${esc(d.agente||'—')} · 🕐 ${f}</div></div>
+    ${waNum(d.celular).length>=7?`<a class="wa" href="https://wa.me/${waNum(d.celular)}" target="_blank" rel="noopener">WhatsApp</a>`:''}</div>`;
+ }).join('');
+}
+$('admFiltro').addEventListener('change',renderList);
 $('admCsv').onclick=()=>{
  let csv='Nombre,Celular,Agente,Fecha\n';
  REG.forEach(d=>{csv+=['"'+(d.nombre||'').replace(/"/g,'""')+'"','"'+(d.celular||'')+'"','"'+(d.agente||'').replace(/"/g,'""')+'"',d.creado].join(',')+'\n';});

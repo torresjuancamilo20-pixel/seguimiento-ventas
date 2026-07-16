@@ -157,38 +157,55 @@ $('otro').onclick=()=>{
  $('okCard').classList.add('hide');$('formCard').classList.remove('hide');
 };
 
-/* ---- ADMIN ---- */
-let REG=[];
+/* ---- ADMIN / TABLERO EN VIVO ---- */
+let REG=[], ROSTER=[], liveTmr=null;
+function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();}
+// Une variantes ("Santiago lemus", "santiago lemux"...) al nombre real del agente
+function canonical(raw){
+ const n=norm(raw);
+ if(!n)return '(sin especificar)';
+ let m=ROSTER.filter(x=>{const rn=norm(x);return rn===n||rn.includes(n)||n.includes(rn);});
+ if(m.length!==1){
+  const first=n.split(' ')[0];
+  const byFirst=ROSTER.filter(x=>norm(x).split(' ')[0]===first);
+  if(byFirst.length===1)m=byFirst; else return (raw||'').trim();
+ }
+ return m.length===1?m[0]:(raw||'').trim();
+}
+async function loadRoster(){
+ try{const r=await fetch(SUPABASE_URL+'/rest/v1/agentes?select=nombre&order=nombre.asc',{headers:HDRS});ROSTER=(await r.json()).map(a=>a.nombre);}catch(_){ROSTER=[];}
+}
 $('verLink').onclick=async()=>{
  const p=prompt('Clave de organizador:');
  if(p===null)return;
  if(p!==DIRECTOR_PASS){alert('Clave incorrecta.');return;}
  $('formCard').classList.add('hide');$('admCard').classList.remove('hide');
+ await loadRoster();
  await loadReg();
+ clearInterval(liveTmr);liveTmr=setInterval(loadReg,15000); // en vivo: refresca cada 15s
 };
-$('admClose').onclick=()=>{$('admCard').classList.add('hide');$('formCard').classList.remove('hide');};
+$('admClose').onclick=()=>{clearInterval(liveTmr);$('admCard').classList.add('hide');$('formCard').classList.remove('hide');};
 $('admRefresh').onclick=loadReg;
 async function loadReg(){
- $('admList').innerHTML='<p style="color:#888;text-align:center;padding:20px">Cargando…</p>';
  try{
   const r=await fetch(REST+'?select=*&order=creado.desc',{headers:HDRS});
   REG=await r.json();
+  REG.forEach(d=>d._canon=canonical(d.agente));
   $('admCount').textContent=REG.length;
-  // resumen por agente
   const cnt={};
-  REG.forEach(d=>{const a=(d.agente||'').trim()||'(sin especificar)';cnt[a]=(cnt[a]||0)+1;});
+  REG.forEach(d=>{cnt[d._canon]=(cnt[d._canon]||0)+1;});
   const orden=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]);
-  $('admResumen').innerHTML= REG.length?('<h4>Invitados por agente</h4>'+orden.map(a=>`<div class="row"><span>${esc(a)}</span><b>${cnt[a]}</b></div>`).join('')):'';
-  // opciones del filtro
+  const hora=new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  $('admResumen').innerHTML= REG.length?(`<h4>🟢 Invitados por agente · EN VIVO (${hora})</h4>`+orden.map(a=>`<div class="row"><span>${esc(a)}</span><b>${cnt[a]}</b></div>`).join('')):'';
   const fSel=$('admFiltro');const cur=fSel.value;
   fSel.innerHTML='<option value="">Todos los agentes</option>'+orden.map(a=>`<option value="${esc(a)}">${esc(a)} (${cnt[a]})</option>`).join('');
   fSel.value=cur;
   renderList();
- }catch(e){$('admList').innerHTML='<p style="color:#ff6b6b;text-align:center;padding:20px">Error al cargar.</p>';}
+ }catch(e){}
 }
 function renderList(){
  const fa=$('admFiltro').value;
- const rows=REG.filter(d=>!fa || ((d.agente||'').trim()||'(sin especificar)')===fa);
+ const rows=REG.filter(d=>!fa || d._canon===fa);
  if(!REG.length){$('admList').innerHTML='<p style="color:#888;text-align:center;padding:20px">Aún no hay registros.</p>';return;}
  if(!rows.length){$('admList').innerHTML='<p style="color:#888;text-align:center;padding:20px">Sin invitados para ese agente.</p>';return;}
  $('admList').innerHTML=rows.map(d=>{

@@ -81,8 +81,7 @@ select.inp option{background:#0d0d0d}
   <label>Número de celular</label>
   <input class="inp" id="celular" type="tel" placeholder="Ej: +57 300 123 4567" autocomplete="tel">
   <label>Agente que te invitó</label>
-  <select class="inp" id="agenteSel"><option value="">Cargando agentes…</option></select>
-  <input class="inp hide" id="agenteOtro" type="text" placeholder="Escribe el nombre de quien te invitó" style="margin-top:9px">
+  <input class="inp" id="agenteInp" type="text" placeholder="Nombre del agente que te invitó" autocomplete="off">
   <div class="err" id="err"></div>
   <button class="btn" id="enviar">Confirmar mi registro</button>
   <div class="foot"><a id="verLink">· Ver registros (organizador) ·</a></div>
@@ -120,26 +119,11 @@ const $=id=>document.getElementById(id);
 const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function waNum(t){return (t||'').replace(/[^0-9]/g,'');}
 
-/* cargar agentes en el select */
-(async function(){
- try{
-  const r=await fetch(SUPABASE_URL+'/rest/v1/agentes?select=nombre&order=nombre.asc',{headers:HDRS});
-  const arr=r.ok?await r.json():[];
-  const sel=$('agenteSel');
-  sel.innerHTML='<option value="">Selecciona…</option>'+arr.map(a=>`<option value="${esc(a.nombre)}">${esc(a.nombre)}</option>`).join('')
-   +'<option value="__otro__">Otro / No recuerdo…</option>';
- }catch(e){$('agenteSel').innerHTML='<option value="">Selecciona…</option><option value="__otro__">Otro…</option>';}
-})();
-$('agenteSel').addEventListener('change',()=>{
- $('agenteOtro').classList.toggle('hide',$('agenteSel').value!=='__otro__');
-});
-
 /* enviar registro */
 $('enviar').onclick=async()=>{
  const nombre=$('nombre').value.trim();
  const celular=$('celular').value.trim();
- let agente=$('agenteSel').value;
- if(agente==='__otro__')agente=$('agenteOtro').value.trim();
+ const agente=$('agenteInp').value.trim();
  if(nombre.length<2){$('err').textContent='Escribe tu nombre.';return;}
  if(waNum(celular).length<7){$('err').textContent='Escribe un número de celular válido.';return;}
  $('err').textContent='';$('enviar').disabled=true;$('enviar').textContent='Enviando…';
@@ -150,7 +134,7 @@ $('enviar').onclick=async()=>{
  }catch(e){$('err').textContent='No se pudo registrar. Revisa tu conexión e intenta de nuevo.';$('enviar').disabled=false;$('enviar').textContent='Confirmar mi registro';}
 };
 $('otro').onclick=()=>{
- $('nombre').value='';$('celular').value='';$('agenteSel').value='';$('agenteOtro').value='';$('agenteOtro').classList.add('hide');
+ $('nombre').value='';$('celular').value='';$('agenteInp').value='';
  $('enviar').disabled=false;$('enviar').textContent='Confirmar mi registro';
  $('okCard').classList.add('hide');$('formCard').classList.remove('hide');
 };

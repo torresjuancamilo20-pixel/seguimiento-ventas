@@ -81,6 +81,9 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(24px,3vw,34
 .act-alert{display:flex;gap:12px;align-items:flex-start;background:var(--redbg);border:1px solid #fecaca;border-left:4px solid var(--red);border-radius:14px;padding:14px 16px;margin-bottom:16px;font-size:13.5px;line-height:1.5}
 .act-alert .i{font-size:22px}.act-alert b{color:#b91c1c}
 .act-row-0 td{background:var(--redbg)}
+.acttabs{display:inline-flex;gap:6px;background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:5px}
+.atab{padding:8px 20px;border:none;background:transparent;border-radius:8px;font-weight:600;font-size:13px;color:var(--mut);cursor:pointer}
+.atab.on{background:var(--white);color:var(--ink);box-shadow:var(--sh)}
 
 /* ---------- TOOLBAR ---------- */
 .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
@@ -481,41 +484,54 @@ function showView(v){
  $('dirBar').classList.toggle('hide',act||ROLE!=='director');
  if(act)loadActividad();
 }
-/* ---- PANEL REGISTROS / ACTIVIDAD (director) ---- */
+/* ---- PANEL REGISTROS / RANKING (director) ---- */
+let ACT_HOY=[], ACT_MES=[], actPeriod='hoy';
 async function loadActividad(){
- $('actividadPanel').innerHTML='<div class="loading">Cargando actividad de hoy…</div>';
+ $('actividadPanel').innerHTML='<div class="loading">Cargando actividad…</div>';
  try{
   const hoy=new Date(Date.now()-5*3600*1000).toISOString().slice(0,10);
-  const r=await fetch(SUPABASE_URL+'/rest/v1/actividad_diaria?fecha=eq.'+hoy+'&select=agente,registros,ftd',{headers:HDRS});
-  const rows=await r.json();
-  const act={};rows.forEach(a=>act[a.agente]=a);
-  // "vendedores" = agentes que tienen leads en la plataforma
-  const sellers=[...new Set(DATA.map(d=>d.agente).filter(a=>a&&a!=='sin asignar'))];
-  const list=sellers.map(a=>({agente:a,registros:(act[a]?act[a].registros:0)||0,ftd:(act[a]?act[a].ftd:0)||0}));
-  list.sort((a,b)=>a.registros-b.registros || b.ftd-a.ftd || a.agente.localeCompare(b.agente));
-  const inact=list.filter(x=>x.registros===0);
-  const totReg=list.reduce((s,x)=>s+x.registros,0), totFtd=list.reduce((s,x)=>s+x.ftd,0);
-  const fh=new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
-  let html=`<div class="section-t"><span class="nn">★</span> Registros de hoy <span class="cnt">(${hoy})</span></div>`;
-  html+=`<div class="kpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:18px">
-    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">📥</div><div class="kpi-l">Registros hoy</div></div><div class="kpi-n">${totReg}</div><div class="kpi-bar bar-blue"></div></div>
-    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-indigo">📈</div><div class="kpi-l">FTD hoy</div></div><div class="kpi-n">${totFtd}</div><div class="kpi-bar bar-indigo"></div></div>
-    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-red">⚠️</div><div class="kpi-l">Sin registrar hoy</div></div><div class="kpi-n">${inact.length}</div><div class="kpi-bar bar-red"></div></div>
-   </div>`;
-  if(inact.length){
-   html+=`<div class="act-alert"><span class="i">⚠️</span><div><b>Sin ningún registro hoy (${inact.length}):</b><br>${inact.map(x=>esc0(x.agente)).join(' · ')}</div></div>`;
-  }
-  html+=`<div class="panel"><table class="dir-table"><thead><tr><th>Agente</th><th>Registros hoy</th><th>FTD hoy</th><th>Estado</th></tr></thead><tbody>`;
-  list.forEach(x=>{
-   const alerta=x.registros===0;
-   html+=`<tr class="${alerta?'act-row-0':''}"><td><div class="ag-cell">${avatar(x.agente)}<span>${esc0(x.agente)}</span></div></td>
-     <td style="color:${alerta?'var(--red)':'var(--sig)'};font-weight:800">${x.registros}</td>
-     <td style="color:var(--good);font-weight:800">${x.ftd}</td>
-     <td>${alerta?'🔴 Sin registros':'🟢 Activo'}</td></tr>`;
-  });
-  html+=`</tbody></table></div><div class="subtitle" style="margin-top:10px">Actualizado ${fh} · se refresca solo con la sincronización (cada 15 min).</div>`;
-  $('actividadPanel').innerHTML=html;
+  const mes=hoy.slice(0,7);
+  const [rh,rm]=await Promise.all([
+   fetch(SUPABASE_URL+'/rest/v1/actividad_diaria?fecha=eq.'+hoy+'&select=agente,registros,ftd',{headers:HDRS}),
+   fetch(SUPABASE_URL+'/rest/v1/resumen_mes?mes=eq.'+mes+'&select=agente,registros,ftd',{headers:HDRS})
+  ]);
+  ACT_HOY=await rh.json(); ACT_MES=await rm.json();
+  renderActividad();
  }catch(e){$('actividadPanel').innerHTML='<div class="loading">Error al cargar la actividad.</div>';}
+}
+function setActPeriod(p){actPeriod=p;renderActividad();}
+function renderActividad(){
+ const src=actPeriod==='hoy'?ACT_HOY:ACT_MES;
+ const map={};src.forEach(a=>map[a.agente]=a);
+ const sellers=[...new Set(DATA.map(d=>d.agente).filter(a=>a&&a!=='sin asignar'))];
+ let list=sellers.map(a=>({agente:a,registros:(map[a]?map[a].registros:0)||0,ftd:(map[a]?map[a].ftd:0)||0}));
+ list.sort((a,b)=>b.ftd-a.ftd || b.registros-a.registros || a.agente.localeCompare(b.agente));
+ const totReg=list.reduce((s,x)=>s+x.registros,0), totFtd=list.reduce((s,x)=>s+x.ftd,0);
+ const inact=list.filter(x=>x.registros===0);
+ const hoy=new Date(Date.now()-5*3600*1000).toISOString().slice(0,10);
+ const per=actPeriod==='hoy'?('hoy · '+hoy):('este mes · '+hoy.slice(0,7));
+ let html=`<div class="section-t"><span class="nn">★</span> Ranking de agentes <span class="cnt">(${per})</span></div>`;
+ html+=`<div class="acttabs"><button class="atab ${actPeriod==='hoy'?'on':''}" onclick="setActPeriod('hoy')">Hoy</button><button class="atab ${actPeriod==='mes'?'on':''}" onclick="setActPeriod('mes')">Este mes</button></div>`;
+ html+=`<div class="kpis" style="grid-template-columns:repeat(3,1fr);margin:14px 0 18px">
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">📥</div><div class="kpi-l">Registros</div></div><div class="kpi-n">${totReg}</div><div class="kpi-bar bar-blue"></div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-indigo">📈</div><div class="kpi-l">FTD</div></div><div class="kpi-n">${totFtd}</div><div class="kpi-bar bar-indigo"></div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-red">⚠️</div><div class="kpi-l">Sin registrar${actPeriod==='hoy'?' hoy':' el mes'}</div></div><div class="kpi-n">${inact.length}</div><div class="kpi-bar bar-red"></div></div>
+  </div>`;
+ if(actPeriod==='hoy' && inact.length){
+  html+=`<div class="act-alert"><span class="i">⚠️</span><div><b>Sin ningún registro hoy (${inact.length}):</b><br>${inact.map(x=>esc0(x.agente)).join(' · ')}</div></div>`;
+ }
+ html+=`<div class="panel"><table class="dir-table"><thead><tr><th>#</th><th>Agente</th><th>Registros</th><th>FTD</th>${actPeriod==='hoy'?'<th>Estado</th>':''}</tr></thead><tbody>`;
+ list.forEach((x,i)=>{
+  const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+  const alerta=actPeriod==='hoy'&&x.registros===0;
+  html+=`<tr class="${alerta?'act-row-0':''}"><td style="font-weight:800">${medal}</td>
+    <td><div class="ag-cell">${avatar(x.agente)}<span>${esc0(x.agente)}</span></div></td>
+    <td style="color:var(--sig);font-weight:800">${x.registros}</td>
+    <td style="color:var(--good);font-weight:800">${x.ftd}</td>
+    ${actPeriod==='hoy'?`<td>${alerta?'🔴 Sin registros':'🟢 Activo'}</td>`:''}</tr>`;
+ });
+ html+=`</tbody></table></div><div class="subtitle" style="margin-top:10px">Se actualiza con la sincronización (cada 15 min).</div>`;
+ $('actividadPanel').innerHTML=html;
 }
 function esc0(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 

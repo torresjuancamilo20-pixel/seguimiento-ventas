@@ -369,6 +369,10 @@ const AVCOLORS=['#2563eb','#7c3aed','#db2777','#ea580c','#16a34a','#0891b2','#ca
 function avColor(n){let s=0;for(const ch of (n||'?'))s+=ch.charCodeAt(0);return AVCOLORS[s%AVCOLORS.length];}
 function avatar(n){return `<span class="av-sm" style="background:${avColor(n)}">${initials(n)}</span>`;}
 function waNum(t){return (t||'').replace(/[^0-9]/g,'');}
+// Agentes/nombres a excluir de los listados (no vendedores, admins, nombres sueltos)
+const EXCLUIR=['alejandro facundo','alejandro facundo junior','camilo torres','dannia cordoba','isabel ramirez','juan','juan camilo torres','juan carlos','valentina gutierrez','juan miguel pacheco'];
+function normname(s){return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim();}
+function excluido(a){return EXCLUIR.includes(normname(a));}
 const MESES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 function leadDate(d){return d.fecha_ftd||(d.creado?d.creado.slice(0,10):'');}
 function fmtDate(s){if(!s)return '';const p=s.slice(0,10).split('-');if(p.length<3)return '';return `${+p[2]} ${MESES[+p[1]-1]} ${p[0]}`;}
@@ -503,7 +507,7 @@ function setActPeriod(p){actPeriod=p;renderActividad();}
 function renderActividad(){
  const src=actPeriod==='hoy'?ACT_HOY:ACT_MES;
  const map={};src.forEach(a=>map[a.agente]=a);
- const sellers=[...new Set(DATA.map(d=>d.agente).filter(a=>a&&a!=='sin asignar'))];
+ const sellers=[...new Set(DATA.map(d=>d.agente).filter(a=>a&&a!=='sin asignar'&&!excluido(a)))];
  let list=sellers.map(a=>({agente:a,registros:(map[a]?map[a].registros:0)||0,ftd:(map[a]?map[a].ftd:0)||0}));
  list.sort((a,b)=>b.ftd-a.ftd || b.registros-a.registros || a.agente.localeCompare(b.agente));
  const totReg=list.reduce((s,x)=>s+x.registros,0), totFtd=list.reduce((s,x)=>s+x.ftd,0);
@@ -650,7 +654,7 @@ function cardHTML(d,ro){
 /* ---- RENDER director ---- */
 function renderDirector(){
  const agents={};
- DATA.forEach(d=>{const a=d.agente||'(sin nombre)';if(!agents[a])agents[a]={leads:0,ftd:0,memb:0,pago:0};
+ DATA.forEach(d=>{const a=d.agente||'(sin nombre)';if(excluido(a))return;if(!agents[a])agents[a]={leads:0,ftd:0,memb:0,pago:0};
   agents[a].leads++;if(d.ftd)agents[a].ftd++;if(d.membresia)agents[a].memb++;if(d.agendo_pago)agents[a].pago++;});
  const fSel=$('filtAgente');const cur=fSel.value;
  fSel.innerHTML='<option value="">Todos los agentes</option>'+Object.keys(agents).sort().map(a=>`<option value="${a}">${a}</option>`).join('');

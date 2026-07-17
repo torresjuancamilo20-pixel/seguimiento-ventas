@@ -63,7 +63,7 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(24px,3vw,34
 .whoami .lo:hover{text-decoration:underline}
 
 /* ---------- KPIs ---------- */
-.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:22px}
+.kpis{display:grid;grid-template-columns:repeat(7,1fr);gap:14px;margin-bottom:22px}
 .kpi{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:16px 15px;box-shadow:var(--sh)}
 .kpi-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .kpi-ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:18px;color:#fff;flex-shrink:0}
@@ -76,6 +76,7 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(24px,3vw,34
 .ic-green{background:linear-gradient(135deg,#22c55e,#16a34a)}.bar-green{background:linear-gradient(90deg,#22c55e,#16a34a)}
 .ic-orange{background:linear-gradient(135deg,#fbbf24,#f59e0b)}.bar-orange{background:linear-gradient(90deg,#fbbf24,#f59e0b)}
 .ic-teal{background:linear-gradient(135deg,#2dd4bf,#14b8a6)}.bar-teal{background:linear-gradient(90deg,#2dd4bf,#14b8a6)}
+.ic-gold{background:linear-gradient(135deg,#fbbf24,#d97706)}.bar-gold{background:linear-gradient(90deg,#fde68a,#d97706)}
 
 /* ---------- TOOLBAR ---------- */
 .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
@@ -276,6 +277,7 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(24px,3vw,34
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-green">🧑‍🏫</div><div class="kpi-l">Present. membresía</div></div><div class="kpi-n" id="k-memb">0</div><div class="kpi-bar bar-green"></div></div>
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-orange">🎥</div><div class="kpi-l">Zoom 1 a 1</div></div><div class="kpi-n" id="k-zoom">0</div><div class="kpi-bar bar-orange"></div></div>
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-teal">💳</div><div class="kpi-l">Agendó pago</div></div><div class="kpi-n" id="k-pago">0</div><div class="kpi-bar bar-teal"></div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-gold">🚀</div><div class="kpi-l">Lanzamiento</div></div><div class="kpi-n" id="k-lanz">0</div><div class="kpi-bar bar-gold"></div></div>
   </div>
 
   <div class="bar" id="agentBar">
@@ -477,9 +479,9 @@ async function refresh(){
 
 /* ---- STATS / ESTADO ---- */
 function stats(rows){
- let ftd=0,cl=0,mb=0,zm=0,pg=0;
- rows.forEach(d=>{if(d.ftd)ftd++;if((d.clases||[]).length)cl++;if(d.membresia)mb++;if(d.zoom_1a1)zm++;if(d.agendo_pago)pg++;});
- $('k-total').textContent=rows.length;$('k-ftd').textContent=ftd;$('k-clase').textContent=cl;$('k-memb').textContent=mb;$('k-zoom').textContent=zm;$('k-pago').textContent=pg;
+ let ftd=0,cl=0,mb=0,zm=0,pg=0,lz=0;
+ rows.forEach(d=>{if(d.ftd)ftd++;if((d.clases||[]).length)cl++;if(d.membresia)mb++;if(d.zoom_1a1)zm++;if(d.agendo_pago)pg++;if(d.lanzamiento)lz++;});
+ $('k-total').textContent=rows.length;$('k-ftd').textContent=ftd;$('k-clase').textContent=cl;$('k-memb').textContent=mb;$('k-zoom').textContent=zm;$('k-pago').textContent=pg;$('k-lanz').textContent=lz;
 }
 function leadState(d){
  if(d.agendo_pago)return 'paid';

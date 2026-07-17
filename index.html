@@ -77,6 +77,10 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(24px,3vw,34
 .ic-orange{background:linear-gradient(135deg,#fbbf24,#f59e0b)}.bar-orange{background:linear-gradient(90deg,#fbbf24,#f59e0b)}
 .ic-teal{background:linear-gradient(135deg,#2dd4bf,#14b8a6)}.bar-teal{background:linear-gradient(90deg,#2dd4bf,#14b8a6)}
 .ic-gold{background:linear-gradient(135deg,#fbbf24,#d97706)}.bar-gold{background:linear-gradient(90deg,#fde68a,#d97706)}
+.ic-red{background:linear-gradient(135deg,#f87171,#dc2626)}.bar-red{background:linear-gradient(90deg,#f87171,#dc2626)}
+.act-alert{display:flex;gap:12px;align-items:flex-start;background:var(--redbg);border:1px solid #fecaca;border-left:4px solid var(--red);border-radius:14px;padding:14px 16px;margin-bottom:16px;font-size:13.5px;line-height:1.5}
+.act-alert .i{font-size:22px}.act-alert b{color:#b91c1c}
+.act-row-0 td{background:var(--redbg)}
 
 /* ---------- TOOLBAR ---------- */
 .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
@@ -248,7 +252,8 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(24px,3vw,34
  <aside class="sidebar">
   <div class="logo"><div class="mk">NX</div><div class="tx">NEXUS</div></div>
   <nav id="nav">
-   <div class="nav-item active" data-go="top"><span class="i">▦</span> Dashboard</div>
+   <div class="nav-item active" data-view="dashboard"><span class="i">▦</span> Dashboard</div>
+   <div class="nav-item nav-dir hide" data-view="actividad"><span class="i">📋</span> Registros</div>
    <div class="nav-item nav-dir hide" data-go="resumen"><span class="i">◱</span> Agentes</div>
    <div class="nav-item" data-go="list"><span class="i">☰</span> Leads</div>
   </nav>
@@ -270,7 +275,7 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(24px,3vw,34
    </div>
   </div>
 
-  <div class="kpis">
+  <div class="kpis" id="kpis">
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">👥</div><div class="kpi-l" id="l-total">Mis leads</div></div><div class="kpi-n" id="k-total">0</div><div class="kpi-bar bar-blue"></div></div>
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-indigo">📈</div><div class="kpi-l">Hicieron FTD</div></div><div class="kpi-n" id="k-ftd">0</div><div class="kpi-bar bar-indigo"></div></div>
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-violet">🎓</div><div class="kpi-l">En clases</div></div><div class="kpi-n" id="k-clase">0</div><div class="kpi-bar bar-violet"></div></div>
@@ -337,6 +342,7 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(24px,3vw,34
    <div id="dirSummary"></div>
    <div id="list"></div>
   </div>
+  <div class="hide" id="actividadPanel"></div>
  </main>
 </div>
 
@@ -460,10 +466,58 @@ $('nav').addEventListener('click',e=>{
  const it=e.target.closest('.nav-item');if(!it)return;
  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
  it.classList.add('active');
+ if(it.dataset.view){showView(it.dataset.view);return;}
+ showView('dashboard');
  const go=it.dataset.go;
  const el= go==='resumen'?$('dirSummary'): go==='list'?$('list'): $('appScreen');
  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
 });
+function showView(v){
+ const act=v==='actividad';
+ $('kpis').classList.toggle('hide',act);
+ $('content').classList.toggle('hide',act);
+ $('actividadPanel').classList.toggle('hide',!act);
+ $('agentBar').classList.toggle('hide',act||ROLE==='director');
+ $('dirBar').classList.toggle('hide',act||ROLE!=='director');
+ if(act)loadActividad();
+}
+/* ---- PANEL REGISTROS / ACTIVIDAD (director) ---- */
+async function loadActividad(){
+ $('actividadPanel').innerHTML='<div class="loading">Cargando actividad de hoy…</div>';
+ try{
+  const hoy=new Date(Date.now()-5*3600*1000).toISOString().slice(0,10);
+  const r=await fetch(SUPABASE_URL+'/rest/v1/actividad_diaria?fecha=eq.'+hoy+'&select=agente,registros,ftd',{headers:HDRS});
+  const rows=await r.json();
+  const act={};rows.forEach(a=>act[a.agente]=a);
+  // "vendedores" = agentes que tienen leads en la plataforma
+  const sellers=[...new Set(DATA.map(d=>d.agente).filter(a=>a&&a!=='sin asignar'))];
+  const list=sellers.map(a=>({agente:a,registros:(act[a]?act[a].registros:0)||0,ftd:(act[a]?act[a].ftd:0)||0}));
+  list.sort((a,b)=>a.registros-b.registros || b.ftd-a.ftd || a.agente.localeCompare(b.agente));
+  const inact=list.filter(x=>x.registros===0);
+  const totReg=list.reduce((s,x)=>s+x.registros,0), totFtd=list.reduce((s,x)=>s+x.ftd,0);
+  const fh=new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+  let html=`<div class="section-t"><span class="nn">★</span> Registros de hoy <span class="cnt">(${hoy})</span></div>`;
+  html+=`<div class="kpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:18px">
+    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">📥</div><div class="kpi-l">Registros hoy</div></div><div class="kpi-n">${totReg}</div><div class="kpi-bar bar-blue"></div></div>
+    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-indigo">📈</div><div class="kpi-l">FTD hoy</div></div><div class="kpi-n">${totFtd}</div><div class="kpi-bar bar-indigo"></div></div>
+    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-red">⚠️</div><div class="kpi-l">Sin registrar hoy</div></div><div class="kpi-n">${inact.length}</div><div class="kpi-bar bar-red"></div></div>
+   </div>`;
+  if(inact.length){
+   html+=`<div class="act-alert"><span class="i">⚠️</span><div><b>Sin ningún registro hoy (${inact.length}):</b><br>${inact.map(x=>esc0(x.agente)).join(' · ')}</div></div>`;
+  }
+  html+=`<div class="panel"><table class="dir-table"><thead><tr><th>Agente</th><th>Registros hoy</th><th>FTD hoy</th><th>Estado</th></tr></thead><tbody>`;
+  list.forEach(x=>{
+   const alerta=x.registros===0;
+   html+=`<tr class="${alerta?'act-row-0':''}"><td><div class="ag-cell">${avatar(x.agente)}<span>${esc0(x.agente)}</span></div></td>
+     <td style="color:${alerta?'var(--red)':'var(--sig)'};font-weight:800">${x.registros}</td>
+     <td style="color:var(--good);font-weight:800">${x.ftd}</td>
+     <td>${alerta?'🔴 Sin registros':'🟢 Activo'}</td></tr>`;
+  });
+  html+=`</tbody></table></div><div class="subtitle" style="margin-top:10px">Actualizado ${fh} · se refresca solo con la sincronización (cada 15 min).</div>`;
+  $('actividadPanel').innerHTML=html;
+ }catch(e){$('actividadPanel').innerHTML='<div class="loading">Error al cargar la actividad.</div>';}
+}
+function esc0(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
 /* ---- LOAD ---- */
 async function refresh(){

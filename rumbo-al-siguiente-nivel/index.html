@@ -64,6 +64,9 @@ select.inp option{background:#0d0d0d}
 .resumen .row:last-child{border-bottom:none}
 .resumen .row b{color:var(--gold)}
 #admFiltro{max-width:180px}
+.bigcount{text-align:center;margin:2px 0 18px}
+.bignum{font-family:'Space Grotesk';font-weight:700;font-size:66px;line-height:1;background:linear-gradient(180deg,#fde68a,#f5c518 55%,#b8860b);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 12px rgba(245,197,24,.3))}
+.biglbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);font-weight:700;margin-top:6px}
 </style></head><body>
 <div class="bg"></div>
 <div class="wrap">
@@ -106,6 +109,7 @@ select.inp option{background:#0d0d0d}
 
  <!-- ADMIN -->
  <div class="card admin hide" id="admCard">
+  <div class="bigcount"><div class="bignum" id="admBig">0</div><div class="biglbl">Invitados registrados · en vivo</div></div>
   <div class="adm-bar">
    <div class="cnt">Invitados: <b id="admCount">0</b></div>
    <select class="mini" id="admFiltro"><option value="">Todos los agentes</option></select>
@@ -191,7 +195,7 @@ async function loadReg(){
   const r=await fetch(REST+'?select=*&order=creado.desc',{headers:HDRS});
   REG=await r.json();
   REG.forEach(d=>d._canon=canonical(d.agente));
-  $('admCount').textContent=REG.length;
+  $('admCount').textContent=REG.length;$('admBig').textContent=REG.length;
   const cnt={};
   REG.forEach(d=>{cnt[d._canon]=(cnt[d._canon]||0)+1;});
   const orden=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]);

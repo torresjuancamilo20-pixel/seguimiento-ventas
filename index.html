@@ -148,6 +148,8 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(24px,3vw,34
 .step.ftd.on .ck{background:var(--sig);border-color:var(--sig)}
 .step.zoom.on{background:var(--warnbg);border-color:var(--warn);color:#b45309}
 .step.zoom.on .ck{background:var(--warn);border-color:var(--warn)}
+.step.launch.on{background:#fff7e0;border-color:#e0a800;color:#8a6d00}
+.step.launch.on .ck{background:#e0a800;border-color:#e0a800}
 .classes{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .cl-label{font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);font-weight:700}
 .cpill{width:32px;height:32px;border:1.5px solid var(--line);background:var(--white);border-radius:50%;font-size:13px;font-weight:600;color:var(--mut);cursor:pointer;transition:.1s}
@@ -281,6 +283,7 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(24px,3vw,34
    <select id="filt">
     <option value="">Todos</option>
     <option value="stale">⏰ +48h sin mover</option>
+    <option value="lanzamiento">🚀 Lanzamiento</option><option value="nolanzamiento">Sin lanzamiento</option>
     <option value="red">🔴 Por empujar</option>
     <option value="ftd">Con FTD</option><option value="noftd">Sin FTD</option>
     <option value="memb">Con membresía</option><option value="nomemb">Sin membresía</option>
@@ -307,6 +310,7 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(24px,3vw,34
    <select id="filtEstado">
     <option value="">Todos los estados</option>
     <option value="stale">⏰ +48h sin mover</option>
+    <option value="lanzamiento">🚀 Lanzamiento</option><option value="nolanzamiento">Sin lanzamiento</option>
     <option value="red">🔴 Por empujar</option>
     <option value="ftd">Con FTD</option><option value="noftd">Sin FTD</option>
     <option value="memb">Con membresía</option><option value="nomemb">Sin membresía</option>
@@ -491,6 +495,7 @@ function matchFilter(d,f){
   case 'zoom':return !!d.zoom_1a1; case 'nozoom':return !d.zoom_1a1;
   case 'pago':return !!d.agendo_pago; case 'nopago':return !d.agendo_pago;
   case 'stale':return isStale(d);
+  case 'lanzamiento':return !!d.lanzamiento; case 'nolanzamiento':return !d.lanzamiento;
   default:return true;
  }
 }
@@ -561,6 +566,7 @@ function cardHTML(d,ro){
    <div class="step ${d.membresia?'on':''} ${ro?'ro':''}" ${ro?'':`onclick="tog('${d.id}','membresia')"`}><span class="ck">${d.membresia?'✓':''}</span>Present. membresía</div>
    <div class="step zoom ${d.zoom_1a1?'on':''} ${ro?'ro':''}" ${ro?'':`onclick="tog('${d.id}','zoom_1a1')"`}><span class="ck">${d.zoom_1a1?'✓':''}</span>Zoom 1 a 1</div>
    <div class="step ${d.agendo_pago?'on':''} ${ro?'ro':''}" ${ro?'':`onclick="tog('${d.id}','agendo_pago')"`}><span class="ck">${d.agendo_pago?'✓':''}</span>Agendó pago</div>
+   <div class="step launch ${d.lanzamiento?'on':''} ${ro?'ro':''}" ${ro?'':`onclick="tog('${d.id}','lanzamiento')"`}><span class="ck">${d.lanzamiento?'✓':''}</span>🚀 Lanzamiento</div>
   </div>
   <div class="paydate ${d.agendo_pago?'show':''}"><label>Fecha de pago:</label>
    <input type="date" value="${d.fecha_pago||''}" ${ro?'disabled':`onchange="setField('${d.id}','fecha_pago',this.value)"`}></div>
@@ -604,7 +610,7 @@ async function setField(id,k,v){const d=find(id);d[k]=v;try{await apiPatch(id,{[
 async function tog(id,k){const d=find(id);d[k]=!d[k];render();try{await apiPatch(id,{[k]:d[k]});toast();}catch(e){toast('Error al guardar',true);}}
 async function toggleClass(id,n){const d=find(id);d.clases=d.clases||[];const i=d.clases.indexOf(n);if(i>=0)d.clases.splice(i,1);else d.clases.push(n);d.clases.sort((a,b)=>a-b);render();try{await apiPatch(id,{clases:d.clases});toast();}catch(e){toast('Error al guardar',true);}}
 async function delLead(id){if(!confirm('¿Eliminar este lead?'))return;try{await apiDelete(id);DATA=DATA.filter(d=>d.id!==id);render();toast('Eliminado');}catch(e){toast('Error al eliminar',true);}}
-$('addLead').onclick=async()=>{try{const row=await apiPost({agente:ME,nombre:'',ftd:false,clases:[],membresia:false,zoom_1a1:false,agendo_pago:false,notas:''});DATA.unshift(row);PAGE=1;render();setTimeout(()=>{const f=document.querySelector('.lead-name');if(f)f.focus();},50);toast('Lead creado');}catch(e){toast('Error al crear',true);}};
+$('addLead').onclick=async()=>{try{const row=await apiPost({agente:ME,nombre:'',ftd:false,clases:[],membresia:false,zoom_1a1:false,agendo_pago:false,lanzamiento:false,notas:''});DATA.unshift(row);PAGE=1;render();setTimeout(()=>{const f=document.querySelector('.lead-name');if(f)f.focus();},50);toast('Lead creado');}catch(e){toast('Error al crear',true);}};
 $('refreshBtn').onclick=refresh;$('refreshBtn2').onclick=refresh;
 $('q').addEventListener('input',()=>{PAGE=1;render();});$('filt').addEventListener('change',()=>{PAGE=1;render();});
 $('qd').addEventListener('input',()=>{PAGE=1;renderDirector();});$('filtAgente').addEventListener('change',()=>{PAGE=1;renderDirector();});$('filtEstado').addEventListener('change',()=>{PAGE=1;renderDirector();});
@@ -613,8 +619,8 @@ $('fDesde').addEventListener('change',()=>{PAGE=1;render();});$('fHasta').addEve
 $('filtFechaD').addEventListener('change',()=>{$('dr2').classList.toggle('hide',$('filtFechaD').value!=='custom');PAGE=1;renderDirector();});
 $('fDesdeD').addEventListener('change',()=>{PAGE=1;renderDirector();});$('fHastaD').addEventListener('change',()=>{PAGE=1;renderDirector();});
 function doExport(){
- let csv='Agente,Lead,FTD,Clases,Membresia,Zoom 1a1,Agendo pago,Fecha pago,Notas\n';
- DATA.forEach(d=>{csv+=[d.agente,'"'+(d.nombre||'').replace(/"/g,'""')+'"',d.ftd?'SI':'NO','"'+(d.clases||[]).join(' ')+'"',d.membresia?'SI':'NO',d.zoom_1a1?'SI':'NO',d.agendo_pago?'SI':'NO',d.fecha_pago||'','"'+(d.notas||'').replace(/"/g,'""')+'"'].join(',')+'\n';});
+ let csv='Agente,Lead,FTD,Clases,Membresia,Zoom 1a1,Agendo pago,Lanzamiento,Fecha pago,Notas\n';
+ DATA.forEach(d=>{csv+=[d.agente,'"'+(d.nombre||'').replace(/"/g,'""')+'"',d.ftd?'SI':'NO','"'+(d.clases||[]).join(' ')+'"',d.membresia?'SI':'NO',d.zoom_1a1?'SI':'NO',d.agendo_pago?'SI':'NO',d.lanzamiento?'SI':'NO',d.fecha_pago||'','"'+(d.notas||'').replace(/"/g,'""')+'"'].join(',')+'\n';});
  const b=new Blob([csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='equipo_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 }
 $('exportBtn').onclick=doExport;$('exportBtn2').onclick=doExport;

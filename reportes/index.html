@@ -178,7 +178,7 @@ const HDRS={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
 const VENTAS_CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRVgKL-KjsVNYgdxR3EuuSa52IwBWNbFa2i1sH1r_IU2bAdU1bmAuDFkj07gpsdhXb5kE9dxmc75ox8/pub?output=csv";
 
 // Agentes/nombres a excluir de listados y rankings (no vendedores)
-const EXCLUIR=['alejandro facundo','alejandro facundo junior','camilo torres','dannia cordoba','isabel ramirez','juan','juan camilo torres','juan carlos','valentina gutierrez','juan miguel pacheco'];
+const EXCLUIR=['alejandro facundo','alejandro facundo junior','dannia cordoba','isabel ramirez','juan carlos','valentina gutierrez','juan miguel pacheco'];
 function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim();}
 function excluido(a){return EXCLUIR.includes(norm(a));}
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}

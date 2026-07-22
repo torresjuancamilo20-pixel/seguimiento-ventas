@@ -351,27 +351,23 @@ function renderVentas(){
  const prodSet={};list.forEach(v=>Object.keys(v.prods).forEach(p=>prodSet[p]=(prodSet[p]||0)+v.prods[p]));
  const prods=Object.keys(prodSet).sort((a,b)=>prodSet[b]-prodSet[a]);
  const star=prods[0];
- const gan=gt*COMISION;
- const pctC=Math.round(COMISION*100);
- let kpis=`<div class="kpis" style="grid-template-columns:repeat(4,1fr)">
+ let kpis=`<div class="kpis" style="grid-template-columns:repeat(3,1fr)">
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-gold">💵</div><div class="kpi-l">${ROLE==='agente'?'Tu facturación':'Total facturado'}</div></div><div class="kpi-n" style="color:#4ade80">${money(gt)}</div></div>
-   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-green">🤑</div><div class="kpi-l">${ROLE==='agente'?'Tu ganancia':'Ganancia agentes'} (${pctC}%)</div></div><div class="kpi-n" style="color:#4ade80">${money(gan)}</div></div>
-   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">🏆</div><div class="kpi-l">${ROLE==='agente'?'Ventas':'Top facturador'}</div></div><div class="kpi-n" style="font-size:18px">${ROLE==='agente'?list.length+' agente(s)':esc(top?top.name:'—')}</div></div>
-   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-violet">⭐</div><div class="kpi-l">Producto estrella</div></div><div class="kpi-n" style="font-size:18px">${star?esc(star):'—'}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">🏆</div><div class="kpi-l">${ROLE==='agente'?'Ventas':'Top facturador'}</div></div><div class="kpi-n" style="font-size:19px">${ROLE==='agente'?list.length+' agente(s)':esc(top?top.name:'—')}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-violet">⭐</div><div class="kpi-l">Producto estrella</div></div><div class="kpi-n" style="font-size:19px">${star?esc(star):'—'}</div></div>
   </div>`;
  const maxT=list.length?list[0].total:1;
- let head=`<th>#</th><th>Agente</th>`+prods.map(p=>`<th>${esc(p)}</th>`).join('')+`<th>Total</th><th>Ganancia ${pctC}%</th><th>%</th>`;
+ let head=`<th>#</th><th>Agente</th>`+prods.map(p=>`<th>${esc(p)}</th>`).join('')+`<th>Total</th><th>%</th>`;
  let body='';
  list.forEach((v,i)=>{
   const cls=(i===0&&ROLE==='director'?'top':'')+(norm(v.name)===norm(ME)?' me':'');
   const tds=prods.map(p=>`<td data-label="${esc(p)}" class="${v.prods[p]?'':'z'}">${v.prods[p]?money(v.prods[p]):'—'}</td>`).join('');
   body+=`<tr class="${cls}"><td class="rk">${i+1}</td><td class="ag">${avatar(v.name)}${esc(v.name)}</td>${tds}<td class="money" data-label="Total">${money(v.total)}</td>
-   <td class="money" data-label="Ganancia ${pctC}%" style="color:#22c55e">${money(v.total*COMISION)}</td>
    <td data-label="% del total"><span class="barwrap"><span class="barfill" style="width:${(v.total/maxT*100).toFixed(0)}%"></span></span></td></tr>`;
  });
- let foot=`<td></td><td class="lb">Total</td>`+prods.map(p=>`<td>${money(prodSet[p])}</td>`).join('')+`<td class="money">${money(gt)}</td><td class="money" style="color:#22c55e">${money(gan)}</td><td></td>`;
+ let foot=`<td></td><td class="lb">Total</td>`+prods.map(p=>`<td>${money(prodSet[p])}</td>`).join('')+`<td class="money">${money(gt)}</td><td></td>`;
  el.innerHTML=kpis+`<div class="panel scroll"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody>${ROLE==='director'?`<tfoot><tr>${foot}</tr></tfoot>`:''}</table></div>
-   <div class="note"><b>Ganancia = ${pctC}% de lo facturado.</b> En vivo desde tu Google Sheet: cada venta que registres en la hoja se refleja aquí al recargar.</div>`;
+   <div class="note"><b>En vivo desde tu Google Sheet.</b> Cada vez que registres una venta en la hoja, se refleja aquí al recargar.</div>`;
 }
 
 /* ---------- FTD'S ---------- */

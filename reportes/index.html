@@ -462,7 +462,7 @@ function renderFtds(){
 
 /* ---------- PRODUCTIVIDAD ---------- */
 function minsSince(iso){return iso?Math.floor((Date.now()-Date.parse(iso))/60000):null;}
-function agoTxt(m){if(m==null)return '—';if(m<1)return 'ahora';if(m<60)return 'hace '+m+' min';const h=Math.floor(m/60);return 'hace '+h+'h '+(m%60)+'m';}
+function agoTxt(m){if(m==null)return 'sin datos';if(m<1)return 'ahora';if(m<60)return 'hace '+m+' min';const h=Math.floor(m/60);if(h<24)return 'hace '+h+'h '+(m%60)+'m';const d=Math.floor(h/24);return 'hace '+d+(d===1?' día':' días')+(h%24?' '+(h%24)+'h':'');}
 function renderProd(){
  const el=$('viewProd');
  if(!ACTIVIDAD.length){el.innerHTML='<div class="loading">Cargando actividad… (se llena con la sincronización de GoHighLevel)</div>';return;}
@@ -470,37 +470,39 @@ function renderProd(){
  if(ROLE==='agente')rows=rows.filter(x=>norm(x.agente)===norm(ME)||norm(x.agente).split(' ')[0]===norm(ME).split(' ')[0]);
  rows=rows.map(x=>{
   const reg=x.registros_hoy||0;
-  const mins=minsSince(x.ultimo_registro_at);
+  const mins=minsSince(x.ultima_actividad_at); // minutos desde la última actividad (aunque sea de días atrás)
   let estado,rank;
-  if(reg===0){estado='rojo';rank=0;}
-  else if(mins!=null&&mins>=INACT_MIN){estado='inactivo';rank=1;}
-  else{estado='activo';rank=2;}
+  if(reg>0){estado='activo';rank=2;}          // registró hoy
+  else if(mins!=null&&mins>=INACT_MIN){estado='inactivo';rank=0;} // sin registrar hoy → alerta
+  else{estado='inactivo';rank=1;}
   return {...x,reg,mins,estado,rank};
  });
  rows.sort((a,b)=>a.rank-b.rank || (b.mins||0)-(a.mins||0) || b.reg-a.reg);
  const activos=rows.filter(r=>r.estado==='activo').length;
- const inactivos=rows.filter(r=>r.estado==='inactivo').length;
- const rojos=rows.filter(r=>r.estado==='rojo').length;
+ const inactHoy=rows.filter(r=>r.reg===0).length;
+ const critico=rows.filter(r=>r.reg===0 && r.mins!=null && r.mins>=1440).length; // +1 día sin actividad
  let kpis=`<div class="kpis" style="grid-template-columns:repeat(3,1fr)">
-   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-green">${ICONS.check}</div><div class="kpi-l">Activos</div></div><div class="kpi-n" style="color:#4ade80">${activos}</div></div>
-   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-gold">${ICONS.clock}</div><div class="kpi-l">Inactivos +60min</div></div><div class="kpi-n" style="color:#facc15">${inactivos}</div></div>
-   <div class="kpi"><div class="kpi-top"><div class="kpi-ic">${ICONS.alert}</div><div class="kpi-l">Sin registros hoy</div></div><div class="kpi-n" style="color:#f87171">${rojos}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-green">${ICONS.check}</div><div class="kpi-l">Activos hoy</div></div><div class="kpi-n" style="color:#4ade80">${activos}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic">${ICONS.alert}</div><div class="kpi-l">Sin registros hoy</div></div><div class="kpi-n" style="color:#f87171">${inactHoy}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-gold">${ICONS.clock}</div><div class="kpi-l">+1 día inactivos</div></div><div class="kpi-n" style="color:#facc15">${critico}</div></div>
   </div>`;
  const badge=r=>{
-  if(r.estado==='rojo')return '<span class="pill" style="background:rgba(239,68,68,.13);color:#f87171"><span class="dot" style="background:#ef4444"></span>Sin registros</span>';
-  if(r.estado==='inactivo')return '<span class="pill" style="background:rgba(234,179,8,.13);color:#eab308"><span class="dot" style="background:#eab308"></span>Inactivo '+agoTxt(r.mins).replace('hace ','')+'</span>';
-  return '<span class="pill" style="background:rgba(34,197,94,.13);color:#22c55e"><span class="dot" style="background:#22c55e"></span>Activo</span>';
+  if(r.estado==='activo')return '<span class="pill" style="background:rgba(34,197,94,.13);color:#22c55e"><span class="dot" style="background:#22c55e"></span>Activo</span>';
+  const col=(r.mins!=null&&r.mins>=1440)?['#ef4444','rgba(239,68,68,.13)']:['#eab308','rgba(234,179,8,.13)'];
+  return `<span class="pill" style="background:${col[1]};color:${col[0]}"><span class="dot" style="background:${col[0]}"></span>Inactivo</span>`;
  };
  let body='';
  rows.forEach((r,i)=>{
-  const cls=(r.estado==='rojo'?'alert-row':'')+(norm(r.agente)===norm(ME)?' me':'');
+  const rojo=r.reg===0 && r.mins!=null && r.mins>=1440;
+  const cls=(rojo?'alert-row':'')+(norm(r.agente)===norm(ME)?' me':'');
+  const actCol=r.reg>0?'#4ade80':(rojo?'#f87171':'var(--ink2)');
   body+=`<tr class="${cls}"><td class="rk">${i+1}</td><td class="ag">${avatar(r.agente)}${esc(r.agente)}</td>
    <td class="b" data-label="Leads hoy">${r.leads_hoy||0}</td><td class="g" data-label="Registros hoy">${r.reg}</td>
-   <td data-label="Última actividad" style="color:var(--mut)">${r.reg>0?agoTxt(r.mins):'—'}</td>
+   <td data-label="Última actividad" style="color:${actCol};font-weight:600">${agoTxt(r.mins)}</td>
    <td data-label="Estado" style="text-align:center">${badge(r)}</td></tr>`;
  });
  el.innerHTML=kpis+`<div class="panel scroll"><table><thead><tr><th>#</th><th>Agente</th><th>Leads hoy</th><th>Registros hoy</th><th>Última actividad</th><th style="text-align:center">Estado</th></tr></thead><tbody>${body}</tbody></table></div>
-   <div class="note"><b style="color:#22c55e">Activo</b> = hizo un registro hoy · <b style="color:#eab308">Inactivo</b> = lleva +${INACT_MIN} min sin registrar · <b style="color:#f87171">Sin registros</b> = tiene leads pero no ha registrado a nadie hoy. Se actualiza solo y te llega un correo cuando un agente pasa ${INACT_MIN} min sin registrar. Solo aparecen los agentes que recibieron leads hoy.</div>`;
+   <div class="note"><b>Última actividad</b> = cuánto hace que el agente registró o hizo un FTD por última vez (aunque haya sido hace días). <b style="color:#22c55e">Activo</b> = ya registró hoy · <b style="color:#eab308">Inactivo</b> = sin registro hoy · <b style="color:#f87171">rojo</b> = +1 día sin actividad. Te llega un correo cuando un agente pasa ${INACT_MIN} min sin registrar en horario laboral (8am–11pm).</div>`;
 }
 
 /* auto-login */

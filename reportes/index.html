@@ -116,6 +116,27 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
  .nav-item{white-space:nowrap}
  .side-foot{display:none}
  .main{padding:16px 14px 56px}
+ .kpis{grid-template-columns:repeat(2,1fr)!important;gap:10px}
+ .kpi-n{font-size:23px}
+}
+/* En celular, cada fila de la tabla se vuelve una TARJETA legible */
+@media(max-width:680px){
+ .panel.scroll{overflow:visible;background:transparent;border:none;box-shadow:none}
+ table{font-size:15px}
+ thead,tfoot{display:none}
+ tbody,tr,td{display:block;width:100%}
+ tbody tr{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px 8px;margin-bottom:12px}
+ tbody tr.top{border-color:rgba(245,197,24,.4)}
+ tbody tr.alert-row{border-color:rgba(239,68,68,.45);background:rgba(239,68,68,.06)}
+ tbody tr.me{border-color:rgba(59,130,246,.45)}
+ tbody td{display:flex;justify-content:space-between;align-items:center;text-align:right!important;padding:9px 0;border:none;border-bottom:1px solid rgba(255,255,255,.05);white-space:normal}
+ tbody td:last-child{border-bottom:none}
+ tbody td::before{content:attr(data-label);color:var(--mut);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;text-align:left;margin-right:12px}
+ tbody td.rk{display:none}
+ tbody td.ag{justify-content:flex-start;text-align:left!important;font-size:17px;font-weight:700;padding-bottom:11px;margin-bottom:4px;border-bottom:1px solid var(--line)}
+ tbody td.ag::before{display:none}
+ tbody td.ag .av-sm{width:34px;height:34px;font-size:12px}
+ .barwrap{width:60px}
 }
 </style></head><body>
 
@@ -339,9 +360,9 @@ function renderVentas(){
  let body='';
  list.forEach((v,i)=>{
   const cls=(i===0&&ROLE==='director'?'top':'')+(norm(v.name)===norm(ME)?' me':'');
-  const tds=prods.map(p=>`<td class="${v.prods[p]?'':'z'}">${v.prods[p]?money(v.prods[p]):'—'}</td>`).join('');
-  body+=`<tr class="${cls}"><td class="rk">${i+1}</td><td class="ag">${avatar(v.name)}${esc(v.name)}</td>${tds}<td class="money">${money(v.total)}</td>
-   <td><span class="barwrap"><span class="barfill" style="width:${(v.total/maxT*100).toFixed(0)}%"></span></span></td></tr>`;
+  const tds=prods.map(p=>`<td data-label="${esc(p)}" class="${v.prods[p]?'':'z'}">${v.prods[p]?money(v.prods[p]):'—'}</td>`).join('');
+  body+=`<tr class="${cls}"><td class="rk">${i+1}</td><td class="ag">${avatar(v.name)}${esc(v.name)}</td>${tds}<td class="money" data-label="Total">${money(v.total)}</td>
+   <td data-label="% del total"><span class="barwrap"><span class="barfill" style="width:${(v.total/maxT*100).toFixed(0)}%"></span></span></td></tr>`;
  });
  let foot=`<td></td><td class="lb">Total</td>`+prods.map(p=>`<td>${money(prodSet[p])}</td>`).join('')+`<td class="money">${money(gt)}</td><td></td>`;
  el.innerHTML=kpis+`<div class="panel scroll"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody>${ROLE==='director'?`<tfoot><tr>${foot}</tr></tfoot>`:''}</table></div>
@@ -398,12 +419,12 @@ function renderFtds(){
   const pReg=pct(x.registros,x.leads),pFtd=pct(x.ftd,x.registros),conv=pct(x.ftd,x.leads);
   const cls=(i===0&&ROLE==='director'?'top':'')+(norm(x.a)===norm(ME)?' me':'');
   body+=`<tr class="${cls}"><td class="rk">${i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)}</td>
-   <td class="ag">${avatar(x.a)}${esc(x.a)}</td>
-   <td class="b">${x.leads}</td><td>${x.registros}</td>
-   <td class="conv" style="color:${convColor(pReg)}">${x.leads?pReg+'%':'<span class=z>—</span>'}</td>
-   <td class="g">${x.ftd}</td>
-   <td class="conv" style="color:${convColor(pFtd)}">${x.registros?pFtd+'%':'<span class=z>—</span>'}</td>
-   <td class="conv" style="color:${convColor(conv)}">${x.leads?conv+'%':'<span class=z>—</span>'}</td></tr>`;
+   <td class="ag">${i<3?['🥇','🥈','🥉'][i]+' ':''}${avatar(x.a)}${esc(x.a)}</td>
+   <td class="b" data-label="Leads">${x.leads}</td><td data-label="Registros">${x.registros}</td>
+   <td class="conv" data-label="% Reg" style="color:${convColor(pReg)}">${x.leads?pReg+'%':'<span class=z>—</span>'}</td>
+   <td class="g" data-label="FTD">${x.ftd}</td>
+   <td class="conv" data-label="% FTD" style="color:${convColor(pFtd)}">${x.registros?pFtd+'%':'<span class=z>—</span>'}</td>
+   <td class="conv" data-label="Conv. total" style="color:${convColor(conv)}">${x.leads?conv+'%':'<span class=z>—</span>'}</td></tr>`;
  });
  let foot=`<td></td><td class="lb">Total</td><td class="b">${tot.leads}</td><td>${tot.registros}</td>
    <td class="conv" style="color:${convColor(pct(tot.registros,tot.leads))}">${pct(tot.registros,tot.leads)}%</td>
@@ -453,9 +474,9 @@ function renderProd(){
  rows.forEach((r,i)=>{
   const cls=(r.estado==='rojo'?'alert-row':'')+(norm(r.agente)===norm(ME)?' me':'');
   body+=`<tr class="${cls}"><td class="rk">${i+1}</td><td class="ag">${avatar(r.agente)}${esc(r.agente)}</td>
-   <td class="b">${r.leads_hoy||0}</td><td class="g">${r.reg}</td>
-   <td style="color:var(--mut)">${r.reg>0?agoTxt(r.mins):'—'}</td>
-   <td style="text-align:center">${badge(r)}</td></tr>`;
+   <td class="b" data-label="Leads hoy">${r.leads_hoy||0}</td><td class="g" data-label="Registros hoy">${r.reg}</td>
+   <td data-label="Última actividad" style="color:var(--mut)">${r.reg>0?agoTxt(r.mins):'—'}</td>
+   <td data-label="Estado" style="text-align:center">${badge(r)}</td></tr>`;
  });
  el.innerHTML=kpis+`<div class="panel scroll"><table><thead><tr><th>#</th><th>Agente</th><th>Leads hoy</th><th>Registros hoy</th><th>Última actividad</th><th style="text-align:center">Estado</th></tr></thead><tbody>${body}</tbody></table></div>
    <div class="note"><b>🟢 Activo</b> = hizo un registro hoy · <b>🟡 Inactivo</b> = lleva +${INACT_MIN} min sin registrar · <b>🔴 Sin registros</b> = tiene leads pero no ha registrado a nadie hoy. Se actualiza solo y te llega un correo cuando un agente pasa ${INACT_MIN} min sin registrar. Solo aparecen los agentes que recibieron leads hoy.</div>`;

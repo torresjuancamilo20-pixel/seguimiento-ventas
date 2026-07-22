@@ -59,6 +59,9 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(22px,3vw,30
 .whoami .av.dir{background:#1e293b}
 .logout-top{border:1px solid var(--line);background:var(--card);color:var(--ink2);font-size:12.5px;font-weight:700;padding:9px 14px;border-radius:10px;cursor:pointer;white-space:nowrap}
 .logout-top:hover{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.4);color:#f87171}
+.kpi-ic svg,.nav-item .i svg{width:15px;height:15px;display:block}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:middle;flex-shrink:0}
+.pill{display:inline-flex;align-items:center}
 .whoami .nm{font-weight:700;font-size:14px}
 .whoami .ro{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
 
@@ -69,8 +72,8 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(22px,3vw,30
 .kpi-ic{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:14px;flex-shrink:0}
 .kpi-l{font-size:10px;text-transform:uppercase;letter-spacing:.03em;color:var(--mut);font-weight:700}
 .kpi-n{font-family:'Space Grotesk';font-weight:700;font-size:26px;line-height:1}
-.ic-blue{background:rgba(59,130,246,.15);color:#60a5fa}.ic-green{background:rgba(34,197,94,.15);color:#4ade80}
-.ic-gold{background:rgba(245,197,24,.15);color:#f5c518}.ic-violet{background:rgba(167,139,250,.15);color:#c4b5fd}
+.kpi-ic{background:rgba(148,163,184,.1);color:#8ea3bd;border:1px solid rgba(148,163,184,.14)}
+.ic-blue,.ic-green,.ic-gold,.ic-violet{background:rgba(148,163,184,.1);color:#8ea3bd}
 
 /* toolbar */
 .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
@@ -170,9 +173,9 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
  <aside class="sidebar">
   <div class="logo"><div class="mk">NX</div><div class="tx">REPORTES</div></div>
   <nav id="nav">
-   <div class="nav-item active" data-view="ventas"><span class="i">💰</span> Ventas</div>
-   <div class="nav-item" data-view="ftds"><span class="i">📈</span> FTD's</div>
-   <div class="nav-item" data-view="prod"><span class="i">⚡</span> Productividad</div>
+   <div class="nav-item active" data-view="ventas"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg></span> Ventas</div>
+   <div class="nav-item" data-view="ftds"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 6-7"/></svg></span> FTD's</div>
+   <div class="nav-item" data-view="prod"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></span> Productividad</div>
   </nav>
   <div class="side-foot"><button class="side-btn" id="logoutBtn">↩ Cerrar sesión</button></div>
  </aside>
@@ -223,7 +226,19 @@ const INACT_MIN=60;
 const COMISION=0.25; // % de ganancia del agente sobre lo facturado
 
 const $=id=>document.getElementById(id);
-const AVCOLORS=['#3b82f6','#8b5cf6','#ec4899','#f97316','#22c55e','#0891b2','#eab308','#6366f1','#14b8a6','#ef4444'];
+const ic=p=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const ICONS={
+ dollar:ic('<path d="M12 2v20"/><path d="M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'),
+ award:ic('<circle cx="12" cy="8" r="6"/><path d="M8.5 13.5 7 22l5-3 5 3-1.5-8.5"/>'),
+ star:ic('<path d="M12 3l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 16.9 6.7 19.2l1-5.8L3.5 9.2l5.9-.9z"/>'),
+ tray:ic('<path d="M4 13h4l2 3h4l2-3h4"/><path d="M5 5h14l2 8v6H3v-6z"/>'),
+ check:ic('<circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/>'),
+ coins:ic('<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.6 3.6 3 8 3s8-1.4 8-3V6"/><path d="M4 12v6c0 1.6 3.6 3 8 3s8-1.4 8-3v-6"/>'),
+ target:ic('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>'),
+ clock:ic('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>'),
+ alert:ic('<path d="M12 3 2 20h20z"/><path d="M12 10v4"/><path d="M12 17h.01"/>')
+};
+const AVCOLORS=['#475569','#5b6b8c','#6b6f8f','#5f7a8c','#4f7a6a','#7a6f5c','#8a6d6d','#556173','#5c7a7a','#736b8c'];
 function avColor(n){let s=0;for(const ch of (n||'?'))s+=ch.charCodeAt(0);return AVCOLORS[s%AVCOLORS.length];}
 function initials(n){const p=(n||'?').trim().split(/\s+/);return (((p[0]||'?')[0]||'')+((p[1]||'')[0]||'')).toUpperCase()||'?';}
 function avatar(n){return `<span class="av-sm" style="background:${avColor(n)}">${initials(n)}</span>`;}
@@ -357,9 +372,9 @@ function renderVentas(){
  const prods=Object.keys(prodSet).sort((a,b)=>prodSet[b]-prodSet[a]);
  const star=prods[0];
  let kpis=`<div class="kpis" style="grid-template-columns:repeat(3,1fr)">
-   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-gold">💵</div><div class="kpi-l">${ROLE==='agente'?'Tu facturación':'Total facturado'}</div></div><div class="kpi-n" style="color:#4ade80">${money(gt)}</div></div>
-   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">🏆</div><div class="kpi-l">${ROLE==='agente'?'Ventas':'Top facturador'}</div></div><div class="kpi-n" style="font-size:19px">${ROLE==='agente'?list.length+' agente(s)':esc(top?top.name:'—')}</div></div>
-   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-violet">⭐</div><div class="kpi-l">Producto estrella</div></div><div class="kpi-n" style="font-size:19px">${star?esc(star):'—'}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-gold">${ICONS.dollar}</div><div class="kpi-l">${ROLE==='agente'?'Tu facturación':'Total facturado'}</div></div><div class="kpi-n" style="color:#4ade80">${money(gt)}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">${ICONS.award}</div><div class="kpi-l">${ROLE==='agente'?'Ventas':'Top facturador'}</div></div><div class="kpi-n" style="font-size:19px">${ROLE==='agente'?list.length+' agente(s)':esc(top?top.name:'—')}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-violet">${ICONS.star}</div><div class="kpi-l">Producto estrella</div></div><div class="kpi-n" style="font-size:19px">${star?esc(star):'—'}</div></div>
   </div>`;
  const maxT=list.length?list[0].total:1;
  let head=`<th>#</th><th>Agente</th>`+prods.map(p=>`<th>${esc(p)}</th>`).join('')+`<th>Total</th><th>%</th>`;
@@ -407,10 +422,10 @@ function renderFtds(){
  const tot=list.reduce((s,x)=>({leads:s.leads+x.leads,registros:s.registros+x.registros,ftd:s.ftd+x.ftd}),{leads:0,registros:0,ftd:0});
  const perLbl=FTD_PERIOD==='hoy'?'hoy':FTD_PERIOD==='7'?'últimos 7 días':FTD_PERIOD==='mes'?'este mes':'rango';
  let kpis=`<div class="kpis" style="grid-template-columns:repeat(4,1fr)">
-   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">📥</div><div class="kpi-l">Leads (${perLbl})</div></div><div class="kpi-n">${tot.leads}</div></div>
-   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-violet">✅</div><div class="kpi-l">Registros</div></div><div class="kpi-n">${tot.registros}</div></div>
-   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-green">💰</div><div class="kpi-l">FTD's</div></div><div class="kpi-n" style="color:#4ade80">${tot.ftd}</div></div>
-   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-gold">🎯</div><div class="kpi-l">Conversión</div></div><div class="kpi-n" style="color:#f5c518">${pct(tot.ftd,tot.leads)}%</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">${ICONS.tray}</div><div class="kpi-l">Leads (${perLbl})</div></div><div class="kpi-n">${tot.leads}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-violet">${ICONS.check}</div><div class="kpi-l">Registros</div></div><div class="kpi-n">${tot.registros}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-green">${ICONS.coins}</div><div class="kpi-l">FTD's</div></div><div class="kpi-n" style="color:#4ade80">${tot.ftd}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-gold">${ICONS.target}</div><div class="kpi-l">Conversión</div></div><div class="kpi-n" style="color:#f5c518">${pct(tot.ftd,tot.leads)}%</div></div>
   </div>`;
  let bar=`<div class="bar">
    <div class="chip ${FTD_PERIOD==='hoy'?'on':''}" onclick="ftdSetPeriod('hoy')">Hoy</div>
@@ -424,8 +439,8 @@ function renderFtds(){
  list.forEach((x,i)=>{
   const pReg=pct(x.registros,x.leads),pFtd=pct(x.ftd,x.registros),conv=pct(x.ftd,x.leads);
   const cls=(i===0&&ROLE==='director'?'top':'')+(norm(x.a)===norm(ME)?' me':'');
-  body+=`<tr class="${cls}"><td class="rk">${i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)}</td>
-   <td class="ag">${i<3?['🥇','🥈','🥉'][i]+' ':''}${avatar(x.a)}${esc(x.a)}</td>
+  body+=`<tr class="${cls}"><td class="rk">${i+1}</td>
+   <td class="ag">${avatar(x.a)}${esc(x.a)}</td>
    <td class="b" data-label="Leads">${x.leads}</td><td data-label="Registros">${x.registros}</td>
    <td class="conv" data-label="% Reg" style="color:${convColor(pReg)}">${x.leads?pReg+'%':'<span class=z>—</span>'}</td>
    <td class="g" data-label="FTD">${x.ftd}</td>
@@ -467,14 +482,14 @@ function renderProd(){
  const inactivos=rows.filter(r=>r.estado==='inactivo').length;
  const rojos=rows.filter(r=>r.estado==='rojo').length;
  let kpis=`<div class="kpis" style="grid-template-columns:repeat(3,1fr)">
-   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-green">🟢</div><div class="kpi-l">Activos</div></div><div class="kpi-n" style="color:#4ade80">${activos}</div></div>
-   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-gold">🟡</div><div class="kpi-l">Inactivos +60min</div></div><div class="kpi-n" style="color:#facc15">${inactivos}</div></div>
-   <div class="kpi"><div class="kpi-top"><div class="kpi-ic" style="background:rgba(239,68,68,.15);color:#f87171">🔴</div><div class="kpi-l">Sin registros hoy</div></div><div class="kpi-n" style="color:#f87171">${rojos}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-green">${ICONS.check}</div><div class="kpi-l">Activos</div></div><div class="kpi-n" style="color:#4ade80">${activos}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-gold">${ICONS.clock}</div><div class="kpi-l">Inactivos +60min</div></div><div class="kpi-n" style="color:#facc15">${inactivos}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic">${ICONS.alert}</div><div class="kpi-l">Sin registros hoy</div></div><div class="kpi-n" style="color:#f87171">${rojos}</div></div>
   </div>`;
  const badge=r=>{
-  if(r.estado==='rojo')return '<span class="pill" style="background:rgba(239,68,68,.15);color:#f87171">🔴 Sin registros</span>';
-  if(r.estado==='inactivo')return '<span class="pill" style="background:rgba(234,179,8,.15);color:#facc15">🟡 Inactivo '+agoTxt(r.mins).replace('hace ','')+'</span>';
-  return '<span class="pill" style="background:rgba(34,197,94,.15);color:#4ade80">🟢 Activo</span>';
+  if(r.estado==='rojo')return '<span class="pill" style="background:rgba(239,68,68,.13);color:#f87171"><span class="dot" style="background:#ef4444"></span>Sin registros</span>';
+  if(r.estado==='inactivo')return '<span class="pill" style="background:rgba(234,179,8,.13);color:#eab308"><span class="dot" style="background:#eab308"></span>Inactivo '+agoTxt(r.mins).replace('hace ','')+'</span>';
+  return '<span class="pill" style="background:rgba(34,197,94,.13);color:#22c55e"><span class="dot" style="background:#22c55e"></span>Activo</span>';
  };
  let body='';
  rows.forEach((r,i)=>{
@@ -485,7 +500,7 @@ function renderProd(){
    <td data-label="Estado" style="text-align:center">${badge(r)}</td></tr>`;
  });
  el.innerHTML=kpis+`<div class="panel scroll"><table><thead><tr><th>#</th><th>Agente</th><th>Leads hoy</th><th>Registros hoy</th><th>Última actividad</th><th style="text-align:center">Estado</th></tr></thead><tbody>${body}</tbody></table></div>
-   <div class="note"><b>🟢 Activo</b> = hizo un registro hoy · <b>🟡 Inactivo</b> = lleva +${INACT_MIN} min sin registrar · <b>🔴 Sin registros</b> = tiene leads pero no ha registrado a nadie hoy. Se actualiza solo y te llega un correo cuando un agente pasa ${INACT_MIN} min sin registrar. Solo aparecen los agentes que recibieron leads hoy.</div>`;
+   <div class="note"><b style="color:#22c55e">Activo</b> = hizo un registro hoy · <b style="color:#eab308">Inactivo</b> = lleva +${INACT_MIN} min sin registrar · <b style="color:#f87171">Sin registros</b> = tiene leads pero no ha registrado a nadie hoy. Se actualiza solo y te llega un correo cuando un agente pasa ${INACT_MIN} min sin registrar. Solo aparecen los agentes que recibieron leads hoy.</div>`;
 }
 
 /* auto-login */

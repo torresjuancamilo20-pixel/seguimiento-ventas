@@ -90,6 +90,8 @@ tbody tr:last-child td{border-bottom:none}
 tr.top td{background:linear-gradient(90deg,rgba(245,197,24,.10),transparent)}
 tr.top .ag{color:var(--gold)}
 tr.me td{background:rgba(59,130,246,.08)}
+tr.alert-row td{background:rgba(239,68,68,.09)}
+.pill{display:inline-block;padding:5px 11px;border-radius:20px;font-size:11.5px;font-weight:700;white-space:nowrap}
 tbody tr:hover td{background:rgba(255,255,255,.03)}
 .g{color:var(--good);font-weight:800}.b{color:var(--sigd);font-weight:700}.money{color:var(--good);font-weight:800}
 .z{color:#3a4658}
@@ -147,6 +149,7 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
   <nav id="nav">
    <div class="nav-item active" data-view="ventas"><span class="i">💰</span> Ventas</div>
    <div class="nav-item" data-view="ftds"><span class="i">📈</span> FTD's</div>
+   <div class="nav-item" data-view="prod"><span class="i">⚡</span> Productividad</div>
   </nav>
   <div class="side-foot"><button class="side-btn" id="logoutBtn">↩ Cerrar sesión</button></div>
  </aside>
@@ -164,6 +167,7 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
   </div>
   <div id="viewVentas"></div>
   <div id="viewFtds" class="hide"></div>
+  <div id="viewProd" class="hide"></div>
  </main>
 </div>
 
@@ -189,7 +193,9 @@ let PAGE='ventas';
 let AGENTES=[];      // {email,nombre}
 let METRICAS=[];     // {fecha,agente,leads,registros,ftd}
 let VENTAS=null;     // parsed sheet -> [{name, total, prods:{}}]
+let ACTIVIDAD=[];    // actividad_agente
 let FTD_PERIOD='mes';let FTD_FROM='',FTD_TO='';
+const INACT_MIN=60;
 
 const $=id=>document.getElementById(id);
 const AVCOLORS=['#3b82f6','#8b5cf6','#ec4899','#f97316','#22c55e','#0891b2','#eab308','#6366f1','#14b8a6','#ef4444'];
@@ -239,6 +245,10 @@ async function loadMetricas(){
  const r=await fetch(SUPABASE_URL+'/rest/v1/metricas_diarias?select=fecha,agente,leads,registros,ftd&order=fecha.desc',{headers:HDRS});
  METRICAS=await r.json();
 }
+async function loadActividad(){
+ const r=await fetch(SUPABASE_URL+'/rest/v1/actividad_agente?select=*',{headers:HDRS});
+ ACTIVIDAD=await r.json();
+}
 function parseCSV(text){
  const rows=[];let i=0,f='',row=[],q=false;
  while(i<text.length){const c=text[i];
@@ -281,19 +291,24 @@ async function startApp(){
  $('waAv').textContent=initials(ME);$('waAv').classList.toggle('dir',ROLE==='director');
  document.querySelectorAll('.nav-item').forEach(n=>n.onclick=()=>showView(n.dataset.view));
  showView('ventas');
- renderVentas();renderFtds();
+ renderVentas();renderFtds();renderProd();
  await loadAgentes().catch(()=>{});
  await loadVentas().catch(()=>{VENTAS='error';});renderVentas();
  await loadMetricas().catch(()=>{METRICAS=[];});renderFtds();
+ await loadActividad().catch(()=>{ACTIVIDAD=[];});renderProd();
+ // refresco de productividad cada 60s
+ setInterval(async()=>{if(PAGE==='prod'){await loadActividad().catch(()=>{});renderProd();}},60000);
 }
 function showView(v){
  PAGE=v;
  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view===v));
  $('viewVentas').classList.toggle('hide',v!=='ventas');
  $('viewFtds').classList.toggle('hide',v!=='ftds');
- $('eyebrow').textContent=v==='ventas'?'Facturación':'Conversión';
- $('viewTitle').textContent=v==='ventas'?'Reporte de ventas':"FTD's y registros";
- $('viewSub').textContent=v==='ventas'?'Facturación por agente y del equipo.':'Leads, registros, FTD y % de conversión.';
+ $('viewProd').classList.toggle('hide',v!=='prod');
+ const meta={ventas:['Facturación','Reporte de ventas','Facturación por agente y del equipo.'],
+   ftds:['Conversión',"FTD's y registros",'Leads, registros, FTD y % de conversión.'],
+   prod:['Actividad','Productividad del equipo','Quién está activo hoy y quién no lleva registros.']}[v];
+ $('eyebrow').textContent=meta[0];$('viewTitle').textContent=meta[1];$('viewSub').textContent=meta[2];
 }
 
 /* ---------- VENTAS ---------- */
@@ -396,6 +411,49 @@ function renderFtds(){
   $('fFrom').onchange=e=>{FTD_FROM=e.target.value;renderFtds();};
   $('fTo').onchange=e=>{FTD_TO=e.target.value;renderFtds();};
  }
+}
+
+/* ---------- PRODUCTIVIDAD ---------- */
+function minsSince(iso){return iso?Math.floor((Date.now()-Date.parse(iso))/60000):null;}
+function agoTxt(m){if(m==null)return '—';if(m<1)return 'ahora';if(m<60)return 'hace '+m+' min';const h=Math.floor(m/60);return 'hace '+h+'h '+(m%60)+'m';}
+function renderProd(){
+ const el=$('viewProd');
+ if(!ACTIVIDAD.length){el.innerHTML='<div class="loading">Cargando actividad… (se llena con la sincronización de GoHighLevel)</div>';return;}
+ let rows=ACTIVIDAD.filter(x=>x.agente&&x.agente!=='sin asignar'&&!excluido(x.agente));
+ if(ROLE==='agente')rows=rows.filter(x=>norm(x.agente)===norm(ME)||norm(x.agente).split(' ')[0]===norm(ME).split(' ')[0]);
+ rows=rows.map(x=>{
+  const reg=x.registros_hoy||0;
+  const mins=minsSince(x.ultimo_registro_at);
+  let estado,rank;
+  if(reg===0){estado='rojo';rank=0;}
+  else if(mins!=null&&mins>=INACT_MIN){estado='inactivo';rank=1;}
+  else{estado='activo';rank=2;}
+  return {...x,reg,mins,estado,rank};
+ });
+ rows.sort((a,b)=>a.rank-b.rank || (b.mins||0)-(a.mins||0) || b.reg-a.reg);
+ const activos=rows.filter(r=>r.estado==='activo').length;
+ const inactivos=rows.filter(r=>r.estado==='inactivo').length;
+ const rojos=rows.filter(r=>r.estado==='rojo').length;
+ let kpis=`<div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-green">🟢</div><div class="kpi-l">Activos</div></div><div class="kpi-n" style="color:#4ade80">${activos}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-gold">🟡</div><div class="kpi-l">Inactivos +60min</div></div><div class="kpi-n" style="color:#facc15">${inactivos}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic" style="background:rgba(239,68,68,.15);color:#f87171">🔴</div><div class="kpi-l">Sin registros hoy</div></div><div class="kpi-n" style="color:#f87171">${rojos}</div></div>
+  </div>`;
+ const badge=r=>{
+  if(r.estado==='rojo')return '<span class="pill" style="background:rgba(239,68,68,.15);color:#f87171">🔴 Sin registros</span>';
+  if(r.estado==='inactivo')return '<span class="pill" style="background:rgba(234,179,8,.15);color:#facc15">🟡 Inactivo '+agoTxt(r.mins).replace('hace ','')+'</span>';
+  return '<span class="pill" style="background:rgba(34,197,94,.15);color:#4ade80">🟢 Activo</span>';
+ };
+ let body='';
+ rows.forEach((r,i)=>{
+  const cls=(r.estado==='rojo'?'alert-row':'')+(norm(r.agente)===norm(ME)?' me':'');
+  body+=`<tr class="${cls}"><td class="rk">${i+1}</td><td class="ag">${avatar(r.agente)}${esc(r.agente)}</td>
+   <td class="b">${r.leads_hoy||0}</td><td class="g">${r.reg}</td>
+   <td style="color:var(--mut)">${r.reg>0?agoTxt(r.mins):'—'}</td>
+   <td style="text-align:center">${badge(r)}</td></tr>`;
+ });
+ el.innerHTML=kpis+`<div class="panel scroll"><table><thead><tr><th>#</th><th>Agente</th><th>Leads hoy</th><th>Registros hoy</th><th>Última actividad</th><th style="text-align:center">Estado</th></tr></thead><tbody>${body}</tbody></table></div>
+   <div class="note"><b>🟢 Activo</b> = hizo un registro hoy · <b>🟡 Inactivo</b> = lleva +${INACT_MIN} min sin registrar · <b>🔴 Sin registros</b> = tiene leads pero no ha registrado a nadie hoy. Se actualiza solo y te llega un correo cuando un agente pasa ${INACT_MIN} min sin registrar. Solo aparecen los agentes que recibieron leads hoy.</div>`;
 }
 
 /* auto-login */

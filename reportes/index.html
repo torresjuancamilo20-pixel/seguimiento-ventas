@@ -392,21 +392,26 @@ function renderFtds(){
    <div class="chip ${FTD_PERIOD==='rango'?'on':''}" onclick="ftdSetPeriod('rango')">Rango</div>
    ${FTD_PERIOD==='rango'?`<input type="date" id="fFrom" value="${FTD_FROM}"><span style="color:var(--mut)">→</span><input type="date" id="fTo" value="${FTD_TO}">`:''}
   </div>`;
- let head=`<th>#</th><th>Agente</th><th>Leads</th><th>Registros</th><th>FTD</th><th>Conv. ${perLbl}</th><th>Conv. hoy</th><th>Conv. mes</th>`;
+ let head=`<th>#</th><th>Agente</th><th>Leads</th><th>Registros</th><th>% Reg</th><th>FTD</th><th>% FTD</th><th>Conv. total</th>`;
  let body='';
  list.forEach((x,i)=>{
-  const c=pct(x.ftd,x.leads),ch=pct(x.today.ftd,x.today.leads),cm=pct(x.month.ftd,x.month.leads);
+  const pReg=pct(x.registros,x.leads),pFtd=pct(x.ftd,x.registros),conv=pct(x.ftd,x.leads);
   const cls=(i===0&&ROLE==='director'?'top':'')+(norm(x.a)===norm(ME)?' me':'');
   body+=`<tr class="${cls}"><td class="rk">${i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)}</td>
    <td class="ag">${avatar(x.a)}${esc(x.a)}</td>
-   <td class="b">${x.leads}</td><td>${x.registros}</td><td class="g">${x.ftd}</td>
-   <td class="conv" style="color:${convColor(c)}">${c}%</td>
-   <td class="conv" style="color:${convColor(ch)}">${x.today.leads?ch+'%':'<span class=z>—</span>'}</td>
-   <td class="conv" style="color:${convColor(cm)}">${cm}%</td></tr>`;
+   <td class="b">${x.leads}</td><td>${x.registros}</td>
+   <td class="conv" style="color:${convColor(pReg)}">${x.leads?pReg+'%':'<span class=z>—</span>'}</td>
+   <td class="g">${x.ftd}</td>
+   <td class="conv" style="color:${convColor(pFtd)}">${x.registros?pFtd+'%':'<span class=z>—</span>'}</td>
+   <td class="conv" style="color:${convColor(conv)}">${x.leads?conv+'%':'<span class=z>—</span>'}</td></tr>`;
  });
- let foot=`<td></td><td class="lb">Total</td><td class="b">${tot.leads}</td><td>${tot.registros}</td><td class="g">${tot.ftd}</td><td class="conv" style="color:${convColor(pct(tot.ftd,tot.leads))}">${pct(tot.ftd,tot.leads)}%</td><td></td><td></td>`;
+ let foot=`<td></td><td class="lb">Total</td><td class="b">${tot.leads}</td><td>${tot.registros}</td>
+   <td class="conv" style="color:${convColor(pct(tot.registros,tot.leads))}">${pct(tot.registros,tot.leads)}%</td>
+   <td class="g">${tot.ftd}</td>
+   <td class="conv" style="color:${convColor(pct(tot.ftd,tot.registros))}">${pct(tot.ftd,tot.registros)}%</td>
+   <td class="conv" style="color:${convColor(pct(tot.ftd,tot.leads))}">${pct(tot.ftd,tot.leads)}%</td>`;
  el.innerHTML=kpis+bar+`<div class="panel scroll"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody>${ROLE==='director'?`<tfoot><tr>${foot}</tr></tfoot>`:''}</table></div>
-   <div class="note"><b>Conversión = FTD ÷ Leads.</b> "Conv. ${perLbl}" es del periodo elegido; también ves la de hoy y la del mes. Verde ≥55%, amarillo 40-54%, rojo &lt;40%. Los datos se actualizan con la sincronización de GoHighLevel (cada 15 min).</div>`;
+   <div class="note"><b>Proporciones del embudo:</b> <b>% Reg</b> = Registros ÷ Leads (cuántos de los leads se registran) · <b>% FTD</b> = FTD ÷ Registros (cuántos de los registrados depositan) · <b>Conv. total</b> = FTD ÷ Leads. Verde ≥55%, amarillo 40-54%, rojo &lt;40%. Datos del periodo elegido (${perLbl}), se actualizan cada 15 min.</div>`;
  if(FTD_PERIOD==='rango'){
   $('fFrom').onchange=e=>{FTD_FROM=e.target.value;renderFtds();};
   $('fTo').onchange=e=>{FTD_TO=e.target.value;renderFtds();};

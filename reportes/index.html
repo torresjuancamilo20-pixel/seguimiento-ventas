@@ -62,6 +62,25 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(22px,3vw,30
 .kpi-ic svg,.nav-item .i svg{width:15px;height:15px;display:block}
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:middle;flex-shrink:0}
 .pill{display:inline-flex;align-items:center}
+.pform{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.pform .fg{display:flex;flex-direction:column;gap:6px}
+.pform label{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut);font-weight:700}
+.pform input,.pform select{padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);font-family:'Inter';font-size:13.5px}
+.pform input:focus,.pform select:focus{outline:none;border-color:var(--sig)}
+.pform .cli{min-width:200px;flex:1}
+.pform .addbtn{padding:11px 18px;border:none;border-radius:10px;background:var(--sig);color:#fff;font-weight:700;font-size:13.5px;cursor:pointer}
+.pform .addbtn:hover{background:#2f6fd6}
+.tag{font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;font-weight:700;padding:4px 10px;border-radius:20px}
+.tag.agendado{background:rgba(59,130,246,.14);color:#60a5fa}
+.tag.posible{background:rgba(234,179,8,.14);color:#eab308}
+.tag.pagado{background:rgba(34,197,94,.14);color:#4ade80}
+.icobtn{border:1px solid var(--line);background:var(--paper);color:var(--mut);border-radius:8px;padding:6px 9px;font-size:12px;cursor:pointer;font-weight:600}
+.icobtn:hover{color:var(--ink);border-color:var(--sig)}
+.icobtn.del:hover{color:#f87171;border-color:rgba(239,68,68,.4)}
+.agrupo{margin-bottom:22px}
+.agrupo-h{display:flex;align-items:center;gap:10px;margin:0 0 10px;font-family:'Space Grotesk';font-weight:600;font-size:15px}
+.agrupo-h .cnt{font-size:12px;color:var(--mut);font-weight:600}
+.agrupo-h .sum{margin-left:auto;color:#4ade80;font-weight:700;font-size:14px}
 .whoami .nm{font-weight:700;font-size:14px}
 .whoami .ro{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
 
@@ -176,6 +195,7 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
    <div class="nav-item active" data-view="ventas"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg></span> Ventas</div>
    <div class="nav-item" data-view="ftds"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 6-7"/></svg></span> FTD's</div>
    <div class="nav-item" data-view="prod"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></span> Productividad</div>
+   <div class="nav-item" data-view="pagos"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/></svg></span> Pagos</div>
   </nav>
   <div class="side-foot"><button class="side-btn" id="logoutBtn">↩ Cerrar sesión</button></div>
  </aside>
@@ -195,6 +215,7 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
   <div id="viewVentas"></div>
   <div id="viewFtds" class="hide"></div>
   <div id="viewProd" class="hide"></div>
+  <div id="viewPagos" class="hide"></div>
  </main>
 </div>
 
@@ -221,6 +242,7 @@ let AGENTES=[];      // {email,nombre}
 let METRICAS=[];     // {fecha,agente,leads,registros,ftd}
 let VENTAS=null;     // parsed sheet -> [{name, total, prods:{}}]
 let ACTIVIDAD=[];    // actividad_agente
+let PAGOS=[];        // pagos_agendados
 let FTD_PERIOD='mes';let FTD_FROM='',FTD_TO='';
 const INACT_MIN=60;
 const COMISION=0.25; // % de ganancia del agente sobre lo facturado
@@ -291,6 +313,14 @@ async function loadActividad(){
  const r=await fetch(SUPABASE_URL+'/rest/v1/actividad_agente?select=*',{headers:HDRS});
  ACTIVIDAD=await r.json();
 }
+async function loadPagos(){
+ const r=await fetch(SUPABASE_URL+'/rest/v1/pagos_agendados?select=*&order=fecha.asc,creado.desc',{headers:HDRS});
+ PAGOS=await r.json();
+}
+const WHDR={...HDRS,'Content-Type':'application/json','Prefer':'return=representation'};
+async function addPago(p){await fetch(SUPABASE_URL+'/rest/v1/pagos_agendados',{method:'POST',headers:WHDR,body:JSON.stringify(p)});await loadPagos();renderPagos();}
+async function delPago(id){await fetch(SUPABASE_URL+'/rest/v1/pagos_agendados?id=eq.'+id,{method:'DELETE',headers:HDRS});await loadPagos();renderPagos();}
+async function patchPago(id,p){await fetch(SUPABASE_URL+'/rest/v1/pagos_agendados?id=eq.'+id,{method:'PATCH',headers:WHDR,body:JSON.stringify(p)});await loadPagos();renderPagos();}
 function parseCSV(text){
  const rows=[];let i=0,f='',row=[],q=false;
  while(i<text.length){const c=text[i];
@@ -333,11 +363,12 @@ async function startApp(){
  $('waAv').textContent=initials(ME);$('waAv').classList.toggle('dir',ROLE==='director');
  document.querySelectorAll('.nav-item').forEach(n=>n.onclick=()=>showView(n.dataset.view));
  showView('ventas');
- renderVentas();renderFtds();renderProd();
+ renderVentas();renderFtds();renderProd();renderPagos();
  await loadAgentes().catch(()=>{});
  await loadVentas().catch(()=>{VENTAS='error';});renderVentas();
  await loadMetricas().catch(()=>{METRICAS=[];});renderFtds();
  await loadActividad().catch(()=>{ACTIVIDAD=[];});renderProd();
+ await loadPagos().catch(()=>{PAGOS=[];});renderPagos();
  // refresco de productividad cada 60s
  setInterval(async()=>{if(PAGE==='prod'){await loadActividad().catch(()=>{});renderProd();}},60000);
 }
@@ -347,9 +378,11 @@ function showView(v){
  $('viewVentas').classList.toggle('hide',v!=='ventas');
  $('viewFtds').classList.toggle('hide',v!=='ftds');
  $('viewProd').classList.toggle('hide',v!=='prod');
+ $('viewPagos').classList.toggle('hide',v!=='pagos');
  const meta={ventas:['Facturación','Reporte de ventas','Facturación por agente y del equipo.'],
    ftds:['Conversión',"FTD's y registros",'Leads, registros, FTD y % de conversión.'],
-   prod:['Actividad','Productividad del equipo','Quién está activo hoy y quién no lleva registros.']}[v];
+   prod:['Actividad','Productividad del equipo','Quién está activo hoy y quién no lleva registros.'],
+   pagos:['Pipeline',ROLE==='agente'?'Mis pagos':'Pagos del equipo',ROLE==='agente'?'Registra tus pagos agendados o posibles.':'Pagos agendados y posibles de cada agente.']}[v];
  $('eyebrow').textContent=meta[0];$('viewTitle').textContent=meta[1];$('viewSub').textContent=meta[2];
 }
 
@@ -503,6 +536,65 @@ function renderProd(){
  });
  el.innerHTML=kpis+`<div class="panel scroll"><table><thead><tr><th>#</th><th>Agente</th><th>Leads hoy</th><th>Registros hoy</th><th>Última actividad</th><th style="text-align:center">Estado</th></tr></thead><tbody>${body}</tbody></table></div>
    <div class="note"><b>Última actividad</b> = cuánto hace que el agente registró o hizo un FTD por última vez (aunque haya sido hace días). <b style="color:#22c55e">Activo</b> = ya registró hoy · <b style="color:#eab308">Inactivo</b> = sin registro hoy · <b style="color:#f87171">rojo</b> = +1 día sin actividad. Te llega un correo cuando un agente pasa ${INACT_MIN} min sin registrar en horario laboral (8am–11pm).</div>`;
+}
+
+/* ---------- PAGOS ---------- */
+function fdate(f){if(!f)return '—';const d=new Date(f+'T00:00:00');return d.toLocaleDateString('es-CO',{day:'2-digit',month:'short'});}
+function pTag(p){if(p.estado==='pagado')return '<span class="tag pagado">Pagado</span>';return '<span class="tag '+(p.tipo==='posible'?'posible':'agendado')+'">'+(p.tipo==='posible'?'Posible':'Agendado')+'</span>';}
+function submitPago(){
+ const cli=$('pgCli').value.trim();if(!cli){$('pgCli').focus();return;}
+ const p={agente:ME,cliente:cli,tipo:$('pgTipo').value,monto:parseFloat($('pgMonto').value)||null,fecha:$('pgFecha').value||null,estado:'pendiente'};
+ addPago(p);$('pgCli').value='';$('pgMonto').value='';$('pgFecha').value='';$('pgCli').focus();
+}
+function togglePagado(id,estado){patchPago(id,{estado:estado==='pagado'?'pendiente':'pagado'});}
+function pagoRow(p,own){
+ const acc=own?`<button class="icobtn" title="Marcar pagado/pendiente" onclick="togglePagado('${p.id}','${p.estado}')">✓</button> <button class="icobtn del" title="Eliminar" onclick="delPago('${p.id}')">✕</button>`:'';
+ const st=p.estado==='pagado'?'opacity:.55;text-decoration:line-through':'';
+ return `<tr><td class="ag" style="${st}">${esc(p.cliente)}</td>
+  <td data-label="Tipo">${pTag(p)}</td>
+  <td class="money" data-label="Monto">${p.monto?money(p.monto):'—'}</td>
+  <td data-label="Fecha" style="color:var(--ink2)">${fdate(p.fecha)}</td>
+  ${own?`<td data-label="Acciones" style="text-align:right;white-space:nowrap">${acc}</td>`:''}</tr>`;
+}
+function renderPagos(){
+ const el=$('viewPagos');
+ const fmtSum=arr=>money(arr.reduce((s,p)=>s+(p.estado!=='pagado'?(p.monto||0):0),0));
+ if(ROLE==='agente'){
+  const mine=PAGOS.filter(p=>norm(p.agente)===norm(ME)||norm(p.agente).split(' ')[0]===norm(ME).split(' ')[0]);
+  const ag=mine.filter(p=>p.tipo!=='posible'&&p.estado!=='pagado'),po=mine.filter(p=>p.tipo==='posible'&&p.estado!=='pagado');
+  let kpis=`<div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">${ICONS.check}</div><div class="kpi-l">Agendados</div></div><div class="kpi-n">${ag.length}</div></div>
+    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-gold">${ICONS.clock}</div><div class="kpi-l">Posibles</div></div><div class="kpi-n">${po.length}</div></div>
+    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-green">${ICONS.dollar}</div><div class="kpi-l">Monto pendiente</div></div><div class="kpi-n" style="color:#4ade80;font-size:20px">${fmtSum(mine)}</div></div>
+   </div>`;
+  const form=`<div class="pform">
+    <div class="fg cli"><label>Cliente</label><input id="pgCli" placeholder="Nombre del cliente" onkeydown="if(event.key==='Enter')submitPago()"></div>
+    <div class="fg"><label>Tipo</label><select id="pgTipo"><option value="agendado">Agendado</option><option value="posible">Posible</option></select></div>
+    <div class="fg"><label>Monto (opcional)</label><input id="pgMonto" type="number" placeholder="0" style="width:110px"></div>
+    <div class="fg"><label>Fecha (opcional)</label><input id="pgFecha" type="date"></div>
+    <button class="addbtn" onclick="submitPago()">+ Agregar</button>
+   </div>`;
+  let body=mine.length?mine.map(p=>pagoRow(p,true)).join(''):`<tr><td colspan="5" style="text-align:center;color:var(--mut);padding:26px">Aún no tienes pagos registrados. Agrega el primero arriba.</td></tr>`;
+  el.innerHTML=kpis+form+`<div class="panel scroll"><table><thead><tr><th>Cliente</th><th>Tipo</th><th>Monto</th><th>Fecha</th><th style="text-align:right">Acciones</th></tr></thead><tbody>${body}</tbody></table></div>
+    <div class="note">Registra aquí tus <b>pagos agendados</b> (ya cuadrados) y <b>posibles</b> (probables). El director ve el consolidado de todo el equipo. Marca con ✓ cuando ya se pague.</div>`;
+ } else {
+  let list=PAGOS.filter(p=>!excluido(p.agente)&&p.estado!=='pagado');
+  const ags={};list.forEach(p=>{(ags[p.agente]=ags[p.agente]||[]).push(p);});
+  const order=Object.keys(ags).sort((a,b)=>ags[b].length-ags[a].length);
+  const totMonto=fmtSum(list);
+  let kpis=`<div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">${ICONS.check}</div><div class="kpi-l">Pagos pendientes</div></div><div class="kpi-n">${list.length}</div></div>
+    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-gold">${ICONS.clock}</div><div class="kpi-l">Posibles</div></div><div class="kpi-n">${list.filter(p=>p.tipo==='posible').length}</div></div>
+    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-green">${ICONS.dollar}</div><div class="kpi-l">Monto proyectado</div></div><div class="kpi-n" style="color:#4ade80;font-size:20px">${totMonto}</div></div>
+   </div>`;
+  let groups=order.length?order.map(a=>{
+    const ps=ags[a];const sum=fmtSum(ps);
+    const rows=ps.map(p=>pagoRow(p,false)).join('');
+    return `<div class="agrupo"><div class="agrupo-h">${avatar(a)}${esc(a)} <span class="cnt">· ${ps.length} pago(s)</span><span class="sum">${sum}</span></div>
+      <div class="panel scroll"><table><thead><tr><th>Cliente</th><th>Tipo</th><th>Monto</th><th>Fecha</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+  }).join(''):`<div class="setup"><h3>Sin pagos aún</h3>Cuando los agentes registren sus pagos agendados o posibles, aquí verás el consolidado por agente.</div>`;
+  el.innerHTML=kpis+groups;
+ }
 }
 
 /* auto-login */

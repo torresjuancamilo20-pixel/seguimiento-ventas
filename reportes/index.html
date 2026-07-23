@@ -81,6 +81,9 @@ h1.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(22px,3vw,30
 .agrupo-h{display:flex;align-items:center;gap:10px;margin:0 0 10px;font-family:'Space Grotesk';font-weight:600;font-size:15px}
 .agrupo-h .cnt{font-size:12px;color:var(--mut);font-weight:600}
 .agrupo-h .sum{margin-left:auto;color:#4ade80;font-weight:700;font-size:14px}
+.cellin{width:100%;min-width:120px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);font-family:'Inter';font-size:13px}
+.cellin.num{width:90px;min-width:0}
+.cellin:focus{outline:none;border-color:var(--sig)}
 .whoami .nm{font-weight:700;font-size:14px}
 .whoami .ro{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
 
@@ -233,6 +236,11 @@ const VENTAS_CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRVgKL-Kjs
 const EXCLUIR=['alejandro facundo','alejandro facundo junior','dannia cordoba','isabel ramirez','juan carlos','valentina gutierrez','juan miguel pacheco'];
 function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim();}
 function excluido(a){return EXCLUIR.includes(norm(a));}
+// ¿es el mismo agente? igualdad exacta, o que un nombre completo contenga al otro
+// (ej. "Felipe Ledesma" ⊂ "Juan Felipe Ledesma"). NUNCA por solo el primer nombre.
+function sameAgent(a,b){a=norm(a);b=norm(b);if(!a||!b)return false;if(a===b)return true;
+ const ta=a.split(' '),tb=b.split(' ');if(ta.length<2||tb.length<2)return false; // evita calzar por un solo token
+ return a.includes(b)||b.includes(a);}
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
 let ROLE=localStorage.getItem('nexrep_role')||null;
@@ -396,7 +404,7 @@ function renderVentas(){
  if(VENTAS==='error'){el.innerHTML=`<div class="setup"><h3>No pude leer la hoja ⚠️</h3>Revisa que el enlace esté <b>publicado como CSV</b> y sea público.</div>`;return;}
  if(!VENTAS||!VENTAS.length){el.innerHTML='<div class="loading">Cargando…</div>';return;}
  let list=VENTAS.filter(v=>!excluido(v.name));
- if(ROLE==='agente')list=list.filter(v=>norm(v.name)===norm(ME)||norm(ME).split(' ')[0]===norm(v.name).split(' ')[0]);
+ if(ROLE==='agente')list=list.filter(v=>sameAgent(v.name,ME));
  list.sort((a,b)=>b.total-a.total);
  const gt=list.reduce((s,v)=>s+v.total,0);
  const top=list[0];
@@ -449,7 +457,7 @@ function renderFtds(){
   if(r.fecha.slice(0,7)===hoy.slice(0,7))add(month,a,r);
  });
  let names=Object.keys(per);
- if(ROLE==='agente')names=names.filter(a=>norm(a)===norm(ME)||norm(a).split(' ')[0]===norm(ME).split(' ')[0]);
+ if(ROLE==='agente')names=names.filter(a=>sameAgent(a,ME));
  let list=names.map(a=>({a,...per[a],today:today[a]||{leads:0,ftd:0},month:month[a]||{leads:0,ftd:0}}));
  list.sort((x,y)=>y.ftd-x.ftd||y.registros-x.registros);
  const tot=list.reduce((s,x)=>({leads:s.leads+x.leads,registros:s.registros+x.registros,ftd:s.ftd+x.ftd}),{leads:0,registros:0,ftd:0});
@@ -500,7 +508,7 @@ function renderProd(){
  const el=$('viewProd');
  if(!ACTIVIDAD.length){el.innerHTML='<div class="loading">Cargando actividad… (se llena con la sincronización de GoHighLevel)</div>';return;}
  let rows=ACTIVIDAD.filter(x=>x.agente&&x.agente!=='sin asignar'&&!excluido(x.agente));
- if(ROLE==='agente')rows=rows.filter(x=>norm(x.agente)===norm(ME)||norm(x.agente).split(' ')[0]===norm(ME).split(' ')[0]);
+ if(ROLE==='agente')rows=rows.filter(x=>sameAgent(x.agente,ME));
  rows=rows.map(x=>{
   const reg=x.registros_hoy||0;
   const mins=minsSince(x.ultima_actividad_at); // minutos desde la última actividad (aunque sea de días atrás)
@@ -543,16 +551,26 @@ function fdate(f){if(!f)return '—';const d=new Date(f+'T00:00:00');return d.to
 function pTag(p){if(p.estado==='pagado')return '<span class="tag pagado">Pagado</span>';return '<span class="tag '+(p.tipo==='posible'?'posible':'agendado')+'">'+(p.tipo==='posible'?'Posible':'Agendado')+'</span>';}
 function submitPago(){
  const cli=$('pgCli').value.trim();if(!cli){$('pgCli').focus();return;}
- const p={agente:ME,cliente:cli,tipo:$('pgTipo').value,monto:parseFloat($('pgMonto').value)||null,fecha:$('pgFecha').value||null,estado:'pendiente'};
- addPago(p);$('pgCli').value='';$('pgMonto').value='';$('pgFecha').value='';$('pgCli').focus();
+ const p={agente:ME,cliente:cli,tipo:$('pgTipo').value,monto:parseFloat($('pgMonto').value)||null,
+   abono:parseFloat($('pgAbono').value)||0,fecha:$('pgFecha').value||null,notas:$('pgObs').value.trim(),estado:'pendiente'};
+ addPago(p);['pgCli','pgMonto','pgAbono','pgFecha','pgObs'].forEach(i=>$(i).value='');$('pgCli').focus();
 }
 function togglePagado(id,estado){patchPago(id,{estado:estado==='pagado'?'pendiente':'pagado'});}
 function pagoRow(p,own){
  const acc=own?`<button class="icobtn" title="Marcar pagado/pendiente" onclick="togglePagado('${p.id}','${p.estado}')">✓</button> <button class="icobtn del" title="Eliminar" onclick="delPago('${p.id}')">✕</button>`:'';
  const st=p.estado==='pagado'?'opacity:.55;text-decoration:line-through':'';
+ const ab=p.abono>0?`<span style="color:#4ade80;font-weight:700">${money(p.abono)}</span>`:'<span class="z">—</span>';
+ const abonoCell=own
+   ?`<input class="cellin num" type="number" value="${p.abono||''}" placeholder="0" onchange="patchPago('${p.id}',{abono:parseFloat(this.value)||0})">`
+   :ab;
+ const obsCell=own
+   ?`<input class="cellin" value="${esc(p.notas||'')}" placeholder="Observaciones…" onchange="patchPago('${p.id}',{notas:this.value})">`
+   :`<span style="color:var(--ink2)">${p.notas?esc(p.notas):'—'}</span>`;
  return `<tr><td class="ag" style="${st}">${esc(p.cliente)}</td>
   <td data-label="Tipo">${pTag(p)}</td>
   <td class="money" data-label="Monto">${p.monto?money(p.monto):'—'}</td>
+  <td data-label="Abonado">${abonoCell}</td>
+  <td data-label="Observaciones">${obsCell}</td>
   <td data-label="Fecha" style="color:var(--ink2)">${fdate(p.fecha)}</td>
   ${own?`<td data-label="Acciones" style="text-align:right;white-space:nowrap">${acc}</td>`:''}</tr>`;
 }
@@ -560,7 +578,7 @@ function renderPagos(){
  const el=$('viewPagos');
  const fmtSum=arr=>money(arr.reduce((s,p)=>s+(p.estado!=='pagado'?(p.monto||0):0),0));
  if(ROLE==='agente'){
-  const mine=PAGOS.filter(p=>norm(p.agente)===norm(ME)||norm(p.agente).split(' ')[0]===norm(ME).split(' ')[0]);
+  const mine=PAGOS.filter(p=>sameAgent(p.agente,ME));
   const ag=mine.filter(p=>p.tipo!=='posible'&&p.estado!=='pagado'),po=mine.filter(p=>p.tipo==='posible'&&p.estado!=='pagado');
   let kpis=`<div class="kpis" style="grid-template-columns:repeat(3,1fr)">
     <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">${ICONS.check}</div><div class="kpi-l">Agendados</div></div><div class="kpi-n">${ag.length}</div></div>
@@ -570,13 +588,15 @@ function renderPagos(){
   const form=`<div class="pform">
     <div class="fg cli"><label>Cliente</label><input id="pgCli" placeholder="Nombre del cliente" onkeydown="if(event.key==='Enter')submitPago()"></div>
     <div class="fg"><label>Tipo</label><select id="pgTipo"><option value="agendado">Agendado</option><option value="posible">Posible</option></select></div>
-    <div class="fg"><label>Monto (opcional)</label><input id="pgMonto" type="number" placeholder="0" style="width:110px"></div>
-    <div class="fg"><label>Fecha (opcional)</label><input id="pgFecha" type="date"></div>
+    <div class="fg"><label>Monto</label><input id="pgMonto" type="number" placeholder="0" style="width:100px"></div>
+    <div class="fg"><label>Abono</label><input id="pgAbono" type="number" placeholder="0" style="width:100px"></div>
+    <div class="fg"><label>Fecha</label><input id="pgFecha" type="date"></div>
+    <div class="fg" style="flex:1;min-width:180px"><label>Observaciones del cliente</label><input id="pgObs" placeholder="Ej: pide llamar en la tarde…" onkeydown="if(event.key==='Enter')submitPago()"></div>
     <button class="addbtn" onclick="submitPago()">+ Agregar</button>
    </div>`;
-  let body=mine.length?mine.map(p=>pagoRow(p,true)).join(''):`<tr><td colspan="5" style="text-align:center;color:var(--mut);padding:26px">Aún no tienes pagos registrados. Agrega el primero arriba.</td></tr>`;
-  el.innerHTML=kpis+form+`<div class="panel scroll"><table><thead><tr><th>Cliente</th><th>Tipo</th><th>Monto</th><th>Fecha</th><th style="text-align:right">Acciones</th></tr></thead><tbody>${body}</tbody></table></div>
-    <div class="note">Registra aquí tus <b>pagos agendados</b> (ya cuadrados) y <b>posibles</b> (probables). El director ve el consolidado de todo el equipo. Marca con ✓ cuando ya se pague.</div>`;
+  let body=mine.length?mine.map(p=>pagoRow(p,true)).join(''):`<tr><td colspan="7" style="text-align:center;color:var(--mut);padding:26px">Aún no tienes pagos registrados. Agrega el primero arriba.</td></tr>`;
+  el.innerHTML=kpis+form+`<div class="panel scroll"><table><thead><tr><th>Cliente</th><th>Tipo</th><th>Monto</th><th>Abonado</th><th>Observaciones</th><th>Fecha</th><th style="text-align:right">Acciones</th></tr></thead><tbody>${body}</tbody></table></div>
+    <div class="note">Registra tus <b>pagos agendados</b> y <b>posibles</b>. Puedes anotar <b>observaciones del cliente</b> y, si ya hizo un <b>abono</b>, cuánto. Los campos de abono y observaciones se editan directo en la tabla. Marca con ✓ cuando se pague completo.</div>`;
  } else {
   let list=PAGOS.filter(p=>!excluido(p.agente)&&p.estado!=='pagado');
   const ags={};list.forEach(p=>{(ags[p.agente]=ags[p.agente]||[]).push(p);});
@@ -591,7 +611,7 @@ function renderPagos(){
     const ps=ags[a];const sum=fmtSum(ps);
     const rows=ps.map(p=>pagoRow(p,false)).join('');
     return `<div class="agrupo"><div class="agrupo-h">${avatar(a)}${esc(a)} <span class="cnt">· ${ps.length} pago(s)</span><span class="sum">${sum}</span></div>
-      <div class="panel scroll"><table><thead><tr><th>Cliente</th><th>Tipo</th><th>Monto</th><th>Fecha</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+      <div class="panel scroll"><table><thead><tr><th>Cliente</th><th>Tipo</th><th>Monto</th><th>Abonado</th><th>Observaciones</th><th>Fecha</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
   }).join(''):`<div class="setup"><h3>Sin pagos aún</h3>Cuando los agentes registren sus pagos agendados o posibles, aquí verás el consolidado por agente.</div>`;
   el.innerHTML=kpis+groups;
  }

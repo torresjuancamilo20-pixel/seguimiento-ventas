@@ -254,6 +254,19 @@ let PAGOS=[];        // pagos_agendados
 let FTD_PERIOD='mes';let FTD_FROM='',FTD_TO='';
 const INACT_MIN=60;
 const COMISION=0.25; // % de ganancia del agente sobre lo facturado
+// Membresías, upgrades (paga la diferencia) y "Otro"
+const PRECIOS={oro:789,platino:349,vip:220,bots:370,botia:29};
+const PRODUCTOS=[
+ {v:'oro',label:'Oro',precio:789,grupo:'Membresías'},
+ {v:'platino',label:'Platino',precio:349,grupo:'Membresías'},
+ {v:'vip',label:'VIP',precio:220,grupo:'Membresías'},
+ {v:'bots',label:'Bots',precio:370,grupo:'Membresías'},
+ {v:'botia',label:'Bot IA',precio:29,grupo:'Membresías'},
+ {v:'up_vip_platino',label:'Upgrade VIP → Platino',precio:129,grupo:'Upgrades'},
+ {v:'up_vip_oro',label:'Upgrade VIP → Oro',precio:569,grupo:'Upgrades'},
+ {v:'up_platino_oro',label:'Upgrade Platino → Oro',precio:440,grupo:'Upgrades'},
+ {v:'otro',label:'Otro (personalizado)',precio:null,grupo:'Otro'},
+];
 
 const $=id=>document.getElementById(id);
 const ic=p=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
@@ -549,11 +562,21 @@ function renderProd(){
 /* ---------- PAGOS ---------- */
 function fdate(f){if(!f)return '—';const d=new Date(f+'T00:00:00');return d.toLocaleDateString('es-CO',{day:'2-digit',month:'short'});}
 function pTag(p){if(p.estado==='pagado')return '<span class="tag pagado">Pagado</span>';return '<span class="tag '+(p.tipo==='posible'?'posible':'agendado')+'">'+(p.tipo==='posible'?'Posible':'Agendado')+'</span>';}
+function onProdChange(){
+ const v=$('pgProd').value;const pd=PRODUCTOS.find(x=>x.v===v);
+ const esOtro=v==='otro';
+ $('pgOtroWrap').style.display=esOtro?'flex':'none';
+ if(esOtro){$('pgMonto').value='';$('pgMonto').readOnly=false;}
+ else if(pd){$('pgMonto').value=pd.precio;$('pgMonto').readOnly=false;}
+}
 function submitPago(){
  const cli=$('pgCli').value.trim();if(!cli){$('pgCli').focus();return;}
- const p={agente:ME,cliente:cli,tipo:$('pgTipo').value,monto:parseFloat($('pgMonto').value)||null,
+ const pv=$('pgProd').value,pd=PRODUCTOS.find(x=>x.v===pv);
+ const producto=pv==='otro'?($('pgOtro').value.trim()||'Otro'):(pd?pd.label:'');
+ const p={agente:ME,cliente:cli,producto,tipo:$('pgTipo').value,monto:parseFloat($('pgMonto').value)||null,
    abono:parseFloat($('pgAbono').value)||0,fecha:$('pgFecha').value||null,notas:$('pgObs').value.trim(),estado:'pendiente'};
- addPago(p);['pgCli','pgMonto','pgAbono','pgFecha','pgObs'].forEach(i=>$(i).value='');$('pgCli').focus();
+ addPago(p);['pgCli','pgMonto','pgAbono','pgFecha','pgObs','pgOtro'].forEach(i=>$(i).value='');
+ $('pgProd').value='oro';onProdChange();$('pgCli').focus();
 }
 function togglePagado(id,estado){patchPago(id,{estado:estado==='pagado'?'pendiente':'pagado'});}
 function pagoRow(p,own){
@@ -567,6 +590,7 @@ function pagoRow(p,own){
    ?`<input class="cellin" value="${esc(p.notas||'')}" placeholder="Observaciones…" onchange="patchPago('${p.id}',{notas:this.value})">`
    :`<span style="color:var(--ink2)">${p.notas?esc(p.notas):'—'}</span>`;
  return `<tr><td class="ag" style="${st}">${esc(p.cliente)}</td>
+  <td data-label="Producto" style="color:var(--ink2)">${p.producto?esc(p.producto):'—'}</td>
   <td data-label="Tipo">${pTag(p)}</td>
   <td class="money" data-label="Monto">${p.monto?money(p.monto):'—'}</td>
   <td data-label="Abonado">${abonoCell}</td>
@@ -585,18 +609,23 @@ function renderPagos(){
     <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-gold">${ICONS.clock}</div><div class="kpi-l">Posibles</div></div><div class="kpi-n">${po.length}</div></div>
     <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-green">${ICONS.dollar}</div><div class="kpi-l">Monto pendiente</div></div><div class="kpi-n" style="color:#4ade80;font-size:20px">${fmtSum(mine)}</div></div>
    </div>`;
+  const grupos=[...new Set(PRODUCTOS.map(p=>p.grupo))];
+  const prodOpts=grupos.map(g=>`<optgroup label="${g}">`+PRODUCTOS.filter(p=>p.grupo===g).map(p=>`<option value="${p.v}">${p.label}${p.precio!=null?' ($'+p.precio+')':''}</option>`).join('')+`</optgroup>`).join('');
   const form=`<div class="pform">
     <div class="fg cli"><label>Cliente</label><input id="pgCli" placeholder="Nombre del cliente" onkeydown="if(event.key==='Enter')submitPago()"></div>
-    <div class="fg"><label>Tipo</label><select id="pgTipo"><option value="agendado">Agendado</option><option value="posible">Posible</option></select></div>
+    <div class="fg" style="min-width:190px"><label>Licencia / Producto</label><select id="pgProd" onchange="onProdChange()">${prodOpts}</select></div>
+    <div class="fg" id="pgOtroWrap" style="display:none"><label>Nombre (otro)</label><input id="pgOtro" placeholder="¿Qué vendió?"></div>
     <div class="fg"><label>Monto</label><input id="pgMonto" type="number" placeholder="0" style="width:100px"></div>
     <div class="fg"><label>Abono</label><input id="pgAbono" type="number" placeholder="0" style="width:100px"></div>
+    <div class="fg"><label>Tipo</label><select id="pgTipo"><option value="agendado">Agendado</option><option value="posible">Posible</option></select></div>
     <div class="fg"><label>Fecha</label><input id="pgFecha" type="date"></div>
-    <div class="fg" style="flex:1;min-width:180px"><label>Observaciones del cliente</label><input id="pgObs" placeholder="Ej: pide llamar en la tarde…" onkeydown="if(event.key==='Enter')submitPago()"></div>
+    <div class="fg" style="flex:1;min-width:170px"><label>Observaciones del cliente</label><input id="pgObs" placeholder="Ej: pide llamar en la tarde…" onkeydown="if(event.key==='Enter')submitPago()"></div>
     <button class="addbtn" onclick="submitPago()">+ Agregar</button>
    </div>`;
-  let body=mine.length?mine.map(p=>pagoRow(p,true)).join(''):`<tr><td colspan="7" style="text-align:center;color:var(--mut);padding:26px">Aún no tienes pagos registrados. Agrega el primero arriba.</td></tr>`;
-  el.innerHTML=kpis+form+`<div class="panel scroll"><table><thead><tr><th>Cliente</th><th>Tipo</th><th>Monto</th><th>Abonado</th><th>Observaciones</th><th>Fecha</th><th style="text-align:right">Acciones</th></tr></thead><tbody>${body}</tbody></table></div>
-    <div class="note">Registra tus <b>pagos agendados</b> y <b>posibles</b>. Puedes anotar <b>observaciones del cliente</b> y, si ya hizo un <b>abono</b>, cuánto. Los campos de abono y observaciones se editan directo en la tabla. Marca con ✓ cuando se pague completo.</div>`;
+  let body=mine.length?mine.map(p=>pagoRow(p,true)).join(''):`<tr><td colspan="8" style="text-align:center;color:var(--mut);padding:26px">Aún no tienes pagos registrados. Agrega el primero arriba.</td></tr>`;
+  el.innerHTML=kpis+form+`<div class="panel scroll"><table><thead><tr><th>Cliente</th><th>Producto</th><th>Tipo</th><th>Monto</th><th>Abonado</th><th>Observaciones</th><th>Fecha</th><th style="text-align:right">Acciones</th></tr></thead><tbody>${body}</tbody></table></div>
+    <div class="note">Elige la <b>licencia</b> y el monto se pone solo (en <b>upgrades</b> ya va la diferencia). Usa <b>Otro</b> para vender algo distinto. Puedes anotar <b>observaciones</b> y el <b>abono</b> del cliente (se editan en la tabla). Marca con ✓ cuando se pague completo.</div>`;
+  onProdChange();
  } else {
   let list=PAGOS.filter(p=>!excluido(p.agente)&&p.estado!=='pagado');
   const ags={};list.forEach(p=>{(ags[p.agente]=ags[p.agente]||[]).push(p);});
@@ -611,7 +640,7 @@ function renderPagos(){
     const ps=ags[a];const sum=fmtSum(ps);
     const rows=ps.map(p=>pagoRow(p,false)).join('');
     return `<div class="agrupo"><div class="agrupo-h">${avatar(a)}${esc(a)} <span class="cnt">· ${ps.length} pago(s)</span><span class="sum">${sum}</span></div>
-      <div class="panel scroll"><table><thead><tr><th>Cliente</th><th>Tipo</th><th>Monto</th><th>Abonado</th><th>Observaciones</th><th>Fecha</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+      <div class="panel scroll"><table><thead><tr><th>Cliente</th><th>Producto</th><th>Tipo</th><th>Monto</th><th>Abonado</th><th>Observaciones</th><th>Fecha</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
   }).join(''):`<div class="setup"><h3>Sin pagos aún</h3>Cuando los agentes registren sus pagos agendados o posibles, aquí verás el consolidado por agente.</div>`;
   el.innerHTML=kpis+groups;
  }

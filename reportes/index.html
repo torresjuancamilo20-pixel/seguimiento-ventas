@@ -254,7 +254,7 @@ let VENTAS=null;     // parsed sheet -> [{name, total, prods:{}}]
 let ACTIVIDAD=[];    // actividad_agente
 let PAGOS=[];        // pagos_agendados
 let CLIENTES=[];     // clientes_lead
-let CLI_FILTRO='todos';
+let CLI_FILTRO='todos';let CLI_PERIODO='7';
 let FTD_PERIOD='mes';let FTD_FROM='',FTD_TO='';
 const INACT_MIN=60;
 const COMISION=0.25; // % de ganancia del agente sobre lo facturado
@@ -659,6 +659,7 @@ function renderPagos(){
 
 /* ---------- CLIENTES (leads) ---------- */
 function cliFiltro(f){CLI_FILTRO=f;renderClientes();}
+function cliPeriodo(p){CLI_PERIODO=p;renderClientes();}
 function hs(iso){return iso?(Date.now()-Date.parse(iso))/3600000:null;}
 function hTxt(h){if(h==null)return '—';if(h<1)return Math.max(1,Math.round(h*60))+' min';if(h<24)return Math.floor(h)+'h';const d=Math.floor(h/24);return d+(d===1?' día':' días');}
 function renderClientes(){
@@ -666,6 +667,9 @@ function renderClientes(){
  if(!CLIENTES.length){el.innerHTML='<div class="loading">Cargando clientes… (se llena con la sincronización de GoHighLevel)</div>';return;}
  let base=CLIENTES.filter(c=>c.agente&&!excluido(c.agente));
  if(ROLE==='agente')base=base.filter(c=>sameAgent(c.agente,ME));
+ const hoyB=bogotaHoy();
+ if(CLI_PERIODO==='hoy')base=base.filter(c=>c.llegada_at&&new Date(Date.parse(c.llegada_at)-5*3600*1000).toISOString().slice(0,10)===hoyB);
+ else if(CLI_PERIODO==='7')base=base.filter(c=>c.llegada_at&&(Date.now()-Date.parse(c.llegada_at))<=7*24*3600*1000);
  base=base.map(c=>{
   const hLleg=hs(c.llegada_at),hReg=hs(c.registrado_at);
   let est,rank,horas;
@@ -683,13 +687,15 @@ function renderClientes(){
  const nFtd=base.filter(c=>c.est==='ftd').length,nReg=base.filter(c=>c.est==='reg').length,
        nNada=base.filter(c=>c.est==='nada').length,nRiesgo=base.filter(c=>c.est!=='ftd'&&c.horas>=20).length;
  let kpis=`<div class="kpis" style="grid-template-columns:repeat(4,1fr)">
-   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">${ICONS.tray}</div><div class="kpi-l">Clientes (3 días)</div></div><div class="kpi-n">${base.length}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">${ICONS.tray}</div><div class="kpi-l">Clientes ${CLI_PERIODO==='hoy'?'(hoy)':CLI_PERIODO==='7'?'(7 días)':'(mes)'}</div></div><div class="kpi-n">${base.length}</div></div>
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-violet">${ICONS.check}</div><div class="kpi-l">Registrados sin FTD</div></div><div class="kpi-n" style="color:#c4b5fd">${nReg}</div></div>
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-green">${ICONS.coins}</div><div class="kpi-l">Con FTD</div></div><div class="kpi-n" style="color:#4ade80">${nFtd}</div></div>
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic">${ICONS.alert}</div><div class="kpi-l">Críticos (+20h)</div></div><div class="kpi-n" style="color:#f87171">${nRiesgo}</div></div>
   </div>`;
  const chip=(f,t)=>`<div class="chip ${CLI_FILTRO===f?'on':''}" onclick="cliFiltro('${f}')">${t}</div>`;
- let bar=`<div class="bar">${chip('todos','Todos ('+base.length+')')}${chip('riesgo','En riesgo (+4h)')}${chip('nada','Sin registro ('+nNada+')')}${chip('reg','Registrados ('+nReg+')')}${chip('ftd','Con FTD ('+nFtd+')')}</div>`;
+ const pchip=(p,t)=>`<div class="chip ${CLI_PERIODO===p?'on':''}" onclick="cliPeriodo('${p}')">${t}</div>`;
+ let bar=`<div class="bar" style="margin-bottom:10px">${pchip('hoy','Hoy')}${pchip('7','7 días')}${pchip('mes','Todo el mes')}</div>
+  <div class="bar">${chip('todos','Todos ('+base.length+')')}${chip('riesgo','En riesgo (+4h)')}${chip('nada','Sin registro ('+nNada+')')}${chip('reg','Registrados ('+nReg+')')}${chip('ftd','Con FTD ('+nFtd+')')}</div>`;
  const badge=c=>{
   if(c.est==='ftd')return '<span class="pill" style="background:rgba(34,197,94,.13);color:#22c55e"><span class="dot" style="background:#22c55e"></span>FTD</span>';
   const crit=c.horas>=20,med=c.horas>=10,warn=c.horas>=4;
@@ -698,7 +704,8 @@ function renderClientes(){
   return `<span class="pill" style="background:${col[1]};color:${col[0]}"><span class="dot" style="background:${col[0]}"></span>${txt}</span>`;
  };
  let body='';
- list.slice(0,300).forEach(c=>{
+ const MAXROWS=600;const total=list.length;
+ list.slice(0,MAXROWS).forEach(c=>{
   const wa=(c.telefono||'').replace(/[^0-9]/g,'');
   const crit=c.est!=='ftd'&&c.horas>=20;
   const tel=c.telefono?(wa?`<a href="https://wa.me/${wa}" target="_blank" style="color:#22c55e;text-decoration:none">${esc(c.telefono)}</a>`:esc(c.telefono)):'<span class="z">—</span>';
@@ -711,7 +718,7 @@ function renderClientes(){
    <td data-label="Estado" style="text-align:center">${badge(c)}</td></tr>`;
  });
  el.innerHTML=kpis+bar+`<div class="panel scroll"><table><thead><tr><th>Cliente</th><th>Teléfono</th><th>Agente</th><th>Llegó hace</th><th>Sin avanzar</th><th style="text-align:center">Estado</th></tr></thead><tbody>${body}</tbody></table></div>
-   <div class="note"><b>Sin avanzar</b> = tiempo desde que llegó (si no tiene registro) o desde que se registró (si falta el FTD). Se envían avisos automáticos al agente a las <b>4h</b>, <b>10h</b> (segundo aviso) y <b>20h</b> (está a 4h de morir), tanto para leads sin registro como para registrados sin FTD. Muestra los leads de los últimos 3 días.</div>`;
+   <div class="note">${total>MAXROWS?`Mostrando los <b>${MAXROWS}</b> más urgentes de ${total}. Usa los filtros para acotar.<br>`:''}<b>Sin avanzar</b> = tiempo desde que llegó (si no tiene registro) o desde que se registró (si falta el FTD). Se envían avisos automáticos al agente a las <b>4h</b>, <b>10h</b> (segundo aviso) y <b>20h</b> (está a 4h de morir), tanto para leads sin registro como para registrados sin FTD. Los avisos aplican a leads de los últimos 3 días; aquí puedes ver todo el mes.</div>`;
 }
 
 /* auto-login */

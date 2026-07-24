@@ -705,12 +705,12 @@ function renderClientes(){
   body+=`<tr class="${crit?'alert-row':''}">
    <td class="ag">${esc(c.nombre||'Sin nombre')}</td>
    <td data-label="Teléfono">${tel}</td>
-   ${ROLE==='director'?`<td data-label="Agente" style="color:var(--ink2)">${esc(c.agente)}</td>`:''}
+   <td data-label="Agente" style="color:var(--ink2);white-space:nowrap">${avatar(c.agente)}${esc(c.agente)}</td>
    <td data-label="Llegó hace" style="color:var(--ink2)">${hTxt(c.hLleg)}</td>
    <td data-label="Sin avanzar" style="color:${c.est==='ftd'?'#4ade80':(c.horas>=20?'#f87171':c.horas>=10?'#fb923c':'var(--ink2)')};font-weight:700">${c.est==='ftd'?'—':hTxt(c.horas)}</td>
    <td data-label="Estado" style="text-align:center">${badge(c)}</td></tr>`;
  });
- el.innerHTML=kpis+bar+`<div class="panel scroll"><table><thead><tr><th>Cliente</th><th>Teléfono</th>${ROLE==='director'?'<th>Agente</th>':''}<th>Llegó hace</th><th>Sin avanzar</th><th style="text-align:center">Estado</th></tr></thead><tbody>${body}</tbody></table></div>
+ el.innerHTML=kpis+bar+`<div class="panel scroll"><table><thead><tr><th>Cliente</th><th>Teléfono</th><th>Agente</th><th>Llegó hace</th><th>Sin avanzar</th><th style="text-align:center">Estado</th></tr></thead><tbody>${body}</tbody></table></div>
    <div class="note"><b>Sin avanzar</b> = tiempo desde que llegó (si no tiene registro) o desde que se registró (si falta el FTD). Se envían avisos automáticos al agente a las <b>4h</b>, <b>10h</b> (segundo aviso) y <b>20h</b> (está a 4h de morir), tanto para leads sin registro como para registrados sin FTD. Muestra los leads de los últimos 3 días.</div>`;
 }
 

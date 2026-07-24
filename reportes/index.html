@@ -199,6 +199,7 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
    <div class="nav-item" data-view="ftds"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 6-7"/></svg></span> FTD's</div>
    <div class="nav-item" data-view="prod"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></span> Productividad</div>
    <div class="nav-item" data-view="pagos"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/></svg></span> Pagos</div>
+   <div class="nav-item" data-view="clientes"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="3.2"/><path d="M18 8v6M21 11h-6"/></svg></span> Clientes</div>
   </nav>
   <div class="side-foot"><button class="side-btn" id="logoutBtn">↩ Cerrar sesión</button></div>
  </aside>
@@ -219,6 +220,7 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
   <div id="viewFtds" class="hide"></div>
   <div id="viewProd" class="hide"></div>
   <div id="viewPagos" class="hide"></div>
+  <div id="viewClientes" class="hide"></div>
  </main>
 </div>
 
@@ -251,6 +253,8 @@ let METRICAS=[];     // {fecha,agente,leads,registros,ftd}
 let VENTAS=null;     // parsed sheet -> [{name, total, prods:{}}]
 let ACTIVIDAD=[];    // actividad_agente
 let PAGOS=[];        // pagos_agendados
+let CLIENTES=[];     // clientes_lead
+let CLI_FILTRO='todos';
 let FTD_PERIOD='mes';let FTD_FROM='',FTD_TO='';
 const INACT_MIN=60;
 const COMISION=0.25; // % de ganancia del agente sobre lo facturado
@@ -334,6 +338,10 @@ async function loadActividad(){
  const r=await fetch(SUPABASE_URL+'/rest/v1/actividad_agente?select=*',{headers:HDRS});
  ACTIVIDAD=await r.json();
 }
+async function loadClientes(){
+ const r=await fetch(SUPABASE_URL+'/rest/v1/clientes_lead?select=*&order=llegada_at.desc',{headers:HDRS});
+ CLIENTES=await r.json();
+}
 async function loadPagos(){
  const r=await fetch(SUPABASE_URL+'/rest/v1/pagos_agendados?select=*&order=fecha.asc,creado.desc',{headers:HDRS});
  PAGOS=await r.json();
@@ -384,12 +392,13 @@ async function startApp(){
  $('waAv').textContent=initials(ME);$('waAv').classList.toggle('dir',ROLE==='director');
  document.querySelectorAll('.nav-item').forEach(n=>n.onclick=()=>showView(n.dataset.view));
  showView('ventas');
- renderVentas();renderFtds();renderProd();renderPagos();
+ renderVentas();renderFtds();renderProd();renderPagos();renderClientes();
  await loadAgentes().catch(()=>{});
  await loadVentas().catch(()=>{VENTAS='error';});renderVentas();
  await loadMetricas().catch(()=>{METRICAS=[];});renderFtds();
  await loadActividad().catch(()=>{ACTIVIDAD=[];});renderProd();
  await loadPagos().catch(()=>{PAGOS=[];});renderPagos();
+ await loadClientes().catch(()=>{CLIENTES=[];});renderClientes();
  // refresco de productividad cada 60s
  setInterval(async()=>{if(PAGE==='prod'){await loadActividad().catch(()=>{});renderProd();}},60000);
 }
@@ -400,10 +409,12 @@ function showView(v){
  $('viewFtds').classList.toggle('hide',v!=='ftds');
  $('viewProd').classList.toggle('hide',v!=='prod');
  $('viewPagos').classList.toggle('hide',v!=='pagos');
+ $('viewClientes').classList.toggle('hide',v!=='clientes');
  const meta={ventas:['Facturación','Reporte de ventas','Facturación por agente y del equipo.'],
    ftds:['Conversión',"FTD's y registros",'Leads, registros, FTD y % de conversión.'],
    prod:['Actividad','Productividad del equipo','Quién está activo hoy y quién no lleva registros.'],
-   pagos:['Pipeline',ROLE==='agente'?'Mis pagos':'Pagos del equipo',ROLE==='agente'?'Registra tus pagos agendados o posibles.':'Pagos agendados y posibles de cada agente.']}[v];
+   pagos:['Pipeline',ROLE==='agente'?'Mis pagos':'Pagos del equipo',ROLE==='agente'?'Registra tus pagos agendados o posibles.':'Pagos agendados y posibles de cada agente.'],
+   clientes:['Leads',ROLE==='agente'?'Mis clientes':'Clientes del equipo','Cada lead y qué se ha hecho con él: registro, FTD y tiempo transcurrido.']}[v];
  $('eyebrow').textContent=meta[0];$('viewTitle').textContent=meta[1];$('viewSub').textContent=meta[2];
 }
 
@@ -644,6 +655,63 @@ function renderPagos(){
   }).join(''):`<div class="setup"><h3>Sin pagos aún</h3>Cuando los agentes registren sus pagos agendados o posibles, aquí verás el consolidado por agente.</div>`;
   el.innerHTML=kpis+groups;
  }
+}
+
+/* ---------- CLIENTES (leads) ---------- */
+function cliFiltro(f){CLI_FILTRO=f;renderClientes();}
+function hs(iso){return iso?(Date.now()-Date.parse(iso))/3600000:null;}
+function hTxt(h){if(h==null)return '—';if(h<1)return Math.max(1,Math.round(h*60))+' min';if(h<24)return Math.floor(h)+'h';const d=Math.floor(h/24);return d+(d===1?' día':' días');}
+function renderClientes(){
+ const el=$('viewClientes');
+ if(!CLIENTES.length){el.innerHTML='<div class="loading">Cargando clientes… (se llena con la sincronización de GoHighLevel)</div>';return;}
+ let base=CLIENTES.filter(c=>c.agente&&!excluido(c.agente));
+ if(ROLE==='agente')base=base.filter(c=>sameAgent(c.agente,ME));
+ base=base.map(c=>{
+  const hLleg=hs(c.llegada_at),hReg=hs(c.registrado_at);
+  let est,rank,horas;
+  if(c.ftd_at){est='ftd';rank=3;horas=hLleg;}
+  else if(c.registrado_at){est='reg';rank=(hReg>=20?0:hReg>=10?1:2);horas=hReg;}
+  else{est='nada';rank=(hLleg>=20?0:hLleg>=10?1:2);horas=hLleg;}
+  return {...c,est,rank,horas,hLleg};
+ });
+ let list=base.slice();
+ if(CLI_FILTRO==='riesgo')list=list.filter(c=>c.est!=='ftd'&&c.horas>=4);
+ else if(CLI_FILTRO==='nada')list=list.filter(c=>c.est==='nada');
+ else if(CLI_FILTRO==='reg')list=list.filter(c=>c.est==='reg');
+ else if(CLI_FILTRO==='ftd')list=list.filter(c=>c.est==='ftd');
+ list.sort((a,b)=>a.rank-b.rank||(b.horas||0)-(a.horas||0));
+ const nFtd=base.filter(c=>c.est==='ftd').length,nReg=base.filter(c=>c.est==='reg').length,
+       nNada=base.filter(c=>c.est==='nada').length,nRiesgo=base.filter(c=>c.est!=='ftd'&&c.horas>=20).length;
+ let kpis=`<div class="kpis" style="grid-template-columns:repeat(4,1fr)">
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">${ICONS.tray}</div><div class="kpi-l">Clientes (3 días)</div></div><div class="kpi-n">${base.length}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-violet">${ICONS.check}</div><div class="kpi-l">Registrados sin FTD</div></div><div class="kpi-n" style="color:#c4b5fd">${nReg}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-green">${ICONS.coins}</div><div class="kpi-l">Con FTD</div></div><div class="kpi-n" style="color:#4ade80">${nFtd}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic">${ICONS.alert}</div><div class="kpi-l">Críticos (+20h)</div></div><div class="kpi-n" style="color:#f87171">${nRiesgo}</div></div>
+  </div>`;
+ const chip=(f,t)=>`<div class="chip ${CLI_FILTRO===f?'on':''}" onclick="cliFiltro('${f}')">${t}</div>`;
+ let bar=`<div class="bar">${chip('todos','Todos ('+base.length+')')}${chip('riesgo','En riesgo (+4h)')}${chip('nada','Sin registro ('+nNada+')')}${chip('reg','Registrados ('+nReg+')')}${chip('ftd','Con FTD ('+nFtd+')')}</div>`;
+ const badge=c=>{
+  if(c.est==='ftd')return '<span class="pill" style="background:rgba(34,197,94,.13);color:#22c55e"><span class="dot" style="background:#22c55e"></span>FTD</span>';
+  const crit=c.horas>=20,med=c.horas>=10,warn=c.horas>=4;
+  const col=crit?['#ef4444','rgba(239,68,68,.13)']:med?['#f97316','rgba(249,115,22,.13)']:warn?['#eab308','rgba(234,179,8,.13)']:['#60a5fa','rgba(59,130,246,.13)'];
+  const txt=c.est==='reg'?'Registrado · falta FTD':'Sin registro';
+  return `<span class="pill" style="background:${col[1]};color:${col[0]}"><span class="dot" style="background:${col[0]}"></span>${txt}</span>`;
+ };
+ let body='';
+ list.slice(0,300).forEach(c=>{
+  const wa=(c.telefono||'').replace(/[^0-9]/g,'');
+  const crit=c.est!=='ftd'&&c.horas>=20;
+  const tel=c.telefono?(wa?`<a href="https://wa.me/${wa}" target="_blank" style="color:#22c55e;text-decoration:none">${esc(c.telefono)}</a>`:esc(c.telefono)):'<span class="z">—</span>';
+  body+=`<tr class="${crit?'alert-row':''}">
+   <td class="ag">${esc(c.nombre||'Sin nombre')}</td>
+   <td data-label="Teléfono">${tel}</td>
+   ${ROLE==='director'?`<td data-label="Agente" style="color:var(--ink2)">${esc(c.agente)}</td>`:''}
+   <td data-label="Llegó hace" style="color:var(--ink2)">${hTxt(c.hLleg)}</td>
+   <td data-label="Sin avanzar" style="color:${c.est==='ftd'?'#4ade80':(c.horas>=20?'#f87171':c.horas>=10?'#fb923c':'var(--ink2)')};font-weight:700">${c.est==='ftd'?'—':hTxt(c.horas)}</td>
+   <td data-label="Estado" style="text-align:center">${badge(c)}</td></tr>`;
+ });
+ el.innerHTML=kpis+bar+`<div class="panel scroll"><table><thead><tr><th>Cliente</th><th>Teléfono</th>${ROLE==='director'?'<th>Agente</th>':''}<th>Llegó hace</th><th>Sin avanzar</th><th style="text-align:center">Estado</th></tr></thead><tbody>${body}</tbody></table></div>
+   <div class="note"><b>Sin avanzar</b> = tiempo desde que llegó (si no tiene registro) o desde que se registró (si falta el FTD). Se envían avisos automáticos al agente a las <b>4h</b>, <b>10h</b> (segundo aviso) y <b>20h</b> (está a 4h de morir), tanto para leads sin registro como para registrados sin FTD. Muestra los leads de los últimos 3 días.</div>`;
 }
 
 /* auto-login */

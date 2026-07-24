@@ -363,7 +363,7 @@ async function loadPagos(){
 }
 const WHDR={...HDRS,'Content-Type':'application/json','Prefer':'return=representation'};
 async function addPago(p){await fetch(SUPABASE_URL+'/rest/v1/pagos_agendados',{method:'POST',headers:WHDR,body:JSON.stringify(p)});await loadPagos();renderPagos();}
-async function delPago(id){await fetch(SUPABASE_URL+'/rest/v1/pagos_agendados?id=eq.'+id,{method:'DELETE',headers:HDRS});await loadPagos();renderPagos();}
+async function delPago(id){if(!confirm('¿Eliminar este registro?'))return;await fetch(SUPABASE_URL+'/rest/v1/pagos_agendados?id=eq.'+id,{method:'DELETE',headers:HDRS});await loadPagos();renderPagos();}
 async function patchPago(id,p){await fetch(SUPABASE_URL+'/rest/v1/pagos_agendados?id=eq.'+id,{method:'PATCH',headers:WHDR,body:JSON.stringify(p)});await loadPagos();renderPagos();}
 function parseCSV(text){
  const rows=[];let i=0,f='',row=[],q=false;
@@ -661,7 +661,8 @@ function submitPago(){
  const cli=$('pgCli').value.trim();if(!cli){$('pgCli').focus();return;}
  const pv=$('pgProd').value,pd=catalogo().find(x=>x.v===pv);
  const producto=pv==='otro'?($('pgOtro').value.trim()||'Otro'):(pd?pd.label:'');
- const p={agente:ME,cliente:cli,producto,tipo:$('pgTipo').value,monto:parseFloat($('pgMonto').value)||null,
+ const ag=(ROLE==='director'&&$('pgAgente'))?$('pgAgente').value:ME;
+ const p={agente:ag,cliente:cli,producto,tipo:$('pgTipo').value,monto:parseFloat($('pgMonto').value)||null,
    abono:parseFloat($('pgAbono').value)||0,fecha:$('pgFecha').value||null,notas:$('pgObs').value.trim(),estado:'pendiente'};
  addPago(p);['pgCli','pgMonto','pgAbono','pgFecha','pgObs','pgOtro'].forEach(i=>$(i).value='');
  const c0=catalogo()[0];if(c0)$('pgProd').value=c0.v;onProdChange();$('pgCli').focus();
@@ -677,13 +678,14 @@ function pagoRow(p,own){
  const obsCell=own
    ?`<input class="cellin" value="${esc(p.notas||'')}" placeholder="Observaciones…" onchange="patchPago('${p.id}',{notas:this.value})">`
    :`<span style="color:var(--ink2)">${p.notas?esc(p.notas):'—'}</span>`;
- return `<tr><td class="ag" style="${st}">${esc(p.cliente)}</td>
+ const dir=ROLE==='director';
+ return `<tr><td class="ag" style="${st}">${dir?`<input class="cellin" value="${esc(p.cliente)}" onchange="patchPago('${p.id}',{cliente:this.value})">`:esc(p.cliente)}</td>
   <td data-label="Producto" style="color:var(--ink2)">${p.producto?esc(p.producto):'—'}</td>
   <td data-label="Tipo">${pTag(p)}</td>
-  <td class="money" data-label="Monto">${p.monto?money(p.monto):'—'}</td>
+  <td class="money" data-label="Monto">${dir?`<input class="cellin num" type="number" value="${p.monto||''}" onchange="patchPago('${p.id}',{monto:parseFloat(this.value)||null})">`:(p.monto?money(p.monto):'—')}</td>
   <td data-label="Abonado">${abonoCell}</td>
   <td data-label="Observaciones">${obsCell}</td>
-  <td data-label="Fecha" style="color:var(--ink2)">${fdate(p.fecha)}</td>
+  <td data-label="Fecha" style="color:var(--ink2)">${dir?`<input class="cellin" type="date" value="${p.fecha||''}" style="min-width:135px" onchange="patchPago('${p.id}',{fecha:this.value||null})">`:fdate(p.fecha)}</td>
   ${own?`<td data-label="Acciones" style="text-align:right;white-space:nowrap">${acc}</td>`:''}</tr>`;
 }
 function renderPagos(){
@@ -727,11 +729,29 @@ function renderPagos(){
    </div>`;
   let groups=order.length?order.map(a=>{
     const ps=ags[a];const sum=fmtSum(ps);
-    const rows=ps.map(p=>pagoRow(p,false)).join('');
+    const rows=ps.map(p=>pagoRow(p,true)).join('');
     return `<div class="agrupo"><div class="agrupo-h">${avatar(a)}${esc(a)} <span class="cnt">· ${ps.length} pago(s)</span><span class="sum">${sum}</span></div>
-      <div class="panel scroll"><table><thead><tr><th>Cliente</th><th>Producto</th><th>Tipo</th><th>Monto</th><th>Abonado</th><th>Observaciones</th><th>Fecha</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+      <div class="panel scroll"><table><thead><tr><th>Cliente</th><th>Producto</th><th>Tipo</th><th>Monto</th><th>Abonado</th><th>Observaciones</th><th>Fecha</th><th style="text-align:right">Acciones</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
   }).join(''):`<div class="setup"><h3>Sin pagos aún</h3>Cuando los agentes registren sus pagos agendados o posibles, aquí verás el consolidado por agente.</div>`;
-  el.innerHTML=kpis+groups;
+  // formulario para crear a nombre de cualquier agente
+  const agsAll=[...new Set([...PAGOS.map(p=>p.agente),...AGENTES.map(a=>a.nombre)].filter(a=>a&&!excluido(a)))].sort();
+  const CAT=catalogo();
+  const grupos=[...new Set(CAT.map(p=>p.grupo))];
+  const prodOpts=grupos.map(g=>`<optgroup label="${g}">`+CAT.filter(p=>p.grupo===g).map(p=>`<option value="${p.v}">${esc(p.label)}${p.precio!=null?' ($'+Math.round(p.precio)+')':''}</option>`).join('')+`</optgroup>`).join('');
+  const formDir=`<div class="pform">
+    <div class="fg"><label>Agente</label><select id="pgAgente" style="min-width:170px">${agsAll.map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('')}</select></div>
+    <div class="fg cli"><label>Cliente</label><input id="pgCli" placeholder="Nombre del cliente" onkeydown="if(event.key==='Enter')submitPago()"></div>
+    <div class="fg" style="min-width:180px"><label>Licencia / Producto</label><select id="pgProd" onchange="onProdChange()">${prodOpts}</select></div>
+    <div class="fg" id="pgOtroWrap" style="display:none"><label>Nombre (otro)</label><input id="pgOtro" placeholder="¿Qué vendió?"></div>
+    <div class="fg"><label>Monto</label><input id="pgMonto" type="number" placeholder="0" style="width:100px"></div>
+    <div class="fg"><label>Abono</label><input id="pgAbono" type="number" placeholder="0" style="width:100px"></div>
+    <div class="fg"><label>Tipo</label><select id="pgTipo"><option value="agendado">Agendado</option><option value="posible">Posible</option></select></div>
+    <div class="fg"><label>Fecha</label><input id="pgFecha" type="date"></div>
+    <div class="fg" style="flex:1;min-width:150px"><label>Observaciones</label><input id="pgObs" placeholder="Ej: pide llamar en la tarde…"></div>
+    <button class="addbtn" onclick="submitPago()">+ Agregar</button>
+   </div>`;
+  el.innerHTML=kpis+formDir+groups+`<div class="note">Puedes <b>editar</b> cualquier campo (monto, abono, observaciones), <b>eliminar</b> con ✕ y <b>crear</b> una venta pendiente a nombre de cualquier agente. Los cambios se guardan al instante.</div>`;
+  onProdChange();
  }
 }
 
@@ -739,6 +759,14 @@ function renderPagos(){
 function cliFiltro(f){CLI_FILTRO=f;renderClientes();}
 function cliPeriodo(p){CLI_PERIODO=p;renderClientes();}
 function cliAgente(a){CLI_AGENTE=a;renderClientes();}
+let LEAD_EDIT=null;
+function editarLead(id){LEAD_EDIT=(LEAD_EDIT===id?null:id);renderClientes();}
+function guardarLead(id){
+ const g=k=>{const e=document.getElementById(k+'_'+id);return e?e.value:null;};
+ patchLead(id,{nombre:g('leN'),telefono:g('leT'),agente:g('leA'),notas:g('leO'),fijado:true});
+ LEAD_EDIT=null;
+}
+function descartarLead(id,val){patchLead(id,{descartado:val});}
 function hs(iso){return iso?(Date.now()-Date.parse(iso))/3600000:null;}
 function hTxt(h){if(h==null)return '—';if(h<1)return Math.max(1,Math.round(h*60))+' min';if(h<24)return Math.floor(h)+'h';const d=Math.floor(h/24);return d+(d===1?' día':' días');}
 function renderClientes(){
@@ -788,19 +816,38 @@ function renderClientes(){
  };
  let body='';
  const MAXROWS=600;const total=list.length;
+ const dir=ROLE==='director';
+ const todosAg=[...new Set(CLIENTES.map(c=>c.agente).filter(a=>a&&!excluido(a)))].sort();
  list.slice(0,MAXROWS).forEach(c=>{
   const wa=(c.telefono||'').replace(/[^0-9]/g,'');
   const crit=c.est!=='ftd'&&c.horas>=20;
   const tel=c.telefono?(wa?`<a href="https://wa.me/${wa}" target="_blank" style="color:#22c55e;text-decoration:none">${esc(c.telefono)}</a>`:esc(c.telefono)):'<span class="z">—</span>';
-  body+=`<tr class="${crit?'alert-row':''}">
-   <td class="ag">${esc(c.nombre||'Sin nombre')}</td>
+  const nCols=dir?7:6;
+  if(dir&&LEAD_EDIT===c.contact_id){
+   body+=`<tr class="me"><td colspan="${nCols}" style="text-align:left">
+     <div class="pform" style="margin:0;background:transparent;border:none;padding:6px 0">
+      <div class="fg cli"><label>Nombre</label><input id="leN_${c.contact_id}" value="${esc(c.nombre||'')}"></div>
+      <div class="fg"><label>Teléfono</label><input id="leT_${c.contact_id}" value="${esc(c.telefono||'')}"></div>
+      <div class="fg"><label>Agente</label><select id="leA_${c.contact_id}">${todosAg.map(a=>`<option value="${esc(a)}" ${a===c.agente?'selected':''}>${esc(a)}</option>`).join('')}</select></div>
+      <div class="fg" style="flex:1;min-width:170px"><label>Notas internas</label><input id="leO_${c.contact_id}" value="${esc(c.notas||'')}" placeholder="Observaciones…"></div>
+      <button class="addbtn" onclick="guardarLead('${c.contact_id}')">Guardar</button>
+      <button class="icobtn" onclick="editarLead('${c.contact_id}')">Cancelar</button>
+     </div></td></tr>`;
+   return;
+  }
+  const desc=c.descartado;
+  body+=`<tr class="${desc?'':(crit?'alert-row':'')}" style="${desc?'opacity:.45':''}">
+   <td class="ag">${esc(c.nombre||'Sin nombre')}${c.fijado?' <span title="Editado a mano: la sincronización no lo pisa" style="color:var(--sigd)">✎</span>':''}${c.notas?`<div style="font-size:11.5px;color:var(--mut);font-weight:400">${esc(c.notas)}</div>`:''}</td>
    <td data-label="Teléfono">${tel}</td>
    <td data-label="Agente" style="color:var(--ink2);white-space:nowrap">${avatar(c.agente)}${esc(c.agente)}</td>
    <td data-label="Llegó hace" style="color:var(--ink2)">${hTxt(c.hLleg)}</td>
    <td data-label="Sin avanzar" style="color:${c.est==='ftd'?'#4ade80':(c.horas>=20?'#f87171':c.horas>=10?'#fb923c':'var(--ink2)')};font-weight:700">${c.est==='ftd'?'—':hTxt(c.horas)}</td>
-   <td data-label="Estado" style="text-align:center">${badge(c)}</td></tr>`;
+   <td data-label="Estado" style="text-align:center">${desc?'<span class="pill" style="background:rgba(148,163,184,.13);color:#94a3b8"><span class="dot" style="background:#64748b"></span>Descartado</span>':badge(c)}</td>
+   ${dir?`<td data-label="Acciones" style="text-align:right;white-space:nowrap">
+     <button class="icobtn" title="Editar" onclick="editarLead('${c.contact_id}')">✎</button>
+     <button class="icobtn ${desc?'':'del'}" title="${desc?'Reactivar':'Descartar'}" onclick="descartarLead('${c.contact_id}',${!desc})">${desc?'↺':'✕'}</button></td>`:''}</tr>`;
  });
- el.innerHTML=kpis+bar+`<div class="panel scroll"><table><thead><tr><th>Cliente</th><th>Teléfono</th><th>Agente</th><th>Llegó hace</th><th>Sin avanzar</th><th style="text-align:center">Estado</th></tr></thead><tbody>${body}</tbody></table></div>
+ el.innerHTML=kpis+bar+`<div class="panel scroll"><table><thead><tr><th>Cliente</th><th>Teléfono</th><th>Agente</th><th>Llegó hace</th><th>Sin avanzar</th><th style="text-align:center">Estado</th>${dir?'<th style="text-align:right">Acciones</th>':''}</tr></thead><tbody>${body}</tbody></table></div>
    <div class="note">${total>MAXROWS?`Mostrando los <b>${MAXROWS}</b> más urgentes de ${total}. Usa los filtros para acotar.<br>`:''}<b>Sin avanzar</b> = tiempo desde que llegó (si no tiene registro) o desde que se registró (si falta el FTD). Se envían avisos automáticos al agente a las <b>4h</b>, <b>10h</b> (segundo aviso) y <b>20h</b> (está a 4h de morir), tanto para leads sin registro como para registrados sin FTD. Los avisos aplican a leads de los últimos 3 días; aquí puedes ver todo el mes.</div>`;
 }
 

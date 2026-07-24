@@ -238,6 +238,9 @@ const VENTAS_CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRVgKL-Kjs
 const EXCLUIR=['alejandro facundo','alejandro facundo junior','dannia cordoba','isabel ramirez','juan carlos','valentina gutierrez','juan miguel pacheco'];
 function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim();}
 function excluido(a){return EXCLUIR.includes(norm(a));}
+// Excluidos SOLO de Productividad y FTD's (siguen apareciendo en Ventas y Leads)
+const EXCLUIR_METRICAS=['juliana facundo'];
+function excluidoMetricas(a){return excluido(a)||EXCLUIR_METRICAS.includes(norm(a));}
 // ¿es el mismo agente? igualdad exacta, o que un nombre completo contenga al otro
 // (ej. "Felipe Ledesma" ⊂ "Juan Felipe Ledesma"). NUNCA por solo el primer nombre.
 function sameAgent(a,b){a=norm(a);b=norm(b);if(!a||!b)return false;if(a===b)return true;
@@ -475,7 +478,7 @@ function renderFtds(){
  const per={},today={},month={};
  const add=(o,a,r)=>{if(!o[a])o[a]={leads:0,registros:0,ftd:0};o[a].leads+=r.leads;o[a].registros+=r.registros;o[a].ftd+=r.ftd;};
  METRICAS.forEach(r=>{
-  const a=r.agente;if(a==='sin asignar'||excluido(a))return;
+  const a=r.agente;if(a==='sin asignar'||excluidoMetricas(a))return;
   if(inRange(r.fecha))add(per,a,r);
   if(r.fecha===hoy)add(today,a,r);
   if(r.fecha.slice(0,7)===hoy.slice(0,7))add(month,a,r);
@@ -531,7 +534,7 @@ function agoTxt(m){if(m==null)return 'sin datos';if(m<1)return 'ahora';if(m<60)r
 function renderProd(){
  const el=$('viewProd');
  if(!ACTIVIDAD.length){el.innerHTML='<div class="loading">Cargando actividad… (se llena con la sincronización de GoHighLevel)</div>';return;}
- let rows=ACTIVIDAD.filter(x=>x.agente&&x.agente!=='sin asignar'&&!excluido(x.agente));
+ let rows=ACTIVIDAD.filter(x=>x.agente&&x.agente!=='sin asignar'&&!excluidoMetricas(x.agente));
  if(ROLE==='agente')rows=rows.filter(x=>sameAgent(x.agente,ME));
  rows=rows.map(x=>{
   const reg=x.registros_hoy||0;

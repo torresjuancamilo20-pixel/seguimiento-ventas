@@ -257,7 +257,8 @@ let VENTAS=null;     // parsed sheet -> [{name, total, prods:{}}]
 let ACTIVIDAD=[];    // actividad_agente
 let PAGOS=[];        // pagos_agendados
 let CLIENTES=[];     // clientes_lead
-let CLI_FILTRO='todos';let CLI_PERIODO='7';
+let CLI_FILTRO='todos';let CLI_PERIODO='7';let CLI_AGENTE='todos';
+let PROD_FECHA='hoy';
 let FTD_PERIOD='mes';let FTD_FROM='',FTD_TO='';
 const INACT_MIN=60;
 const COMISION=0.25; // % de ganancia del agente sobre lo facturado
@@ -415,7 +416,7 @@ function showView(v){
  $('viewClientes').classList.toggle('hide',v!=='clientes');
  const meta={ventas:['Facturación','Reporte de ventas','Facturación por agente y del equipo.'],
    ftds:['Conversión',"FTD's y registros",'Leads, registros, FTD y % de conversión.'],
-   prod:['Actividad','Productividad del equipo','Quién está activo hoy y quién no lleva registros.'],
+   prod:['Actividad','Productividad del equipo',PROD_FECHA==='hoy'?'Quién está activo hoy y quién no lleva registros.':'Actividad del día seleccionado.'],
    pagos:['Pipeline',ROLE==='agente'?'Mis ventas pendientes':'Ventas pendientes del equipo',ROLE==='agente'?'Registra tus pagos agendados o posibles.':'Pagos agendados y posibles de cada agente.'],
    clientes:['Seguimiento',ROLE==='agente'?'Mis leads':'Leads del equipo','Cada lead y qué se ha hecho con él: registro, FTD y tiempo transcurrido.']}[v];
  $('eyebrow').textContent=meta[0];$('viewTitle').textContent=meta[1];$('viewSub').textContent=meta[2];
@@ -531,8 +532,44 @@ function renderFtds(){
 /* ---------- PRODUCTIVIDAD ---------- */
 function minsSince(iso){return iso?Math.floor((Date.now()-Date.parse(iso))/60000):null;}
 function agoTxt(m){if(m==null)return 'sin datos';if(m<1)return 'ahora';if(m<60)return 'hace '+m+' min';const h=Math.floor(m/60);if(h<24)return 'hace '+h+'h '+(m%60)+'m';const d=Math.floor(h/24);return 'hace '+d+(d===1?' día':' días')+(h%24?' '+(h%24)+'h':'');}
+function prodFecha(f){PROD_FECHA=f;if(PAGE==='prod')showView('prod');renderProd();}
+function prodBar(){
+ const hoyB=bogotaHoy();const ayer=new Date(Date.parse(hoyB+'T12:00:00Z')-864e5).toISOString().slice(0,10);
+ const c=(f,t)=>`<div class="chip ${PROD_FECHA===f?'on':''}" onclick="prodFecha('${f}')">${t}</div>`;
+ const otro=PROD_FECHA!=='hoy'&&PROD_FECHA!==ayer;
+ return `<div class="bar">${c('hoy','Hoy')}${c(ayer,'Ayer')}
+   <input type="date" id="prodDate" max="${hoyB}" value="${otro?PROD_FECHA:''}" onchange="prodFecha(this.value)" style="${otro?'border-color:var(--sig)':''}">
+   ${PROD_FECHA!=='hoy'?`<span style="color:var(--mut);font-size:12.5px">Mostrando ${PROD_FECHA}</span>`:''}</div>`;
+}
+function renderProdHistorico(){
+ const el=$('viewProd');
+ let src=METRICAS.filter(r=>r.fecha===PROD_FECHA&&r.agente!=='sin asignar'&&!excluidoMetricas(r.agente));
+ if(ROLE==='agente')src=src.filter(r=>sameAgent(r.agente,ME));
+ if(!src.length){el.innerHTML=prodBar()+'<div class="setup"><h3>Sin datos de ese día</h3>No hay actividad registrada para '+PROD_FECHA+'. Solo se guarda el historial del mes en curso.</div>';return;}
+ src.sort((a,b)=>b.registros-a.registros||b.ftd-a.ftd);
+ const act=src.filter(r=>r.registros>0).length,sin=src.filter(r=>r.registros===0).length;
+ const tl=src.reduce((s,r)=>s+r.leads,0),tr=src.reduce((s,r)=>s+r.registros,0),tf=src.reduce((s,r)=>s+r.ftd,0);
+ let kpis=`<div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-green">${ICONS.check}</div><div class="kpi-l">Activos ese día</div></div><div class="kpi-n" style="color:#4ade80">${act}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic">${ICONS.alert}</div><div class="kpi-l">Sin registros</div></div><div class="kpi-n" style="color:#f87171">${sin}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">${ICONS.tray}</div><div class="kpi-l">Leads / Reg / FTD</div></div><div class="kpi-n" style="font-size:20px">${tl} · ${tr} · ${tf}</div></div>
+  </div>`;
+ let body='';
+ src.forEach((r,i)=>{
+  const alerta=r.registros===0;
+  body+=`<tr class="${alerta?'alert-row':''}"><td class="rk">${i+1}</td><td class="ag">${avatar(r.agente)}${esc(r.agente)}</td>
+   <td class="b" data-label="Leads">${r.leads}</td><td class="g" data-label="Registros">${r.registros}</td>
+   <td data-label="FTD" style="color:#4ade80;font-weight:700">${r.ftd}</td>
+   <td data-label="Estado" style="text-align:center">${alerta
+     ?'<span class="pill" style="background:rgba(239,68,68,.13);color:#f87171"><span class="dot" style="background:#ef4444"></span>Sin registros</span>'
+     :'<span class="pill" style="background:rgba(34,197,94,.13);color:#22c55e"><span class="dot" style="background:#22c55e"></span>Activo</span>'}</td></tr>`;
+ });
+ el.innerHTML=kpis+prodBar()+`<div class="panel scroll"><table><thead><tr><th>#</th><th>Agente</th><th>Leads</th><th>Registros</th><th>FTD</th><th style="text-align:center">Estado</th></tr></thead><tbody>${body}</tbody></table></div>
+   <div class="note">Actividad del <b>${PROD_FECHA}</b>. <b>Activo</b> = hizo al menos un registro ese día. El detalle de "última actividad" solo está disponible en el día de hoy.</div>`;
+}
 function renderProd(){
  const el=$('viewProd');
+ if(PROD_FECHA!=='hoy'){renderProdHistorico();return;}
  if(!ACTIVIDAD.length){el.innerHTML='<div class="loading">Cargando actividad… (se llena con la sincronización de GoHighLevel)</div>';return;}
  let rows=ACTIVIDAD.filter(x=>x.agente&&x.agente!=='sin asignar'&&!excluidoMetricas(x.agente));
  if(ROLE==='agente')rows=rows.filter(x=>sameAgent(x.agente,ME));
@@ -569,7 +606,7 @@ function renderProd(){
    <td data-label="Última actividad" style="color:${actCol};font-weight:600">${agoTxt(r.mins)}</td>
    <td data-label="Estado" style="text-align:center">${badge(r)}</td></tr>`;
  });
- el.innerHTML=kpis+`<div class="panel scroll"><table><thead><tr><th>#</th><th>Agente</th><th>Leads hoy</th><th>Registros hoy</th><th>Última actividad</th><th style="text-align:center">Estado</th></tr></thead><tbody>${body}</tbody></table></div>
+ el.innerHTML=kpis+prodBar()+`<div class="panel scroll"><table><thead><tr><th>#</th><th>Agente</th><th>Leads hoy</th><th>Registros hoy</th><th>Última actividad</th><th style="text-align:center">Estado</th></tr></thead><tbody>${body}</tbody></table></div>
    <div class="note"><b>Última actividad</b> = cuánto hace que el agente registró o hizo un FTD por última vez (aunque haya sido hace días). <b style="color:#22c55e">Activo</b> = ya registró hoy · <b style="color:#eab308">Inactivo</b> = sin registro hoy · <b style="color:#f87171">rojo</b> = +1 día sin actividad. Te llega un correo cuando un agente pasa ${INACT_MIN} min sin registrar en horario laboral (8am–11pm).</div>`;
 }
 
@@ -663,6 +700,7 @@ function renderPagos(){
 /* ---------- CLIENTES (leads) ---------- */
 function cliFiltro(f){CLI_FILTRO=f;renderClientes();}
 function cliPeriodo(p){CLI_PERIODO=p;renderClientes();}
+function cliAgente(a){CLI_AGENTE=a;renderClientes();}
 function hs(iso){return iso?(Date.now()-Date.parse(iso))/3600000:null;}
 function hTxt(h){if(h==null)return '—';if(h<1)return Math.max(1,Math.round(h*60))+' min';if(h<24)return Math.floor(h)+'h';const d=Math.floor(h/24);return d+(d===1?' día':' días');}
 function renderClientes(){
@@ -673,6 +711,8 @@ function renderClientes(){
  const hoyB=bogotaHoy();
  if(CLI_PERIODO==='hoy')base=base.filter(c=>c.llegada_at&&new Date(Date.parse(c.llegada_at)-5*3600*1000).toISOString().slice(0,10)===hoyB);
  else if(CLI_PERIODO==='7')base=base.filter(c=>c.llegada_at&&(Date.now()-Date.parse(c.llegada_at))<=7*24*3600*1000);
+ const agentesLista=[...new Set(base.map(c=>c.agente))].sort();
+ if(CLI_AGENTE!=='todos'&&agentesLista.includes(CLI_AGENTE))base=base.filter(c=>c.agente===CLI_AGENTE);
  base=base.map(c=>{
   const hLleg=hs(c.llegada_at),hReg=hs(c.registrado_at);
   let est,rank,horas;
@@ -697,7 +737,9 @@ function renderClientes(){
   </div>`;
  const chip=(f,t)=>`<div class="chip ${CLI_FILTRO===f?'on':''}" onclick="cliFiltro('${f}')">${t}</div>`;
  const pchip=(p,t)=>`<div class="chip ${CLI_PERIODO===p?'on':''}" onclick="cliPeriodo('${p}')">${t}</div>`;
- let bar=`<div class="bar" style="margin-bottom:10px">${pchip('hoy','Hoy')}${pchip('7','7 días')}${pchip('mes','Todo el mes')}</div>
+ const selAg=ROLE==='director'?`<select onchange="cliAgente(this.value)" style="padding:9px 11px;border:1px solid ${CLI_AGENTE==='todos'?'var(--line)':'var(--sig)'};border-radius:10px;background:var(--white);font-family:'Inter';font-size:13px;margin-left:auto">
+   <option value="todos">Todos los agentes</option>${agentesLista.map(a=>`<option value="${esc(a)}" ${CLI_AGENTE===a?'selected':''}>${esc(a)}</option>`).join('')}</select>`:'';
+ let bar=`<div class="bar" style="margin-bottom:10px">${pchip('hoy','Hoy')}${pchip('7','7 días')}${pchip('mes','Todo el mes')}${selAg}</div>
   <div class="bar">${chip('todos','Todos ('+base.length+')')}${chip('riesgo','En riesgo (+4h)')}${chip('nada','Sin registro ('+nNada+')')}${chip('reg','Registrados ('+nReg+')')}${chip('ftd','Con FTD ('+nFtd+')')}</div>`;
  const badge=c=>{
   if(c.est==='ftd')return '<span class="pill" style="background:rgba(34,197,94,.13);color:#22c55e"><span class="dot" style="background:#22c55e"></span>FTD</span>';

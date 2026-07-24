@@ -200,6 +200,7 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
    <div class="nav-item" data-view="prod"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></span> Productividad</div>
    <div class="nav-item" data-view="pagos"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/></svg></span> Ventas Pendientes</div>
    <div class="nav-item" data-view="clientes"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="3.2"/><path d="M18 8v6M21 11h-6"/></svg></span> Leads</div>
+   <div class="nav-item nav-dir hide" data-view="config"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span> Configuración</div>
   </nav>
   <div class="side-foot"><button class="side-btn" id="logoutBtn">↩ Cerrar sesión</button></div>
  </aside>
@@ -221,6 +222,7 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
   <div id="viewProd" class="hide"></div>
   <div id="viewPagos" class="hide"></div>
   <div id="viewClientes" class="hide"></div>
+  <div id="viewConfig" class="hide"></div>
  </main>
 </div>
 
@@ -259,6 +261,7 @@ let PAGOS=[];        // pagos_agendados
 let CLIENTES=[];     // clientes_lead
 let CLI_FILTRO='todos';let CLI_PERIODO='7';let CLI_AGENTE='todos';
 let PROD_FECHA='hoy';
+let PRODUCTOS_DB=[];  // catálogo editable (productos)
 let FTD_PERIOD='mes';let FTD_FROM='',FTD_TO='';
 const INACT_MIN=60;
 const COMISION=0.25; // % de ganancia del agente sobre lo facturado
@@ -342,6 +345,14 @@ async function loadActividad(){
  const r=await fetch(SUPABASE_URL+'/rest/v1/actividad_agente?select=*',{headers:HDRS});
  ACTIVIDAD=await r.json();
 }
+async function loadProductos(){
+ const r=await fetch(SUPABASE_URL+'/rest/v1/productos?select=*&order=orden.asc',{headers:HDRS});
+ PRODUCTOS_DB=await r.json();
+}
+async function addProducto(p){await fetch(SUPABASE_URL+'/rest/v1/productos',{method:'POST',headers:WHDR,body:JSON.stringify(p)});await loadProductos();renderConfig();}
+async function patchProducto(id,p){await fetch(SUPABASE_URL+'/rest/v1/productos?id=eq.'+id,{method:'PATCH',headers:WHDR,body:JSON.stringify(p)});await loadProductos();renderConfig();renderVentas();}
+async function delProducto(id){if(!confirm('¿Eliminar este producto del catálogo?'))return;await fetch(SUPABASE_URL+'/rest/v1/productos?id=eq.'+id,{method:'DELETE',headers:HDRS});await loadProductos();renderConfig();}
+async function patchLead(id,p){await fetch(SUPABASE_URL+'/rest/v1/clientes_lead?contact_id=eq.'+id,{method:'PATCH',headers:WHDR,body:JSON.stringify(p)});await loadClientes();renderClientes();}
 async function loadClientes(){
  const r=await fetch(SUPABASE_URL+'/rest/v1/clientes_lead?select=*&order=llegada_at.desc',{headers:HDRS});
  CLIENTES=await r.json();
@@ -395,6 +406,7 @@ async function startApp(){
  $('waName').textContent=ME;$('waRole').textContent=ROLE==='director'?'Director':'Agente';
  $('waAv').textContent=initials(ME);$('waAv').classList.toggle('dir',ROLE==='director');
  document.querySelectorAll('.nav-item').forEach(n=>n.onclick=()=>showView(n.dataset.view));
+ document.querySelectorAll('.nav-dir').forEach(n=>n.classList.toggle('hide',ROLE!=='director'));
  showView('ventas');
  renderVentas();renderFtds();renderProd();renderPagos();renderClientes();
  await loadAgentes().catch(()=>{});
@@ -403,6 +415,7 @@ async function startApp(){
  await loadActividad().catch(()=>{ACTIVIDAD=[];});renderProd();
  await loadPagos().catch(()=>{PAGOS=[];});renderPagos();
  await loadClientes().catch(()=>{CLIENTES=[];});renderClientes();
+ await loadProductos().catch(()=>{PRODUCTOS_DB=[];});renderConfig();renderVentas();renderPagos();
  // refresco de productividad cada 60s
  setInterval(async()=>{if(PAGE==='prod'){await loadActividad().catch(()=>{});renderProd();}},60000);
 }
@@ -414,11 +427,13 @@ function showView(v){
  $('viewProd').classList.toggle('hide',v!=='prod');
  $('viewPagos').classList.toggle('hide',v!=='pagos');
  $('viewClientes').classList.toggle('hide',v!=='clientes');
+ $('viewConfig').classList.toggle('hide',v!=='config');
  const meta={ventas:['Facturación','Reporte de ventas','Facturación por agente y del equipo.'],
    ftds:['Conversión',"FTD's y registros",'Leads, registros, FTD y % de conversión.'],
    prod:['Actividad','Productividad del equipo',PROD_FECHA==='hoy'?'Quién está activo hoy y quién no lleva registros.':'Actividad del día seleccionado.'],
    pagos:['Pipeline',ROLE==='agente'?'Mis ventas pendientes':'Ventas pendientes del equipo',ROLE==='agente'?'Registra tus pagos agendados o posibles.':'Pagos agendados y posibles de cada agente.'],
-   clientes:['Seguimiento',ROLE==='agente'?'Mis leads':'Leads del equipo','Cada lead y qué se ha hecho con él: registro, FTD y tiempo transcurrido.']}[v];
+   clientes:['Seguimiento',ROLE==='agente'?'Mis leads':'Leads del equipo','Cada lead y qué se ha hecho con él: registro, FTD y tiempo transcurrido.'],
+   config:['Administración','Configuración','Membresías, precios y comisiones por venta.']}[v];
  $('eyebrow').textContent=meta[0];$('viewTitle').textContent=meta[1];$('viewSub').textContent=meta[2];
 }
 
@@ -440,21 +455,38 @@ function renderVentas(){
  const prodSet={};list.forEach(v=>Object.keys(v.prods).forEach(p=>prodSet[p]=(prodSet[p]||0)+v.prods[p]));
  const prods=Object.keys(prodSet).sort((a,b)=>prodSet[b]-prodSet[a]);
  const star=prods[0];
- let kpis=`<div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+ // (las comisiones se calculan abajo; los KPIs se arman después)
+ // comisión: por cada columna del Sheet que coincida con el alias de un producto,
+ // unidades = monto ÷ precio  →  comisión = unidades × comisión fija
+ const comiDe=v=>{
+  let c=0;
+  PRODUCTOS_DB.forEach(pd=>{
+   if(!pd.comision||!pd.precio||!pd.alias)return;
+   const col=Object.keys(v.prods).find(k=>norm(k)===norm(pd.alias));
+   if(!col)return;
+   c+=Math.round(v.prods[col]/pd.precio)*pd.comision;
+  });
+  return c;
+ };
+ const hayComi=PRODUCTOS_DB.some(p=>p.comision>0);
+ const totComi=list.reduce((s,v)=>s+comiDe(v),0);
+ let kpis=`<div class="kpis" style="grid-template-columns:repeat(${hayComi?4:3},1fr)">
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-gold">${ICONS.dollar}</div><div class="kpi-l">${ROLE==='agente'?'Tu facturación':'Total facturado'}</div></div><div class="kpi-n" style="color:#4ade80">${money(gt)}</div></div>
+   ${hayComi?`<div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-green">${ICONS.coins}</div><div class="kpi-l">${ROLE==='agente'?'Tu comisión':'Comisiones a pagar'}</div></div><div class="kpi-n" style="color:#4ade80">${money(totComi)}</div></div>`:''}
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">${ICONS.award}</div><div class="kpi-l">${ROLE==='agente'?'Ventas':'Top facturador'}</div></div><div class="kpi-n" style="font-size:19px">${ROLE==='agente'?list.length+' agente(s)':esc(top?top.name:'—')}</div></div>
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-violet">${ICONS.star}</div><div class="kpi-l">Producto estrella</div></div><div class="kpi-n" style="font-size:19px">${star?esc(star):'—'}</div></div>
   </div>`;
  const maxT=list.length?list[0].total:1;
- let head=`<th>#</th><th>Agente</th>`+prods.map(p=>`<th>${esc(p)}</th>`).join('')+`<th>Total</th><th>%</th>`;
+ let head=`<th>#</th><th>Agente</th>`+prods.map(p=>`<th>${esc(p)}</th>`).join('')+`<th>Total</th>${hayComi?'<th>Comisión</th>':''}<th>%</th>`;
  let body='';
  list.forEach((v,i)=>{
   const cls=(i===0&&ROLE==='director'?'top':'')+(norm(v.name)===norm(ME)?' me':'');
   const tds=prods.map(p=>`<td data-label="${esc(p)}" class="${v.prods[p]?'':'z'}">${v.prods[p]?money(v.prods[p]):'—'}</td>`).join('');
   body+=`<tr class="${cls}"><td class="rk">${i+1}</td><td class="ag">${avatar(v.name)}${esc(v.name)}</td>${tds}<td class="money" data-label="Total">${money(v.total)}</td>
+   ${hayComi?`<td class="money" data-label="Comisión" style="color:#22c55e">${money(comiDe(v))}</td>`:''}
    <td data-label="% del total"><span class="barwrap"><span class="barfill" style="width:${(v.total/maxT*100).toFixed(0)}%"></span></span></td></tr>`;
  });
- let foot=`<td></td><td class="lb">Total</td>`+prods.map(p=>`<td>${money(prodSet[p])}</td>`).join('')+`<td class="money">${money(gt)}</td><td></td>`;
+ let foot=`<td></td><td class="lb">Total</td>`+prods.map(p=>`<td>${money(prodSet[p])}</td>`).join('')+`<td class="money">${money(gt)}</td>${hayComi?`<td class="money" style="color:#22c55e">${money(totComi)}</td>`:''}<td></td>`;
  el.innerHTML=kpis+`<div class="panel scroll"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody>${ROLE==='director'?`<tfoot><tr>${foot}</tr></tfoot>`:''}</table></div>
    <div class="note"><b>En vivo desde tu Google Sheet.</b> Cada vez que registres una venta en la hoja, se refleja aquí al recargar.</div>`;
 }
@@ -613,8 +645,13 @@ function renderProd(){
 /* ---------- PAGOS ---------- */
 function fdate(f){if(!f)return '—';const d=new Date(f+'T00:00:00');return d.toLocaleDateString('es-CO',{day:'2-digit',month:'short'});}
 function pTag(p){if(p.estado==='pagado')return '<span class="tag pagado">Pagado</span>';return '<span class="tag '+(p.tipo==='posible'?'posible':'agendado')+'">'+(p.tipo==='posible'?'Posible':'Agendado')+'</span>';}
+function catalogo(){
+ if(PRODUCTOS_DB.length)return PRODUCTOS_DB.filter(p=>p.activo).map(p=>({v:p.id,label:p.nombre,precio:p.precio,
+   grupo:p.tipo==='upgrade'?'Upgrades':p.tipo==='otro'?'Otros':'Membresías'})).concat([{v:'otro',label:'Otro (personalizado)',precio:null,grupo:'Otro'}]);
+ return PRODUCTOS;
+}
 function onProdChange(){
- const v=$('pgProd').value;const pd=PRODUCTOS.find(x=>x.v===v);
+ const v=$('pgProd').value;const pd=catalogo().find(x=>x.v===v);
  const esOtro=v==='otro';
  $('pgOtroWrap').style.display=esOtro?'flex':'none';
  if(esOtro){$('pgMonto').value='';$('pgMonto').readOnly=false;}
@@ -622,12 +659,12 @@ function onProdChange(){
 }
 function submitPago(){
  const cli=$('pgCli').value.trim();if(!cli){$('pgCli').focus();return;}
- const pv=$('pgProd').value,pd=PRODUCTOS.find(x=>x.v===pv);
+ const pv=$('pgProd').value,pd=catalogo().find(x=>x.v===pv);
  const producto=pv==='otro'?($('pgOtro').value.trim()||'Otro'):(pd?pd.label:'');
  const p={agente:ME,cliente:cli,producto,tipo:$('pgTipo').value,monto:parseFloat($('pgMonto').value)||null,
    abono:parseFloat($('pgAbono').value)||0,fecha:$('pgFecha').value||null,notas:$('pgObs').value.trim(),estado:'pendiente'};
  addPago(p);['pgCli','pgMonto','pgAbono','pgFecha','pgObs','pgOtro'].forEach(i=>$(i).value='');
- $('pgProd').value='oro';onProdChange();$('pgCli').focus();
+ const c0=catalogo()[0];if(c0)$('pgProd').value=c0.v;onProdChange();$('pgCli').focus();
 }
 function togglePagado(id,estado){patchPago(id,{estado:estado==='pagado'?'pendiente':'pagado'});}
 function pagoRow(p,own){
@@ -660,8 +697,9 @@ function renderPagos(){
     <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-gold">${ICONS.clock}</div><div class="kpi-l">Posibles</div></div><div class="kpi-n">${po.length}</div></div>
     <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-green">${ICONS.dollar}</div><div class="kpi-l">Monto pendiente</div></div><div class="kpi-n" style="color:#4ade80;font-size:20px">${fmtSum(mine)}</div></div>
    </div>`;
-  const grupos=[...new Set(PRODUCTOS.map(p=>p.grupo))];
-  const prodOpts=grupos.map(g=>`<optgroup label="${g}">`+PRODUCTOS.filter(p=>p.grupo===g).map(p=>`<option value="${p.v}">${p.label}${p.precio!=null?' ($'+p.precio+')':''}</option>`).join('')+`</optgroup>`).join('');
+  const CAT=catalogo();
+  const grupos=[...new Set(CAT.map(p=>p.grupo))];
+  const prodOpts=grupos.map(g=>`<optgroup label="${g}">`+CAT.filter(p=>p.grupo===g).map(p=>`<option value="${p.v}">${esc(p.label)}${p.precio!=null?' ($'+Math.round(p.precio)+')':''}</option>`).join('')+`</optgroup>`).join('');
   const form=`<div class="pform">
     <div class="fg cli"><label>Cliente</label><input id="pgCli" placeholder="Nombre del cliente" onkeydown="if(event.key==='Enter')submitPago()"></div>
     <div class="fg" style="min-width:190px"><label>Licencia / Producto</label><select id="pgProd" onchange="onProdChange()">${prodOpts}</select></div>
@@ -764,6 +802,51 @@ function renderClientes(){
  });
  el.innerHTML=kpis+bar+`<div class="panel scroll"><table><thead><tr><th>Cliente</th><th>Teléfono</th><th>Agente</th><th>Llegó hace</th><th>Sin avanzar</th><th style="text-align:center">Estado</th></tr></thead><tbody>${body}</tbody></table></div>
    <div class="note">${total>MAXROWS?`Mostrando los <b>${MAXROWS}</b> más urgentes de ${total}. Usa los filtros para acotar.<br>`:''}<b>Sin avanzar</b> = tiempo desde que llegó (si no tiene registro) o desde que se registró (si falta el FTD). Se envían avisos automáticos al agente a las <b>4h</b>, <b>10h</b> (segundo aviso) y <b>20h</b> (está a 4h de morir), tanto para leads sin registro como para registrados sin FTD. Los avisos aplican a leads de los últimos 3 días; aquí puedes ver todo el mes.</div>`;
+}
+
+/* ---------- CONFIGURACIÓN (solo director) ---------- */
+function nuevoProducto(){
+ const nombre=$('cfNombre').value.trim();if(!nombre){$('cfNombre').focus();return;}
+ addProducto({nombre,precio:parseFloat($('cfPrecio').value)||0,comision:parseFloat($('cfComision').value)||0,
+   tipo:$('cfTipo').value,alias:$('cfAlias').value.trim(),activo:true,
+   orden:(PRODUCTOS_DB.reduce((m,p)=>Math.max(m,p.orden||0),0)+10)});
+ ['cfNombre','cfPrecio','cfComision','cfAlias'].forEach(i=>$(i).value='');
+}
+function renderConfig(){
+ const el=$('viewConfig');if(!el)return;
+ if(ROLE!=='director'){el.innerHTML='';return;}
+ if(!PRODUCTOS_DB.length){el.innerHTML='<div class="loading">Cargando catálogo…</div>';return;}
+ const act=PRODUCTOS_DB.filter(p=>p.activo).length;
+ const sinCom=PRODUCTOS_DB.filter(p=>p.activo&&!(p.comision>0)).length;
+ let kpis=`<div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">${ICONS.star}</div><div class="kpi-l">Productos activos</div></div><div class="kpi-n">${act}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-green">${ICONS.dollar}</div><div class="kpi-l">Con comisión definida</div></div><div class="kpi-n" style="color:#4ade80">${act-sinCom}</div></div>
+   <div class="kpi"><div class="kpi-top"><div class="kpi-ic">${ICONS.alert}</div><div class="kpi-l">Sin comisión</div></div><div class="kpi-n" style="color:#f87171">${sinCom}</div></div>
+  </div>`;
+ const form=`<div class="pform">
+   <div class="fg cli"><label>Nombre de la membresía</label><input id="cfNombre" placeholder="Ej: Diamante" onkeydown="if(event.key==='Enter')nuevoProducto()"></div>
+   <div class="fg"><label>Precio</label><input id="cfPrecio" type="number" placeholder="0" style="width:105px"></div>
+   <div class="fg"><label>Comisión agente</label><input id="cfComision" type="number" placeholder="0" style="width:120px"></div>
+   <div class="fg"><label>Tipo</label><select id="cfTipo"><option value="membresia">Membresía</option><option value="upgrade">Upgrade</option><option value="otro">Otro</option></select></div>
+   <div class="fg" style="flex:1;min-width:150px"><label>Columna en el Sheet</label><input id="cfAlias" placeholder="Ej: ORO"></div>
+   <button class="addbtn" onclick="nuevoProducto()">+ Agregar</button>
+  </div>`;
+ let body='';
+ PRODUCTOS_DB.forEach(p=>{
+  const off=!p.activo;
+  body+=`<tr style="${off?'opacity:.45':''}">
+   <td class="ag"><input class="cellin" value="${esc(p.nombre)}" onchange="patchProducto('${p.id}',{nombre:this.value})"></td>
+   <td data-label="Precio"><input class="cellin num" type="number" value="${p.precio||0}" onchange="patchProducto('${p.id}',{precio:parseFloat(this.value)||0})"></td>
+   <td data-label="Comisión"><input class="cellin num" type="number" value="${p.comision||0}" onchange="patchProducto('${p.id}',{comision:parseFloat(this.value)||0})" style="border-color:${p.comision>0?'rgba(34,197,94,.45)':'var(--line)'}"></td>
+   <td data-label="Tipo"><select class="cellin" style="min-width:110px" onchange="patchProducto('${p.id}',{tipo:this.value})">
+     ${['membresia','upgrade','otro'].map(t=>`<option value="${t}" ${p.tipo===t?'selected':''}>${t==='membresia'?'Membresía':t==='upgrade'?'Upgrade':'Otro'}</option>`).join('')}</select></td>
+   <td data-label="Columna Sheet"><input class="cellin" value="${esc(p.alias||'')}" placeholder="—" onchange="patchProducto('${p.id}',{alias:this.value})"></td>
+   <td data-label="Acciones" style="text-align:right;white-space:nowrap">
+     <button class="icobtn" title="${off?'Activar':'Desactivar'}" onclick="patchProducto('${p.id}',{activo:${off}})">${off?'○':'●'}</button>
+     <button class="icobtn del" title="Eliminar" onclick="delProducto('${p.id}')">✕</button></td></tr>`;
+ });
+ el.innerHTML=kpis+form+`<div class="panel scroll"><table><thead><tr><th>Membresía</th><th>Precio</th><th>Comisión agente</th><th>Tipo</th><th>Columna Sheet</th><th style="text-align:right">Acciones</th></tr></thead><tbody>${body}</tbody></table></div>
+   <div class="note"><b>Comisión agente</b> = cuánto gana el agente por cada venta de esa membresía (valor fijo en USD). <b>Columna Sheet</b> = el nombre exacto de la columna en tu Google Sheet de facturación; así calculo cuántas unidades vendió cada agente y su comisión. El botón ● desactiva un producto (deja de aparecer al registrar ventas, pero no borra el histórico). Todo se guarda al instante.</div>`;
 }
 
 /* auto-login */

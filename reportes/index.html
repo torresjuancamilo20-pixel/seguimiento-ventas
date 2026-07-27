@@ -214,6 +214,7 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
    <div class="whoami">
     <div style="text-align:right"><div class="nm" id="waName">—</div><div class="ro" id="waRole">—</div></div>
     <div class="av" id="waAv">?</div>
+    <button class="logout-top" id="csvTop" title="Descargar esta sección en CSV">⤓ CSV</button>
     <button class="logout-top" id="logoutTop">Salir</button>
    </div>
   </div>
@@ -328,9 +329,65 @@ async function login(){
  localStorage.setItem('nexrep_role',ROLE);localStorage.setItem('nexrep_me',ME);
  startApp();
 }
+/* ---------- EXPORTAR A CSV ---------- */
+function celda(td){
+ const inp=td.querySelector('input,select');
+ if(inp)return inp.type==='checkbox'?(inp.checked?'Sí':'No'):(inp.value||'');
+ const c=td.cloneNode(true);
+ c.querySelectorAll('.av-sm,button,.barwrap').forEach(e=>e.remove()); // iniciales, botones y barras fuera
+ const sub=c.querySelector('div');                                    // notas debajo del nombre
+ let extra='';
+ if(sub){extra=(sub.innerText||'').replace(/\s+/g,' ').trim();sub.remove();}
+ const base=(c.innerText||'').replace(/\s+/g,' ').trim();
+ return extra?(base+' — '+extra):base;
+}
+function csvEscapa(v){v=String(v==null?'':v);return /[",;\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+function exportarCSV(){
+ const vistas={ventas:['viewVentas','ventas'],ftds:['viewFtds',"ftds"],prod:['viewProd','productividad'],
+   pagos:['viewPagos','ventas-pendientes'],clientes:['viewClientes','leads'],config:['viewConfig','configuracion']};
+ const [id,slug]=vistas[PAGE]||[];
+ const cont=id&&$(id);
+ if(!cont){alert('No hay nada para exportar en esta sección.');return;}
+ const tablas=[...cont.querySelectorAll('table')];
+ if(!tablas.length){alert('Esta sección aún no tiene datos para exportar.');return;}
+ const lineas=[];let head=null;
+ tablas.forEach(tb=>{
+  // si la tabla está dentro de un grupo por agente, tomamos ese nombre
+  const gh=tb.closest('.agrupo')?.querySelector('.agrupo-h');
+  let grupo='';
+  if(gh){const g=gh.cloneNode(true);g.querySelectorAll('.av-sm,.sum,.cnt').forEach(e=>e.remove());
+   grupo=(g.innerText||'').split('·')[0].replace(/\s+/g,' ').trim();}
+  const thsAll=[...tb.querySelectorAll('thead th')].map(t=>t.innerText.replace(/\s+/g,' ').trim());
+  if(!thsAll.length)return;
+  // columnas que no aportan en un CSV (botones y la barra de progreso)
+  const usar=thsAll.map((t,i)=>({t,i})).filter(x=>!['ACCIONES','%',''].includes(x.t.toUpperCase()));
+  const ths=usar.map(x=>x.t);
+  if(!head){head=(grupo?['Agente']:[]).concat(ths);lineas.push(head.map(csvEscapa).join(','));}
+  const filaDe=tr=>{
+   const tds=[...tr.children];
+   if(tds.length!==thsAll.length)return null;   // salta filas de edición o mensajes
+   return (grupo?[grupo]:[]).concat(usar.map(x=>celda(tds[x.i])));
+  };
+  [...tb.querySelectorAll('tbody tr')].forEach(tr=>{
+   const f=filaDe(tr); if(f&&f.some(v=>v!==''))lineas.push(f.map(csvEscapa).join(','));
+  });
+  [...tb.querySelectorAll('tfoot tr')].forEach(tr=>{
+   const f=filaDe(tr); if(f)lineas.push(f.map(csvEscapa).join(','));
+  });
+ });
+ if(lineas.length<2){alert('No hay filas para exportar.');return;}
+ const hoy=bogotaHoy();
+ const blob=new Blob(['﻿'+lineas.join('\r\n')],{type:'text/csv;charset=utf-8;'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download=`${slug}_${hoy}.csv`;
+ document.body.appendChild(a);a.click();
+ setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
+}
 function logout(){localStorage.removeItem('nexrep_role');localStorage.removeItem('nexrep_me');location.reload();}
 $('logoutBtn').onclick=logout;
 $('logoutTop').onclick=logout;
+$('csvTop').onclick=exportarCSV;
 
 /* ---------- DATA ---------- */
 async function loadAgentes(){

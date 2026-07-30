@@ -263,7 +263,7 @@ let CLIENTES=[];     // clientes_lead
 let CLI_FILTRO='todos';let CLI_PERIODO='7';let CLI_AGENTE='todos';
 let PROD_FECHA='hoy';
 let PRODUCTOS_DB=[];  // catálogo editable (productos)
-let FTD_PERIOD='mes';let FTD_FROM='',FTD_TO='';
+let FTD_PERIOD='mes';let FTD_FROM='',FTD_TO='';let FTD_SEL='';let FTD_LIST=[];
 const INACT_MIN=60;
 const COMISION=0.25; // % de ganancia del agente sobre lo facturado
 // Membresías, upgrades (paga la diferencia) y "Otro"
@@ -544,7 +544,7 @@ async function startApp(){
  await loadMetricas().catch(()=>{METRICAS=[];});renderFtds();
  await loadActividad().catch(()=>{ACTIVIDAD=[];});renderProd();
  await loadPagos().catch(()=>{PAGOS=[];});renderPagos();
- await loadClientes().catch(()=>{CLIENTES=[];});renderClientes();
+ await loadClientes().catch(()=>{CLIENTES=[];});renderClientes();renderFtds();
  await loadProductos().catch(()=>{PRODUCTOS_DB=[];});renderConfig();renderVentas();renderPagos();
  // refresco de productividad cada 60s
  setInterval(async()=>{if(PAGE==='prod'){await loadActividad().catch(()=>{});renderProd();}},60000);
@@ -650,6 +650,7 @@ function renderFtds(){
  if(ROLE==='agente')names=names.filter(a=>sameAgent(a,ME));
  let list=names.map(a=>({a,...per[a],today:today[a]||{leads:0,ftd:0},month:month[a]||{leads:0,ftd:0}}));
  list.sort((x,y)=>y.ftd-x.ftd||y.registros-x.registros);
+ FTD_LIST=list;
  const tot=list.reduce((s,x)=>({leads:s.leads+x.leads,registros:s.registros+x.registros,ftd:s.ftd+x.ftd}),{leads:0,registros:0,ftd:0});
  const perLbl=FTD_PERIOD==='hoy'?'hoy':FTD_PERIOD==='7'?'últimos 7 días':FTD_PERIOD==='mes'?'este mes':'rango';
  let kpis=`<div class="kpis" style="grid-template-columns:repeat(4,1fr)">
@@ -667,10 +668,12 @@ function renderFtds(){
   </div>`;
  let head=`<th>#</th><th>Agente</th><th>Leads</th><th>Registros</th><th>% Reg</th><th>FTD</th><th>% FTD</th><th>Conv. total</th>`;
  let body='';
+ const dir=ROLE==='director';
  list.forEach((x,i)=>{
   const pReg=pct(x.registros,x.leads),pFtd=pct(x.ftd,x.registros),conv=pct(x.ftd,x.leads);
-  const cls=(i===0&&ROLE==='director'?'top':'')+(norm(x.a)===norm(ME)?' me':'');
-  body+=`<tr class="${cls}"><td class="rk">${i+1}</td>
+  const cls=(i===0&&dir?'top':'')+(norm(x.a)===norm(ME)?' me':'')+(dir&&FTD_SEL===x.a?' me':'');
+  const clk=dir?` onclick="ftdSelIdx(${i})" style="cursor:pointer"`:'';
+  body+=`<tr class="${cls}"${clk}><td class="rk">${i+1}</td>
    <td class="ag">${avatar(x.a)}${esc(x.a)}</td>
    <td class="b" data-label="Leads">${x.leads}</td><td data-label="Registros">${x.registros}</td>
    <td class="conv" data-label="% Reg" style="color:${convColor(pReg)}">${x.leads?pReg+'%':'<span class=z>—</span>'}</td>
@@ -683,12 +686,38 @@ function renderFtds(){
    <td class="g">${tot.ftd}</td>
    <td class="conv" style="color:${convColor(pct(tot.ftd,tot.registros))}">${pct(tot.ftd,tot.registros)}%</td>
    <td class="conv" style="color:${convColor(pct(tot.ftd,tot.leads))}">${pct(tot.ftd,tot.leads)}%</td>`;
+ // Panel de clientes que hicieron FTD
+ let cliPanel='';
+ if(ROLE==='agente'){cliPanel=ftdClientesPanel(ME,perLbl);}
+ else if(dir){cliPanel=FTD_SEL?ftdClientesPanel(FTD_SEL,perLbl):
+   `<div class="note" style="margin-top:14px">👆 <b>Toca un agente</b> de la tabla para ver el detalle de los clientes que hicieron FTD (nombre, teléfono y fecha).</div>`;}
  el.innerHTML=kpis+bar+`<div class="panel scroll"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody>${ROLE==='director'?`<tfoot><tr>${foot}</tr></tfoot>`:''}</table></div>
+   ${cliPanel}
    <div class="note"><b>Proporciones del embudo:</b> <b>% Reg</b> = Registros ÷ Leads (cuántos de los leads se registran) · <b>% FTD</b> = FTD ÷ Registros (cuántos de los registrados depositan) · <b>Conv. total</b> = FTD ÷ Leads. Verde ≥55%, amarillo 40-54%, rojo &lt;40%. Datos del periodo elegido (${perLbl}), se actualizan cada 15 min.</div>`;
  if(FTD_PERIOD==='rango'){
   $('fFrom').onchange=e=>{FTD_FROM=e.target.value;renderFtds();};
   $('fTo').onchange=e=>{FTD_TO=e.target.value;renderFtds();};
  }
+}
+
+function bogFecha(iso){return iso?new Date(Date.parse(iso)-5*3600*1000).toISOString().slice(0,10):'';}
+function ftdSelIdx(i){const a=FTD_LIST[i]?FTD_LIST[i].a:'';FTD_SEL=(FTD_SEL===a?'':a);renderFtds();}
+function ftdClientesPanel(agent,perLbl){
+ const rows=CLIENTES.filter(c=>c.ftd_at&&!c.descartado&&sameAgent(c.agente,agent)&&inRange(bogFecha(c.ftd_at)))
+   .sort((a,b)=>Date.parse(b.ftd_at)-Date.parse(a.ftd_at));
+ const titulo=ROLE==='director'
+   ? `<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:10px"><b style="font-size:15px">${avatar(agent)}${esc(agent)}</b><span class="pill" style="background:rgba(34,197,94,.13);color:#22c55e">${rows.length} FTD · ${perLbl}</span><button class="icobtn" onclick="ftdSelIdx(-1)" style="margin-left:auto">Cerrar ✕</button></div>`
+   : `<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:10px"><b style="font-size:15px">Tus clientes con FTD</b><span class="pill" style="background:rgba(34,197,94,.13);color:#22c55e">${rows.length} · ${perLbl}</span></div>`;
+ if(!rows.length)return `<div class="panel" style="margin-top:14px">${titulo}<div class="note" style="margin:0">No hay clientes con FTD en este periodo.</div></div>`;
+ const body=rows.map((c,i)=>{
+  const wa=(c.telefono||'').replace(/[^0-9]/g,'');
+  const tel=c.telefono?(wa?`<a href="https://wa.me/${wa}" target="_blank" style="color:#22c55e;text-decoration:none">${esc(c.telefono)}</a>`:esc(c.telefono)):'<span class="z">—</span>';
+  const f=new Date(Date.parse(c.ftd_at)-5*3600*1000);
+  const fTxt=f.toLocaleString('es-CO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'UTC'});
+  return `<tr><td class="rk">${i+1}</td><td class="ag">${avatar(c.nombre||'?')}${esc(c.nombre||'Sin nombre')}</td><td data-label="Teléfono">${tel}</td><td data-label="Fecha FTD">${fTxt}</td></tr>`;
+ }).join('');
+ return `<div class="panel scroll" style="margin-top:14px">${titulo}
+   <table><thead><tr><th>#</th><th>Cliente</th><th>Teléfono</th><th>Fecha FTD</th></tr></thead><tbody>${body}</tbody></table></div>`;
 }
 
 /* ---------- PRODUCTIVIDAD ---------- */

@@ -264,7 +264,7 @@ let CLI_FILTRO='todos';let CLI_PERIODO='7';let CLI_AGENTE='todos';
 let PROD_FECHA='hoy';
 let PRODUCTOS_DB=[];  // catálogo editable (productos)
 let FTD_PERIOD='mes';let FTD_FROM='',FTD_TO='';let FTD_SEL='';let FTD_LIST=[];let LEADSFTD=[];
-const ITEMS_FTD=['Zoom de membresía','Zoom 1 a 1','Clase','Bot IA'];let ITEMS_MAP={};
+const ITEMS_FTD=['Zoom de membresía','Zoom 1 a 1','Clase','Bot IA'];let ITEMS_MAP={};let FTD_ITEM_FILTRO='';
 const INACT_MIN=60;
 const COMISION=0.25; // % de ganancia del agente sobre lo facturado
 // Membresías, upgrades (paga la diferencia) y "Otro"
@@ -735,7 +735,19 @@ function ftdClientesPanel(agent,perLbl){
    ? `<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:10px"><b style="font-size:15px">${avatar(agent)}${esc(agent)}</b><span class="pill" style="background:rgba(34,197,94,.13);color:#22c55e">${rows.length} FTD · ${perLbl}</span><button class="icobtn" onclick="ftdSelIdx(-1)" style="margin-left:auto">Cerrar ✕</button></div>`
    : `<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:10px"><b style="font-size:15px">Tus clientes con FTD</b><span class="pill" style="background:rgba(34,197,94,.13);color:#22c55e">${rows.length} · ${perLbl}</span></div>`;
  if(!rows.length)return `<div class="panel" style="margin-top:14px">${titulo}<div class="note" style="margin:0">No hay clientes con FTD en este periodo.</div></div>`;
- const body=rows.map((c,i)=>{
+ // filtro por item
+ const itemsDe=c=>ITEMS_MAP[c.ghl_contact_id||'']||[];
+ const nSin=rows.filter(c=>!itemsDe(c).length).length;
+ const cnt=ITEMS_FTD.map(it=>rows.filter(c=>itemsDe(c).includes(it)).length);
+ const fchip=(val,txt,n)=>`<div class="chip ${FTD_ITEM_FILTRO===val?'on':''}" onclick="ftdItemFiltro('${val}')">${esc(txt)}${n!=null?` (${n})`:''}</div>`;
+ let fbar=`<div class="bar" style="margin-bottom:10px">${fchip('','Todos',rows.length)}`
+   +ITEMS_FTD.map((it,k)=>fchip('i'+k,it,cnt[k])).join('')
+   +fchip('__none','Sin ítems',nSin)+`</div>`;
+ let disp=rows;
+ if(FTD_ITEM_FILTRO==='__none')disp=rows.filter(c=>!itemsDe(c).length);
+ else if(FTD_ITEM_FILTRO.startsWith('i')){const it=ITEMS_FTD[parseInt(FTD_ITEM_FILTRO.slice(1))];disp=rows.filter(c=>itemsDe(c).includes(it));}
+ if(!disp.length)return `<div class="panel" style="margin-top:14px">${titulo}${fbar}<div class="note" style="margin:0">Ningún cliente con ese filtro.</div></div>`;
+ const body=disp.map((c,i)=>{
   const wa=(c.telefono||'').replace(/[^0-9]/g,'');
   const tel=c.telefono?(wa?`<a href="https://wa.me/${wa}" target="_blank" style="color:#22c55e;text-decoration:none">${esc(c.telefono)}</a>`:esc(c.telefono)):'<span class="z">—</span>';
   const cid=c.ghl_contact_id||'';const sel=ITEMS_MAP[cid]||[];
@@ -744,10 +756,11 @@ function ftdClientesPanel(agent,perLbl){
    }).join(''):'<span class="z">—</span>';
   return `<tr><td class="rk">${i+1}</td><td class="ag">${avatar(c.nombre||'?')}${esc(c.nombre||'Sin nombre')}</td><td data-label="Teléfono">${tel}</td><td data-label="Fecha FTD">${fechaCorta(c.fecha_ftd)}</td><td data-label="Ítems">${chips}</td></tr>`;
  }).join('');
- return `<div class="panel scroll" style="margin-top:14px">${titulo}
+ return `<div class="panel scroll" style="margin-top:14px">${titulo}${fbar}
    <table><thead><tr><th>#</th><th>Cliente</th><th>Teléfono</th><th>Fecha FTD</th><th>Ítems</th></tr></thead><tbody>${body}</tbody></table>
-   <div class="note" style="margin:12px 0 0">Toca un ítem para marcar el avance de cada cliente: <b>${ITEMS_FTD.join(' · ')}</b>. Se guarda automáticamente.</div></div>`;
+   <div class="note" style="margin:12px 0 0">Toca un ítem para marcar el avance de cada cliente: <b>${ITEMS_FTD.join(' · ')}</b>. Se guarda automáticamente. Usa los filtros de arriba para ver solo los que tengan cierto ítem.</div></div>`;
 }
+function ftdItemFiltro(v){FTD_ITEM_FILTRO=(FTD_ITEM_FILTRO===v?'':v);renderFtds();}
 
 /* ---------- PRODUCTIVIDAD ---------- */
 function minsSince(iso){return iso?Math.floor((Date.now()-Date.parse(iso))/60000):null;}

@@ -165,12 +165,18 @@ $('otro').onclick=()=>{
 let REG=[], ROSTER=[], liveTmr=null;
 function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();}
 // Une variantes ("Santiago lemus", "santiago lemux"...) al nombre real del agente
+// Alias explícitos: apodos/variantes -> nombre oficial (norm() quita acentos y mayúsculas)
+const ALIAS_MULTI=[['juan pablo','Juan Pablo Castro'],['juan camilo','Juan Camilo Torres'],['juan felipe','Juan Felipe Ledesma'],['felipe narvaez','Juan Felipe Ledesma'],['maria jose','Maria Jose Rivera'],['santiago lemus','Santiago Lemus'],['santiago viveros','Santiago Viveros'],['carlos silva','Carlos Silva'],['brayan monje','Brayan Monje'],['daniel laverde','Daniel Laverde'],['fabian flores','Fabián Flórez'],['fabian florez','Fabián Flórez'],['fabian floez','Fabián Flórez'],['evelin gomez','Evelin Gómez'],['sofia munoz','Sofía Muñoz'],['valery gallo','Valery Gallo'],['juliana facundo','Juliana Facundo'],['mateo tabares','Mateo Tabares'],['mateo torres','Mateo Tabares']];
+const ALIAS_FIRST={brayan:'Brayan Monje',brian:'Brayan Monje',carlos:'Carlos Silva',carlo:'Carlos Silva',daniel:'Daniel Laverde',evelin:'Evelin Gómez',evelyn:'Evelin Gómez',fabian:'Fabián Flórez',felipe:'Juan Felipe Ledesma',valery:'Valery Gallo',sofia:'Sofía Muñoz',mateo:'Mateo Tabares',juliana:'Juliana Facundo'};
 function canonical(raw){
  const n=norm(raw);
  if(!n)return '(sin especificar)';
+ for(const kv of ALIAS_MULTI){if(n.includes(kv[0]))return kv[1];}
+ if(n==='santiago'||n==='juan'||n==='facundo')return (raw||'').trim(); // ambiguos: no unir
+ const first=n.split(' ')[0];
+ if(ALIAS_FIRST[first])return ALIAS_FIRST[first];
  let m=ROSTER.filter(x=>{const rn=norm(x);return rn===n||rn.includes(n)||n.includes(rn);});
  if(m.length!==1){
-  const first=n.split(' ')[0];
   const byFirst=ROSTER.filter(x=>norm(x).split(' ')[0]===first);
   if(byFirst.length===1)m=byFirst; else return (raw||'').trim();
  }

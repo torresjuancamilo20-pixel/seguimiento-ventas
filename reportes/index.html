@@ -1054,12 +1054,10 @@ function renderClientes(){
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-green">${ICONS.coins}</div><div class="kpi-l">Con FTD</div></div><div class="kpi-n" style="color:#4ade80">${nFtd}</div></div>
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic">${ICONS.alert}</div><div class="kpi-l">Críticos (+20h)</div></div><div class="kpi-n" style="color:#f87171">${nRiesgo}</div></div>
   </div>`;
- const chip=(f,t)=>`<div class="chip ${CLI_FILTRO===f?'on':''}" onclick="cliFiltro('${f}')">${t}</div>`;
  const pchip=(p,t)=>`<div class="chip ${CLI_PERIODO===p?'on':''}" onclick="cliPeriodo('${p}')">${t}</div>`;
  const selAg=ROLE==='director'?`<select onchange="cliAgente(this.value)" style="padding:9px 11px;border:1px solid ${CLI_AGENTE==='todos'?'var(--line)':'var(--sig)'};border-radius:10px;background:var(--white);font-family:'Inter';font-size:13px;margin-left:auto">
    <option value="todos">Todos los agentes</option>${agentesLista.map(a=>`<option value="${esc(a)}" ${CLI_AGENTE===a?'selected':''}>${esc(a)}</option>`).join('')}</select>`:'';
- let bar=`<div class="bar" style="margin-bottom:10px">${pchip('hoy','Hoy')}${pchip('7','7 días')}${pchip('mes','Todo el mes')}${selAg}</div>
-  <div class="bar">${chip('todos','Todos ('+base.length+')')}${chip('riesgo','En riesgo (+4h)')}${chip('nada','Sin registro ('+nNada+')')}${chip('reg','Registrados ('+nReg+')')}${chip('ftd','Con FTD ('+nFtd+')')}</div>`;
+ let bar=`<div class="bar" style="margin-bottom:10px">${pchip('hoy','Hoy')}${pchip('7','7 días')}${pchip('mes','Todo el mes')}${selAg}</div>`;
  const badge=c=>{
   if(c.est==='ftd')return '<span class="pill" style="background:rgba(34,197,94,.13);color:#22c55e"><span class="dot" style="background:#22c55e"></span>FTD</span>';
   const crit=c.horas>=20,med=c.horas>=10,warn=c.horas>=4;
@@ -1067,17 +1065,16 @@ function renderClientes(){
   const txt=c.est==='reg'?'Registrado · falta FTD':'Sin registro';
   return `<span class="pill" style="background:${col[1]};color:${col[0]}"><span class="dot" style="background:${col[0]}"></span>${txt}</span>`;
  };
- let body='';
- const MAXROWS=600;const total=list.length;
+ const MAXROWS=400;
  const dir=ROLE==='director';
  const todosAg=[...new Set(CLIENTES.map(c=>c.agente).filter(a=>a&&!excluido(a)))].sort();
- list.slice(0,MAXROWS).forEach(c=>{
+ const fila=c=>{
   const wa=(c.telefono||'').replace(/[^0-9]/g,'');
   const crit=c.est!=='ftd'&&c.horas>=20;
   const tel=c.telefono?(wa?`<a href="https://wa.me/${wa}" target="_blank" style="color:#22c55e;text-decoration:none">${esc(c.telefono)}</a>`:esc(c.telefono)):'<span class="z">—</span>';
   const nCols=dir?7:6;
   if(dir&&LEAD_EDIT===c.contact_id){
-   body+=`<tr class="me"><td colspan="${nCols}" style="text-align:left">
+   return `<tr class="me"><td colspan="${nCols}" style="text-align:left">
      <div class="pform" style="margin:0;background:transparent;border:none;padding:6px 0">
       <div class="fg cli"><label>Nombre</label><input id="leN_${c.contact_id}" value="${esc(c.nombre||'')}"></div>
       <div class="fg"><label>Teléfono</label><input id="leT_${c.contact_id}" value="${esc(c.telefono||'')}"></div>
@@ -1086,10 +1083,9 @@ function renderClientes(){
       <button class="addbtn" onclick="guardarLead('${c.contact_id}')">Guardar</button>
       <button class="icobtn" onclick="editarLead('${c.contact_id}')">Cancelar</button>
      </div></td></tr>`;
-   return;
   }
   const desc=c.descartado;
-  body+=`<tr class="${desc?'':(crit?'alert-row':'')}" style="${desc?'opacity:.45':''}">
+  return `<tr class="${desc?'':(crit?'alert-row':'')}" style="${desc?'opacity:.45':''}">
    <td class="ag">${esc(c.nombre||'Sin nombre')}${c.fijado?' <span title="Editado a mano: la sincronización no lo pisa" style="color:var(--sigd)">✎</span>':''}${c.notas?`<div style="font-size:11.5px;color:var(--mut);font-weight:400">${esc(c.notas)}</div>`:''}</td>
    <td data-label="Teléfono">${tel}</td>
    <td data-label="Agente" style="color:var(--ink2);white-space:nowrap">${avatar(c.agente)}${esc(c.agente)}</td>
@@ -1099,9 +1095,23 @@ function renderClientes(){
    ${dir?`<td data-label="Acciones" style="text-align:right;white-space:nowrap">
      <button class="icobtn" title="Editar" onclick="editarLead('${c.contact_id}')">✎</button>
      <button class="icobtn ${desc?'':'del'}" title="${desc?'Reactivar':'Descartar'}" onclick="descartarLead('${c.contact_id}',${!desc})">${desc?'↺':'✕'}</button></td>`:''}</tr>`;
- });
- el.innerHTML=kpis+bar+`<div class="panel scroll"><table><thead><tr><th>Cliente</th><th>Teléfono</th><th>Agente</th><th>Llegó hace</th><th>Sin avanzar</th><th style="text-align:center">Estado</th>${dir?'<th style="text-align:right">Acciones</th>':''}</tr></thead><tbody>${body}</tbody></table></div>
-   <div class="note">${total>MAXROWS?`Mostrando los <b>${MAXROWS}</b> más urgentes de ${total}. Usa los filtros para acotar.<br>`:''}<b>Sin avanzar</b> = tiempo desde que llegó (si no tiene registro) o desde que se registró (si falta el FTD). Se envían avisos automáticos al agente a las <b>4h</b>, <b>10h</b> (segundo aviso) y <b>20h</b> (está a 4h de morir), tanto para leads sin registro como para registrados sin FTD. Los avisos aplican a leads de los últimos 3 días; aquí puedes ver todo el mes.</div>`;
+ };
+ const thead=`<thead><tr><th>Cliente</th><th>Teléfono</th><th>Agente</th><th>Llegó hace</th><th>Sin avanzar</th><th style="text-align:center">Estado</th>${dir?'<th style="text-align:right">Acciones</th>':''}</tr></thead>`;
+ const seccion=(titulo,color,rows,vacio)=>{
+  const head=`<div style="display:flex;align-items:center;gap:10px;margin:18px 0 8px"><span style="width:9px;height:9px;border-radius:50%;background:${color};display:inline-block"></span><b style="font-size:15px;letter-spacing:.02em">${titulo}</b><span class="pill" style="background:${color}22;color:${color}">${rows.length}</span></div>`;
+  if(!rows.length)return head+`<div class="note" style="margin:0">${vacio}</div>`;
+  const extra=rows.length>MAXROWS?`<div class="note" style="margin:8px 0 0">Mostrando los <b>${MAXROWS}</b> más urgentes de ${rows.length}.</div>`:'';
+  return head+`<div class="panel scroll"><table>${thead}<tbody>${rows.slice(0,MAXROWS).map(fila).join('')}</tbody></table></div>${extra}`;
+ };
+ const ordUrg=(a,b)=>a.rank-b.rank||(b.horas||0)-(a.horas||0);
+ const grpFtd=base.filter(c=>c.est==='ftd').sort((a,b)=>(b.hLleg||0)-(a.hLleg||0));
+ const grpReg=base.filter(c=>c.est==='reg').sort(ordUrg);
+ const grpNada=base.filter(c=>c.est==='nada').sort(ordUrg);
+ el.innerHTML=kpis+bar
+   +seccion('FTD','#22c55e',grpFtd,'Sin clientes con FTD en este periodo.')
+   +seccion('REGISTRO SIN FTD','#a855f7',grpReg,'Ningún registrado pendiente de FTD.')
+   +seccion('SIN REGISTRO','#ef4444',grpNada,'Todos los leads están al menos registrados.')
+   +`<div class="note"><b>Sin avanzar</b> = tiempo desde que llegó (si no tiene registro) o desde que se registró (si falta el FTD). Se envían avisos automáticos al agente a las <b>4h</b>, <b>10h</b> (segundo aviso) y <b>20h</b> (está a 4h de morir), tanto para leads sin registro como para registrados sin FTD. Los avisos aplican a leads de los últimos 3 días; aquí puedes ver todo el mes.</div>`;
 }
 
 /* ---------- CONFIGURACIÓN (solo director) ---------- */

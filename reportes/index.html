@@ -263,7 +263,7 @@ let CLIENTES=[];     // clientes_lead
 let CLI_FILTRO='todos';let CLI_PERIODO='7';let CLI_AGENTE='todos';
 let PROD_FECHA='hoy';
 let PRODUCTOS_DB=[];  // catálogo editable (productos)
-let FTD_PERIOD='mes';let FTD_FROM='',FTD_TO='';let FTD_SEL='';let FTD_LIST=[];
+let FTD_PERIOD='mes';let FTD_FROM='',FTD_TO='';let FTD_SEL='';let FTD_LIST=[];let LEADSFTD=[];
 const INACT_MIN=60;
 const COMISION=0.25; // % de ganancia del agente sobre lo facturado
 // Membresías, upgrades (paga la diferencia) y "Otro"
@@ -471,6 +471,15 @@ async function loadMetricas(){
  const r=await fetch(SUPABASE_URL+'/rest/v1/metricas_diarias?select=fecha,agente,leads,registros,ftd&order=fecha.desc',{headers:HDRS});
  METRICAS=await r.json();
 }
+async function loadLeadsFtd(){
+ // Lista autoritativa de clientes con FTD (misma fuente que el conteo). Paginado para no truncar en 1000.
+ let out=[],off=0;
+ for(let p=0;p<8;p++){
+  const r=await fetch(SUPABASE_URL+'/rest/v1/leads?ftd=eq.true&select=agente,nombre,telefono,fecha_ftd,ghl_contact_id&order=fecha_ftd.desc&limit=1000&offset='+off,{headers:HDRS});
+  const b=await r.json();if(!Array.isArray(b)||!b.length)break;out=out.concat(b);if(b.length<1000)break;off+=1000;
+ }
+ LEADSFTD=out;
+}
 async function loadActividad(){
  const r=await fetch(SUPABASE_URL+'/rest/v1/actividad_agente?select=*',{headers:HDRS});
  ACTIVIDAD=await r.json();
@@ -542,6 +551,7 @@ async function startApp(){
  await loadAgentes().catch(()=>{});
  await loadVentas().catch(()=>{VENTAS='error';});renderVentas();
  await loadMetricas().catch(()=>{METRICAS=[];});renderFtds();
+ loadLeadsFtd().then(()=>renderFtds()).catch(()=>{LEADSFTD=[];});
  await loadActividad().catch(()=>{ACTIVIDAD=[];});renderProd();
  await loadPagos().catch(()=>{PAGOS=[];});renderPagos();
  await loadClientes().catch(()=>{CLIENTES=[];});renderClientes();renderFtds();
@@ -702,9 +712,11 @@ function renderFtds(){
 
 function bogFecha(iso){return iso?new Date(Date.parse(iso)-5*3600*1000).toISOString().slice(0,10):'';}
 function ftdSelIdx(i){const a=FTD_LIST[i]?FTD_LIST[i].a:'';FTD_SEL=(FTD_SEL===a?'':a);renderFtds();}
+const MESES_ES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+function fechaCorta(d){if(!d)return '—';const p=String(d).slice(0,10).split('-');return p.length===3?(parseInt(p[2])+' de '+(MESES_ES[parseInt(p[1])-1]||p[1])):d;}
 function ftdClientesPanel(agent,perLbl){
- const rows=CLIENTES.filter(c=>c.ftd_at&&!c.descartado&&sameAgent(c.agente,agent)&&inRange(bogFecha(c.ftd_at)))
-   .sort((a,b)=>Date.parse(b.ftd_at)-Date.parse(a.ftd_at));
+ const rows=LEADSFTD.filter(c=>sameAgent(c.agente,agent)&&inRange(String(c.fecha_ftd).slice(0,10)))
+   .sort((a,b)=>String(b.fecha_ftd).localeCompare(String(a.fecha_ftd)));
  const titulo=ROLE==='director'
    ? `<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:10px"><b style="font-size:15px">${avatar(agent)}${esc(agent)}</b><span class="pill" style="background:rgba(34,197,94,.13);color:#22c55e">${rows.length} FTD · ${perLbl}</span><button class="icobtn" onclick="ftdSelIdx(-1)" style="margin-left:auto">Cerrar ✕</button></div>`
    : `<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:10px"><b style="font-size:15px">Tus clientes con FTD</b><span class="pill" style="background:rgba(34,197,94,.13);color:#22c55e">${rows.length} · ${perLbl}</span></div>`;
@@ -712,9 +724,7 @@ function ftdClientesPanel(agent,perLbl){
  const body=rows.map((c,i)=>{
   const wa=(c.telefono||'').replace(/[^0-9]/g,'');
   const tel=c.telefono?(wa?`<a href="https://wa.me/${wa}" target="_blank" style="color:#22c55e;text-decoration:none">${esc(c.telefono)}</a>`:esc(c.telefono)):'<span class="z">—</span>';
-  const f=new Date(Date.parse(c.ftd_at)-5*3600*1000);
-  const fTxt=f.toLocaleString('es-CO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'UTC'});
-  return `<tr><td class="rk">${i+1}</td><td class="ag">${avatar(c.nombre||'?')}${esc(c.nombre||'Sin nombre')}</td><td data-label="Teléfono">${tel}</td><td data-label="Fecha FTD">${fTxt}</td></tr>`;
+  return `<tr><td class="rk">${i+1}</td><td class="ag">${avatar(c.nombre||'?')}${esc(c.nombre||'Sin nombre')}</td><td data-label="Teléfono">${tel}</td><td data-label="Fecha FTD">${fechaCorta(c.fecha_ftd)}</td></tr>`;
  }).join('');
  return `<div class="panel scroll" style="margin-top:14px">${titulo}
    <table><thead><tr><th>#</th><th>Cliente</th><th>Teléfono</th><th>Fecha FTD</th></tr></thead><tbody>${body}</tbody></table></div>`;

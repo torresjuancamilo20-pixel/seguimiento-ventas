@@ -264,6 +264,7 @@ let CLI_FILTRO='todos';let CLI_PERIODO='7';let CLI_AGENTE='todos';
 let PROD_FECHA='hoy';
 let PRODUCTOS_DB=[];  // catálogo editable (productos)
 let FTD_PERIOD='mes';let FTD_FROM='',FTD_TO='';let FTD_SEL='';let FTD_LIST=[];let LEADSFTD=[];
+const ITEMS_FTD=['Zoom de membresía','Zoom 1 a 1','Clase','Bot IA'];let ITEMS_MAP={};
 const INACT_MIN=60;
 const COMISION=0.25; // % de ganancia del agente sobre lo facturado
 // Membresías, upgrades (paga la diferencia) y "Otro"
@@ -480,6 +481,19 @@ async function loadLeadsFtd(){
  }
  LEADSFTD=out;
 }
+async function loadClienteItems(){
+ const r=await fetch(SUPABASE_URL+'/rest/v1/cliente_items?select=contact_id,items',{headers:HDRS});
+ const b=await r.json();ITEMS_MAP={};if(Array.isArray(b))b.forEach(x=>{ITEMS_MAP[x.contact_id]=x.items||[];});
+}
+async function toggleItem(cid,k){
+ if(!cid)return;const it=ITEMS_FTD[k];if(it==null)return;
+ const cur=(ITEMS_MAP[cid]||[]).slice();const i=cur.indexOf(it);
+ if(i>=0)cur.splice(i,1);else cur.push(it);
+ ITEMS_MAP[cid]=cur;renderFtds();
+ try{await fetch(SUPABASE_URL+'/rest/v1/cliente_items?on_conflict=contact_id',{method:'POST',
+   headers:{...WHDR,'Prefer':'resolution=merge-duplicates,return=minimal'},
+   body:JSON.stringify({contact_id:cid,items:cur,updated_at:new Date().toISOString()})});}catch(e){}
+}
 async function loadActividad(){
  const r=await fetch(SUPABASE_URL+'/rest/v1/actividad_agente?select=*',{headers:HDRS});
  ACTIVIDAD=await r.json();
@@ -551,7 +565,7 @@ async function startApp(){
  await loadAgentes().catch(()=>{});
  await loadVentas().catch(()=>{VENTAS='error';});renderVentas();
  await loadMetricas().catch(()=>{METRICAS=[];});renderFtds();
- loadLeadsFtd().then(()=>renderFtds()).catch(()=>{LEADSFTD=[];});
+ Promise.all([loadLeadsFtd().catch(()=>{LEADSFTD=[];}),loadClienteItems().catch(()=>{ITEMS_MAP={};})]).then(()=>renderFtds());
  await loadActividad().catch(()=>{ACTIVIDAD=[];});renderProd();
  await loadPagos().catch(()=>{PAGOS=[];});renderPagos();
  await loadClientes().catch(()=>{CLIENTES=[];});renderClientes();renderFtds();
@@ -724,10 +738,15 @@ function ftdClientesPanel(agent,perLbl){
  const body=rows.map((c,i)=>{
   const wa=(c.telefono||'').replace(/[^0-9]/g,'');
   const tel=c.telefono?(wa?`<a href="https://wa.me/${wa}" target="_blank" style="color:#22c55e;text-decoration:none">${esc(c.telefono)}</a>`:esc(c.telefono)):'<span class="z">—</span>';
-  return `<tr><td class="rk">${i+1}</td><td class="ag">${avatar(c.nombre||'?')}${esc(c.nombre||'Sin nombre')}</td><td data-label="Teléfono">${tel}</td><td data-label="Fecha FTD">${fechaCorta(c.fecha_ftd)}</td></tr>`;
+  const cid=c.ghl_contact_id||'';const sel=ITEMS_MAP[cid]||[];
+  const chips=cid?ITEMS_FTD.map((it,k)=>{const on=sel.includes(it);
+    return `<span onclick="toggleItem('${cid}',${k})" style="cursor:pointer;user-select:none;display:inline-block;font-size:11.5px;font-weight:600;padding:4px 9px;margin:2px 3px 2px 0;border-radius:20px;border:1px solid ${on?'#22c55e':'var(--line)'};background:${on?'rgba(34,197,94,.14)':'transparent'};color:${on?'#22c55e':'var(--mut)'}">${on?'✓ ':''}${esc(it)}</span>`;
+   }).join(''):'<span class="z">—</span>';
+  return `<tr><td class="rk">${i+1}</td><td class="ag">${avatar(c.nombre||'?')}${esc(c.nombre||'Sin nombre')}</td><td data-label="Teléfono">${tel}</td><td data-label="Fecha FTD">${fechaCorta(c.fecha_ftd)}</td><td data-label="Ítems">${chips}</td></tr>`;
  }).join('');
  return `<div class="panel scroll" style="margin-top:14px">${titulo}
-   <table><thead><tr><th>#</th><th>Cliente</th><th>Teléfono</th><th>Fecha FTD</th></tr></thead><tbody>${body}</tbody></table></div>`;
+   <table><thead><tr><th>#</th><th>Cliente</th><th>Teléfono</th><th>Fecha FTD</th><th>Ítems</th></tr></thead><tbody>${body}</tbody></table>
+   <div class="note" style="margin:12px 0 0">Toca un ítem para marcar el avance de cada cliente: <b>${ITEMS_FTD.join(' · ')}</b>. Se guarda automáticamente.</div></div>`;
 }
 
 /* ---------- PRODUCTIVIDAD ---------- */

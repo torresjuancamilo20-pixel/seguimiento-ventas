@@ -264,7 +264,7 @@ let CLI_FILTRO='todos';let CLI_PERIODO='7';let CLI_AGENTE='todos';
 let PROD_FECHA='hoy';
 let PRODUCTOS_DB=[];  // catálogo editable (productos)
 let FTD_PERIOD='mes';let FTD_FROM='',FTD_TO='';let FTD_SEL='';let FTD_LIST=[];let LEADSFTD=[];
-const ITEMS_FTD=['Zoom de membresía','Zoom 1 a 1','Clase','Bot IA'];let ITEMS_MAP={};let FTD_ITEM_FILTRO='';
+const ITEMS_FTD=['Zoom de membresía','Zoom 1 a 1','Clase','Bot IA'];let ITEMS_MAP={};let FTD_ITEM_FILTRO='';let FTD_ADD=false;
 const INACT_MIN=60;
 const COMISION=0.25; // % de ganancia del agente sobre lo facturado
 // Membresías, upgrades (paga la diferencia) y "Otro"
@@ -657,39 +657,93 @@ function inRange(f){
 }
 function bogotaHoy(){return new Date(Date.now()-5*3600*1000).toISOString().slice(0,10);}
 function iso(d){return d.toISOString().slice(0,10);}
+function ftdMesesDisponibles(){
+ const set=new Set(LEADSFTD.map(l=>String(l.fecha_ftd||'').slice(0,7)).filter(m=>m.length===7));
+ set.add(bogotaHoy().slice(0,7));
+ return [...set].sort().reverse();
+}
+function mesLabel(m){const p=String(m).split('-');return (MESES_ES[parseInt(p[1])-1]||p[1]).replace(/^./,c=>c.toUpperCase())+' '+p[0];}
+function ftdMes(v){
+ if(v==='actual'){FTD_PERIOD='mes';}
+ else{const p=v.split('-');const last=new Date(parseInt(p[0]),parseInt(p[1]),0).getDate();
+   FTD_PERIOD='rango';FTD_FROM=v+'-01';FTD_TO=v+'-'+String(last).padStart(2,'0');}
+ FTD_SEL='';renderFtds();
+}
+function ftdAddForm(){FTD_ADD=!FTD_ADD;renderFtds();}
+function ftdAddFormHtml(){
+ const dir=ROLE==='director';
+ const FI="padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--white);font-family:'Inter';font-size:13px;width:100%";
+ const ags=[...new Set(AGENTES.map(a=>a.nombre).filter(Boolean))].sort();
+ const agInput=dir?`<select id="faAg" style="${FI}">${ags.map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('')}</select>`
+   :`<input id="faAg" value="${esc(ME)}" readonly style="${FI};opacity:.7">`;
+ const fg="display:flex;flex-direction:column;gap:4px;min-width:140px;flex:1";
+ const lb="font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.04em";
+ return `<div class="panel" style="margin:4px 0 6px">
+   <div style="font-weight:700;font-size:14px;margin-bottom:10px">Agregar FTD manual</div>
+   <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+    <div style="${fg}"><span style="${lb}">Cliente</span><input id="faNom" placeholder="Nombre del cliente" style="${FI}"></div>
+    <div style="${fg}"><span style="${lb}">Teléfono</span><input id="faTel" placeholder="+57..." style="${FI}"></div>
+    <div style="${fg}"><span style="${lb}">Agente</span>${agInput}</div>
+    <div style="${fg}"><span style="${lb}">Fecha FTD</span><input id="faFecha" type="date" value="${bogotaHoy()}" max="${bogotaHoy()}" style="${FI}"></div>
+    <button class="chip" style="background:var(--gold);color:#1a1200;border-color:var(--gold);font-weight:700" onclick="guardarFtdManual()">Guardar FTD</button>
+    <button class="chip" onclick="ftdAddForm()">Cancelar</button>
+   </div><div id="faErr" style="color:#f87171;font-size:12.5px;margin-top:8px"></div></div>`;
+}
+async function guardarFtdManual(){
+ const nom=$('faNom').value.trim(),tel=$('faTel').value.trim(),ag=$('faAg').value.trim(),fecha=$('faFecha').value;
+ const err=$('faErr');
+ if(nom.length<2){err.textContent='Escribe el nombre del cliente.';return;}
+ if(!ag){err.textContent='Falta el agente.';return;}
+ if(!fecha){err.textContent='Elige la fecha del FTD.';return;}
+ const id='manual-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);
+ const row={agente:ag,nombre:nom,telefono:tel||null,fecha_ftd:fecha,ftd:true,origen:'manual',ghl_opportunity_id:id,ghl_contact_id:id};
+ err.textContent='Guardando…';
+ try{
+  const r=await fetch(SUPABASE_URL+'/rest/v1/leads',{method:'POST',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify(row)});
+  if(!r.ok)throw new Error(await r.text());
+  LEADSFTD.unshift(row);FTD_ADD=false;
+  if(ROLE==='director')FTD_SEL=ag;
+  renderFtds();
+ }catch(e){err.textContent='No se pudo guardar. Revisa e intenta de nuevo.';}
+}
 function renderFtds(){
  const el=$('viewFtds');
  if(!METRICAS.length){el.innerHTML='<div class="loading">Cargando métricas…</div>';return;}
  const hoy=bogotaHoy();
- // acumular por agente en el periodo seleccionado + hoy + mes
- const per={},today={},month={};
- const add=(o,a,r)=>{if(!o[a])o[a]={leads:0,registros:0,ftd:0};o[a].leads+=r.leads;o[a].registros+=r.registros;o[a].ftd+=r.ftd;};
- METRICAS.forEach(r=>{
-  const a=r.agente;if(a==='sin asignar'||excluidoMetricas(a))return;
-  if(inRange(r.fecha))add(per,a,r);
-  if(r.fecha===hoy)add(today,a,r);
-  if(r.fecha.slice(0,7)===hoy.slice(0,7))add(month,a,r);
- });
- let names=Object.keys(per);
+ // leads y registros vienen de metricas (solo mes en curso); FTD viene de la tabla leads (todo el historial + manuales)
+ const leadsA={},regA={},ftdA={};
+ METRICAS.forEach(r=>{const a=r.agente;if(a==='sin asignar'||excluidoMetricas(a))return;
+  if(inRange(r.fecha)){leadsA[a]=(leadsA[a]||0)+r.leads;regA[a]=(regA[a]||0)+r.registros;}});
+ LEADSFTD.forEach(l=>{const a=l.agente;if(!a||a==='sin asignar'||excluidoMetricas(a))return;
+  if(inRange(String(l.fecha_ftd).slice(0,10)))ftdA[a]=(ftdA[a]||0)+1;});
+ let names=[...new Set([...Object.keys(leadsA),...Object.keys(ftdA)])];
  if(ROLE==='agente')names=names.filter(a=>sameAgent(a,ME));
- let list=names.map(a=>({a,...per[a],today:today[a]||{leads:0,ftd:0},month:month[a]||{leads:0,ftd:0}}));
+ let list=names.map(a=>({a,leads:leadsA[a]||0,registros:regA[a]||0,ftd:ftdA[a]||0}));
  list.sort((x,y)=>y.ftd-x.ftd||y.registros-x.registros);
  FTD_LIST=list;
+ // mes histórico seleccionado (para etiqueta y no mostrar leads/registros que no existen)
+ const mesSel=FTD_PERIOD==='mes'?'actual':(FTD_FROM&&FTD_FROM.endsWith('-01')&&FTD_TO&&FTD_TO.slice(0,7)===FTD_FROM.slice(0,7)?FTD_FROM.slice(0,7):'');
+ const esMesHist=mesSel&&mesSel!=='actual'&&mesSel!==hoy.slice(0,7);
  const tot=list.reduce((s,x)=>({leads:s.leads+x.leads,registros:s.registros+x.registros,ftd:s.ftd+x.ftd}),{leads:0,registros:0,ftd:0});
- const perLbl=FTD_PERIOD==='hoy'?'hoy':FTD_PERIOD==='7'?'últimos 7 días':FTD_PERIOD==='mes'?'este mes':'rango';
+ const perLbl=esMesHist?mesLabel(mesSel):(FTD_PERIOD==='hoy'?'hoy':FTD_PERIOD==='7'?'últimos 7 días':FTD_PERIOD==='mes'?'este mes':'rango');
  let kpis=`<div class="kpis" style="grid-template-columns:repeat(4,1fr)">
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">${ICONS.tray}</div><div class="kpi-l">Leads (${perLbl})</div></div><div class="kpi-n">${tot.leads}</div></div>
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-violet">${ICONS.check}</div><div class="kpi-l">Registros</div></div><div class="kpi-n">${tot.registros}</div></div>
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-green">${ICONS.coins}</div><div class="kpi-l">FTD's</div></div><div class="kpi-n" style="color:#4ade80">${tot.ftd}</div></div>
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-gold">${ICONS.target}</div><div class="kpi-l">Conversión</div></div><div class="kpi-n" style="color:#f5c518">${pct(tot.ftd,tot.leads)}%</div></div>
   </div>`;
+ const meses=ftdMesesDisponibles().filter(m=>m!==hoy.slice(0,7));
  let bar=`<div class="bar">
    <div class="chip ${FTD_PERIOD==='hoy'?'on':''}" onclick="ftdSetPeriod('hoy')">Hoy</div>
    <div class="chip ${FTD_PERIOD==='7'?'on':''}" onclick="ftdSetPeriod('7')">7 días</div>
    <div class="chip ${FTD_PERIOD==='mes'?'on':''}" onclick="ftdSetPeriod('mes')">Este mes</div>
-   <div class="chip ${FTD_PERIOD==='rango'?'on':''}" onclick="ftdSetPeriod('rango')">Rango</div>
-   ${FTD_PERIOD==='rango'?`<input type="date" id="fFrom" value="${FTD_FROM}"><span style="color:var(--mut)">→</span><input type="date" id="fTo" value="${FTD_TO}">`:''}
-  </div>`;
+   <div class="chip ${FTD_PERIOD==='rango'&&!esMesHist?'on':''}" onclick="ftdSetPeriod('rango')">Rango</div>
+   ${FTD_PERIOD==='rango'&&!esMesHist?`<input type="date" id="fFrom" value="${FTD_FROM}"><span style="color:var(--mut)">→</span><input type="date" id="fTo" value="${FTD_TO}">`:''}
+   ${meses.length?`<select onchange="ftdMes(this.value)" style="padding:8px 10px;border:1px solid ${esMesHist?'var(--sig)':'var(--line)'};border-radius:10px;background:var(--white);font-family:'Inter';font-size:13px">
+     <option value="actual" ${!esMesHist?'selected':''}>Mes anterior…</option>
+     ${meses.map(m=>`<option value="${m}" ${mesSel===m?'selected':''}>${mesLabel(m)}</option>`).join('')}</select>`:''}
+   <button class="chip" style="margin-left:auto;background:var(--gold);color:#1a1200;border-color:var(--gold);font-weight:700" onclick="ftdAddForm()">＋ Agregar FTD</button>
+  </div>${FTD_ADD?ftdAddFormHtml():''}${esMesHist?`<div class="note" style="margin:0 0 4px">Mostrando <b>${mesLabel(mesSel)}</b>. De meses anteriores solo se conserva el detalle de FTD; leads y registros históricos no se almacenan.</div>`:''}`;
  let head=`<th>#</th><th>Agente</th><th>Leads</th><th>Registros</th><th>% Reg</th><th>FTD</th><th>% FTD</th><th>Conv. total</th>`;
  let body='';
  const dir=ROLE==='director';
@@ -718,10 +772,8 @@ function renderFtds(){
  el.innerHTML=kpis+bar+`<div class="panel scroll"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody>${ROLE==='director'?`<tfoot><tr>${foot}</tr></tfoot>`:''}</table></div>
    ${cliPanel}
    <div class="note"><b>Proporciones del embudo:</b> <b>% Reg</b> = Registros ÷ Leads (cuántos de los leads se registran) · <b>% FTD</b> = FTD ÷ Registros (cuántos de los registrados depositan) · <b>Conv. total</b> = FTD ÷ Leads. Verde ≥55%, amarillo 40-54%, rojo &lt;40%. Datos del periodo elegido (${perLbl}), se actualizan cada 15 min.</div>`;
- if(FTD_PERIOD==='rango'){
-  $('fFrom').onchange=e=>{FTD_FROM=e.target.value;renderFtds();};
-  $('fTo').onchange=e=>{FTD_TO=e.target.value;renderFtds();};
- }
+ if($('fFrom')){$('fFrom').onchange=e=>{FTD_FROM=e.target.value;renderFtds();};}
+ if($('fTo')){$('fTo').onchange=e=>{FTD_TO=e.target.value;renderFtds();};}
 }
 
 function bogFecha(iso){return iso?new Date(Date.parse(iso)-5*3600*1000).toISOString().slice(0,10):'';}

@@ -496,7 +496,7 @@ async function loadLeadsFtd(){
  // Lista autoritativa de clientes con FTD (misma fuente que el conteo). Paginado para no truncar en 1000.
  let out=[],off=0;
  for(let p=0;p<8;p++){
-  const r=await fetch(SUPABASE_URL+'/rest/v1/leads?ftd=eq.true&select=agente,nombre,telefono,fecha_ftd,ghl_contact_id&order=fecha_ftd.desc&limit=1000&offset='+off,{headers:HDRS});
+  const r=await fetch(SUPABASE_URL+'/rest/v1/leads?ftd=eq.true&select=agente,nombre,telefono,fecha_ftd,ghl_contact_id,origen&order=fecha_ftd.desc&limit=1000&offset='+off,{headers:HDRS});
   const b=await r.json();if(!Array.isArray(b)||!b.length)break;out=out.concat(b);if(b.length<1000)break;off+=1000;
  }
  LEADSFTD=out;
@@ -735,6 +735,7 @@ function renderFtds(){
  METRICAS.forEach(r=>{const a=r.agente;if(a==='sin asignar'||excluidoMetricas(a))return;
   if(inRange(r.fecha)){leadsA[a]=(leadsA[a]||0)+r.leads;regA[a]=(regA[a]||0)+r.registros;}});
  LEADSFTD.forEach(l=>{const a=l.agente;if(!a||a==='sin asignar'||excluidoMetricas(a))return;
+  if(l.origen==='evento')return; // FTD externos (del evento): no se suman al conteo
   if(inRange(String(l.fecha_ftd).slice(0,10)))ftdA[a]=(ftdA[a]||0)+1;});
  let names=[...new Set([...Object.keys(leadsA),...Object.keys(ftdA)])];
  if(ROLE==='agente')names=names.filter(a=>sameAgent(a,ME));
@@ -803,9 +804,13 @@ function fechaCorta(d){if(!d)return '—';const p=String(d).slice(0,10).split('-
 function ftdClientesPanel(agent,perLbl){
  const rows=LEADSFTD.filter(c=>sameAgent(c.agente,agent)&&inRange(String(c.fecha_ftd).slice(0,10)))
    .sort((a,b)=>String(b.fecha_ftd).localeCompare(String(a.fecha_ftd)));
+ const esExt=c=>c.origen==='evento';
+ const nExt=rows.filter(esExt).length, nReal=rows.length-nExt;
+ const pills=`<span class="pill" style="background:rgba(34,197,94,.13);color:#22c55e">${nReal} FTD · ${perLbl}</span>`
+   +(nExt?`<span class="pill" style="background:rgba(148,163,184,.14);color:#94a3b8">${nExt} externos</span>`:'');
  const titulo=ROLE==='director'
-   ? `<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:10px"><b style="font-size:15px">${avatar(agent)}${esc(agent)}</b><span class="pill" style="background:rgba(34,197,94,.13);color:#22c55e">${rows.length} FTD · ${perLbl}</span><button class="icobtn" onclick="ftdSelIdx(-1)" style="margin-left:auto">Cerrar ✕</button></div>`
-   : `<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:10px"><b style="font-size:15px">Tus clientes con FTD</b><span class="pill" style="background:rgba(34,197,94,.13);color:#22c55e">${rows.length} · ${perLbl}</span></div>`;
+   ? `<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:10px"><b style="font-size:15px">${avatar(agent)}${esc(agent)}</b>${pills}<button class="icobtn" onclick="ftdSelIdx(-1)" style="margin-left:auto">Cerrar ✕</button></div>`
+   : `<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:10px"><b style="font-size:15px">Tus clientes con FTD</b>${pills}</div>`;
  if(!rows.length)return `<div class="panel" style="margin-top:14px">${titulo}<div class="note" style="margin:0">No hay clientes con FTD en este periodo.</div></div>`;
  // filtro por item
  const itemsDe=c=>ITEMS_MAP[c.ghl_contact_id||'']||[];
@@ -826,11 +831,12 @@ function ftdClientesPanel(agent,perLbl){
   const chips=cid?ITEMS_FTD.map((it,k)=>{const on=sel.includes(it);
     return `<span onclick="toggleItem('${cid}',${k})" style="cursor:pointer;user-select:none;display:inline-block;font-size:11.5px;font-weight:600;padding:4px 9px;margin:2px 3px 2px 0;border-radius:20px;border:1px solid ${on?'#22c55e':'var(--line)'};background:${on?'rgba(34,197,94,.14)':'transparent'};color:${on?'#22c55e':'var(--mut)'}">${on?'✓ ':''}${esc(it)}</span>`;
    }).join(''):'<span class="z">—</span>';
-  return `<tr><td class="rk">${i+1}</td><td class="ag">${avatar(c.nombre||'?')}${esc(c.nombre||'Sin nombre')}</td><td data-label="Teléfono">${tel}</td><td data-label="Fecha FTD">${fechaCorta(c.fecha_ftd)}</td><td data-label="Ítems">${chips}</td></tr>`;
+  const tag=esExt(c)?' <span style="font-size:10px;font-weight:700;color:#94a3b8;border:1px solid var(--line);border-radius:20px;padding:2px 7px;margin-left:4px;white-space:nowrap">externo</span>':'';
+  return `<tr${esExt(c)?' style="opacity:.82"':''}><td class="rk">${i+1}</td><td class="ag">${avatar(c.nombre||'?')}${esc(c.nombre||'Sin nombre')}${tag}</td><td data-label="Teléfono">${tel}</td><td data-label="Fecha FTD">${fechaCorta(c.fecha_ftd)}</td><td data-label="Ítems">${chips}</td></tr>`;
  }).join('');
  return `<div class="panel scroll" style="margin-top:14px">${titulo}${fbar}
    <table><thead><tr><th>#</th><th>Cliente</th><th>Teléfono</th><th>Fecha FTD</th><th>Ítems</th></tr></thead><tbody>${body}</tbody></table>
-   <div class="note" style="margin:12px 0 0">Toca un ítem para marcar el avance de cada cliente: <b>${ITEMS_FTD.join(' · ')}</b>. Se guarda automáticamente. Usa los filtros de arriba para ver solo los que tengan cierto ítem.</div></div>`;
+   <div class="note" style="margin:12px 0 0">Toca un ítem para marcar el avance de cada cliente: <b>${ITEMS_FTD.join(' · ')}</b>. Se guarda automáticamente.${nExt?` Los marcados como <b>externo</b> vienen del registro del evento y <b>no se suman</b> al conteo de FTD.`:''}</div></div>`;
 }
 function ftdItemFiltro(v){FTD_ITEM_FILTRO=(FTD_ITEM_FILTRO===v?'':v);renderFtds();}
 

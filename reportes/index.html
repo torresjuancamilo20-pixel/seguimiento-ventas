@@ -673,6 +673,7 @@ function inRange(f){
  if(FTD_PERIOD==='7'){const d=new Date(hoy);d.setDate(d.getDate()-6);return f>=iso(d)&&f<=hoy;}
  if(FTD_PERIOD==='mes')return f.slice(0,7)===hoy.slice(0,7);
  if(FTD_PERIOD==='rango')return (!FTD_FROM||f>=FTD_FROM)&&(!FTD_TO||f<=FTD_TO);
+ if(FTD_PERIOD==='todo')return true;
  return true;
 }
 function bogotaHoy(){return new Date(Date.now()-5*3600*1000).toISOString().slice(0,10);}
@@ -746,7 +747,7 @@ function renderFtds(){
  const mesSel=FTD_PERIOD==='mes'?'actual':(FTD_FROM&&FTD_FROM.endsWith('-01')&&FTD_TO&&FTD_TO.slice(0,7)===FTD_FROM.slice(0,7)?FTD_FROM.slice(0,7):'');
  const esMesHist=mesSel&&mesSel!=='actual'&&mesSel!==hoy.slice(0,7);
  const tot=list.reduce((s,x)=>({leads:s.leads+x.leads,registros:s.registros+x.registros,ftd:s.ftd+x.ftd}),{leads:0,registros:0,ftd:0});
- const perLbl=esMesHist?mesLabel(mesSel):(FTD_PERIOD==='hoy'?'hoy':FTD_PERIOD==='7'?'últimos 7 días':FTD_PERIOD==='mes'?'este mes':'rango');
+ const perLbl=esMesHist?mesLabel(mesSel):(FTD_PERIOD==='hoy'?'hoy':FTD_PERIOD==='7'?'últimos 7 días':FTD_PERIOD==='mes'?'este mes':FTD_PERIOD==='todo'?'todo el histórico':'rango');
  let kpis=`<div class="kpis" style="grid-template-columns:repeat(4,1fr)">
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-blue">${ICONS.tray}</div><div class="kpi-l">Leads (${perLbl})</div></div><div class="kpi-n">${tot.leads}</div></div>
    <div class="kpi"><div class="kpi-top"><div class="kpi-ic ic-violet">${ICONS.check}</div><div class="kpi-l">Registros</div></div><div class="kpi-n">${tot.registros}</div></div>
@@ -758,6 +759,7 @@ function renderFtds(){
    <div class="chip ${FTD_PERIOD==='hoy'?'on':''}" onclick="ftdSetPeriod('hoy')">Hoy</div>
    <div class="chip ${FTD_PERIOD==='7'?'on':''}" onclick="ftdSetPeriod('7')">7 días</div>
    <div class="chip ${FTD_PERIOD==='mes'?'on':''}" onclick="ftdSetPeriod('mes')">Este mes</div>
+   <div class="chip ${FTD_PERIOD==='todo'?'on':''}" onclick="ftdSetPeriod('todo')">Máx (todo)</div>
    <div class="chip ${FTD_PERIOD==='rango'&&!esMesHist?'on':''}" onclick="ftdSetPeriod('rango')">Rango</div>
    ${FTD_PERIOD==='rango'&&!esMesHist?`<input type="date" id="fFrom" value="${FTD_FROM}"><span style="color:var(--mut)">→</span><input type="date" id="fTo" value="${FTD_TO}">`:''}
    ${meses.length?`<select onchange="ftdMes(this.value)" style="padding:8px 10px;border:1px solid ${esMesHist?'var(--sig)':'var(--line)'};border-radius:10px;background:var(--white);font-family:'Inter';font-size:13px">

@@ -566,7 +566,8 @@ async function loadVentas(){
  const url=VENTAS_URLS[VENTAS_MES]||'';
  if(!url){VENTAS='sinmes';return;}
  try{
-  const r=await fetch(url);const txt=await r.text();
+  const u=url+(url.includes('?')?'&':'?')+'_t='+Date.now(); // anti-caché de Google
+  const r=await fetch(u);const txt=await r.text();
   const rows=parseCSV(txt).filter(r=>r.some(c=>(c||'').trim()!==''));
   // localizar fila de encabezado: la que contiene "NOMBRE"
   let hi=rows.findIndex(r=>r.some(c=>norm(c)==='nombre'));
@@ -650,7 +651,8 @@ function renderVentas(){
    Copia el enlace y regístralo en <b>Configuración → Ventas por mes</b>.<br><br>
    La hoja debe tener una columna <code>NOMBRE</code>, las columnas de cada producto y una columna <code>TOTAL</code>.</div>`;return;}
  if(VENTAS==='error'){el.innerHTML=bar+`<div class="setup"><h3>No pude leer la hoja ⚠️</h3>Revisa que el enlace de este mes esté <b>publicado como CSV</b> y sea público.</div>`;return;}
- if(!VENTAS||!VENTAS.length){el.innerHTML=bar+'<div class="loading">Cargando…</div>';return;}
+ if(VENTAS===null){el.innerHTML=bar+'<div class="loading">Cargando…</div>';return;}
+ if(Array.isArray(VENTAS)&&VENTAS.length===0){el.innerHTML=bar+`<div class="setup"><h3>Aún sin ventas en ${mesLabel(VENTAS_MES)} 🗓️</h3>La hoja de este mes está en <b>$0</b>. A medida que el equipo registre ventas, aparecerán aquí.</div>`;return;}
  let list=VENTAS.filter(v=>!excluido(v.name));
  if(ROLE==='agente')list=list.filter(v=>sameAgent(v.name,ME));
  list.sort((a,b)=>b.total-a.total);

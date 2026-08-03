@@ -242,7 +242,7 @@ const HDRS={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
 
 // URL de tu Google Sheet de facturación publicado como CSV (Archivo > Compartir > Publicar en la web > CSV).
 // Déjalo vacío para ver las instrucciones de conexión.
-const VENTAS_CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRVgKL-KjsVNYgdxR3EuuSa52IwBWNbFa2i1sH1r_IU2bAdU1bmAuDFkj07gpsdhXb5kE9dxmc75ox8/pub?output=csv";
+const VENTAS_CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vSA5SlKMan4L1UZG0RoIC3RVynSV796qZEwKSohhtbz2FaKKjWRHzSBS9Qgr9BXS7_Maop7v5HB1Jx7/pub?output=csv";
 
 // Agentes/nombres a excluir de listados y rankings (no vendedores)
 const EXCLUIR=['alejandro facundo','alejandro facundo junior','dannia cordoba','isabel ramirez','juan carlos','valentina gutierrez','juan miguel pacheco'];
@@ -264,8 +264,6 @@ let PAGE='ventas';
 let AGENTES=[];      // {email,nombre}
 let METRICAS=[];     // {fecha,agente,leads,registros,ftd}
 let VENTAS=null;     // parsed sheet -> [{name, total, prods:{}}]
-let VENTAS_MES='';   // 'YYYY-MM' mes seleccionado en Ventas
-let VENTAS_URLS={};  // {mes: csv_url} desde ventas_meses
 let ACTIVIDAD=[];    // actividad_agente
 let PAGOS=[];        // pagos_agendados
 let CLIENTES=[];     // clientes_lead
@@ -549,22 +547,9 @@ function parseCSV(text){
  if(f.length||row.length){row.push(f);rows.push(row);}
  return rows;
 }
-async function loadVentasMeses(){
- try{
-  const r=await fetch(SUPABASE_URL+'/rest/v1/ventas_meses?select=mes,csv_url&order=mes.desc',{headers:HDRS});
-  const b=await r.json();VENTAS_URLS={};if(Array.isArray(b))b.forEach(x=>{if((x.csv_url||'').trim())VENTAS_URLS[x.mes]=x.csv_url.trim();});
- }catch(_){VENTAS_URLS={};}
- if(VENTAS_CSV_URL&&!VENTAS_URLS['2026-07'])VENTAS_URLS['2026-07']=VENTAS_CSV_URL; // respaldo julio
-}
-async function setVentaMesUrl(mes,url){
- await fetch(SUPABASE_URL+'/rest/v1/ventas_meses?on_conflict=mes',{method:'POST',
-   headers:{...WHDR,'Prefer':'resolution=merge-duplicates,return=minimal'},
-   body:JSON.stringify({mes,csv_url:(url||'').trim(),updated_at:new Date().toISOString()})});
- await loadVentasMeses();
-}
 async function loadVentas(){
- const url=VENTAS_URLS[VENTAS_MES]||'';
- if(!url){VENTAS='sinmes';return;}
+ const url=VENTAS_CSV_URL;
+ if(!url){VENTAS='setup';return;}
  try{
   const u=url+(url.includes('?')?'&':'?')+'_t='+Date.now(); // anti-caché de Google
   const r=await fetch(u);const txt=await r.text();
@@ -600,8 +585,6 @@ async function startApp(){
  showView('ventas');
  renderVentas();renderFtds();renderProd();renderPagos();renderClientes();
  await loadAgentes().catch(()=>{});
- VENTAS_MES=bogotaHoy().slice(0,7);
- await loadVentasMeses().catch(()=>{VENTAS_URLS={};});
  await loadVentas().catch(()=>{VENTAS='error';});renderVentas();
  await loadMetricas().catch(()=>{METRICAS=[];});renderFtds();
  Promise.all([loadLeadsFtd().catch(()=>{LEADSFTD=[];}),loadClienteItems().catch(()=>{ITEMS_MAP={};})]).then(()=>renderFtds());
@@ -631,28 +614,14 @@ function showView(v){
 }
 
 /* ---------- VENTAS ---------- */
-function ventasMesBar(){
- const hoyMes=bogotaHoy().slice(0,7);
- const meses=[...new Set([hoyMes,...Object.keys(VENTAS_URLS)])].sort().reverse();
- return `<div class="bar" style="margin-bottom:12px">
-   <span style="color:var(--mut);font-size:12.5px;font-weight:700;align-self:center">Mes de ventas:</span>
-   <select onchange="ventasMes(this.value)" style="padding:8px 11px;border:1px solid ${VENTAS_MES===hoyMes?'var(--line)':'var(--sig)'};border-radius:10px;background:var(--white);font-family:'Inter';font-size:13px">
-    ${meses.map(m=>`<option value="${m}" ${VENTAS_MES===m?'selected':''}>${mesLabel(m)}${m===hoyMes?' · este mes':''}</option>`).join('')}
-   </select></div>`;
-}
-function ventasMes(m){VENTAS_MES=m;VENTAS=null;renderVentas();loadVentas().then(()=>renderVentas()).catch(()=>{VENTAS='error';renderVentas();});}
 function renderVentas(){
  const el=$('viewVentas');
- const bar=ventasMesBar();
- if(VENTAS==='sinmes'){el.innerHTML=bar+`<div class="setup"><h3>Sin ventas para ${mesLabel(VENTAS_MES)} 🗓️</h3>
-   ${ROLE==='director'?'Aún no has conectado el sheet de este mes. Ve a <b>Configuración → Ventas por mes</b> y pega el enlace CSV de la hoja de este mes. Mientras tanto, arranca en <b>0</b>.':'Aún no hay ventas cargadas para este mes.'}</div>`;return;}
- if(VENTAS==='setup'){el.innerHTML=bar+`<div class="setup"><h3>Conecta tu hoja de cálculo 📄</h3>
-   En Google Sheets abre <b>Archivo → Compartir → Publicar en la web</b>, elige la hoja de facturación y formato <code>CSV</code>.
-   Copia el enlace y regístralo en <b>Configuración → Ventas por mes</b>.<br><br>
+ if(VENTAS==='setup'){el.innerHTML=`<div class="setup"><h3>Conecta tu hoja de cálculo 📄</h3>
+   En Google Sheets abre <b>Archivo → Compartir → Publicar en la web</b>, elige la hoja de facturación y formato <code>CSV</code>.<br><br>
    La hoja debe tener una columna <code>NOMBRE</code>, las columnas de cada producto y una columna <code>TOTAL</code>.</div>`;return;}
- if(VENTAS==='error'){el.innerHTML=bar+`<div class="setup"><h3>No pude leer la hoja ⚠️</h3>Revisa que el enlace de este mes esté <b>publicado como CSV</b> y sea público.</div>`;return;}
- if(VENTAS===null){el.innerHTML=bar+'<div class="loading">Cargando…</div>';return;}
- if(Array.isArray(VENTAS)&&VENTAS.length===0){el.innerHTML=bar+`<div class="setup"><h3>Aún sin ventas en ${mesLabel(VENTAS_MES)} 🗓️</h3>La hoja de este mes está en <b>$0</b>. A medida que el equipo registre ventas, aparecerán aquí.</div>`;return;}
+ if(VENTAS==='error'){el.innerHTML=`<div class="setup"><h3>No pude leer la hoja ⚠️</h3>Revisa que el enlace esté <b>publicado como CSV</b> y sea público.</div>`;return;}
+ if(VENTAS===null){el.innerHTML='<div class="loading">Cargando…</div>';return;}
+ if(Array.isArray(VENTAS)&&VENTAS.length===0){el.innerHTML=`<div class="setup"><h3>Aún sin ventas este mes 🗓️</h3>La hoja está en <b>$0</b>. A medida que el equipo registre ventas, aparecerán aquí.</div>`;return;}
  let list=VENTAS.filter(v=>!excluido(v.name));
  if(ROLE==='agente')list=list.filter(v=>sameAgent(v.name,ME));
  list.sort((a,b)=>b.total-a.total);
@@ -694,8 +663,8 @@ function renderVentas(){
    <td data-label="% del total"><span class="barwrap"><span class="barfill" style="width:${(v.total/maxT*100).toFixed(0)}%"></span></span></td></tr>`;
  });
  let foot=`<td></td><td class="lb">Total</td>`+prods.map(p=>`<td>${money(prodSet[p])}</td>`).join('')+`<td class="money">${money(gt)}</td>${hayComi?`<td class="money" style="color:#22c55e">${money(totComi)}</td>`:''}<td></td>`;
- el.innerHTML=bar+kpis+`<div class="panel scroll"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody>${ROLE==='director'?`<tfoot><tr>${foot}</tr></tfoot>`:''}</table></div>
-   <div class="note"><b>En vivo desde el Google Sheet de ${mesLabel(VENTAS_MES)}.</b> Cada vez que registres una venta en la hoja de ese mes, se refleja aquí al recargar.</div>`;
+ el.innerHTML=kpis+`<div class="panel scroll"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody>${ROLE==='director'?`<tfoot><tr>${foot}</tr></tfoot>`:''}</table></div>
+   <div class="note"><b>En vivo desde tu Google Sheet.</b> Cada vez que registres una venta en la hoja, se refleja aquí al recargar.</div>`;
 }
 
 /* ---------- FTD'S ---------- */
@@ -1216,37 +1185,8 @@ function renderConfig(){
      <button class="icobtn" title="${off?'Activar':'Desactivar'}" onclick="patchProducto('${p.id}',{activo:${off}})">${off?'○':'●'}</button>
      <button class="icobtn del" title="Eliminar" onclick="delProducto('${p.id}')">✕</button></td></tr>`;
  });
- // Panel: Ventas por mes (un sheet por mes)
- const hoyMes=bogotaHoy().slice(0,7);
- const mesesVM=[...new Set([hoyMes,...Object.keys(VENTAS_URLS)])].sort().reverse();
- const vmBody=mesesVM.map(m=>`<tr>
-   <td class="ag" style="white-space:nowrap">${mesLabel(m)}${m===hoyMes?' <span class="pill" style="background:rgba(59,130,246,.15);color:var(--sig)"><span class="dot" style="background:var(--sig)"></span>este mes</span>':''}</td>
-   <td style="width:100%"><input class="cellin" id="vm_${m}" value="${esc(VENTAS_URLS[m]||'')}" placeholder="Enlace CSV publicado del sheet de ${mesLabel(m)}"></td>
-   <td style="text-align:right;white-space:nowrap"><button class="addbtn" style="padding:7px 12px" onclick="guardarVentaMes('${m}')">Guardar</button></td></tr>`).join('');
- const vmPanel=`<div style="font-weight:800;font-size:15px;margin:30px 0 10px">Ventas por mes</div>
-   <div class="pform">
-     <div class="fg"><label>Conectar mes nuevo</label><input id="vmNuevoMes" type="month" value="${hoyMes}"></div>
-     <div class="fg" style="flex:1;min-width:220px"><label>Enlace CSV publicado</label><input id="vmNuevoUrl" placeholder="https://docs.google.com/.../pub?output=csv"></div>
-     <button class="addbtn" onclick="agregarVentaMes()">+ Conectar</button>
-   </div>
-   <div class="panel scroll"><table><thead><tr><th>Mes</th><th>Enlace CSV de la hoja</th><th style="text-align:right">Guardar</th></tr></thead><tbody>${vmBody}</tbody></table></div>
-   <div class="note">Cada mes usa su propia hoja. Publica el sheet del mes como <b>CSV</b> (Archivo → Compartir → Publicar en la web → CSV) y pega aquí el enlace. En la sección <b>Ventas</b> eliges el mes; el mes en curso arranca en <b>0</b> hasta que conectes su hoja.</div>`;
  el.innerHTML=kpis+form+`<div class="panel scroll"><table><thead><tr><th>Membresía</th><th>Precio</th><th>Comisión agente</th><th>Tipo</th><th>Columna Sheet</th><th style="text-align:right">Acciones</th></tr></thead><tbody>${body}</tbody></table></div>
-   <div class="note"><b>Comisión agente</b> = cuánto gana el agente por cada venta de esa membresía (valor fijo en USD). <b>Columna Sheet</b> = el nombre exacto de la columna en tu Google Sheet de facturación; así calculo cuántas unidades vendió cada agente y su comisión. El botón ● desactiva un producto (deja de aparecer al registrar ventas, pero no borra el histórico). Todo se guarda al instante.</div>
-   ${vmPanel}`;
-}
-async function guardarVentaMes(m){
- const e=document.getElementById('vm_'+m);const u=e?e.value:'';
- await setVentaMesUrl(m,u);
- if(m===VENTAS_MES){VENTAS=null;renderVentas();await loadVentas().catch(()=>{VENTAS='error';});renderVentas();}
- renderConfig();
-}
-async function agregarVentaMes(){
- const m=($('vmNuevoMes').value||'').slice(0,7);const u=$('vmNuevoUrl').value||'';
- if(!/^\d{4}-\d{2}$/.test(m)){alert('Elige un mes válido.');return;}
- await setVentaMesUrl(m,u);$('vmNuevoUrl').value='';
- if(m===VENTAS_MES){VENTAS=null;await loadVentas().catch(()=>{VENTAS='error';});renderVentas();}
- renderConfig();
+   <div class="note"><b>Comisión agente</b> = cuánto gana el agente por cada venta de esa membresía (valor fijo en USD). <b>Columna Sheet</b> = el nombre exacto de la columna en tu Google Sheet de facturación; así calculo cuántas unidades vendió cada agente y su comisión. El botón ● desactiva un producto (deja de aparecer al registrar ventas, pero no borra el histórico). Todo se guarda al instante.</div>`;
 }
 
 /* auto-login */

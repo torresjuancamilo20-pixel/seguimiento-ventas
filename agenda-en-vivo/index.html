@@ -8,7 +8,7 @@
 :root{
  --bg:#0b1020; --paper:#131a2e; --paper2:#0f1526; --line:#243049; --line2:#1a2338;
  --ink:#eef2fb; --mut:#8b99c9; --white:#1a2138;
- --blue:#3b82f6; --indigo:#6366f1; --green:#22c55e; --red:#ef4444; --gold:#f59e0b;
+ --blue:#3b82f6; --indigo:#6366f1; --green:#22c55e; --red:#ef4444; --gold:#f59e0b; --violet:#a855f7;
  --sh:0 6px 20px rgba(0,0,0,.35);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -16,61 +16,75 @@ html,body{margin:0;padding:0}
 body{background:radial-gradient(1200px 700px at 80% -10%,#18223f 0,transparent 60%),var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;min-height:100vh}
 .wrap{max-width:720px;margin:0 auto;padding:18px 16px 90px}
 
-/* ---------- header ---------- */
 .top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}
 .brand{display:flex;align-items:center;gap:11px}
-.mk{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,var(--blue),var(--indigo));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;color:#fff;box-shadow:var(--sh)}
+.mk{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,var(--blue),var(--indigo));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff;box-shadow:var(--sh)}
 .brand h1{font-size:17px;margin:0;line-height:1.1;font-weight:800}
 .brand .sub{font-size:11.5px;color:var(--mut);margin-top:2px}
 .who{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mut)}
-.who b{color:var(--ink)}
 .lo{color:var(--blue);cursor:pointer;font-weight:600}
 
-/* ---------- day banner ---------- */
 .daybar{display:flex;align-items:center;justify-content:space-between;background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:11px 14px;margin-bottom:14px}
 .daybar .d{font-weight:700;font-size:13.5px;text-transform:capitalize}
 .daybar .t{font-size:11.5px;color:var(--mut)}
 .livedot{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--green)}
-.livedot .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:pulse 1.8s infinite}
+.livedot .dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 1.8s infinite}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
 
-/* ---------- add form ---------- */
 .card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:16px;box-shadow:var(--sh)}
 .card h2{font-size:13px;margin:0 0 12px;font-weight:700;display:flex;align-items:center;gap:7px}
 .row{display:flex;gap:9px;flex-wrap:wrap}
 .fld{flex:1;min-width:120px}
 label{display:block;font-size:11px;color:var(--mut);margin:0 0 5px;font-weight:600}
-input,select{width:100%;background:var(--paper2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:11px 12px;font-size:15px;outline:none;font-family:inherit}
-input:focus,select:focus{border-color:var(--blue)}
-input::placeholder{color:#5a6a8a}
+input,select,textarea{width:100%;background:var(--paper2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:11px 12px;font-size:15px;outline:none;font-family:inherit}
+textarea{resize:vertical;min-height:64px;line-height:1.4}
+input:focus,select:focus,textarea:focus{border-color:var(--blue)}
+input::placeholder,textarea::placeholder{color:#5a6a8a}
 .btn{width:100%;margin-top:12px;background:linear-gradient(135deg,var(--blue),var(--indigo));color:#fff;border:none;border-radius:11px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
 .btn:disabled{opacity:.55;cursor:not-allowed}
 .btn.ghost{background:var(--paper2);border:1px solid var(--line);color:var(--ink)}
+.btn.sm{padding:9px 14px;font-size:13px;margin-top:0;width:auto}
 .hint{font-size:11.5px;color:var(--mut);margin-top:9px}
+.err{color:var(--red);font-size:12.5px;margin-top:9px;font-weight:600;min-height:1px}
 .seg{display:flex;gap:4px;background:var(--paper2);border:1px solid var(--line);border-radius:9px;padding:3px;margin-bottom:7px}
 .segb{flex:1;border:none;background:transparent;color:var(--mut);font-size:12px;font-weight:700;padding:6px 4px;border-radius:6px;cursor:pointer;font-family:inherit}
 .segb.on{background:var(--white);color:var(--ink)}
 .prev{font-size:12px;color:var(--green);font-weight:700;margin-top:6px;min-height:1px}
-.err{color:var(--red);font-size:12.5px;margin-top:9px;font-weight:600;min-height:1px}
+.ofChip{display:inline-flex;align-items:center;gap:6px;background:var(--paper2);border:1px solid #3b4a7a;color:#c7d2fe;font-size:12px;font-weight:700;padding:7px 12px;border-radius:9px}
 
-/* ---------- list ---------- */
 .listhead{display:flex;align-items:center;justify-content:space-between;margin:6px 2px 10px}
 .listhead .t{font-size:12px;color:var(--mut);font-weight:700;letter-spacing:.03em;text-transform:uppercase}
 .count{font-size:11.5px;color:var(--mut)}
-.slot{display:flex;align-items:center;gap:13px;background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:10px;transition:background .25s}
+.slot{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:10px;transition:background .25s}
 .slot.fresh{animation:flash 1.6s ease}
+.slot.done{border-color:#2f5f43;background:#0e1b16}
 @keyframes flash{0%{background:rgba(59,130,246,.28);border-color:var(--blue)}100%{background:var(--paper);border-color:var(--line)}}
-.hh{min-width:64px;text-align:center;font-weight:800;font-size:17px;font-variant-numeric:tabular-nums;color:#fff;background:linear-gradient(135deg,#1d2b4d,#22305a);border:1px solid var(--line);border-radius:10px;padding:9px 6px}
+.slot-top{display:flex;align-items:flex-start;gap:13px}
+.hh{min-width:64px;text-align:center;font-weight:800;font-size:16px;font-variant-numeric:tabular-nums;color:#fff;background:linear-gradient(135deg,#1d2b4d,#22305a);border:1px solid var(--line);border-radius:10px;padding:9px 6px}
 .info{flex:1;min-width:0}
 .info .nm{font-weight:700;font-size:15px}
-.info .of{font-size:12.5px;color:var(--mut);margin-top:2px}
-.del{background:none;border:none;color:#6b7a9c;font-size:18px;cursor:pointer;padding:6px;line-height:1;border-radius:8px}
-.del:hover{color:var(--red);background:var(--paper2)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
+.badge{display:inline-block;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--paper2);border:1px solid var(--line);color:var(--mut)}
+.badge.dir{color:#c7d2fe;border-color:#3b4a7a}
+.badge.clo{color:#bbf7d0;border-color:#2f5f43}
+.badge.memb{color:#e9d5ff;border-color:#5b3b7a}
+.badge.bot{color:#bae6fd;border-color:#2f5f7a}
+.badge.pend{color:#fde68a;border-color:#7a6b2f}
+.badge.hecha{color:#bbf7d0;border-color:#2f5f43}
+.badge.of{color:#c7d2fe;border-color:#3b4a7a}
+.ctx{font-size:12.5px;color:var(--mut);margin-top:8px;line-height:1.4}
+.ctx b{color:#aeb9db;font-weight:700}
+.result{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);font-size:13px;line-height:1.45}
+.result .rl{font-size:10.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;font-weight:700;margin-bottom:3px}
+.pay{display:inline-flex;align-items:center;gap:6px;margin-top:8px;background:#12251b;border:1px solid #2f5f43;color:#bbf7d0;font-size:12.5px;font-weight:700;padding:6px 11px;border-radius:9px}
+.acts{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap}
+.del{background:none;border:1px solid var(--line);color:#8b98bb;font-size:12.5px;cursor:pointer;padding:8px 12px;border-radius:9px;font-weight:600}
+.del:hover{color:var(--red);border-color:var(--red)}
 .empty{text-align:center;color:var(--mut);padding:34px 16px;font-size:13.5px;background:var(--paper);border:1px dashed var(--line);border-radius:14px}
 .empty .big{font-size:30px;margin-bottom:8px}
 
-/* ---------- login ---------- */
-.login{max-width:400px;margin:8vh auto 0;padding:0 18px}
+/* login */
+.login{max-width:400px;margin:7vh auto 0;padding:0 18px}
 .login .card{padding:22px}
 .tabs{display:flex;gap:6px;background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:5px;margin-bottom:16px}
 .tab{flex:1;text-align:center;padding:10px;font-size:13px;font-weight:700;color:var(--mut);cursor:pointer;border-radius:8px}
@@ -78,17 +92,20 @@ input::placeholder{color:#5a6a8a}
 .login h1{font-size:19px;margin:0 0 4px}
 .login p.s{font-size:12.5px;color:var(--mut);margin:0 0 18px}
 
-.hide{display:none!important}
+/* modal resultado */
+.modal{position:fixed;inset:0;background:rgba(4,8,20,.72);display:flex;align-items:flex-end;justify-content:center;z-index:60;padding:0}
+.modal-card{background:var(--paper);border:1px solid var(--line);border-radius:16px 16px 0 0;padding:20px 18px 24px;width:100%;max-width:520px;box-shadow:var(--sh);max-height:92vh;overflow:auto}
+@media(min-width:560px){.modal{align-items:center;padding:18px}.modal-card{border-radius:16px}}
+.modal-card h2{font-size:16px;margin:0 0 4px}
+.modal-card .mw{font-size:12.5px;color:var(--mut);margin:0 0 16px}
+.chk{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink);font-weight:600;margin:14px 0 0;cursor:pointer}
+.chk input{width:20px;height:20px;flex:0 0 auto}
 
-/* ---------- toast ---------- */
-.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(30px);background:#0f1730;border:1px solid var(--line);color:var(--ink);padding:12px 18px;border-radius:12px;font-size:13.5px;font-weight:600;box-shadow:var(--sh);opacity:0;pointer-events:none;transition:.3s;z-index:50;max-width:90vw;text-align:center}
+.hide{display:none!important}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(30px);background:#0f1730;border:1px solid var(--line);color:var(--ink);padding:12px 18px;border-radius:12px;font-size:13.5px;font-weight:600;box-shadow:var(--sh);opacity:0;pointer-events:none;transition:.3s;z-index:80;max-width:90vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.err{border-color:var(--red)}
 .toast.ok{border-color:var(--green)}
-
-.badge{display:inline-block;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--paper2);border:1px solid var(--line);color:var(--mut)}
-.badge.dir{color:#c7d2fe;border-color:#3b4a7a}
-.badge.clo{color:#bbf7d0;border-color:#2f5f43}
 </style>
 </head>
 <body>
@@ -107,16 +124,14 @@ input::placeholder{color:#5a6a8a}
 
   <div id="dirBox">
    <h1>Entrar como director</h1>
-   <p class="s">Pones tus espacios de reunión para el día. Escribe tu nombre y la clave.</p>
-   <label>Tu nombre</label>
-   <input id="dirName" placeholder="Ej: Daniel" autocomplete="off">
-   <label style="margin-top:12px">Clave de director</label>
+   <p class="s">Cada oficina entra con su propia clave. Con ella agendas los espacios de reunión del día.</p>
+   <label>Clave de tu oficina</label>
    <input id="dirPass" type="password" placeholder="••••••">
   </div>
 
   <div id="cloBox" class="hide">
    <h1>Entrar como closer</h1>
-   <p class="s">Ves el tablero en vivo y te avisa cada vez que un director agenda un espacio.</p>
+   <p class="s">Ves el tablero en vivo, recibes aviso de cada reunión y registras el resultado al terminar.</p>
    <label>Clave de closer</label>
    <input id="cloPass" type="password" placeholder="••••••">
   </div>
@@ -141,16 +156,13 @@ input::placeholder{color:#5a6a8a}
  </div>
 
  <div class="daybar">
-  <div>
-   <div class="d" id="dayLabel">—</div>
-   <div class="t">Se reinicia a la medianoche</div>
-  </div>
+  <div><div class="d" id="dayLabel">—</div><div class="t">Se reinicia a la medianoche</div></div>
   <div class="livedot"><span class="dot"></span> EN VIVO</div>
  </div>
 
  <!-- solo director -->
  <div class="card" id="addCard">
-  <h2>➕ Poner un espacio de reunión</h2>
+  <h2>➕ Agendar una reunión</h2>
   <div class="row">
    <div class="fld" style="max-width:170px">
     <label>Hora</label>
@@ -163,26 +175,59 @@ input::placeholder{color:#5a6a8a}
     <div class="prev" id="horaPrev"></div>
    </div>
    <div class="fld">
-    <label>Nombre</label>
+    <label>Nombre del cliente</label>
     <input id="fNombre" placeholder="Ej: Daniel" autocomplete="off">
    </div>
   </div>
   <div class="row" style="margin-top:9px">
+   <div class="fld" style="max-width:200px">
+    <label>¿Para qué es?</label>
+    <select id="fTipo">
+     <option value="membresia">🎓 Membresía</option>
+     <option value="bot">🤖 Bot</option>
+    </select>
+   </div>
    <div class="fld">
-    <label>Oficina / lugar</label>
-    <input id="fOficina" placeholder="Ej: oficina legendary" autocomplete="off">
+    <label>Oficina</label>
+    <div style="padding-top:2px"><span class="ofChip" id="fOfChip">—</span></div>
    </div>
   </div>
-  <button class="btn" id="addBtn">Agendar este espacio</button>
-  <div class="hint">Si la hora ya está tomada por otro director, el sistema no la dejará repetir.</div>
+  <div class="row" style="margin-top:9px">
+   <div class="fld">
+    <label>Contexto del cliente</label>
+    <textarea id="fCtx" placeholder="Breve: quién es, en qué está, por qué agendó… (ej. hizo FTD, ya vio 3 clases, muy interesado)"></textarea>
+   </div>
+  </div>
+  <button class="btn" id="addBtn">Agendar esta reunión</button>
+  <div class="hint">Si la hora ya está tomada por otra oficina, el sistema no la dejará repetir.</div>
   <div class="err" id="addErr"></div>
  </div>
 
  <div class="listhead">
-  <div class="t">Espacios de hoy</div>
+  <div class="t">Reuniones de hoy</div>
   <div class="count" id="count">—</div>
  </div>
  <div id="list"><div class="empty"><div class="big">⏳</div>Cargando…</div></div>
+</div>
+
+<!-- ===================== MODAL RESULTADO (closer) ===================== -->
+<div class="modal hide" id="resModal">
+ <div class="modal-card">
+  <h2>Resultado de la reunión</h2>
+  <p class="mw" id="resWho">—</p>
+  <label>Resumen de lo que pasó</label>
+  <textarea id="resResumen" placeholder="Ej: Cliente muy interesado, resolvió dudas de precio, quedó de pagar el viernes…"></textarea>
+  <label class="chk"><input type="checkbox" id="resPago"> El cliente agendó fecha de pago</label>
+  <div id="resFechaWrap" class="hide" style="margin-top:12px">
+   <label>Fecha de pago</label>
+   <input id="resFecha" type="date">
+  </div>
+  <div class="row" style="margin-top:16px">
+   <button class="btn ghost" id="resCancel" style="flex:1">Cancelar</button>
+   <button class="btn" id="resSave" style="flex:2">Guardar resultado</button>
+  </div>
+  <div class="err" id="resErr"></div>
+ </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -194,71 +239,62 @@ const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 const REST=SUPABASE_URL+"/rest/v1/agenda_vivo";
 const HDRS={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
 
-/* Claves (cámbialas por las tuyas) */
-const DIRECTOR_PASS="Director2026";
+/* ===== Claves por oficina (cámbialas por las tuyas) ===== */
+const OFICINAS={
+ "Prime2026":"NXPrime",
+ "Elite2026":"NXElite",
+ "Apex2026":"NXApex",
+ "Legendary2026":"NXLegendary",
+ "Bots2026":"NXBots"
+};
 const CLOSER_PASS="Closer2026";
 
-const POLL_MS=8000;   // cada cuánto refresca el tablero (ms)
+const POLL_MS=8000;   // cada cuánto refresca el tablero
 const TZ_OFFSET=-5;   // Colombia (UTC-5): para calcular "hoy"
 
 const $=id=>document.getElementById(id);
-let ROLE=null, ME=null, ROWS=[], seen=new Set(), firstLoad=true, tmr=null, pollTimer=null;
+let ROLE=null, OFICINA=null, ME=null, ROWS=[], seen=new Set(), firstLoad=true, tmr=null, pollTimer=null, editId=null;
 
-/* ---- utilidades ---- */
-function toast(msg,kind){const t=$('toast');t.textContent=msg;t.className='toast show '+(kind||'');clearTimeout(tmr);tmr=setTimeout(()=>t.className='toast',kind==='err'?3200:2200);}
+function toast(msg,kind){const t=$('toast');t.textContent=msg;t.className='toast show '+(kind||'');clearTimeout(tmr);tmr=setTimeout(()=>t.className='toast',kind==='err'?3200:2600);}
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
-function hoyLocal(){
- const now=new Date();
- const utc=now.getTime()+now.getTimezoneOffset()*60000;
- const loc=new Date(utc+TZ_OFFSET*3600000);
- return loc;
-}
+function hoyLocal(){const now=new Date();const utc=now.getTime()+now.getTimezoneOffset()*60000;return new Date(utc+TZ_OFFSET*3600000);}
 function hoyISO(){const d=hoyLocal();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-function fmtHora(h){ // "17:30" -> "5:30 PM"
- if(!h)return '';const [H,M]=h.split(':').map(Number);
- const ap=H<12?'AM':'PM';let h12=H%12;if(h12===0)h12=12;
- return `${h12}:${String(M).padStart(2,'0')} ${ap}`;
-}
-// Convierte texto libre ("5:30 pm", "17:30", "9 am", "5:30") a "HH:MM" 24h. null si no se entiende.
+function fmtHora(h){if(!h)return '';const [H,M]=h.split(':').map(Number);const ap=H<12?'AM':'PM';let h12=H%12;if(h12===0)h12=12;return `${h12}:${String(M).padStart(2,'0')} ${ap}`;}
+function fmtFecha(s){if(!s)return '';const p=s.slice(0,10).split('-');if(p.length<3)return s;const M=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];return `${+p[2]} ${M[+p[1]-1]} ${p[0]}`;}
+// texto libre ("5:30 pm","17:30","9 am","5:30") -> "HH:MM" 24h; null si no se entiende
 function parseHora(raw){
- let s=(raw||'').toLowerCase().replace(/\s+/g,'');
- if(!s)return null;
+ let s=(raw||'').toLowerCase().replace(/\s+/g,'');if(!s)return null;
  let ap=null;
  if(/a\.?m?\.?$/.test(s)){ap='am';s=s.replace(/a\.?m?\.?$/,'');}
  else if(/p\.?m?\.?$/.test(s)){ap='pm';s=s.replace(/p\.?m?\.?$/,'');}
- s=s.replace(/[^\d:]/g,'');
- if(!s)return null;
+ s=s.replace(/[^\d:]/g,'');if(!s)return null;
  let H,M;
- if(s.includes(':')){const p=s.split(':');H=parseInt(p[0],10);M=parseInt(p[1],10);}
- else{H=parseInt(s,10);M=0;}
- if(isNaN(H))return null; if(isNaN(M))M=0;
- if(M<0||M>59)return null;
- if(ap){
-  if(H<1||H>12)return null;
-  if(ap==='pm'&&H<12)H+=12;
-  if(ap==='am'&&H===12)H=0;
- }else{
-  if(H<0||H>23)return null;
-  if(H>=1&&H<=6)H+=12; // sin am/pm y hora 1–6: se asume tarde (ej. "5:30" -> 5:30 PM)
- }
+ if(s.includes(':')){const p=s.split(':');H=parseInt(p[0],10);M=parseInt(p[1],10);}else{H=parseInt(s,10);M=0;}
+ if(isNaN(H))return null;if(isNaN(M))M=0;if(M<0||M>59)return null;
+ if(ap){if(H<1||H>12)return null;if(ap==='pm'&&H<12)H+=12;if(ap==='am'&&H===12)H=0;}
+ else{if(H<0||H>23)return null;if(H>=1&&H<=6)H+=12;}
  if(H<0||H>23)return null;
  return String(H).padStart(2,'0')+':'+String(M).padStart(2,'0');
 }
 const DIAS=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
 const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 function labelDia(){const d=hoyLocal();return `${DIAS[d.getDay()]}, ${d.getDate()} de ${MESES[d.getMonth()]}`;}
+function tipoBadge(t){return t==='bot'?'<span class="badge bot">🤖 Bot</span>':'<span class="badge memb">🎓 Membresía</span>';}
 
 /* ---- API ---- */
 async function apiGet(){
  const r=await fetch(REST+'?dia=eq.'+hoyISO()+'&select=*&order=hora.asc',{headers:HDRS,cache:'no-store'});
- if(!r.ok)throw new Error('GET '+r.status);
- return r.json();
+ if(!r.ok)throw new Error('GET '+r.status);return r.json();
 }
 async function apiAdd(row){
  const r=await fetch(REST,{method:'POST',headers:{...HDRS,'Prefer':'return=representation'},body:JSON.stringify(row)});
  if(r.status===409)throw new Error('DUP');
  if(!r.ok)throw new Error('POST '+r.status+' '+(await r.text()));
  return (await r.json())[0];
+}
+async function apiPatch(id,patch){
+ const r=await fetch(REST+'?id=eq.'+id,{method:'PATCH',headers:HDRS,body:JSON.stringify(patch)});
+ if(!r.ok)throw new Error('PATCH '+r.status+' '+(await r.text()));
 }
 async function apiDel(id){
  const r=await fetch(REST+'?id=eq.'+id,{method:'DELETE',headers:HDRS});
@@ -272,30 +308,29 @@ $('tabClo').onclick=()=>{loginRole='closer';$('tabClo').classList.add('on');$('t
 
 $('enter').onclick=()=>{
  if(loginRole==='director'){
-  const nm=$('dirName').value.trim();
-  if(!nm){$('loginErr').textContent='Escribe tu nombre.';return;}
-  if($('dirPass').value!==DIRECTOR_PASS){$('loginErr').textContent='Clave de director incorrecta.';return;}
-  ROLE='director';ME=nm;
-  localStorage.setItem('av_role','director');localStorage.setItem('av_me',nm);
+  const of=OFICINAS[$('dirPass').value.trim()];
+  if(!of){$('loginErr').textContent='Clave de oficina incorrecta.';return;}
+  ROLE='director';OFICINA=of;ME=of;
+  localStorage.setItem('av_role','director');localStorage.setItem('av_of',of);
  }else{
   if($('cloPass').value!==CLOSER_PASS){$('loginErr').textContent='Clave de closer incorrecta.';return;}
-  ROLE='closer';ME='Closer';
-  localStorage.setItem('av_role','closer');localStorage.setItem('av_me','Closer');
+  ROLE='closer';OFICINA=null;ME='Closer';
+  localStorage.setItem('av_role','closer');localStorage.removeItem('av_of');
  }
  enterApp();
 };
-[$('dirName'),$('dirPass'),$('cloPass')].forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter')$('enter').click();}));
-$('logout').onclick=()=>{localStorage.removeItem('av_role');localStorage.removeItem('av_me');if(pollTimer)clearInterval(pollTimer);location.reload();};
+[$('dirPass'),$('cloPass')].forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter')$('enter').click();}));
+$('logout').onclick=()=>{localStorage.removeItem('av_role');localStorage.removeItem('av_of');if(pollTimer)clearInterval(pollTimer);location.reload();};
 
 function enterApp(){
  $('login').classList.add('hide');$('app').classList.remove('hide');
  $('dayLabel').textContent=labelDia();
  const isDir=ROLE==='director';
  $('addCard').classList.toggle('hide',!isDir);
- $('whoBadge').textContent=isDir?('Director · '+ME):'Closer';
+ $('whoBadge').textContent=isDir?OFICINA:'Closer';
  $('whoBadge').className='badge '+(isDir?'dir':'clo');
- if(isDir)$('fNombre').value=ME;
- firstLoad=true;
+ if(isDir)$('fOfChip').textContent='🏢 '+OFICINA;
+ firstLoad=true;seen=new Set();
  load();
  pollTimer=setInterval(load,POLL_MS);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});
@@ -304,13 +339,11 @@ function enterApp(){
 /* ---- CARGA + NOTIFICACIONES ---- */
 async function load(){
  let data;
- try{data=await apiGet();}catch(e){return;/* silencioso en polling */}
- // detectar nuevos para notificar (solo después de la primera carga)
+ try{data=await apiGet();}catch(e){return;}
  const nuevos=data.filter(r=>!seen.has(r.id));
  if(!firstLoad && nuevos.length){
   const n=nuevos[nuevos.length-1];
-  const msg=`🔔 Nuevo espacio: ${fmtHora(n.hora)} — ${n.director}`+(n.oficina?` (${n.oficina})`:'');
-  toast(msg,'ok');
+  toast(`🔔 Nueva reunión: ${fmtHora(n.hora)} — ${n.director} (${n.oficina})`,'ok');
   beep();
  }
  data.forEach(r=>seen.add(r.id));
@@ -322,103 +355,126 @@ async function load(){
 
 function render(freshIds){
  const wrap=$('list');
- $('count').textContent=ROWS.length? (ROWS.length+' espacio'+(ROWS.length>1?'s':'')) : 'sin espacios aún';
+ const pend=ROWS.filter(r=>r.estado!=='hecha').length;
+ $('count').textContent=ROWS.length? `${ROWS.length} reunión${ROWS.length>1?'es':''} · ${pend} pendiente${pend!==1?'s':''}` : 'sin reuniones aún';
  if(!ROWS.length){
-  wrap.innerHTML=`<div class="empty"><div class="big">🗓️</div>Todavía no hay espacios para hoy.<br>${ROLE==='director'?'Agrega el primero arriba.':'Cuando un director agende, aparecerá aquí al instante.'}</div>`;
+  wrap.innerHTML=`<div class="empty"><div class="big">🗓️</div>Todavía no hay reuniones para hoy.<br>${ROLE==='director'?'Agenda la primera arriba.':'Cuando una oficina agende, aparecerá aquí al instante.'}</div>`;
   return;
  }
  wrap.innerHTML=ROWS.map(r=>{
   const fresh=freshIds&&freshIds.includes(r.id)?' fresh':'';
-  const canDel=ROLE==='director' && r.creado_por===ME;
-  return `<div class="slot${fresh}">
-    <div class="hh">${esc(fmtHora(r.hora))}</div>
-    <div class="info">
-     <div class="nm">${esc(r.director)}</div>
-     ${r.oficina?`<div class="of">📍 ${esc(r.oficina)}</div>`:''}
+  const hecha=r.estado==='hecha';
+  const soyDueno=ROLE==='director' && r.creado_por===OFICINA;
+  const esCloser=ROLE==='closer';
+  let acts='';
+  if(esCloser && !hecha) acts+=`<button class="btn sm" onclick="abrirResultado('${r.id}')">✍️ Registrar resultado</button>`;
+  if(esCloser && hecha) acts+=`<button class="del" onclick="abrirResultado('${r.id}')">Editar resultado</button>`;
+  if(soyDueno && !hecha) acts+=`<button class="del" onclick="delSlot('${r.id}')">✕ Quitar</button>`;
+  let result='';
+  if(hecha){
+   result=`<div class="result"><div class="rl">📝 Resumen del closer</div>${esc(r.resumen)||'<span style="color:var(--mut)">(sin resumen)</span>'}`;
+   if(r.agendo_pago)result+=`<div class="pay">💳 Agendó pago${r.fecha_pago?': '+esc(fmtFecha(r.fecha_pago)):''}</div>`;
+   result+=`</div>`;
+  }
+  return `<div class="slot${fresh}${hecha?' done':''}">
+    <div class="slot-top">
+     <div class="hh">${esc(fmtHora(r.hora))}</div>
+     <div class="info">
+      <div class="nm">${esc(r.director)}</div>
+      <div class="chips">${tipoBadge(r.tipo)}<span class="badge of">🏢 ${esc(r.oficina)}</span>${hecha?'<span class="badge hecha">✅ Hecha</span>':'<span class="badge pend">⏳ Pendiente</span>'}</div>
+      ${r.contexto?`<div class="ctx"><b>Contexto:</b> ${esc(r.contexto)}</div>`:''}
+     </div>
     </div>
-    ${canDel?`<button class="del" title="Quitar" onclick="delSlot('${r.id}')">✕</button>`:''}
+    ${result}
+    ${acts?`<div class="acts">${acts}</div>`:''}
    </div>`;
  }).join('');
 }
 
-/* ---- MODO DE HORA: reloj / escribir ---- */
+/* ---- MODO DE HORA ---- */
 let horaMode='reloj';
-function setHoraMode(m){
- horaMode=m;
- $('modeReloj').classList.toggle('on',m==='reloj');
- $('modeTexto').classList.toggle('on',m==='texto');
- $('fHora').classList.toggle('hide',m!=='reloj');
- $('fHoraTxt').classList.toggle('hide',m!=='texto');
- updateHoraPrev();
-}
+function setHoraMode(m){horaMode=m;$('modeReloj').classList.toggle('on',m==='reloj');$('modeTexto').classList.toggle('on',m==='texto');$('fHora').classList.toggle('hide',m!=='reloj');$('fHoraTxt').classList.toggle('hide',m!=='texto');updateHoraPrev();}
 $('modeReloj').onclick=()=>setHoraMode('reloj');
 $('modeTexto').onclick=()=>{setHoraMode('texto');$('fHoraTxt').focus();};
-function getHora(){ // devuelve "HH:MM" 24h o null
- if(horaMode==='reloj')return $('fHora').value||null;
- return parseHora($('fHoraTxt').value);
-}
-function updateHoraPrev(){
- const p=$('horaPrev');
- if(horaMode==='reloj'){p.textContent='';return;}
- const raw=$('fHoraTxt').value.trim();
- if(!raw){p.textContent='';return;}
- const h=parseHora(raw);
- if(h){p.style.color='var(--green)';p.textContent='→ '+fmtHora(h);}
- else{p.style.color='var(--red)';p.textContent='No se entiende la hora';}
-}
+function getHora(){return horaMode==='reloj'?($('fHora').value||null):parseHora($('fHoraTxt').value);}
+function updateHoraPrev(){const p=$('horaPrev');if(horaMode==='reloj'){p.textContent='';return;}const raw=$('fHoraTxt').value.trim();if(!raw){p.textContent='';return;}const h=parseHora(raw);if(h){p.style.color='var(--green)';p.textContent='→ '+fmtHora(h);}else{p.style.color='var(--red)';p.textContent='No se entiende la hora';}}
 $('fHoraTxt').addEventListener('input',updateHoraPrev);
 
-/* ---- AGREGAR (director) ---- */
+/* ---- AGENDAR (director) ---- */
 $('addBtn').onclick=async()=>{
  const hora=getHora();
  const nombre=$('fNombre').value.trim();
- const oficina=$('fOficina').value.trim();
+ const tipo=$('fTipo').value;
+ const contexto=$('fCtx').value.trim();
  $('addErr').textContent='';
  if(!hora){$('addErr').textContent=horaMode==='texto'?'No entiendo esa hora. Ej: 5:30 PM':'Elige la hora.';return;}
- if(!nombre){$('addErr').textContent='Escribe el nombre.';return;}
- // chequeo local rápido (además del bloqueo real en la base)
- if(ROWS.some(r=>r.hora===hora)){$('addErr').textContent='⛔ Ese horario ya está tomado por otro director.';return;}
+ if(!nombre){$('addErr').textContent='Escribe el nombre del cliente.';return;}
+ if(ROWS.some(r=>r.hora===hora)){$('addErr').textContent='⛔ Ese horario ya está tomado por otra oficina.';return;}
  $('addBtn').disabled=true;$('addBtn').textContent='Agendando…';
  try{
-  await apiAdd({dia:hoyISO(),hora,director:nombre,oficina,creado_por:ME});
-  $('fHora').value='';$('fHoraTxt').value='';$('fOficina').value='';updateHoraPrev();
-  toast('✓ Espacio agendado','ok');
+  await apiAdd({dia:hoyISO(),hora,director:nombre,oficina:OFICINA,creado_por:OFICINA,tipo,contexto,estado:'pendiente',agendo_pago:false});
+  $('fHora').value='';$('fHoraTxt').value='';$('fNombre').value='';$('fCtx').value='';updateHoraPrev();
+  toast('✓ Reunión agendada','ok');
   await load();
  }catch(e){
-  if(e.message==='DUP'){$('addErr').textContent='⛔ Ese horario ya está tomado por otro director.';await load();}
+  if(e.message==='DUP'){$('addErr').textContent='⛔ Ese horario ya está tomado por otra oficina.';await load();}
   else{$('addErr').textContent='Error al guardar. Revisa tu conexión.';}
- }finally{
-  $('addBtn').disabled=false;$('addBtn').textContent='Agendar este espacio';
- }
+ }finally{$('addBtn').disabled=false;$('addBtn').textContent='Agendar esta reunión';}
 };
 
 async function delSlot(id){
- if(!confirm('¿Quitar este espacio?'))return;
- try{await apiDel(id);seen.delete(id);toast('Espacio quitado');await load();}
+ if(!confirm('¿Quitar esta reunión?'))return;
+ try{await apiDel(id);seen.delete(id);toast('Reunión quitada');await load();}
  catch(e){toast('No se pudo quitar','err');}
 }
 
-/* ---- sonidito de notificación ---- */
+/* ---- RESULTADO (closer) ---- */
+function abrirResultado(id){
+ const r=ROWS.find(x=>x.id===id);if(!r)return;
+ editId=id;
+ $('resWho').textContent=`${fmtHora(r.hora)} · ${r.director} · ${r.oficina}`;
+ $('resResumen').value=r.resumen||'';
+ $('resPago').checked=!!r.agendo_pago;
+ $('resFecha').value=r.fecha_pago?r.fecha_pago.slice(0,10):'';
+ $('resFechaWrap').classList.toggle('hide',!r.agendo_pago);
+ $('resErr').textContent='';
+ $('resModal').classList.remove('hide');
+}
+$('resPago').onchange=()=>$('resFechaWrap').classList.toggle('hide',!$('resPago').checked);
+$('resCancel').onclick=()=>{$('resModal').classList.add('hide');editId=null;};
+$('resSave').onclick=async()=>{
+ const resumen=$('resResumen').value.trim();
+ const pago=$('resPago').checked;
+ const fecha=$('resFecha').value||null;
+ $('resErr').textContent='';
+ if(!resumen){$('resErr').textContent='Escribe el resumen de la reunión.';return;}
+ if(pago&&!fecha){$('resErr').textContent='Elige la fecha de pago (o desmarca la casilla).';return;}
+ $('resSave').disabled=true;$('resSave').textContent='Guardando…';
+ try{
+  await apiPatch(editId,{resumen,agendo_pago:pago,fecha_pago:pago?fecha:null,estado:'hecha'});
+  $('resModal').classList.add('hide');editId=null;
+  toast('✓ Resultado guardado','ok');
+  await load();
+ }catch(e){$('resErr').textContent='Error al guardar. Intenta de nuevo.';}
+ finally{$('resSave').disabled=false;$('resSave').textContent='Guardar resultado';}
+};
+
+/* ---- sonido de notificación ---- */
 function beep(){
  try{
   const ctx=new (window.AudioContext||window.webkitAudioContext)();
-  const o=ctx.createOscillator(),g=ctx.createGain();
-  o.connect(g);g.connect(ctx.destination);
+  const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);
   o.type='sine';o.frequency.value=880;
-  g.gain.setValueAtTime(.001,ctx.currentTime);
-  g.gain.exponentialRampToValueAtTime(.15,ctx.currentTime+.02);
-  g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.35);
+  g.gain.setValueAtTime(.001,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.15,ctx.currentTime+.02);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.35);
   o.start();o.stop(ctx.currentTime+.36);
  }catch(e){}
 }
 
 /* ---- auto-login ---- */
 (function(){
- const r=localStorage.getItem('av_role'),m=localStorage.getItem('av_me');
- if(r&&m){ROLE=r;ME=m;
-  if(r==='director'){loginRole='director';}else{loginRole='closer';}
-  enterApp();
- }
+ const r=localStorage.getItem('av_role');
+ if(r==='director'){const of=localStorage.getItem('av_of');if(of){ROLE='director';OFICINA=of;ME=of;loginRole='director';enterApp();}}
+ else if(r==='closer'){ROLE='closer';ME='Closer';loginRole='closer';$('tabClo').click();enterApp();}
 })();
 </script>
 </body>

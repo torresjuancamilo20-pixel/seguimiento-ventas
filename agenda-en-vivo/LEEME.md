@@ -1,82 +1,116 @@
 # Agenda en vivo — Reuniones con el closer
 
-App independiente (una sola página, `index.html`) donde los **directores** ponen los
-espacios de reunión del día con el **closer**, y el closer los ve **en vivo**.
+App independiente (`index.html`) donde cada **oficina** (director) agenda los espacios de
+reunión del día con el **closer**, y el closer los ve **en vivo** y registra el resultado.
 
-- Los directores agendan: **hora + nombre + oficina** (ej. `5:30 — Daniel (oficina legendary)`).
-  La hora se puede poner con el **reloj** o **escribiéndola** (ej. `5:30 PM`, `17:30`, `9 am`).
-- El closer ve el tablero en tiempo real; le suena y aparece una **notificación** por cada espacio nuevo.
-- Una **hora tomada queda bloqueada**: ningún otro director puede poner algo a esa misma hora.
-- **Solo quien puso un espacio puede borrarlo** (se identifica por el nombre con que entró el director).
-- **Se reinicia solo cada día** (a la medianoche, hora Colombia). Cada día arranca limpio.
+## Qué hace
 
-Usa el **mismo Supabase** de la app de seguimiento. Solo hay que crear **una tabla nueva** (paso 1).
+- **Cada oficina entra con su propia clave** (NXPrime, NXElite, NXApex, NXLegendary, NXBots).
+  Según la clave, la app ya sabe de qué oficina es; la oficina se pone sola en cada reunión.
+- El director agenda: **hora + cliente + para qué es (Membresía / Bot) + contexto del cliente**.
+  La hora se pone con el **reloj** o **escribiéndola** (ej. `5:30 PM`, `17:30`, `9 am`).
+- El **closer** ve el tablero en tiempo real, le suena/aparece una **notificación** por cada reunión nueva,
+  y al terminar registra el **resultado**: resumen de lo que pasó + si el cliente **agendó fecha de pago** (con fecha).
+- Una **hora tomada queda bloqueada**: ninguna otra oficina puede agendar a esa misma hora.
+- **Solo la oficina que agendó puede quitar** su propia reunión (mientras esté pendiente).
+- **Se reinicia solo cada día** (medianoche, hora Colombia).
+
+Usa el **mismo Supabase** de la app de seguimiento.
 
 ---
 
-## Paso 1 — Crear la tabla en Supabase (se hace UNA sola vez)
+## Paso 1 — Base de datos (Supabase → SQL Editor → New query → Run)
 
-1. Entra a tu proyecto en https://supabase.com → menú izquierdo **SQL Editor** → **New query**.
-2. Copia y pega TODO este bloque y dale **Run**:
+### 1a. Si es la PRIMERA vez (la tabla no existe):
 
 ```sql
 create table if not exists agenda_vivo (
-  id         uuid primary key default gen_random_uuid(),
-  dia        date not null,
-  hora       text not null,
-  director   text not null,
-  oficina    text default '',
-  creado_por text default '',   -- <- nombre del director que lo puso (solo él puede borrarlo)
-  creado     timestamptz default now(),
-  unique (dia, hora)            -- <- bloquea repetir la misma hora el mismo día
+  id          uuid primary key default gen_random_uuid(),
+  dia         date not null,
+  hora        text not null,
+  director    text not null,             -- nombre del cliente que se muestra
+  oficina     text default '',           -- NXPrime / NXElite / ...
+  creado_por  text default '',           -- oficina dueña (solo ella puede borrar)
+  tipo        text default '',           -- 'membresia' | 'bot'
+  contexto    text default '',           -- contexto del cliente
+  resumen     text default '',           -- resumen del closer al terminar
+  agendo_pago boolean default false,
+  fecha_pago  date,
+  estado      text default 'pendiente',  -- 'pendiente' | 'hecha'
+  creado      timestamptz default now(),
+  unique (dia, hora)                     -- bloquea repetir la misma hora el mismo día
 );
 
 alter table agenda_vivo enable row level security;
-
 create policy "av_select" on agenda_vivo for select using (true);
 create policy "av_insert" on agenda_vivo for insert with check (true);
 create policy "av_update" on agenda_vivo for update using (true) with check (true);
 create policy "av_delete" on agenda_vivo for delete using (true);
 ```
 
-Listo. La restricción `unique (dia, hora)` es la que hace que, si un horario ya está
-tomado, ningún otro director pueda repetirlo (el sistema lo rechaza y muestra el aviso).
+### 1b. Si YA habías creado la tabla antes (solo agrega las columnas nuevas):
 
-> El "reinicio cada 24 h" es automático porque la app solo muestra los espacios del día
-> de hoy. Los de días anteriores dejan de mostrarse solos. (Opcional: si quieres borrar
-> los viejos de la base, puedes correr de vez en cuando
-> `delete from agenda_vivo where dia < current_date;`)
+```sql
+alter table agenda_vivo
+  add column if not exists tipo        text default '',
+  add column if not exists contexto    text default '',
+  add column if not exists resumen     text default '',
+  add column if not exists agendo_pago boolean default false,
+  add column if not exists fecha_pago  date,
+  add column if not exists estado      text default 'pendiente';
+```
+
+> Corre **1b** si ya tenías la tabla (con las columnas dia, hora, director, oficina, creado_por).
+> Es seguro: `add column if not exists` no borra nada de lo que ya tengas.
 
 ---
 
-## Paso 2 — Claves de acceso
-
-Dentro de `index.html`, cerca del inicio del `<script>`, hay dos líneas:
+## Paso 2 — Claves (dentro de `index.html`, al inicio del `<script>`)
 
 ```js
-const DIRECTOR_PASS="Director2026";
+const OFICINAS={
+ "Prime2026":"NXPrime",
+ "Elite2026":"NXElite",
+ "Apex2026":"NXApex",
+ "Legendary2026":"NXLegendary",
+ "Bots2026":"NXBots"
+};
 const CLOSER_PASS="Closer2026";
 ```
 
-Cámbialas por las que tú quieras y guarda. Los directores entran con la clave de director
-(y su nombre); el closer entra con la clave de closer.
+Cambia las claves (lo que va entre comillas antes de los dos puntos) por las que tú quieras.
+El nombre de la oficina (a la derecha) es lo que se muestra en el tablero. Para **agregar o quitar
+oficinas**, solo agrega/quita líneas en `OFICINAS`.
+
+**Claves actuales:**
+
+| Oficina | Clave |
+|---|---|
+| NXPrime | `Prime2026` |
+| NXElite | `Elite2026` |
+| NXApex | `Apex2026` |
+| NXLegendary | `Legendary2026` |
+| NXBots | `Bots2026` |
+| **Closer** | `Closer2026` |
 
 ---
 
 ## Paso 3 — Publicar
 
-Al estar en el mismo repositorio, Cloudflare Pages la despliega sola. La página quedará en:
+Al hacer merge a `main`, el sitio (Cloudflare Worker "nexus") se redespliega y la página queda en:
 
 ```
-https://<tu-sitio>.pages.dev/agenda-en-vivo/
+https://nexus.nexustrading.workers.dev/agenda-en-vivo/
 ```
 
-Compártele ese link a los directores y al closer. Que la guarden en favoritos.
+- Los **directores** entran con "Soy director" → la clave de su oficina.
+- El **closer** entra con "Soy el closer" → clave de closer.
 
 ---
 
 ## Notas
 
-- La clave de Supabase incluida es la `anon public`, segura para el frontend (igual que la app de seguimiento).
-- El tablero se refresca solo cada 8 segundos. También se refresca al volver a la pestaña.
-- El sonidito de notificación puede requerir que el closer toque la pantalla una vez (los navegadores móviles bloquean el audio hasta la primera interacción).
+- La clave de Supabase incluida es la `anon public`, segura para el frontend.
+- El tablero se refresca solo cada 8 s (y al volver a la pestaña).
+- El sonido de notificación puede requerir que el closer toque la pantalla una vez (los navegadores móviles bloquean el audio hasta la primera interacción).
+- Opcional, limpiar días viejos en Supabase: `delete from agenda_vivo where dia < current_date;`

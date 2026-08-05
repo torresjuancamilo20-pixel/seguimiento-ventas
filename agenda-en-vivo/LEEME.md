@@ -4,8 +4,10 @@ App independiente (una sola página, `index.html`) donde los **directores** pone
 espacios de reunión del día con el **closer**, y el closer los ve **en vivo**.
 
 - Los directores agendan: **hora + nombre + oficina** (ej. `5:30 — Daniel (oficina legendary)`).
+  La hora se puede poner con el **reloj** o **escribiéndola** (ej. `5:30 PM`, `17:30`, `9 am`).
 - El closer ve el tablero en tiempo real; le suena y aparece una **notificación** por cada espacio nuevo.
 - Una **hora tomada queda bloqueada**: ningún otro director puede poner algo a esa misma hora.
+- **Solo quien puso un espacio puede borrarlo** (se identifica por el nombre con que entró el director).
 - **Se reinicia solo cada día** (a la medianoche, hora Colombia). Cada día arranca limpio.
 
 Usa el **mismo Supabase** de la app de seguimiento. Solo hay que crear **una tabla nueva** (paso 1).
@@ -19,13 +21,14 @@ Usa el **mismo Supabase** de la app de seguimiento. Solo hay que crear **una tab
 
 ```sql
 create table if not exists agenda_vivo (
-  id       uuid primary key default gen_random_uuid(),
-  dia      date not null,
-  hora     text not null,
-  director text not null,
-  oficina  text default '',
-  creado   timestamptz default now(),
-  unique (dia, hora)        -- <- bloquea repetir la misma hora el mismo día
+  id         uuid primary key default gen_random_uuid(),
+  dia        date not null,
+  hora       text not null,
+  director   text not null,
+  oficina    text default '',
+  creado_por text default '',   -- <- nombre del director que lo puso (solo él puede borrarlo)
+  creado     timestamptz default now(),
+  unique (dia, hora)            -- <- bloquea repetir la misma hora el mismo día
 );
 
 alter table agenda_vivo enable row level security;

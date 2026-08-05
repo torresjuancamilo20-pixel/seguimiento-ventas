@@ -47,6 +47,10 @@ input::placeholder{color:#5a6a8a}
 .btn:disabled{opacity:.55;cursor:not-allowed}
 .btn.ghost{background:var(--paper2);border:1px solid var(--line);color:var(--ink)}
 .hint{font-size:11.5px;color:var(--mut);margin-top:9px}
+.seg{display:flex;gap:4px;background:var(--paper2);border:1px solid var(--line);border-radius:9px;padding:3px;margin-bottom:7px}
+.segb{flex:1;border:none;background:transparent;color:var(--mut);font-size:12px;font-weight:700;padding:6px 4px;border-radius:6px;cursor:pointer;font-family:inherit}
+.segb.on{background:var(--white);color:var(--ink)}
+.prev{font-size:12px;color:var(--green);font-weight:700;margin-top:6px;min-height:1px}
 .err{color:var(--red);font-size:12.5px;margin-top:9px;font-weight:600;min-height:1px}
 
 /* ---------- list ---------- */
@@ -148,9 +152,15 @@ input::placeholder{color:#5a6a8a}
  <div class="card" id="addCard">
   <h2>➕ Poner un espacio de reunión</h2>
   <div class="row">
-   <div class="fld" style="max-width:130px">
+   <div class="fld" style="max-width:170px">
     <label>Hora</label>
+    <div class="seg">
+     <button type="button" class="segb on" id="modeReloj">Reloj</button>
+     <button type="button" class="segb" id="modeTexto">Escribir</button>
+    </div>
     <input id="fHora" type="time">
+    <input id="fHoraTxt" class="hide" placeholder="Ej: 5:30 PM" autocomplete="off">
+    <div class="prev" id="horaPrev"></div>
    </div>
    <div class="fld">
     <label>Nombre</label>
@@ -208,6 +218,31 @@ function fmtHora(h){ // "17:30" -> "5:30 PM"
  if(!h)return '';const [H,M]=h.split(':').map(Number);
  const ap=H<12?'AM':'PM';let h12=H%12;if(h12===0)h12=12;
  return `${h12}:${String(M).padStart(2,'0')} ${ap}`;
+}
+// Convierte texto libre ("5:30 pm", "17:30", "9 am", "5:30") a "HH:MM" 24h. null si no se entiende.
+function parseHora(raw){
+ let s=(raw||'').toLowerCase().replace(/\s+/g,'');
+ if(!s)return null;
+ let ap=null;
+ if(/a\.?m?\.?$/.test(s)){ap='am';s=s.replace(/a\.?m?\.?$/,'');}
+ else if(/p\.?m?\.?$/.test(s)){ap='pm';s=s.replace(/p\.?m?\.?$/,'');}
+ s=s.replace(/[^\d:]/g,'');
+ if(!s)return null;
+ let H,M;
+ if(s.includes(':')){const p=s.split(':');H=parseInt(p[0],10);M=parseInt(p[1],10);}
+ else{H=parseInt(s,10);M=0;}
+ if(isNaN(H))return null; if(isNaN(M))M=0;
+ if(M<0||M>59)return null;
+ if(ap){
+  if(H<1||H>12)return null;
+  if(ap==='pm'&&H<12)H+=12;
+  if(ap==='am'&&H===12)H=0;
+ }else{
+  if(H<0||H>23)return null;
+  if(H>=1&&H<=6)H+=12; // sin am/pm y hora 1–6: se asume tarde (ej. "5:30" -> 5:30 PM)
+ }
+ if(H<0||H>23)return null;
+ return String(H).padStart(2,'0')+':'+String(M).padStart(2,'0');
 }
 const DIAS=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
 const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -294,7 +329,7 @@ function render(freshIds){
  }
  wrap.innerHTML=ROWS.map(r=>{
   const fresh=freshIds&&freshIds.includes(r.id)?' fresh':'';
-  const canDel=ROLE==='director';
+  const canDel=ROLE==='director' && r.creado_por===ME;
   return `<div class="slot${fresh}">
     <div class="hh">${esc(fmtHora(r.hora))}</div>
     <div class="info">
@@ -306,20 +341,47 @@ function render(freshIds){
  }).join('');
 }
 
+/* ---- MODO DE HORA: reloj / escribir ---- */
+let horaMode='reloj';
+function setHoraMode(m){
+ horaMode=m;
+ $('modeReloj').classList.toggle('on',m==='reloj');
+ $('modeTexto').classList.toggle('on',m==='texto');
+ $('fHora').classList.toggle('hide',m!=='reloj');
+ $('fHoraTxt').classList.toggle('hide',m!=='texto');
+ updateHoraPrev();
+}
+$('modeReloj').onclick=()=>setHoraMode('reloj');
+$('modeTexto').onclick=()=>{setHoraMode('texto');$('fHoraTxt').focus();};
+function getHora(){ // devuelve "HH:MM" 24h o null
+ if(horaMode==='reloj')return $('fHora').value||null;
+ return parseHora($('fHoraTxt').value);
+}
+function updateHoraPrev(){
+ const p=$('horaPrev');
+ if(horaMode==='reloj'){p.textContent='';return;}
+ const raw=$('fHoraTxt').value.trim();
+ if(!raw){p.textContent='';return;}
+ const h=parseHora(raw);
+ if(h){p.style.color='var(--green)';p.textContent='→ '+fmtHora(h);}
+ else{p.style.color='var(--red)';p.textContent='No se entiende la hora';}
+}
+$('fHoraTxt').addEventListener('input',updateHoraPrev);
+
 /* ---- AGREGAR (director) ---- */
 $('addBtn').onclick=async()=>{
- const hora=$('fHora').value;
+ const hora=getHora();
  const nombre=$('fNombre').value.trim();
  const oficina=$('fOficina').value.trim();
  $('addErr').textContent='';
- if(!hora){$('addErr').textContent='Elige la hora.';return;}
+ if(!hora){$('addErr').textContent=horaMode==='texto'?'No entiendo esa hora. Ej: 5:30 PM':'Elige la hora.';return;}
  if(!nombre){$('addErr').textContent='Escribe el nombre.';return;}
  // chequeo local rápido (además del bloqueo real en la base)
  if(ROWS.some(r=>r.hora===hora)){$('addErr').textContent='⛔ Ese horario ya está tomado por otro director.';return;}
  $('addBtn').disabled=true;$('addBtn').textContent='Agendando…';
  try{
-  await apiAdd({dia:hoyISO(),hora,director:nombre,oficina});
-  $('fHora').value='';$('fOficina').value='';
+  await apiAdd({dia:hoyISO(),hora,director:nombre,oficina,creado_por:ME});
+  $('fHora').value='';$('fHoraTxt').value='';$('fOficina').value='';updateHoraPrev();
   toast('✓ Espacio agendado','ok');
   await load();
  }catch(e){

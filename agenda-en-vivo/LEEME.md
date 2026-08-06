@@ -7,14 +7,16 @@ reunión del día con el **closer**, y el closer los ve **en vivo** y registra e
 
 - **Cada oficina entra con su propia clave** (NXPrime, NXElite, NXApex, NXLegendary, NXBots).
   Según la clave, la app ya sabe de qué oficina es; la oficina se pone sola en cada reunión.
-- **Vista tipo calendario**: se navega por días/meses. Puedes agendar en el día que elijas
-  (mañana, pasado…) y ver las reuniones de días anteriores. Cada día del calendario muestra
-  cuántas reuniones tiene y un punto verde si ya hay alguna marcada como hecha.
-- El director agenda: **hora + cliente + para qué es (Membresía / Bot) + ficha del cliente**
-  (nota/para qué agendó, si **ha comprado algo**, **cómo va**, **experiencia en la comunidad**,
-  **cuánto lleva en la comunidad**). La hora se pone con el **reloj** o **escribiéndola** (`5:30 PM`, `17:30`, `9 am`).
-- El **closer** ve la agenda en tiempo real, le suena/aparece una **notificación** por cada reunión nueva,
-  hace **clic en una reunión para ver la ficha técnica completa** del cliente antes de presentarle,
+- **Barra de día compacta** (se navega por semanas/días: mañana, pasado, o días anteriores) +
+  **cuadrícula de horarios grande** de **8:00am a 9:00pm cada 30 min**.
+  Los horarios **libres** se ven "Disponible" (el director toca uno para agendar); los **tomados**
+  se ven **ocupados/bloqueados** (🔒) y al tocarlos se abre la ficha del cliente.
+- El director también puede agendar **una hora fuera de la lista** ("Agendar en otra hora").
+- Al agendar: **cliente + para qué es (Membresía / Bot) + ficha del cliente**:
+  **tipo de miembro** (VIP / Platino / Oro / Comprador BOT / Beca), **¿asistió a zoom de presentación?**,
+  nota/para qué agendó, **¿ha comprado algo?**, **experiencia en la comunidad**, **cuánto lleva en la comunidad**.
+- El **closer** ve los horarios en vivo, le suena/aparece una **notificación** por cada reunión nueva,
+  hace **clic en una reunión para ver la ficha técnica completa** antes de presentarle,
   y al terminar registra el **resultado**: resumen + si el cliente **agendó fecha de pago** (con fecha).
 - Una **hora tomada queda bloqueada** ese día: ninguna otra oficina puede agendar a esa misma hora.
 - **Solo la oficina que agendó puede quitar** su propia reunión (mientras esté pendiente).
@@ -42,9 +44,11 @@ create table if not exists agenda_vivo (
   fecha_pago  date,
   estado      text default 'pendiente',  -- 'pendiente' | 'hecha'
   ha_comprado      text default '',       -- ficha: ¿ha comprado algo?
-  como_va          text default '',       -- ficha: ¿cómo va?
+  como_va          text default '',       -- (en desuso; ya no se muestra)
   experiencia      text default '',       -- ficha: experiencia en la comunidad
   tiempo_comunidad text default '',       -- ficha: cuánto lleva en la comunidad
+  tipo_miembro     text default '',       -- ficha: VIP / Platino / Oro / Comprador BOT / Beca
+  asistio_zoom     boolean default false, -- ficha: ¿asistió a zoom de presentación?
   creado      timestamptz default now(),
   unique (dia, hora)                     -- bloquea repetir la misma hora el mismo día
 );
@@ -69,7 +73,9 @@ alter table agenda_vivo
   add column if not exists ha_comprado      text default '',
   add column if not exists como_va          text default '',
   add column if not exists experiencia      text default '',
-  add column if not exists tiempo_comunidad text default '';
+  add column if not exists tiempo_comunidad text default '',
+  add column if not exists tipo_miembro     text default '',
+  add column if not exists asistio_zoom     boolean default false;
 ```
 
 > Corre **1b** si ya tenías la tabla. Es seguro: `add column if not exists` no borra nada.

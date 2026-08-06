@@ -1,0 +1,230 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Punto de Quiebre · Registro</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+:root{--gold:#f5c518;--gold2:#e0a800;--goldd:#b8860b;--ink:#0a0a0a;--card:#141414;--line:#2a2a2a;--mut:#9aa0a6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#050505;color:#fff;font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
+.bg{position:fixed;inset:0;z-index:0;background:
+ radial-gradient(900px 500px at 85% 8%,rgba(245,197,24,.22),transparent 60%),
+ radial-gradient(700px 500px at 10% 90%,rgba(245,197,24,.12),transparent 60%),
+ linear-gradient(180deg,#0b0b0b,#000)}
+.bg::after{content:"";position:absolute;inset:0;opacity:.06;background-image:
+ linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),
+ linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);background-size:44px 44px}
+.wrap{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:30px 18px 60px}
+.brand{display:flex;align-items:center;justify-content:center;gap:11px;margin-bottom:22px}
+.brand .mk{width:44px;height:44px;border:1.5px solid rgba(245,197,24,.55);border-radius:12px;display:grid;place-items:center;font-family:'Space Grotesk';font-weight:700;font-size:18px;color:var(--gold)}
+.brand .tx{font-family:'Space Grotesk';font-weight:700;letter-spacing:.32em;font-size:16px}
+.hero{text-align:center;margin-bottom:8px}
+.hero .l1{font-family:'Space Grotesk';font-weight:700;font-size:clamp(26px,7vw,40px);letter-spacing:.18em;color:#fff}
+.hero .l3{font-family:'Space Grotesk';font-weight:700;font-size:clamp(40px,13vw,74px);line-height:.95;letter-spacing:.02em;
+ background:linear-gradient(180deg,#fde68a,#f5c518 45%,#b8860b);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 12px rgba(245,197,24,.4))}
+.rocket{font-size:34px;margin:8px 0 2px}
+.live{display:inline-flex;align-items:center;gap:9px;margin:16px 0 26px;padding:11px 22px;border-radius:30px;background:linear-gradient(180deg,#fde68a,#f5c518);color:#1a1a00;font-family:'Space Grotesk';font-weight:700;font-size:17px;letter-spacing:.03em;box-shadow:0 8px 26px rgba(245,197,24,.30)}
+.live .dot{display:inline-flex;align-items:center;gap:6px;background:#c0140f;color:#fff;font-size:10px;font-weight:800;letter-spacing:.08em;padding:3px 8px;border-radius:20px;text-transform:uppercase}
+.live .dot i{width:7px;height:7px;border-radius:50%;background:#fff;display:inline-block;animation:blink 1.1s infinite}
+@keyframes blink{50%{opacity:.25}}
+.card{background:rgba(20,20,20,.85);border:1px solid var(--line);border-radius:20px;padding:26px 22px;box-shadow:0 20px 60px rgba(0,0,0,.5);backdrop-filter:blur(4px)}
+.card h2{font-family:'Space Grotesk';font-weight:700;font-size:20px;text-align:center;margin-bottom:5px}
+.card p.sub{text-align:center;color:var(--mut);font-size:13px;margin-bottom:20px}
+label{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);font-weight:700;margin:16px 0 7px}
+.inp{width:100%;padding:13px 15px;border:1.5px solid var(--line);border-radius:12px;background:#0d0d0d;color:#fff;font-family:'Inter';font-size:15px;transition:.15s}
+.inp::placeholder{color:#6b6b6b}
+.inp:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,197,24,.15)}
+select.inp{cursor:pointer}
+select.inp option{background:#0d0d0d}
+.btn{width:100%;margin-top:24px;padding:15px;border:none;border-radius:12px;background:linear-gradient(180deg,#fde68a,#f5c518);color:#1a1a00;font-family:'Space Grotesk';font-size:16px;font-weight:700;letter-spacing:.03em;cursor:pointer;transition:.15s}
+.btn:hover{filter:brightness(1.06)}.btn:disabled{opacity:.6;cursor:default}
+.err{color:#ff6b6b;font-size:13px;margin-top:12px;font-weight:600;min-height:16px;text-align:center}
+.ok{text-align:center;padding:14px 6px}
+.ok .big{font-size:52px;margin-bottom:10px}
+.ok h2{font-family:'Space Grotesk';font-size:24px;margin-bottom:8px;color:var(--gold)}
+.ok p{color:#cfcfcf;font-size:14.5px;line-height:1.5}
+.foot{text-align:center;margin-top:24px;color:#5a5a5a;font-size:12px}
+.foot a{color:#7a7a7a;cursor:pointer;text-decoration:underline}
+.hide{display:none!important}
+/* admin */
+.admin{margin-top:26px}
+.adm-bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.adm-bar .cnt{font-family:'Space Grotesk';font-weight:700;font-size:15px}
+.adm-bar .cnt b{color:var(--gold)}
+.mini{padding:9px 13px;border:1px solid var(--line);border-radius:10px;background:#141414;color:#fff;font-size:12.5px;font-weight:600;cursor:pointer}
+.mini:hover{border-color:var(--gold)}
+.reg{background:#101010;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:9px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.reg .nm{font-weight:700;font-size:14.5px}
+.reg .meta{font-size:12px;color:var(--mut);margin-top:3px}
+.reg .wa{flex-shrink:0;background:#25d366;color:#fff;font-weight:700;font-size:12px;text-decoration:none;padding:7px 11px;border-radius:20px;white-space:nowrap}
+.resumen{background:#101010;border:1px solid var(--line);border-radius:12px;padding:12px 15px;margin-bottom:14px}
+.resumen:empty{display:none}
+.resumen h4{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);margin-bottom:9px}
+.resumen .row{display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;border-bottom:1px solid #1e1e1e;color:#ddd}
+.resumen .row:last-child{border-bottom:none}
+.resumen .row b{color:var(--gold)}
+#admFiltro{max-width:180px}
+.bigcount{text-align:center;margin:2px 0 18px}
+.bignum{font-family:'Space Grotesk';font-weight:700;font-size:66px;line-height:1;background:linear-gradient(180deg,#fde68a,#f5c518 55%,#b8860b);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 12px rgba(245,197,24,.3))}
+.biglbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);font-weight:700;margin-top:6px}
+</style></head><body>
+<div class="bg"></div>
+<div class="wrap">
+ <div class="brand"><div class="mk">NX</div><div class="tx">NEXUS</div></div>
+
+ <div class="hero">
+  <div class="l1">PUNTO DE</div>
+  <div class="l3">QUIEBRE</div>
+  <div class="rocket">🔥</div>
+ </div>
+ <div style="text-align:center">
+  <span class="live"><span class="dot"><i></i>LIVE</span> HOY · 7:00 PM</span>
+ </div>
+
+ <!-- FORM -->
+ <div class="card" id="formCard">
+  <h2>Regístrate al acceso</h2>
+  <p class="sub">Aparta tu lugar. Te esperamos esta noche a las 7:00 PM.</p>
+  <label>Nombre completo</label>
+  <input class="inp" id="nombre" type="text" placeholder="Tu nombre y apellido" autocomplete="name">
+  <label>Número de celular</label>
+  <input class="inp" id="celular" type="tel" placeholder="Ej: +57 300 123 4567" autocomplete="tel">
+  <label>Agente que te invitó</label>
+  <input class="inp" id="agenteInp" type="text" placeholder="Nombre del agente que te invitó" autocomplete="off">
+  <div class="err" id="err"></div>
+  <button class="btn" id="enviar">Confirmar mi registro</button>
+  <div class="foot"><a id="verLink">· Ver registros (organizador) ·</a></div>
+ </div>
+
+ <!-- SUCCESS -->
+ <div class="card hide" id="okCard">
+  <div class="ok">
+   <div class="big">🎉</div>
+   <h2>¡Registro confirmado!</h2>
+   <p id="okMsg">Nos vemos esta noche a las <b>7:00 PM</b>. Te enviaremos el enlace del acceso por WhatsApp.</p>
+   <button class="btn" id="otro" style="max-width:260px;margin:22px auto 0">Registrar a otra persona</button>
+  </div>
+ </div>
+
+ <!-- ADMIN -->
+ <div class="card admin hide" id="admCard">
+  <div class="bigcount"><div class="bignum" id="admBig">0</div><div class="biglbl">Invitados registrados · en vivo</div></div>
+  <div class="adm-bar">
+   <div class="cnt">Invitados: <b id="admCount">0</b></div>
+   <select class="mini" id="admFiltro"><option value="">Todos los agentes</option></select>
+   <button class="mini" id="admRefresh">↻ Actualizar</button>
+   <button class="mini" id="admCsv">⭳ CSV</button>
+   <button class="mini" id="admClose">Cerrar</button>
+  </div>
+  <div class="resumen" id="admResumen"></div>
+  <div id="admList"></div>
+ </div>
+</div>
+
+<script>
+const EVENTO="Punto de Quiebre";
+const SUPABASE_URL="https://fhixjvxztmuifrioevze.supabase.co";
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoaXhqdnh6dG11aWZyaW9ldnplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjgxNTUsImV4cCI6MjA5OTM0NDE1NX0.sTBxjWYr5m90-usvIJQyvTXon3TkD9Nk0V9z6IDQtmo";
+const REST=SUPABASE_URL+"/rest/v1/registros_evento";
+const HDRS={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
+const $=id=>document.getElementById(id);
+const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function waNum(t){return (t||'').replace(/[^0-9]/g,'');}
+
+/* enviar registro */
+$('enviar').onclick=async()=>{
+ const nombre=$('nombre').value.trim();
+ const celular=$('celular').value.trim();
+ const agente=$('agenteInp').value.trim();
+ if(nombre.length<2){$('err').textContent='Escribe tu nombre.';return;}
+ if(waNum(celular).length<7){$('err').textContent='Escribe un número de celular válido.';return;}
+ $('err').textContent='';$('enviar').disabled=true;$('enviar').textContent='Enviando…';
+ try{
+  const r=await fetch(REST,{method:'POST',headers:HDRS,body:JSON.stringify({evento:EVENTO,nombre,celular,agente:agente||null})});
+  if(!r.ok)throw new Error(await r.text());
+  $('formCard').classList.add('hide');$('okCard').classList.remove('hide');
+ }catch(e){$('err').textContent='No se pudo registrar. Revisa tu conexión e intenta de nuevo.';$('enviar').disabled=false;$('enviar').textContent='Confirmar mi registro';}
+};
+$('otro').onclick=()=>{
+ $('nombre').value='';$('celular').value='';$('agenteInp').value='';
+ $('enviar').disabled=false;$('enviar').textContent='Confirmar mi registro';
+ $('okCard').classList.add('hide');$('formCard').classList.remove('hide');
+};
+
+/* ---- ADMIN / TABLERO EN VIVO ---- */
+let REG=[], ROSTER=[], liveTmr=null;
+function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();}
+// Alias explícitos: apodos/variantes -> nombre oficial (norm() quita acentos y mayúsculas)
+const ALIAS_MULTI=[['juan pablo','Juan Pablo Castro'],['juan camilo','Juan Camilo Torres'],['juan felipe','Juan Felipe Ledesma'],['felipe narvaez','Juan Felipe Ledesma'],['maria jose','Maria Jose Rivera'],['santiago lemu','Santiago Lemus'],['santiago vivero','Santiago Viveros'],['carlos silva','Carlos Silva'],['brayan monje','Brayan Monje'],['daniel laverde','Daniel Laverde'],['fabian flores','Fabián Flórez'],['fabian florez','Fabián Flórez'],['fabian floez','Fabián Flórez'],['evelin gomez','Evelin Gómez'],['sofia munoz','Sofía Muñoz'],['valery gallo','Valery Gallo'],['juliana facundo','Juliana Facundo'],['mateo tabares','Mateo Tabares'],['mateo torres','Mateo Tabares']];
+const ALIAS_FIRST={brayan:'Brayan Monje',brian:'Brayan Monje',carlos:'Carlos Silva',carlo:'Carlos Silva',daniel:'Daniel Laverde',evelin:'Evelin Gómez',evelyn:'Evelin Gómez',fabian:'Fabián Flórez',felipe:'Juan Felipe Ledesma',valery:'Valery Gallo',sofia:'Sofía Muñoz',mateo:'Mateo Tabares',juliana:'Juliana Facundo'};
+function canonical(raw){
+ const n=norm(raw);
+ if(!n)return '(sin especificar)';
+ for(const kv of ALIAS_MULTI){if(n.includes(kv[0]))return kv[1];}
+ const first=n.split(' ')[0];
+ if(first==='santiago'||n==='juan'||n==='facundo')return (raw||'').trim();
+ if(ALIAS_FIRST[first])return ALIAS_FIRST[first];
+ let m=ROSTER.filter(x=>{const rn=norm(x);return rn===n||rn.includes(n)||n.includes(rn);});
+ if(m.length!==1){
+  const byFirst=ROSTER.filter(x=>norm(x).split(' ')[0]===first);
+  if(byFirst.length===1)m=byFirst; else return (raw||'').trim();
+ }
+ return m.length===1?m[0]:(raw||'').trim();
+}
+async function loadRoster(){
+ try{const r=await fetch(SUPABASE_URL+'/rest/v1/agentes?select=nombre&order=nombre.asc',{headers:HDRS});ROSTER=(await r.json()).map(a=>a.nombre);}catch(_){ROSTER=[];}
+}
+$('verLink').onclick=async()=>{
+ const p=prompt('Contraseña de organizador:');
+ if(p===null)return;
+ let ok=false;
+ try{
+  const r=await fetch(SUPABASE_URL+'/functions/v1/login-director',{method:'POST',
+    headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY},
+    body:JSON.stringify({password:p})});
+  ok=r.ok && ((await r.json())||{}).ok===true;
+ }catch(_){ok=false;}
+ if(!ok){alert('Contraseña incorrecta.');return;}
+ $('formCard').classList.add('hide');$('admCard').classList.remove('hide');
+ await loadRoster();
+ await loadReg();
+ clearInterval(liveTmr);liveTmr=setInterval(loadReg,15000); // en vivo: refresca cada 15s
+};
+$('admClose').onclick=()=>{clearInterval(liveTmr);$('admCard').classList.add('hide');$('formCard').classList.remove('hide');};
+$('admRefresh').onclick=loadReg;
+async function loadReg(){
+ try{
+  const r=await fetch(REST+'?select=*&evento=eq.'+encodeURIComponent(EVENTO)+'&order=creado.desc',{headers:HDRS});
+  REG=await r.json();
+  REG.forEach(d=>d._canon=canonical(d.agente));
+  $('admCount').textContent=REG.length;$('admBig').textContent=REG.length;
+  const cnt={};
+  REG.forEach(d=>{cnt[d._canon]=(cnt[d._canon]||0)+1;});
+  const orden=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]);
+  const hora=new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  $('admResumen').innerHTML= REG.length?(`<h4>🟢 Invitados por agente · EN VIVO (${hora})</h4>`+orden.map(a=>`<div class="row"><span>${esc(a)}</span><b>${cnt[a]}</b></div>`).join('')):'';
+  const fSel=$('admFiltro');const cur=fSel.value;
+  fSel.innerHTML='<option value="">Todos los agentes</option>'+orden.map(a=>`<option value="${esc(a)}">${esc(a)} (${cnt[a]})</option>`).join('');
+  fSel.value=cur;
+  renderList();
+ }catch(e){}
+}
+function renderList(){
+ const fa=$('admFiltro').value;
+ const rows=REG.filter(d=>!fa || d._canon===fa);
+ if(!REG.length){$('admList').innerHTML='<p style="color:#888;text-align:center;padding:20px">Aún no hay registros.</p>';return;}
+ if(!rows.length){$('admList').innerHTML='<p style="color:#888;text-align:center;padding:20px">Sin invitados para ese agente.</p>';return;}
+ $('admList').innerHTML=rows.map(d=>{
+  const f=new Date(d.creado).toLocaleString('es-CO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+  return `<div class="reg"><div><div class="nm">${esc(d.nombre)}</div>
+    <div class="meta">📱 ${esc(d.celular)} · 👤 ${esc(d.agente||'—')} · 🕐 ${f}</div></div>
+    ${waNum(d.celular).length>=7?`<a class="wa" href="https://wa.me/${waNum(d.celular)}" target="_blank" rel="noopener">WhatsApp</a>`:''}</div>`;
+ }).join('');
+}
+$('admFiltro').addEventListener('change',renderList);
+$('admCsv').onclick=()=>{
+ let csv='Nombre,Celular,Agente,Fecha\n';
+ REG.forEach(d=>{csv+=['"'+(d.nombre||'').replace(/"/g,'""')+'"','"'+(d.celular||'')+'"','"'+(d.agente||'').replace(/"/g,'""')+'"',d.creado].join(',')+'\n';});
+ const b=new Blob([csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');
+ a.href=URL.createObjectURL(b);a.download='punto_de_quiebre.csv';a.click();
+};
+</script></body></html>

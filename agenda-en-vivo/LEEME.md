@@ -7,13 +7,17 @@ reunión del día con el **closer**, y el closer los ve **en vivo** y registra e
 
 - **Cada oficina entra con su propia clave** (NXPrime, NXElite, NXApex, NXLegendary, NXBots).
   Según la clave, la app ya sabe de qué oficina es; la oficina se pone sola en cada reunión.
-- El director agenda: **hora + cliente + para qué es (Membresía / Bot) + contexto del cliente**.
-  La hora se pone con el **reloj** o **escribiéndola** (ej. `5:30 PM`, `17:30`, `9 am`).
-- El **closer** ve el tablero en tiempo real, le suena/aparece una **notificación** por cada reunión nueva,
-  y al terminar registra el **resultado**: resumen de lo que pasó + si el cliente **agendó fecha de pago** (con fecha).
-- Una **hora tomada queda bloqueada**: ninguna otra oficina puede agendar a esa misma hora.
+- **Vista tipo calendario**: se navega por días/meses. Puedes agendar en el día que elijas
+  (mañana, pasado…) y ver las reuniones de días anteriores. Cada día del calendario muestra
+  cuántas reuniones tiene y un punto verde si ya hay alguna marcada como hecha.
+- El director agenda: **hora + cliente + para qué es (Membresía / Bot) + ficha del cliente**
+  (nota/para qué agendó, si **ha comprado algo**, **cómo va**, **experiencia en la comunidad**,
+  **cuánto lleva en la comunidad**). La hora se pone con el **reloj** o **escribiéndola** (`5:30 PM`, `17:30`, `9 am`).
+- El **closer** ve la agenda en tiempo real, le suena/aparece una **notificación** por cada reunión nueva,
+  hace **clic en una reunión para ver la ficha técnica completa** del cliente antes de presentarle,
+  y al terminar registra el **resultado**: resumen + si el cliente **agendó fecha de pago** (con fecha).
+- Una **hora tomada queda bloqueada** ese día: ninguna otra oficina puede agendar a esa misma hora.
 - **Solo la oficina que agendó puede quitar** su propia reunión (mientras esté pendiente).
-- **Se reinicia solo cada día** (medianoche, hora Colombia).
 
 Usa el **mismo Supabase** de la app de seguimiento.
 
@@ -37,6 +41,10 @@ create table if not exists agenda_vivo (
   agendo_pago boolean default false,
   fecha_pago  date,
   estado      text default 'pendiente',  -- 'pendiente' | 'hecha'
+  ha_comprado      text default '',       -- ficha: ¿ha comprado algo?
+  como_va          text default '',       -- ficha: ¿cómo va?
+  experiencia      text default '',       -- ficha: experiencia en la comunidad
+  tiempo_comunidad text default '',       -- ficha: cuánto lleva en la comunidad
   creado      timestamptz default now(),
   unique (dia, hora)                     -- bloquea repetir la misma hora el mismo día
 );
@@ -52,16 +60,20 @@ create policy "av_delete" on agenda_vivo for delete using (true);
 
 ```sql
 alter table agenda_vivo
-  add column if not exists tipo        text default '',
-  add column if not exists contexto    text default '',
-  add column if not exists resumen     text default '',
-  add column if not exists agendo_pago boolean default false,
-  add column if not exists fecha_pago  date,
-  add column if not exists estado      text default 'pendiente';
+  add column if not exists tipo             text default '',
+  add column if not exists contexto         text default '',
+  add column if not exists resumen          text default '',
+  add column if not exists agendo_pago      boolean default false,
+  add column if not exists fecha_pago       date,
+  add column if not exists estado           text default 'pendiente',
+  add column if not exists ha_comprado      text default '',
+  add column if not exists como_va          text default '',
+  add column if not exists experiencia      text default '',
+  add column if not exists tiempo_comunidad text default '';
 ```
 
-> Corre **1b** si ya tenías la tabla (con las columnas dia, hora, director, oficina, creado_por).
-> Es seguro: `add column if not exists` no borra nada de lo que ya tengas.
+> Corre **1b** si ya tenías la tabla. Es seguro: `add column if not exists` no borra nada.
+> (Las 4 últimas columnas —ficha del cliente— ya fueron aplicadas en tu proyecto.)
 
 ---
 

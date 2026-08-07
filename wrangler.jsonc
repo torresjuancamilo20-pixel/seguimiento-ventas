@@ -1,0 +1,9 @@
+{
+  // Configuración de despliegue estático para Cloudflare Workers.
+  // Sirve todos los archivos HTML del repositorio (index.html, /reportes, etc.).
+  "name": "nexus",
+  "compatibility_date": "2025-01-01",
+  "assets": {
+    "directory": "./"
+  }
+}

@@ -33,13 +33,12 @@ body{background:#050505;color:#fff;font-family:'Inter',sans-serif;-webkit-font-s
  border:8px solid #1a1400;
  box-shadow:0 0 0 5px var(--gold),0 0 0 8px #7a5b00,0 24px 60px rgba(0,0,0,.6),inset 0 0 40px rgba(0,0,0,.5);
  background:conic-gradient(
-  #f5c518 0deg 45deg,#161616 45deg 90deg,
-  #f5c518 90deg 135deg,#161616 135deg 180deg,
-  #f5c518 180deg 225deg,#161616 225deg 270deg,
-  #f5c518 270deg 315deg,#161616 315deg 360deg);
+  #f5c518 0deg 60deg,#161616 60deg 120deg,
+  #f5c518 120deg 180deg,#161616 180deg 240deg,
+  #f5c518 240deg 300deg,#161616 300deg 360deg);
  transition:transform 5.2s cubic-bezier(.12,.66,.16,1)}
-.wheel .seg{position:absolute;top:50%;left:50%;transform-origin:0 0;font-family:'Space Grotesk';font-weight:700;font-size:15px}
-.wheel .seg span{position:absolute;display:block;width:120px;text-align:center;transform:translate(-50%,-50%) rotate(90deg);left:0;top:-84px}
+.wheel .seg{position:absolute;top:50%;left:50%;transform-origin:0 0;font-family:'Space Grotesk';font-weight:700;font-size:13px;line-height:1.15}
+.wheel .seg span{position:absolute;display:block;width:110px;text-align:center;transform:translate(-50%,-50%) rotate(90deg);left:0;top:-80px}
 .dots{position:absolute;inset:-8px;border-radius:50%;pointer-events:none}
 .hub{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4;width:62px;height:62px;border-radius:50%;
  background:radial-gradient(circle at 35% 30%,#fff2c0,#f5c518 55%,#a9781a);
@@ -102,14 +101,12 @@ label{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase
  <div class="wheelBox">
   <div class="ptr"></div>
   <div class="wheel" id="wheel">
-   <div class="seg" style="transform:rotate(22.5deg)"><span>US$120</span></div>
-   <div class="seg" style="transform:rotate(67.5deg)"><span style="color:#f5c518">🎁</span></div>
-   <div class="seg" style="transform:rotate(112.5deg)"><span>US$50</span></div>
-   <div class="seg" style="transform:rotate(157.5deg)"><span style="color:#f5c518">⭐</span></div>
-   <div class="seg" style="transform:rotate(202.5deg)"><span>US$20</span></div>
-   <div class="seg" style="transform:rotate(247.5deg)"><span style="color:#f5c518">🔥</span></div>
-   <div class="seg" style="transform:rotate(292.5deg)"><span>US$10</span></div>
-   <div class="seg" style="transform:rotate(337.5deg)"><span style="color:#f5c518">🍀</span></div>
+   <div class="seg" style="transform:rotate(30deg)"><span style="color:#1a1400">Viaje a<br>Medellín</span></div>
+   <div class="seg" style="transform:rotate(90deg)"><span style="color:#f5c518">US$30</span></div>
+   <div class="seg" style="transform:rotate(150deg)"><span style="color:#1a1400">Acceso<br>Pent-house</span></div>
+   <div class="seg" style="transform:rotate(210deg)"><span style="color:#f5c518">US$30</span></div>
+   <div class="seg" style="transform:rotate(270deg)"><span style="color:#1a1400">Cóctel</span></div>
+   <div class="seg" style="transform:rotate(330deg)"><span style="color:#f5c518">US$60</span></div>
   </div>
   <div class="hub">NX</div>
  </div>

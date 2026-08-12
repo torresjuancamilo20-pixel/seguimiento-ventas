@@ -1,0 +1,280 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noche de Oro · Sorteo</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Cinzel:wght@700;900&display=swap');
+:root{--gold:#f5c518;--gold2:#e0a800;--goldd:#b8860b;--ink:#0a0a0a;--card:#141414;--line:#2a2a2a;--mut:#9aa0a6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#050505;color:#fff;font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
+.bg{position:fixed;inset:0;z-index:0;background:
+ radial-gradient(900px 520px at 85% 6%,rgba(245,197,24,.24),transparent 60%),
+ radial-gradient(760px 520px at 8% 92%,rgba(245,197,24,.14),transparent 60%),
+ linear-gradient(180deg,#0b0b0b,#000)}
+.bg::after{content:"";position:absolute;inset:0;opacity:.06;background-image:
+ radial-gradient(circle at 50% 50%,rgba(245,197,24,.5) 1px,transparent 1.4px);background-size:26px 26px}
+.wrap{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:28px 18px 60px}
+.brand{display:flex;align-items:center;justify-content:center;gap:11px;margin-bottom:16px}
+.brand .mk{width:44px;height:44px;border:1.5px solid rgba(245,197,24,.55);border-radius:12px;display:grid;place-items:center;font-family:'Space Grotesk';font-weight:700;font-size:18px;color:var(--gold)}
+.brand .tx{font-family:'Space Grotesk';font-weight:700;letter-spacing:.32em;font-size:16px}
+.hero{text-align:center;margin-bottom:6px}
+.hero .l1{font-family:'Cinzel';font-weight:700;font-size:clamp(18px,5vw,26px);letter-spacing:.42em;color:#fff;text-transform:uppercase;padding-left:.42em}
+.hero .l3{font-family:'Cinzel';font-weight:900;font-size:clamp(44px,15vw,86px);line-height:.95;letter-spacing:.02em;text-transform:uppercase;
+ background:linear-gradient(180deg,#fff6d5,#f5c518 42%,#b8860b);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 16px rgba(245,197,24,.45))}
+.prize{display:inline-flex;align-items:center;gap:9px;margin:14px 0 8px;padding:11px 22px;border-radius:30px;background:linear-gradient(180deg,#fde68a,#f5c518);color:#1a1a00;font-family:'Space Grotesk';font-weight:700;font-size:16px;letter-spacing:.02em;box-shadow:0 8px 26px rgba(245,197,24,.32)}
+.prize b{font-size:19px}
+
+/* ---------- RULETA ---------- */
+.wheelBox{position:relative;width:min(340px,86vw);aspect-ratio:1;margin:20px auto 6px}
+.ptr{position:absolute;top:-6px;left:50%;transform:translateX(-50%);z-index:5;
+ width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:30px solid var(--gold);
+ filter:drop-shadow(0 3px 5px rgba(0,0,0,.6))}
+.ptr::after{content:"";position:absolute;top:-38px;left:-8px;width:16px;height:16px;border-radius:50%;background:var(--gold);box-shadow:0 2px 6px rgba(0,0,0,.5)}
+.wheel{position:absolute;inset:0;border-radius:50%;
+ border:8px solid #1a1400;
+ box-shadow:0 0 0 5px var(--gold),0 0 0 8px #7a5b00,0 24px 60px rgba(0,0,0,.6),inset 0 0 40px rgba(0,0,0,.5);
+ background:conic-gradient(
+  #f5c518 0deg 45deg,#161616 45deg 90deg,
+  #f5c518 90deg 135deg,#161616 135deg 180deg,
+  #f5c518 180deg 225deg,#161616 225deg 270deg,
+  #f5c518 270deg 315deg,#161616 315deg 360deg);
+ transition:transform 5.2s cubic-bezier(.12,.66,.16,1)}
+.wheel .seg{position:absolute;top:50%;left:50%;transform-origin:0 0;font-family:'Space Grotesk';font-weight:700;font-size:15px}
+.wheel .seg span{position:absolute;display:block;width:120px;text-align:center;transform:translate(-50%,-50%) rotate(90deg);left:0;top:-84px}
+.dots{position:absolute;inset:-8px;border-radius:50%;pointer-events:none}
+.hub{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4;width:62px;height:62px;border-radius:50%;
+ background:radial-gradient(circle at 35% 30%,#fff2c0,#f5c518 55%,#a9781a);
+ display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.6),inset 0 0 8px rgba(255,255,255,.4);
+ font-family:'Cinzel';font-weight:900;color:#3a2a00;font-size:22px}
+.wheelNote{text-align:center;color:var(--mut);font-size:12.5px;margin:2px 0 8px}
+
+.card{background:rgba(20,20,20,.85);border:1px solid var(--line);border-radius:20px;padding:26px 22px;box-shadow:0 20px 60px rgba(0,0,0,.5);backdrop-filter:blur(4px)}
+.card h2{font-family:'Space Grotesk';font-weight:700;font-size:20px;text-align:center;margin-bottom:5px}
+.card p.sub{text-align:center;color:var(--mut);font-size:13px;margin-bottom:20px}
+label{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);font-weight:700;margin:16px 0 7px}
+.inp{width:100%;padding:13px 15px;border:1.5px solid var(--line);border-radius:12px;background:#0d0d0d;color:#fff;font-family:'Inter';font-size:15px;transition:.15s}
+.inp::placeholder{color:#6b6b6b}
+.inp:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,197,24,.15)}
+.btn{width:100%;margin-top:24px;padding:15px;border:none;border-radius:12px;background:linear-gradient(180deg,#fde68a,#f5c518);color:#1a1a00;font-family:'Space Grotesk';font-size:16px;font-weight:700;letter-spacing:.03em;cursor:pointer;transition:.15s}
+.btn:hover{filter:brightness(1.06)}.btn:disabled{opacity:.6;cursor:default}
+.err{color:#ff6b6b;font-size:13px;margin-top:12px;font-weight:600;min-height:16px;text-align:center}
+.ok{text-align:center;padding:14px 6px}
+.ok .big{font-size:52px;margin-bottom:10px}
+.ok h2{font-family:'Space Grotesk';font-size:24px;margin-bottom:8px;color:var(--gold)}
+.ok p{color:#cfcfcf;font-size:14.5px;line-height:1.5}
+.foot{text-align:center;margin-top:24px;color:#5a5a5a;font-size:12px}
+.foot a{color:#7a7a7a;cursor:pointer;text-decoration:underline}
+.hide{display:none!important}
+/* admin */
+.admin{margin-top:26px}
+.adm-bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.adm-bar .cnt{font-family:'Space Grotesk';font-weight:700;font-size:15px}
+.adm-bar .cnt b{color:var(--gold)}
+.mini{padding:9px 13px;border:1px solid var(--line);border-radius:10px;background:#141414;color:#fff;font-size:12.5px;font-weight:600;cursor:pointer}
+.mini:hover{border-color:var(--gold)}
+.reg{background:#101010;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:9px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.reg .nm{font-weight:700;font-size:14.5px}
+.reg .meta{font-size:12px;color:var(--mut);margin-top:3px}
+.reg .wa{flex-shrink:0;background:#25d366;color:#fff;font-weight:700;font-size:12px;text-decoration:none;padding:7px 11px;border-radius:20px;white-space:nowrap}
+.resumen{background:#101010;border:1px solid var(--line);border-radius:12px;padding:12px 15px;margin-bottom:14px}
+.resumen:empty{display:none}
+.resumen h4{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);margin-bottom:9px}
+.resumen .row{display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;border-bottom:1px solid #1e1e1e;color:#ddd}
+.resumen .row:last-child{border-bottom:none}
+.resumen .row b{color:var(--gold)}
+#admFiltro{max-width:180px}
+.bigcount{text-align:center;margin:2px 0 18px}
+.bignum{font-family:'Space Grotesk';font-weight:700;font-size:66px;line-height:1;background:linear-gradient(180deg,#fde68a,#f5c518 55%,#b8860b);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 12px rgba(245,197,24,.3))}
+.biglbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);font-weight:700;margin-top:6px}
+</style></head><body>
+<div class="bg"></div>
+<div class="wrap">
+ <div class="brand"><div class="mk">NX</div><div class="tx">NEXUS</div></div>
+
+ <div class="hero">
+  <div class="l1">Noche de</div>
+  <div class="l3">Oro</div>
+ </div>
+ <div style="text-align:center">
+  <span class="prize">🎰 Participa y gana hasta <b>US$120</b></span>
+ </div>
+
+ <!-- RULETA -->
+ <div class="wheelBox">
+  <div class="ptr"></div>
+  <div class="wheel" id="wheel">
+   <div class="seg" style="transform:rotate(22.5deg)"><span>US$120</span></div>
+   <div class="seg" style="transform:rotate(67.5deg)"><span style="color:#f5c518">🎁</span></div>
+   <div class="seg" style="transform:rotate(112.5deg)"><span>US$50</span></div>
+   <div class="seg" style="transform:rotate(157.5deg)"><span style="color:#f5c518">⭐</span></div>
+   <div class="seg" style="transform:rotate(202.5deg)"><span>US$20</span></div>
+   <div class="seg" style="transform:rotate(247.5deg)"><span style="color:#f5c518">🔥</span></div>
+   <div class="seg" style="transform:rotate(292.5deg)"><span>US$10</span></div>
+   <div class="seg" style="transform:rotate(337.5deg)"><span style="color:#f5c518">🍀</span></div>
+  </div>
+  <div class="hub">NX</div>
+ </div>
+ <div class="wheelNote">Regístrate para entrar al sorteo · el ganador se anuncia esta noche</div>
+
+ <!-- FORM -->
+ <div class="card" id="formCard">
+  <h2>Regístrate y participa</h2>
+  <p class="sub">Deja tus datos y quedas dentro del sorteo de la Noche de Oro.</p>
+  <label>Nombre completo</label>
+  <input class="inp" id="nombre" type="text" placeholder="Tu nombre y apellido" autocomplete="name">
+  <label>Número de celular</label>
+  <input class="inp" id="celular" type="tel" placeholder="Ej: +57 300 123 4567" autocomplete="tel">
+  <label>Agente que te invitó</label>
+  <input class="inp" id="agenteInp" type="text" placeholder="Nombre del agente que te invitó" autocomplete="off">
+  <div class="err" id="err"></div>
+  <button class="btn" id="enviar">🎡 ¡Participar en el sorteo!</button>
+  <div class="foot"><a id="verLink">· Ver registros (organizador) ·</a></div>
+ </div>
+
+ <!-- SUCCESS -->
+ <div class="card hide" id="okCard">
+  <div class="ok">
+   <div class="big">🎉</div>
+   <h2>¡Estás dentro del sorteo!</h2>
+   <p id="okMsg">Ya tienes tu boleto para la <b>Noche de Oro</b>. Podrías ganar hasta <b>US$120</b>. Te avisaremos por WhatsApp si eres el ganador.</p>
+   <button class="btn" id="otro" style="max-width:280px;margin:22px auto 0">Registrar a otra persona</button>
+  </div>
+ </div>
+
+ <!-- ADMIN -->
+ <div class="card admin hide" id="admCard">
+  <div class="bigcount"><div class="bignum" id="admBig">0</div><div class="biglbl">Participantes registrados · en vivo</div></div>
+  <div class="adm-bar">
+   <div class="cnt">Participantes: <b id="admCount">0</b></div>
+   <select class="mini" id="admFiltro"><option value="">Todos los agentes</option></select>
+   <button class="mini" id="admRefresh">↻ Actualizar</button>
+   <button class="mini" id="admCsv">⭳ CSV</button>
+   <button class="mini" id="admClose">Cerrar</button>
+  </div>
+  <div class="resumen" id="admResumen"></div>
+  <div id="admList"></div>
+ </div>
+</div>
+
+<script>
+const EVENTO="Noche de Oro";
+const SUPABASE_URL="https://fhixjvxztmuifrioevze.supabase.co";
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoaXhqdnh6dG11aWZyaW9ldnplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjgxNTUsImV4cCI6MjA5OTM0NDE1NX0.sTBxjWYr5m90-usvIJQyvTXon3TkD9Nk0V9z6IDQtmo";
+const REST=SUPABASE_URL+"/rest/v1/registros_evento";
+const HDRS={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
+const $=id=>document.getElementById(id);
+const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function waNum(t){return (t||'').replace(/[^0-9]/g,'');}
+
+/* ---- RULETA: gira sola despacio y da una vuelta grande al registrar ---- */
+let spin=0;
+const wheel=$('wheel');
+function idleSpin(){spin+=45;wheel.style.transition='transform 3.4s cubic-bezier(.33,.0,.4,1)';wheel.style.transform='rotate('+spin+'deg)';}
+setTimeout(idleSpin,600);
+let idleTmr=setInterval(idleSpin,4200);
+function bigSpin(){
+ clearInterval(idleTmr);
+ spin+=360*5+Math.floor(Math.random()*360);
+ wheel.style.transition='transform 5.2s cubic-bezier(.12,.66,.16,1)';
+ wheel.style.transform='rotate('+spin+'deg)';
+}
+
+/* enviar registro */
+$('enviar').onclick=async()=>{
+ const nombre=$('nombre').value.trim();
+ const celular=$('celular').value.trim();
+ const agente=$('agenteInp').value.trim();
+ if(nombre.length<2){$('err').textContent='Escribe tu nombre.';return;}
+ if(waNum(celular).length<7){$('err').textContent='Escribe un número de celular válido.';return;}
+ $('err').textContent='';$('enviar').disabled=true;$('enviar').textContent='Girando la ruleta…';
+ bigSpin();
+ try{
+  const r=await fetch(REST,{method:'POST',headers:HDRS,body:JSON.stringify({evento:EVENTO,nombre,celular,agente:agente||null})});
+  if(!r.ok)throw new Error(await r.text());
+  setTimeout(()=>{$('formCard').classList.add('hide');$('okCard').classList.remove('hide');},1400);
+ }catch(e){$('err').textContent='No se pudo registrar. Revisa tu conexión e intenta de nuevo.';$('enviar').disabled=false;$('enviar').textContent='🎡 ¡Participar en el sorteo!';idleTmr=setInterval(idleSpin,4200);}
+};
+$('otro').onclick=()=>{
+ $('nombre').value='';$('celular').value='';$('agenteInp').value='';
+ $('enviar').disabled=false;$('enviar').textContent='🎡 ¡Participar en el sorteo!';
+ $('okCard').classList.add('hide');$('formCard').classList.remove('hide');
+ idleTmr=setInterval(idleSpin,4200);
+};
+
+/* ---- ADMIN / TABLERO EN VIVO ---- */
+let REG=[], ROSTER=[], liveTmr=null;
+function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();}
+const ALIAS_MULTI=[['juan pablo','Juan Pablo Castro'],['juan camilo','Juan Camilo Torres'],['juan felipe','Juan Felipe Ledesma'],['felipe narvaez','Juan Felipe Ledesma'],['maria jose','Maria Jose Rivera'],['santiago lemu','Santiago Lemus'],['santiago vivero','Santiago Viveros'],['carlos silva','Carlos Silva'],['brayan monje','Brayan Monje'],['daniel laverde','Daniel Laverde'],['fabian flores','Fabián Flórez'],['fabian florez','Fabián Flórez'],['fabian floez','Fabián Flórez'],['evelin gomez','Evelin Gómez'],['sofia munoz','Sofía Muñoz'],['valery gallo','Valery Gallo'],['juliana facundo','Juliana Facundo'],['mateo tabares','Mateo Tabares'],['mateo torres','Mateo Tabares']];
+const ALIAS_FIRST={brayan:'Brayan Monje',brian:'Brayan Monje',carlos:'Carlos Silva',carlo:'Carlos Silva',daniel:'Daniel Laverde',evelin:'Evelin Gómez',evelyn:'Evelin Gómez',fabian:'Fabián Flórez',felipe:'Juan Felipe Ledesma',valery:'Valery Gallo',sofia:'Sofía Muñoz',mateo:'Mateo Tabares',juliana:'Juliana Facundo'};
+function canonical(raw){
+ const n=norm(raw);
+ if(!n)return '(sin especificar)';
+ for(const kv of ALIAS_MULTI){if(n.includes(kv[0]))return kv[1];}
+ const first=n.split(' ')[0];
+ if(first==='santiago'||n==='juan'||n==='facundo')return (raw||'').trim();
+ if(ALIAS_FIRST[first])return ALIAS_FIRST[first];
+ let m=ROSTER.filter(x=>{const rn=norm(x);return rn===n||rn.includes(n)||n.includes(rn);});
+ if(m.length!==1){
+  const byFirst=ROSTER.filter(x=>norm(x).split(' ')[0]===first);
+  if(byFirst.length===1)m=byFirst; else return (raw||'').trim();
+ }
+ return m.length===1?m[0]:(raw||'').trim();
+}
+async function loadRoster(){
+ try{const r=await fetch(SUPABASE_URL+'/rest/v1/agentes?select=nombre&order=nombre.asc',{headers:HDRS});ROSTER=(await r.json()).map(a=>a.nombre);}catch(_){ROSTER=[];}
+}
+$('verLink').onclick=async()=>{
+ const p=prompt('Contraseña de organizador:');
+ if(p===null)return;
+ let ok=false;
+ try{
+  const r=await fetch(SUPABASE_URL+'/functions/v1/login-director',{method:'POST',
+    headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY},
+    body:JSON.stringify({password:p})});
+  ok=r.ok && ((await r.json())||{}).ok===true;
+ }catch(_){ok=false;}
+ if(!ok){alert('Contraseña incorrecta.');return;}
+ clearInterval(idleTmr);
+ $('formCard').classList.add('hide');$('admCard').classList.remove('hide');
+ await loadRoster();
+ await loadReg();
+ clearInterval(liveTmr);liveTmr=setInterval(loadReg,15000);
+};
+$('admClose').onclick=()=>{clearInterval(liveTmr);$('admCard').classList.add('hide');$('formCard').classList.remove('hide');};
+$('admRefresh').onclick=loadReg;
+async function loadReg(){
+ try{
+  const r=await fetch(REST+'?select=*&evento=eq.'+encodeURIComponent(EVENTO)+'&order=creado.desc',{headers:HDRS});
+  REG=await r.json();
+  REG.forEach(d=>d._canon=canonical(d.agente));
+  $('admCount').textContent=REG.length;$('admBig').textContent=REG.length;
+  const cnt={};
+  REG.forEach(d=>{cnt[d._canon]=(cnt[d._canon]||0)+1;});
+  const orden=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]);
+  const hora=new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  $('admResumen').innerHTML= REG.length?(`<h4>🟢 Participantes por agente · EN VIVO (${hora})</h4>`+orden.map(a=>`<div class="row"><span>${esc(a)}</span><b>${cnt[a]}</b></div>`).join('')):'';
+  const fSel=$('admFiltro');const cur=fSel.value;
+  fSel.innerHTML='<option value="">Todos los agentes</option>'+orden.map(a=>`<option value="${esc(a)}">${esc(a)} (${cnt[a]})</option>`).join('');
+  fSel.value=cur;
+  renderList();
+ }catch(e){}
+}
+function renderList(){
+ const fa=$('admFiltro').value;
+ const rows=REG.filter(d=>!fa || d._canon===fa);
+ if(!REG.length){$('admList').innerHTML='<p style="color:#888;text-align:center;padding:20px">Aún no hay registros.</p>';return;}
+ if(!rows.length){$('admList').innerHTML='<p style="color:#888;text-align:center;padding:20px">Sin participantes para ese agente.</p>';return;}
+ $('admList').innerHTML=rows.map(d=>{
+  const f=new Date(d.creado).toLocaleString('es-CO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+  return `<div class="reg"><div><div class="nm">${esc(d.nombre)}</div>
+    <div class="meta">📱 ${esc(d.celular)} · 👤 ${esc(d.agente||'—')} · 🕐 ${f}</div></div>
+    ${waNum(d.celular).length>=7?`<a class="wa" href="https://wa.me/${waNum(d.celular)}" target="_blank" rel="noopener">WhatsApp</a>`:''}</div>`;
+ }).join('');
+}
+$('admFiltro').addEventListener('change',renderList);
+$('admCsv').onclick=()=>{
+ let csv='Nombre,Celular,Agente,Fecha\n';
+ REG.forEach(d=>{csv+=['"'+(d.nombre||'').replace(/"/g,'""')+'"','"'+(d.celular||'')+'"','"'+(d.agente||'').replace(/"/g,'""')+'"',d.creado].join(',')+'\n';});
+ const b=new Blob([csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');
+ a.href=URL.createObjectURL(b);a.download='noche_de_oro.csv';a.click();
+};
+</script></body></html>

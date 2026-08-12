@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Noche de Oro · Sorteo</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Cinzel:wght@700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
 :root{--gold:#f5c518;--gold2:#e0a800;--goldd:#b8860b;--ink:#0a0a0a;--card:#141414;--line:#2a2a2a;--mut:#9aa0a6}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#050505;color:#fff;font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
@@ -14,51 +14,67 @@ body{background:#050505;color:#fff;font-family:'Inter',sans-serif;-webkit-font-s
  radial-gradient(circle at 50% 50%,rgba(245,197,24,.5) 1px,transparent 1.4px);background-size:26px 26px}
 .wrap{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:28px 18px 60px}
 .brand{display:flex;align-items:center;justify-content:center;gap:11px;margin-bottom:16px}
-.brand .mk{width:44px;height:44px;border:1.5px solid rgba(245,197,24,.55);border-radius:12px;display:grid;place-items:center;font-family:'Space Grotesk';font-weight:700;font-size:18px;color:var(--gold)}
-.brand .tx{font-family:'Space Grotesk';font-weight:700;letter-spacing:.32em;font-size:16px}
+.brand .mk{width:44px;height:44px;border:1.5px solid rgba(245,197,24,.55);border-radius:12px;display:grid;place-items:center;font-family:'Montserrat';font-weight:700;font-size:18px;color:var(--gold)}
+.brand .tx{font-family:'Montserrat';font-weight:700;letter-spacing:.32em;font-size:16px}
 .hero{text-align:center;margin-bottom:6px}
-.hero .l1{font-family:'Cinzel';font-weight:700;font-size:clamp(18px,5vw,26px);letter-spacing:.42em;color:#fff;text-transform:uppercase;padding-left:.42em}
-.hero .l3{font-family:'Cinzel';font-weight:900;font-size:clamp(44px,15vw,86px);line-height:.95;letter-spacing:.02em;text-transform:uppercase;
+.hero .l1{font-family:'Montserrat';font-weight:700;font-size:clamp(18px,5vw,26px);letter-spacing:.42em;color:#fff;text-transform:uppercase;padding-left:.42em}
+.hero .l3{font-family:'Montserrat';font-weight:900;font-size:clamp(44px,15vw,86px);line-height:.95;letter-spacing:.02em;text-transform:uppercase;
  background:linear-gradient(180deg,#fff6d5,#f5c518 42%,#b8860b);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 16px rgba(245,197,24,.45))}
-.prize{display:inline-flex;align-items:center;gap:9px;margin:14px 0 8px;padding:11px 22px;border-radius:30px;background:linear-gradient(180deg,#fde68a,#f5c518);color:#1a1a00;font-family:'Space Grotesk';font-weight:700;font-size:16px;letter-spacing:.02em;box-shadow:0 8px 26px rgba(245,197,24,.32)}
+.prize{display:inline-flex;align-items:center;gap:9px;margin:14px 0 8px;padding:11px 22px;border-radius:30px;background:linear-gradient(180deg,#fde68a,#f5c518);color:#1a1a00;font-family:'Montserrat';font-weight:700;font-size:16px;letter-spacing:.02em;box-shadow:0 8px 26px rgba(245,197,24,.32)}
 .prize b{font-size:19px}
 
 /* ---------- RULETA ---------- */
-.wheelBox{position:relative;width:min(340px,86vw);aspect-ratio:1;margin:20px auto 6px}
-.ptr{position:absolute;top:-6px;left:50%;transform:translateX(-50%);z-index:5;
- width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:30px solid var(--gold);
- filter:drop-shadow(0 3px 5px rgba(0,0,0,.6))}
-.ptr::after{content:"";position:absolute;top:-38px;left:-8px;width:16px;height:16px;border-radius:50%;background:var(--gold);box-shadow:0 2px 6px rgba(0,0,0,.5)}
-.wheel{position:absolute;inset:0;border-radius:50%;
- border:8px solid #1a1400;
- box-shadow:0 0 0 5px var(--gold),0 0 0 8px #7a5b00,0 24px 60px rgba(0,0,0,.6),inset 0 0 40px rgba(0,0,0,.5);
- background:conic-gradient(
-  #f5c518 0deg 60deg,#161616 60deg 120deg,
-  #f5c518 120deg 180deg,#161616 180deg 240deg,
-  #f5c518 240deg 300deg,#161616 300deg 360deg);
- transition:transform 5.2s cubic-bezier(.12,.66,.16,1)}
-.wheel .seg{position:absolute;top:50%;left:50%;transform-origin:0 0;font-family:'Space Grotesk';font-weight:700;font-size:13px;line-height:1.15}
-.wheel .seg span{position:absolute;display:block;width:110px;text-align:center;transform:translate(-50%,-50%) rotate(90deg);left:0;top:-80px}
-.dots{position:absolute;inset:-8px;border-radius:50%;pointer-events:none}
-.hub{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4;width:62px;height:62px;border-radius:50%;
- background:radial-gradient(circle at 35% 30%,#fff2c0,#f5c518 55%,#a9781a);
- display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.6),inset 0 0 8px rgba(255,255,255,.4);
- font-family:'Cinzel';font-weight:900;color:#3a2a00;font-size:22px}
-.wheelNote{text-align:center;color:var(--mut);font-size:12.5px;margin:2px 0 8px}
+.wheelBox{position:relative;width:min(360px,90vw);aspect-ratio:1;margin:22px auto 8px;
+ filter:drop-shadow(0 22px 46px rgba(0,0,0,.65))}
+/* aro exterior con foquitos */
+.rim{position:absolute;inset:0;border-radius:50%;z-index:2;pointer-events:none;
+ background:conic-gradient(from 0deg,#7a5a12,#f7d774,#b8860b,#fff0c2,#a9781a,#f7d774,#7a5a12);
+ box-shadow:inset 0 0 14px rgba(0,0,0,.55),0 0 0 2px rgba(0,0,0,.5)}
+.rim::after{content:"";position:absolute;inset:16px;border-radius:50%;background:#0c0a05;box-shadow:inset 0 0 22px rgba(0,0,0,.8)}
+.bulbs{position:absolute;inset:0;z-index:3;pointer-events:none}
+.bulbs i{position:absolute;top:50%;left:50%;width:9px;height:9px;margin:-4.5px;border-radius:50%;
+ background:radial-gradient(circle at 40% 35%,#fff7dd,#ffd75e 55%,#a9781a);
+ box-shadow:0 0 7px 1px rgba(255,214,94,.85);animation:glow 1.6s ease-in-out infinite}
+@keyframes glow{50%{opacity:.4;box-shadow:0 0 3px 0 rgba(255,214,94,.5)}}
+.ptr{position:absolute;top:-8px;left:50%;transform:translateX(-50%);z-index:6;
+ width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-top:32px solid #fff0c2;
+ filter:drop-shadow(0 3px 4px rgba(0,0,0,.7))}
+.ptr::before{content:"";position:absolute;top:-32px;left:-15px;width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-top:32px solid #b8860b;opacity:.5}
+.wheel{position:absolute;inset:26px;border-radius:50%;z-index:4;
+ border:3px solid rgba(0,0,0,.35);
+ box-shadow:inset 0 0 30px rgba(0,0,0,.55),inset 0 0 0 2px rgba(255,235,170,.25);
+ background:
+  radial-gradient(circle at 50% 42%,rgba(255,255,255,.16),transparent 46%),
+  radial-gradient(circle at 50% 50%,transparent 30%,rgba(0,0,0,.42) 100%),
+  conic-gradient(
+   #f2cf63 0deg 60deg,#20180a 60deg 120deg,
+   #f2cf63 120deg 180deg,#20180a 180deg 240deg,
+   #f2cf63 240deg 300deg,#20180a 300deg 360deg);
+ transition:transform 5.6s cubic-bezier(.10,.62,.14,1)}
+/* líneas divisorias entre gajos */
+.wheel::before{content:"";position:absolute;inset:0;border-radius:50%;
+ background:repeating-conic-gradient(rgba(0,0,0,.55) 0deg 0.8deg,transparent 0.8deg 60deg)}
+.wheel .seg{position:absolute;top:50%;left:50%;transform-origin:0 0;font-family:'Montserrat';font-weight:800;font-size:13.5px;line-height:1.12;text-transform:uppercase;letter-spacing:.02em}
+.wheel .seg span{position:absolute;display:block;width:112px;text-align:center;transform:translate(-50%,-50%) rotate(90deg);left:0;top:-78px;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.hub{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;width:70px;height:70px;border-radius:50%;
+ background:radial-gradient(circle at 35% 28%,#fff7dd,#f2cf63 52%,#9c6f16);
+ display:grid;place-items:center;font-size:30px;
+ box-shadow:0 5px 16px rgba(0,0,0,.7),inset 0 0 10px rgba(255,255,255,.55),0 0 0 4px #0c0a05,0 0 0 6px rgba(255,235,170,.4)}
+.wheelNote{text-align:center;color:var(--mut);font-size:12.5px;margin:6px 0 8px}
 
 .card{background:rgba(20,20,20,.85);border:1px solid var(--line);border-radius:20px;padding:26px 22px;box-shadow:0 20px 60px rgba(0,0,0,.5);backdrop-filter:blur(4px)}
-.card h2{font-family:'Space Grotesk';font-weight:700;font-size:20px;text-align:center;margin-bottom:5px}
+.card h2{font-family:'Montserrat';font-weight:700;font-size:20px;text-align:center;margin-bottom:5px}
 .card p.sub{text-align:center;color:var(--mut);font-size:13px;margin-bottom:20px}
 label{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);font-weight:700;margin:16px 0 7px}
 .inp{width:100%;padding:13px 15px;border:1.5px solid var(--line);border-radius:12px;background:#0d0d0d;color:#fff;font-family:'Inter';font-size:15px;transition:.15s}
 .inp::placeholder{color:#6b6b6b}
 .inp:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,197,24,.15)}
-.btn{width:100%;margin-top:24px;padding:15px;border:none;border-radius:12px;background:linear-gradient(180deg,#fde68a,#f5c518);color:#1a1a00;font-family:'Space Grotesk';font-size:16px;font-weight:700;letter-spacing:.03em;cursor:pointer;transition:.15s}
+.btn{width:100%;margin-top:24px;padding:15px;border:none;border-radius:12px;background:linear-gradient(180deg,#fde68a,#f5c518);color:#1a1a00;font-family:'Montserrat';font-size:16px;font-weight:700;letter-spacing:.03em;cursor:pointer;transition:.15s}
 .btn:hover{filter:brightness(1.06)}.btn:disabled{opacity:.6;cursor:default}
 .err{color:#ff6b6b;font-size:13px;margin-top:12px;font-weight:600;min-height:16px;text-align:center}
 .ok{text-align:center;padding:14px 6px}
 .ok .big{font-size:52px;margin-bottom:10px}
-.ok h2{font-family:'Space Grotesk';font-size:24px;margin-bottom:8px;color:var(--gold)}
+.ok h2{font-family:'Montserrat';font-size:24px;margin-bottom:8px;color:var(--gold)}
 .ok p{color:#cfcfcf;font-size:14.5px;line-height:1.5}
 .foot{text-align:center;margin-top:24px;color:#5a5a5a;font-size:12px}
 .foot a{color:#7a7a7a;cursor:pointer;text-decoration:underline}
@@ -66,7 +82,7 @@ label{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase
 /* admin */
 .admin{margin-top:26px}
 .adm-bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
-.adm-bar .cnt{font-family:'Space Grotesk';font-weight:700;font-size:15px}
+.adm-bar .cnt{font-family:'Montserrat';font-weight:700;font-size:15px}
 .adm-bar .cnt b{color:var(--gold)}
 .mini{padding:9px 13px;border:1px solid var(--line);border-radius:10px;background:#141414;color:#fff;font-size:12.5px;font-weight:600;cursor:pointer}
 .mini:hover{border-color:var(--gold)}
@@ -82,7 +98,7 @@ label{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase
 .resumen .row b{color:var(--gold)}
 #admFiltro{max-width:180px}
 .bigcount{text-align:center;margin:2px 0 18px}
-.bignum{font-family:'Space Grotesk';font-weight:700;font-size:66px;line-height:1;background:linear-gradient(180deg,#fde68a,#f5c518 55%,#b8860b);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 12px rgba(245,197,24,.3))}
+.bignum{font-family:'Montserrat';font-weight:700;font-size:66px;line-height:1;background:linear-gradient(180deg,#fde68a,#f5c518 55%,#b8860b);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 12px rgba(245,197,24,.3))}
 .biglbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);font-weight:700;margin-top:6px}
 </style></head><body>
 <div class="bg"></div>
@@ -94,21 +110,23 @@ label{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase
   <div class="l3">Oro</div>
  </div>
  <div style="text-align:center">
-  <span class="prize">🎰 Participa y gana hasta <b>US$120</b></span>
+  <span class="prize">🎰 Participa y gana un <b>viaje a Medellín</b></span>
  </div>
 
  <!-- RULETA -->
  <div class="wheelBox">
+  <div class="rim"></div>
+  <div class="bulbs" id="bulbs"></div>
   <div class="ptr"></div>
   <div class="wheel" id="wheel">
-   <div class="seg" style="transform:rotate(30deg)"><span style="color:#1a1400">Viaje a<br>Medellín</span></div>
-   <div class="seg" style="transform:rotate(90deg)"><span style="color:#f5c518">US$30</span></div>
-   <div class="seg" style="transform:rotate(150deg)"><span style="color:#1a1400">Acceso<br>Pent-house</span></div>
-   <div class="seg" style="transform:rotate(210deg)"><span style="color:#f5c518">US$30</span></div>
-   <div class="seg" style="transform:rotate(270deg)"><span style="color:#1a1400">Cóctel</span></div>
-   <div class="seg" style="transform:rotate(330deg)"><span style="color:#f5c518">US$60</span></div>
+   <div class="seg" style="transform:rotate(30deg)"><span style="color:#241a05">Viaje a<br>Medellín</span></div>
+   <div class="seg" style="transform:rotate(90deg)"><span style="color:#ffd75e">US$30</span></div>
+   <div class="seg" style="transform:rotate(150deg)"><span style="color:#241a05">Acceso a<br>Penthouse</span></div>
+   <div class="seg" style="transform:rotate(210deg)"><span style="color:#ffd75e">US$30</span></div>
+   <div class="seg" style="transform:rotate(270deg)"><span style="color:#241a05">Cóctel</span></div>
+   <div class="seg" style="transform:rotate(330deg)"><span style="color:#ffd75e">US$60</span></div>
   </div>
-  <div class="hub">NX</div>
+  <div class="hub">👑</div>
  </div>
  <div class="wheelNote">Regístrate para entrar al sorteo · el ganador se anuncia esta noche</div>
 
@@ -161,6 +179,19 @@ const HDRS={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Conten
 const $=id=>document.getElementById(id);
 const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function waNum(t){return (t||'').replace(/[^0-9]/g,'');}
+
+/* ---- Foquitos del aro ---- */
+(function(){
+ const box=$('bulbs');if(!box)return;
+ const N=18, R=48; // % del radio
+ for(let i=0;i<N;i++){
+  const a=(i/N)*2*Math.PI;
+  const x=50+R*Math.sin(a), y=50-R*Math.cos(a);
+  const b=document.createElement('i');
+  b.style.left=x+'%';b.style.top=y+'%';b.style.animationDelay=(i*0.09)+'s';
+  box.appendChild(b);
+ }
+})();
 
 /* ---- RULETA: gira sola despacio y da una vuelta grande al registrar ---- */
 let spin=0;

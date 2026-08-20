@@ -34,8 +34,10 @@ body{background:#04070d;color:var(--ink);font-family:'Manrope',sans-serif;-webki
  filter:drop-shadow(0 6px 22px rgba(245,197,24,.4))}
 
 /* foto opcional */
-.photo{display:none;margin:16px auto 4px;max-width:100%;border-radius:16px;border:1px solid var(--line);box-shadow:0 20px 60px rgba(0,0,0,.55)}
+.photo{display:none;width:100%;margin:4px auto 0;max-width:100%;border-radius:18px;border:1px solid var(--line);box-shadow:0 24px 70px rgba(0,0,0,.6)}
 .photo.on{display:block}
+/* cuando hay flyer de portada, ocultar el hero de texto (evita duplicar) */
+.hero.haspic .crown,.hero.haspic .t-op,.hero.haspic .t-ex,.hero.haspic .mid,.hero.haspic .live{display:none}
 
 .mid{margin-top:20px}
 .chip{display:inline-block;font-family:'Archivo Black';font-size:clamp(16px,4.6vw,24px);letter-spacing:.08em;color:#f6f2e6;padding:2px 6px}
@@ -174,7 +176,7 @@ label{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercas
 <script>
 const EVENTO="Operativa Exclusiva";
 /* Para poner la foto del flyer: pega aquí su ENLACE PÚBLICO (https://...) */
-const PHOTO_URL="";
+const PHOTO_URL="https://i.imgur.com/z5cgtKf_d.webp?maxwidth=760&fidelity=grand";
 const SUPABASE_URL="https://fhixjvxztmuifrioevze.supabase.co";
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoaXhqdnh6dG11aWZyaW9ldnplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjgxNTUsImV4cCI6MjA5OTM0NDE1NX0.sTBxjWYr5m90-usvIJQyvTXon3TkD9Nk0V9z6IDQtmo";
 const REST=SUPABASE_URL+"/rest/v1/registros_evento";
@@ -185,8 +187,8 @@ const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"
 function waNum(t){return (t||'').replace(/[^0-9]/g,'');}
 const isEmail=s=>/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s||'');
 
-/* foto (si hay URL) */
-if(PHOTO_URL){const im=$('photo');im.src=PHOTO_URL;im.classList.add('on');}
+/* foto (si hay URL): usar el flyer como portada y ocultar el hero de texto */
+if(PHOTO_URL){const im=$('photo');im.src=PHOTO_URL;im.classList.add('on');document.querySelector('.hero').classList.add('haspic');}
 
 /* velas azules de fondo */
 (function(){

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mis Finanzas — Ingresos, Gastos y Ahorro</title>
+<style>
+  :root{
+    --bg:#0f1420; --card:#182031; --card2:#1f2940; --line:#2a3550;
+    --txt:#e8edf7; --muted:#94a3c4; --brand:#4f8cff; --brand2:#7c5cff;
+    --ok:#2fbf71; --bad:#ff5a72; --save:#f4b740;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:linear-gradient(160deg,#0f1420,#141b2c);color:var(--txt);min-height:100vh;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:20px 16px 80px}
+  header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.25rem}
+  .logo .dot{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:grid;place-items:center;font-size:1.1rem}
+  .muted{color:var(--muted)}
+  .month-nav{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 8px}
+  .month-nav button{background:transparent;border:0;color:var(--txt);font-size:1.1rem;cursor:pointer;padding:2px 8px;border-radius:8px}
+  .month-nav button:hover{background:var(--card2)}
+  .month-nav .lbl{min-width:130px;text-align:center;font-weight:600;text-transform:capitalize}
+
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+  .card .k{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:8px}
+  .card .v{font-size:1.5rem;font-weight:800;letter-spacing:-.5px}
+  .pill{width:10px;height:10px;border-radius:50%}
+  .p-in{background:var(--ok)} .p-out{background:var(--bad)} .p-save{background:var(--save)} .p-bal{background:var(--brand)}
+  .v.in{color:var(--ok)} .v.out{color:var(--bad)} .v.save{color:var(--save)}
+
+  .grid{display:grid;grid-template-columns:1.1fr 1fr;gap:18px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+  .panel h2{font-size:1rem;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+
+  form.add{display:grid;gap:10px}
+  .seg{display:flex;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px}
+  .seg label{flex:1;text-align:center;padding:9px;border-radius:9px;cursor:pointer;font-weight:600;font-size:.9rem;color:var(--muted)}
+  .seg input{display:none}
+  .seg input:checked+span{color:#fff}
+  .seg label:has(input[value="ingreso"]:checked){background:rgba(47,191,113,.18);color:var(--ok)}
+  .seg label:has(input[value="gasto"]:checked){background:rgba(255,90,114,.18);color:var(--bad)}
+  .seg label:has(input[value="ahorro"]:checked){background:rgba(244,183,64,.18);color:var(--save)}
+  input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:11px;padding:12px;font-size:.95rem;font-family:inherit}
+  input:focus,select:focus{outline:2px solid var(--brand);border-color:transparent}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  button.primary{background:linear-gradient(135deg,var(--brand),var(--brand2));border:0;color:#fff;font-weight:700;padding:13px;border-radius:12px;cursor:pointer;font-size:1rem}
+  button.primary:hover{filter:brightness(1.08)}
+
+  .list{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow:auto}
+  .item{display:flex;align-items:center;gap:12px;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+  .item .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:1.1rem;flex-shrink:0}
+  .ic.ingreso{background:rgba(47,191,113,.15)} .ic.gasto{background:rgba(255,90,114,.15)} .ic.ahorro{background:rgba(244,183,64,.15)}
+  .item .info{flex:1;min-width:0}
+  .item .info .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .item .info .s{font-size:.8rem;color:var(--muted)}
+  .item .amt{font-weight:800;white-space:nowrap}
+  .amt.ingreso{color:var(--ok)} .amt.gasto{color:var(--bad)} .amt.ahorro{color:var(--save)}
+  .item .del{background:transparent;border:0;color:var(--muted);cursor:pointer;font-size:1.1rem;padding:4px}
+  .item .del:hover{color:var(--bad)}
+  .empty{text-align:center;color:var(--muted);padding:30px 10px}
+
+  .bar{height:14px;border-radius:8px;background:var(--card2);overflow:hidden;display:flex;margin:6px 0 14px}
+  .bar span{height:100%}
+  .catrow{display:flex;justify-content:space-between;font-size:.9rem;padding:6px 0;border-bottom:1px solid var(--line)}
+  .catrow:last-child{border:0}
+  .dot-cat{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+  .btn-ghost{background:var(--card);border:1px solid var(--line);color:var(--txt);padding:9px 14px;border-radius:10px;cursor:pointer;font-size:.85rem}
+  .btn-ghost:hover{background:var(--card2)}
+  footer.foot{text-align:center;color:var(--muted);font-size:.8rem;margin-top:40px}
+
+  @media(max-width:820px){.cards{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo"><span class="dot">💰</span> Mis Finanzas</div>
+    <div class="month-nav">
+      <button id="prevM" aria-label="Mes anterior">‹</button>
+      <span class="lbl" id="monthLbl">—</span>
+      <button id="nextM" aria-label="Mes siguiente">›</button>
+    </div>
+  </header>
+
+  <section class="cards">
+    <div class="card"><div class="k"><span class="pill p-in"></span>Ingresos</div><div class="v in" id="sumIn">$0</div></div>
+    <div class="card"><div class="k"><span class="pill p-out"></span>Gastos</div><div class="v out" id="sumOut">$0</div></div>
+    <div class="card"><div class="k"><span class="pill p-save"></span>Ahorro</div><div class="v save" id="sumSave">$0</div></div>
+    <div class="card"><div class="k"><span class="pill p-bal"></span>Balance</div><div class="v" id="sumBal">$0</div></div>
+  </section>
+
+  <div class="grid">
+    <div class="panel">
+      <h2>Registrar movimiento</h2>
+      <form class="add" id="frm">
+        <div class="seg">
+          <label><input type="radio" name="tipo" value="ingreso"><span>Ingreso</span></label>
+          <label><input type="radio" name="tipo" value="gasto" checked><span>Gasto</span></label>
+          <label><input type="radio" name="tipo" value="ahorro"><span>Ahorro</span></label>
+        </div>
+        <input type="text" id="desc" placeholder="Descripción (ej. Salario, Mercado, Arriendo)" required>
+        <div class="row2">
+          <input type="number" id="monto" placeholder="Monto" min="0" step="0.01" required>
+          <select id="cat"></select>
+        </div>
+        <input type="date" id="fecha">
+        <button class="primary" type="submit">Agregar</button>
+      </form>
+
+      <h2 style="margin-top:22px">Gastos por categoría</h2>
+      <div class="bar" id="catBar"></div>
+      <div id="catList"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Movimientos del mes <span class="muted" id="count"></span></h2>
+      <div class="list" id="list"></div>
+      <div class="toolbar">
+        <button class="btn-ghost" id="export">⬇ Exportar CSV</button>
+        <button class="btn-ghost" id="clear">🗑 Borrar mes</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="foot">Tus datos se guardan solo en este dispositivo (privado). · Mis Finanzas MVP</footer>
+</div>
+
+<script>
+const CATS = {
+  ingreso:["Salario","Ventas","Freelance","Intereses","Regalo","Otro"],
+  gasto:["Alimentación","Transporte","Vivienda","Servicios","Salud","Educación","Ocio","Ropa","Otro"],
+  ahorro:["Fondo emergencia","Meta de ahorro","Inversión","Retiro","Otro"]
+};
+const CAT_COLORS = ["#4f8cff","#7c5cff","#2fbf71","#f4b740","#ff5a72","#37c9d6","#ff9f43","#c78bff","#8a94ad"];
+const KEY = "misfinanzas_v1";
+let state = load();
+let cursor = new Date(); cursor.setDate(1);
+
+function load(){ try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return[]} }
+function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+function money(n){ return "$"+ (n||0).toLocaleString("es-CO",{maximumFractionDigits:0}); }
+function ymKey(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); }
+function monthName(d){ return d.toLocaleDateString("es-CO",{month:"long",year:"numeric"}); }
+
+// Poblar categorías según tipo
+function fillCats(){
+  const tipo = document.querySelector('input[name=tipo]:checked').value;
+  cat.innerHTML = CATS[tipo].map(c=>`<option>${c}</option>`).join("");
+}
+document.querySelectorAll('input[name=tipo]').forEach(r=>r.addEventListener("change",fillCats));
+
+// Fecha por defecto = hoy
+document.getElementById("fecha").valueAsDate = new Date();
+
+frm.addEventListener("submit",e=>{
+  e.preventDefault();
+  const tipo = document.querySelector('input[name=tipo]:checked').value;
+  const m = parseFloat(monto.value);
+  if(!(m>0)) return;
+  state.push({
+    id:Date.now()+"-"+Math.random().toString(36).slice(2,7),
+    tipo, desc:desc.value.trim(), monto:m, cat:cat.value,
+    fecha: fecha.value || new Date().toISOString().slice(0,10)
+  });
+  save();
+  desc.value=""; monto.value="";
+  // Ir al mes de la transacción registrada
+  const fd = new Date(fecha.value+"T00:00:00"); cursor = new Date(fd.getFullYear(),fd.getMonth(),1);
+  render();
+  desc.focus();
+});
+
+function currentItems(){
+  const k = ymKey(cursor);
+  return state.filter(t=>t.fecha && t.fecha.slice(0,7)===k)
+              .sort((a,b)=> b.fecha.localeCompare(a.fecha) || b.id.localeCompare(a.id));
+}
+
+function del(id){ state = state.filter(t=>t.id!==id); save(); render(); }
+window.del = del;
+
+document.getElementById("prevM").onclick=()=>{cursor.setMonth(cursor.getMonth()-1);render();};
+document.getElementById("nextM").onclick=()=>{cursor.setMonth(cursor.getMonth()+1);render();};
+
+document.getElementById("clear").onclick=()=>{
+  if(!confirm("¿Borrar todos los movimientos de "+monthName(cursor)+"?")) return;
+  const k = ymKey(cursor);
+  state = state.filter(t=>t.fecha.slice(0,7)!==k); save(); render();
+};
+
+document.getElementById("export").onclick=()=>{
+  const items = currentItems();
+  if(!items.length){ alert("No hay movimientos para exportar."); return; }
+  const rows = [["Fecha","Tipo","Categoría","Descripción","Monto"]]
+    .concat(items.map(t=>[t.fecha,t.tipo,t.cat,t.desc,t.monto]));
+  const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  a.download="finanzas-"+ymKey(cursor)+".csv"; a.click();
+};
+
+function render(){
+  monthLbl.textContent = monthName(cursor);
+  const items = currentItems();
+  const sum = t=> items.filter(x=>x.tipo===t).reduce((a,x)=>a+x.monto,0);
+  const inc=sum("ingreso"), out=sum("gasto"), sav=sum("ahorro");
+  sumIn.textContent=money(inc); sumOut.textContent=money(out); sumSave.textContent=money(sav);
+  const bal = inc-out-sav;
+  sumBal.textContent=money(bal);
+  sumBal.style.color = bal>=0 ? "var(--ok)" : "var(--bad)";
+
+  // Lista
+  count.textContent = items.length ? "· "+items.length : "";
+  const icons={ingreso:"⬆",gasto:"⬇",ahorro:"🐖"};
+  list.innerHTML = items.length ? items.map(t=>`
+    <div class="item">
+      <div class="ic ${t.tipo}">${icons[t.tipo]}</div>
+      <div class="info"><div class="t">${esc(t.desc)}</div><div class="s">${t.cat} · ${t.fecha}</div></div>
+      <div class="amt ${t.tipo}">${t.tipo==='gasto'?'-':''}${money(t.monto)}</div>
+      <button class="del" onclick="del('${t.id}')" title="Eliminar">✕</button>
+    </div>`).join("") : `<div class="empty">Sin movimientos este mes.<br>Registra el primero 👉</div>`;
+
+  // Gastos por categoría
+  const byCat={};
+  items.filter(x=>x.tipo==='gasto').forEach(x=>byCat[x.cat]=(byCat[x.cat]||0)+x.monto);
+  const cats = Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+  const total = cats.reduce((a,c)=>a+c[1],0);
+  catBar.innerHTML = total ? cats.map((c,i)=>`<span style="width:${c[1]/total*100}%;background:${CAT_COLORS[i%CAT_COLORS.length]}"></span>`).join("") : "";
+  catList.innerHTML = total ? cats.map((c,i)=>`
+    <div class="catrow"><span><span class="dot-cat" style="background:${CAT_COLORS[i%CAT_COLORS.length]}"></span>${c[0]}</span>
+    <span>${money(c[1])} · ${Math.round(c[1]/total*100)}%</span></div>`).join("")
+    : `<div class="empty">Aún no hay gastos registrados.</div>`;
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+fillCats();
+render();
+</script>
+</body>
+</html>

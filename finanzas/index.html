@@ -240,6 +240,28 @@
   footer.foot{letter-spacing:.03em}
 
   @media(max-width:820px){.card .v{font-size:1.6rem}}
+
+  /* ===== Muro de pago ===== */
+  body.locked{overflow:hidden}
+  .paywall{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:20px;
+    background:rgba(3,4,10,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);overflow:auto}
+  .paycard{max-width:440px;width:100%;background:var(--card);border:1px solid var(--line);border-radius:26px;
+    padding:32px 28px;box-shadow:var(--glow);text-align:center}
+  .paycard .badge{display:inline-block;background:rgba(168,85,247,.18);color:#d9b8ff;border:1px solid rgba(168,85,247,.35);
+    padding:6px 14px;border-radius:999px;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px}
+  .paycard h2{font-size:1.7rem;font-weight:800;margin-bottom:10px;letter-spacing:-.5px}
+  .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .paycard p.muted{font-size:.92rem;line-height:1.5}
+  .price{margin:20px 0 6px;display:flex;align-items:baseline;justify-content:center;gap:8px}
+  .price .amt{font-family:'Space Grotesk',sans-serif;font-size:3rem;font-weight:800;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .price .per{color:var(--muted);font-weight:600}
+  .trial{background:rgba(34,225,151,.12);border:1px solid rgba(34,225,151,.3);color:#9df3cd;
+    border-radius:14px;padding:12px 14px;font-size:.86rem;margin:14px 0 18px}
+  .feat{list-style:none;text-align:left;display:grid;gap:9px;margin:0 0 22px;font-size:.92rem}
+  .paycard .primary{width:100%;padding:15px;font-size:1rem}
+  .paycard .mini{font-size:.75rem;margin-top:12px}
+  .linkout{background:none;border:0;color:var(--muted);cursor:pointer;margin-top:14px;font-size:.82rem;text-decoration:underline}
 </style>
 </head>
 <body>
@@ -260,11 +282,32 @@
   </div>
 </div>
 
+<!-- ============ MURO DE PAGO ============ -->
+<div id="paywall" class="paywall hidden">
+  <div class="paycard">
+    <div class="badge">✨ Acceso Premium</div>
+    <h2>Desbloquea <span class="grad">Mis Finanzas</span></h2>
+    <p class="muted">Controla ingresos, gastos, ahorro, metas y reportes desde cualquier dispositivo, con tus datos seguros en la nube.</p>
+    <div class="price"><span class="amt">$29</span> <span class="per">USD / 3 meses</span></div>
+    <div class="trial">🎁 Empieza con <b>72 horas de prueba</b>. Se cobra automáticamente al terminar si no cancelas.</div>
+    <ul class="feat">
+      <li>✅ Ingresos, gastos y ahorro ilimitados</li>
+      <li>✅ Metas de ahorro y presupuestos con alertas</li>
+      <li>✅ Reportes y evolución mensual</li>
+      <li>✅ Sincronización segura en la nube</li>
+    </ul>
+    <button class="primary" id="payBtn" onclick="irAPagar()">Iniciar prueba de 72 h</button>
+    <p class="muted mini">Pago seguro con Stripe · Cancela cuando quieras · Necesitas una tarjeta para la prueba.</p>
+    <button class="linkout" id="logout2">Cerrar sesión</button>
+  </div>
+</div>
+
 <!-- ============ APP ============ -->
 <div id="appView" class="wrap hidden">
   <header class="top">
     <div class="logo"><span class="dot">💰</span> Mis Finanzas</div>
     <div class="userbox">
+      <span id="subInfo" class="muted"></span>
       <span id="syncState" class="muted"></span>
       <span class="avatar" id="avatar">U</span>
       <span id="userEmail" class="muted"></span>
@@ -440,6 +483,7 @@ function traducir(m){
   return m;
 }
 $("logout").onclick=async()=>{ await sb.auth.signOut(); };
+$("logout2").onclick=async()=>{ await sb.auth.signOut(); };
 
 sb.auth.onAuthStateChange((_e,session)=>{
   if(session && session.user){ user=session.user; enterApp(); }
@@ -454,6 +498,7 @@ async function enterApp(){
   await loadAll();
   fillCats(); fillBudCats();
   render();
+  await checkAccess();
 }
 
 /* ---------------- DATOS (nube) ---------------- */
@@ -466,6 +511,42 @@ async function loadAll(){
   state = (movs||[]).map(m=>({id:m.id,tipo:m.tipo,desc:m.descripcion,monto:Number(m.monto),cat:m.categoria,fecha:m.fecha}));
   if(cfg && cfg.data){ config = Object.assign({metas:[],presupuestos:{}}, cfg.data); }
   setSync("✓ Sincronizado");
+}
+
+/* ---------------- SUSCRIPCIÓN / MURO DE PAGO ---------------- */
+const ACTIVE_STATES = ["trialing","active"];
+// Interruptor del muro de pago. Ponlo en true cuando Stripe esté conectado (claves cargadas).
+const PAYWALL_ON = false;
+async function checkAccess(){
+  if(!PAYWALL_ON){ $("paywall").classList.add("hidden"); document.body.classList.remove("locked"); return; }
+  // Si volvió del pago, damos un momento a que el webhook actualice y reintentamos
+  const params = new URLSearchParams(location.search);
+  if(params.get("pago")==="ok"){ setSync("Confirmando pago…"); await new Promise(r=>setTimeout(r,2500)); }
+  const {data} = await sb.from("finanzas_suscripciones").select("status,current_period_end,trial_end").eq("user_id",user.id).maybeSingle();
+  const status = data?.status || "none";
+  const ok = ACTIVE_STATES.includes(status);
+  $("paywall").classList.toggle("hidden", ok);
+  document.body.classList.toggle("locked", !ok);
+  if(ok && data){
+    const fin = data.status==="trialing" ? data.trial_end : data.current_period_end;
+    $("subInfo").textContent = data.status==="trialing"
+      ? "Prueba activa · se cobra el "+(fin?new Date(fin).toLocaleDateString("es-CO"):"")
+      : "Suscripción activa · renueva el "+(fin?new Date(fin).toLocaleDateString("es-CO"):"");
+  } else { $("subInfo").textContent=""; }
+  // limpia el parámetro de la URL
+  if(params.get("pago")){ history.replaceState({}, "", location.pathname); }
+}
+async function irAPagar(){
+  const btn=$("payBtn"); btn.disabled=true; btn.textContent="Abriendo pago seguro…";
+  try{
+    const {data,error} = await sb.functions.invoke("crear-checkout",{ body:{} });
+    if(error) throw error;
+    if(data?.url){ location.href=data.url; return; }
+    throw new Error(data?.error||"No se pudo iniciar el pago");
+  }catch(e){
+    alert("No se pudo abrir el pago: "+(e.message||e)+"\n\n(Esto funcionará cuando conectemos las claves de Stripe.)");
+    btn.disabled=false; btn.textContent="Iniciar prueba de 72 h";
+  }
 }
 async function saveConfig(){
   setSync("Guardando…");

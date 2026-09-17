@@ -262,6 +262,49 @@
   .paycard .primary{width:100%;padding:15px;font-size:1rem}
   .paycard .mini{font-size:.75rem;margin-top:12px}
   .linkout{background:none;border:0;color:var(--muted);cursor:pointer;margin-top:14px;font-size:.82rem;text-decoration:underline}
+
+  /* ===== Onboarding ===== */
+  .onbcard{max-width:480px}
+  .steps{display:flex;gap:8px;justify-content:center;margin-bottom:18px}
+  .stepdot{width:34px;height:5px;border-radius:3px;background:var(--line);transition:.3s}
+  .stepdot.on{background:var(--grad)}
+  .ob-step h2{font-size:1.5rem}
+  .ob-step input{margin:16px 0 8px;font-size:1.25rem;text-align:center;font-family:'Space Grotesk',sans-serif}
+  .ob-step .primary{width:100%;margin-top:14px}
+  .ob-nav{display:flex;gap:10px;align-items:center;margin-top:14px}
+  .ob-nav .primary{flex:1;margin-top:0}
+  .fijo-add{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin:16px 0 6px}
+  .fijo-add input{margin:0;font-size:.95rem;text-align:left}
+  .fijo-add .btn-ghost{padding:0 16px;font-size:1.3rem}
+  .fijos-list{display:grid;gap:7px;text-align:left}
+  .fijo-item{display:flex;justify-content:space-between;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:.92rem}
+  .fijo-item b{color:var(--muted);cursor:pointer;margin-left:10px}
+  .fijo-item b:hover{color:var(--bad)}
+  .fijos-total{text-align:right;margin-top:8px;color:var(--muted);font-size:.9rem}
+  .ob-preview{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0 4px;text-align:left}
+  .prev-row{display:flex;justify-content:space-between;padding:5px 0;font-size:.92rem}
+  .prev-row.total{border-top:1px solid var(--line);margin-top:6px;padding-top:10px;font-weight:700}
+  .prev-row .v{font-size:.95rem}
+  .warn{color:#ffd479;font-size:.82rem;margin-top:8px}
+
+  /* ===== Mi Plan ===== */
+  .plan-head{display:flex;justify-content:space-between;align-items:center}
+  .alloc-bar{height:22px;border-radius:11px;overflow:hidden;display:flex;background:var(--card2);margin:16px 0 10px;box-shadow:inset 0 1px 4px rgba(0,0,0,.5)}
+  .alloc-bar span{height:100%}
+  .alloc-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.83rem;margin-bottom:20px}
+  .alloc-legend span{display:flex;align-items:center;gap:6px}
+  .alloc-legend i{width:11px;height:11px;border-radius:3px}
+  .plan-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .pcard{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .pcard .pk{font-size:.7rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:700;margin-bottom:6px}
+  .pcard .pv{font-family:'Space Grotesk',sans-serif;font-size:1.35rem;font-weight:800;letter-spacing:-.5px}
+  .pcard .pv.in{color:var(--ok)} .pcard .pv.out{color:var(--bad)} .pcard .pv.save{color:var(--save)}
+  .pcard .ps{font-size:.72rem;color:var(--muted);margin-top:3px}
+  .progress-block{margin-bottom:16px}
+  .pb-head{display:flex;justify-content:space-between;font-weight:600;font-size:.92rem;margin-bottom:7px}
+  .pb-foot{font-size:.82rem;color:var(--muted);margin-top:6px}
+  .pb-foot.over,.pb-head .over{color:var(--bad);font-weight:700}
+  @media(max-width:820px){.plan-cards{grid-template-columns:repeat(2,1fr)}.fijo-add{grid-template-columns:1fr 1fr auto}}
 </style>
 </head>
 <body>
@@ -302,6 +345,53 @@
   </div>
 </div>
 
+<!-- ============ ONBOARDING (asistente inicial) ============ -->
+<div id="onboard" class="paywall hidden">
+  <div class="paycard onbcard">
+    <div class="steps" id="obSteps"></div>
+
+    <!-- Paso 1: ingreso -->
+    <div class="ob-step" data-step="0">
+      <div class="badge">Paso 1 de 3</div>
+      <h2>¿Cuánto <span class="grad">ingresas</span> al mes?</h2>
+      <p class="muted">Tu ingreso mensual aproximado (salario, ventas, etc.). Con esto calculamos tu plan.</p>
+      <input type="number" id="obIngreso" placeholder="Ej. 2000000" min="0" step="1000" inputmode="numeric">
+      <button class="primary" onclick="obNext()">Continuar</button>
+    </div>
+
+    <!-- Paso 2: gastos fijos -->
+    <div class="ob-step hidden" data-step="1">
+      <div class="badge">Paso 2 de 3</div>
+      <h2>Tus <span class="grad">gastos fijos</span></h2>
+      <p class="muted">Los que pagas todos los meses (arriendo, servicios, internet…). Se registrarán solos cada mes.</p>
+      <div class="fijo-add">
+        <input type="text" id="obFijoNom" placeholder="Nombre (ej. Arriendo)">
+        <input type="number" id="obFijoMonto" placeholder="Monto" min="0" step="1000" inputmode="numeric">
+        <button class="btn-ghost" onclick="obAddFijo()">＋</button>
+      </div>
+      <div id="obFijosList" class="fijos-list"></div>
+      <div class="fijos-total" id="obFijosTotal"></div>
+      <div class="ob-nav">
+        <button class="linkout" onclick="obPrev()">Atrás</button>
+        <button class="primary" onclick="obNext()">Continuar</button>
+      </div>
+    </div>
+
+    <!-- Paso 3: ahorro -->
+    <div class="ob-step hidden" data-step="2">
+      <div class="badge">Paso 3 de 3</div>
+      <h2>Tu <span class="grad">meta de ahorro</span> mensual</h2>
+      <p class="muted">¿Cuánto quieres apartar cada mes? Puede ser un monto o dejarlo en 0 por ahora.</p>
+      <input type="number" id="obAhorro" placeholder="Ej. 300000" min="0" step="1000" inputmode="numeric">
+      <div class="ob-preview" id="obPreview"></div>
+      <div class="ob-nav">
+        <button class="linkout" onclick="obPrev()">Atrás</button>
+        <button class="primary" onclick="obFinish()">🚀 Crear mi plan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ============ APP ============ -->
 <div id="appView" class="wrap hidden">
   <header class="top">
@@ -316,9 +406,26 @@
   </header>
 
   <div class="tabs">
-    <button data-tab="resumen" class="on">Resumen</button>
+    <button data-tab="plan" class="on">Mi Plan</button>
+    <button data-tab="resumen">Resumen</button>
     <button data-tab="metas">Metas y presupuesto</button>
     <button data-tab="reportes">Reportes</button>
+  </div>
+
+  <!-- TAB MI PLAN -->
+  <div class="tabpane" data-pane="plan">
+    <div class="panel plan-hero">
+      <div class="plan-head">
+        <h2>Tu plan de este mes</h2>
+        <button class="btn-ghost" id="editPlan">✏️ Editar plan</button>
+      </div>
+      <div class="plan-alloc">
+        <div class="alloc-bar" id="allocBar"></div>
+        <div class="alloc-legend" id="allocLegend"></div>
+      </div>
+      <div class="plan-cards" id="planCards"></div>
+      <div class="plan-status" id="planStatus"></div>
+    </div>
   </div>
 
   <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
@@ -337,7 +444,7 @@
   </section>
 
   <!-- TAB RESUMEN -->
-  <div class="grid tabpane" data-pane="resumen">
+  <div class="grid tabpane hidden" data-pane="resumen">
     <div class="panel">
       <h2>Registrar movimiento</h2>
       <form class="add" id="frm">
@@ -430,7 +537,7 @@ const CATS = {
 const CAT_COLORS = ["#4f8cff","#7c5cff","#2fbf71","#f4b740","#ff5a72","#37c9d6","#ff9f43","#c78bff","#8a94ad"];
 
 let state = [];          // movimientos
-let config = {metas:[], presupuestos:{}}; // metas y presupuestos
+let config = {metas:[], presupuestos:{}, perfil:null, fijosAplicados:[]}; // metas, presupuestos y perfil
 let cursor = new Date(); cursor.setDate(1);
 let user = null;
 let isRegister = false;
@@ -497,8 +604,86 @@ async function enterApp(){
   $("avatar").textContent = (user.email[0]||"U").toUpperCase();
   await loadAll();
   fillCats(); fillBudCats();
+  if(!config.perfil || !config.perfil.onboarded){ startOnboarding(); }
+  else { await aplicarFijosMesActual(); }
   render();
   await checkAccess();
+}
+
+/* ---------------- ONBOARDING (asistente inicial) ---------------- */
+let obPaso=0; let obFijos=[];
+function startOnboarding(){
+  obPaso=0; obFijos=(config.perfil&&config.perfil.fijos)?[...config.perfil.fijos]:[];
+  $("obIngreso").value = config.perfil?.ingreso || "";
+  $("obAhorro").value = config.perfil?.ahorroMeta || "";
+  $("onboard").classList.remove("hidden");
+  document.body.classList.add("locked");
+  obShow();
+}
+function obShow(){
+  document.querySelectorAll(".ob-step").forEach(s=>s.classList.toggle("hidden", +s.dataset.step!==obPaso));
+  $("obSteps").innerHTML=[0,1,2].map(i=>`<span class="stepdot ${i<=obPaso?'on':''}"></span>`).join("");
+  if(obPaso===1) obRenderFijos();
+  if(obPaso===2) obRenderPreview();
+}
+function obNext(){
+  if(obPaso===0){ const v=parseFloat($("obIngreso").value); if(!(v>0)){ alert("Pon tu ingreso mensual para continuar."); return; } }
+  obPaso=Math.min(2,obPaso+1); obShow();
+}
+function obPrev(){ obPaso=Math.max(0,obPaso-1); obShow(); }
+function obAddFijo(){
+  const nom=$("obFijoNom").value.trim(); const monto=parseFloat($("obFijoMonto").value);
+  if(!nom||!(monto>0)){ alert("Escribe el nombre y el monto del gasto fijo."); return; }
+  obFijos.push({nombre:nom, monto, cat:"Vivienda"});
+  $("obFijoNom").value=""; $("obFijoMonto").value=""; $("obFijoNom").focus();
+  obRenderFijos();
+}
+function obDelFijo(i){ obFijos.splice(i,1); obRenderFijos(); }
+window.obAddFijo=obAddFijo; window.obDelFijo=obDelFijo; window.obNext=obNext; window.obPrev=obPrev;
+function obRenderFijos(){
+  const t=obFijos.reduce((a,f)=>a+f.monto,0);
+  $("obFijosList").innerHTML = obFijos.length? obFijos.map((f,i)=>`
+    <div class="fijo-item"><span>${esc(f.nombre)}</span><span>${money(f.monto)} <b onclick="obDelFijo(${i})">✕</b></span></div>`).join("")
+    : `<div class="empty" style="padding:14px">Aún no agregas gastos fijos. Puedes seguir sin ninguno.</div>`;
+  $("obFijosTotal").innerHTML = obFijos.length? `Total fijos: <b>${money(t)}</b>` : "";
+}
+function obRenderPreview(){
+  const ing=parseFloat($("obIngreso").value)||0;
+  const fij=obFijos.reduce((a,f)=>a+f.monto,0);
+  const aho=parseFloat($("obAhorro").value)||0;
+  const disp=ing-fij-aho;
+  $("obPreview").innerHTML=`
+    <div class="prev-row"><span>Ingreso mensual</span><b class="v in">${money(ing)}</b></div>
+    <div class="prev-row"><span>− Gastos fijos</span><b class="v out">${money(fij)}</b></div>
+    <div class="prev-row"><span>− Meta de ahorro</span><b class="v save">${money(aho)}</b></div>
+    <div class="prev-row total"><span>= Disponible para gastar</span><b style="color:${disp>=0?'var(--ok)':'var(--bad)'}">${money(disp)}</b></div>
+    ${disp<0?'<div class="warn">⚠ Tus fijos + ahorro superan tu ingreso. Puedes ajustarlo ahora o después.</div>':''}`;
+}
+$("obAhorro").addEventListener("input",obRenderPreview);
+async function obFinish(){
+  const ingreso=parseFloat($("obIngreso").value)||0;
+  const ahorroMeta=parseFloat($("obAhorro").value)||0;
+  config.perfil={ ingreso, ahorroMeta, fijos:obFijos, onboarded:true, creado:new Date().toISOString() };
+  // La meta de ahorro mensual también alimenta el presupuesto/ahorro
+  await saveConfig();
+  $("onboard").classList.add("hidden"); document.body.classList.remove("locked");
+  await aplicarFijosMesActual();
+  render();
+}
+window.obFinish=obFinish;
+
+/* ---------------- GASTOS FIJOS AUTOMÁTICOS ---------------- */
+async function aplicarFijosMesActual(){
+  if(!config.perfil || !config.perfil.fijos || !config.perfil.fijos.length) return;
+  const hoy=new Date(); const k=hoy.getFullYear()+"-"+String(hoy.getMonth()+1).padStart(2,"0");
+  if((config.fijosAplicados||[]).includes(k)) return;
+  const fecha=k+"-01";
+  const filas=config.perfil.fijos.map(f=>({tipo:"gasto",descripcion:f.nombre,monto:f.monto,categoria:f.cat||"Vivienda",fecha,user_id:user.id}));
+  const {data,error}=await sb.from("finanzas_movimientos").insert(filas).select();
+  if(error){ console.warn("No se pudieron aplicar fijos:",error.message); return; }
+  (data||[]).forEach(m=>state.unshift({id:m.id,tipo:m.tipo,desc:m.descripcion,monto:Number(m.monto),cat:m.categoria,fecha:m.fecha}));
+  config.fijosAplicados=[...(config.fijosAplicados||[]),k];
+  await saveConfig();
 }
 
 /* ---------------- DATOS (nube) ---------------- */
@@ -509,7 +694,7 @@ async function loadAll(){
     sb.from("finanzas_config").select("data").eq("user_id",user.id).maybeSingle()
   ]);
   state = (movs||[]).map(m=>({id:m.id,tipo:m.tipo,desc:m.descripcion,monto:Number(m.monto),cat:m.categoria,fecha:m.fecha}));
-  if(cfg && cfg.data){ config = Object.assign({metas:[],presupuestos:{}}, cfg.data); }
+  if(cfg && cfg.data){ config = Object.assign({metas:[],presupuestos:{},perfil:null,fijosAplicados:[]}, cfg.data); }
   setSync("✓ Sincronizado");
 }
 
@@ -669,7 +854,52 @@ function render(){
 
   renderMetas(sav, byCat);
   renderReportes();
+  renderPlan(inc, out, sav);
 }
+
+/* ---------------- MI PLAN (desglose) ---------------- */
+function renderPlan(incMes, gastoMes, ahorroMes){
+  const p=config.perfil;
+  if(!p){ $("planCards").innerHTML=`<div class="empty">Configura tu plan para ver el desglose.</div>`; $("allocBar").innerHTML=""; $("allocLegend").innerHTML=""; $("planStatus").innerHTML=""; return; }
+  const ingreso=p.ingreso||0;
+  const fijos=(p.fijos||[]).reduce((a,f)=>a+f.monto,0);
+  const ahorroMeta=p.ahorroMeta||0;
+  const disponible=ingreso-fijos-ahorroMeta;
+
+  // Barra de asignación del ingreso
+  const segs=[["Gastos fijos",fijos,"#ff4d6d"],["Ahorro",ahorroMeta,"#ffb020"],["Disponible",Math.max(0,disponible),"#22e197"]];
+  const base=ingreso>0?ingreso:(fijos+ahorroMeta+Math.max(0,disponible))||1;
+  $("allocBar").innerHTML=segs.map(s=>`<span style="width:${s[1]/base*100}%;background:${s[2]}"></span>`).join("");
+  $("allocLegend").innerHTML=segs.map(s=>`<span><i style="background:${s[2]}"></i>${s[0]} · ${money(s[1])} (${base?Math.round(s[1]/base*100):0}%)</span>`).join("");
+
+  // Tarjetas del plan
+  $("planCards").innerHTML=`
+    <div class="pcard"><div class="pk">Ingreso mensual</div><div class="pv in">${money(ingreso)}</div></div>
+    <div class="pcard"><div class="pk">Gastos fijos</div><div class="pv out">${money(fijos)}</div><div class="ps">${(p.fijos||[]).length} conceptos, automáticos</div></div>
+    <div class="pcard"><div class="pk">Meta de ahorro</div><div class="pv save">${money(ahorroMeta)}</div></div>
+    <div class="pcard"><div class="pk">Disponible para gastar</div><div class="pv" style="color:${disponible>=0?'var(--ok)':'var(--bad)'}">${money(disponible)}</div></div>`;
+
+  // Estado del mes en curso: cuánto de lo "disponible" ya se gastó (gastos variables = gasto del mes − fijos)
+  const gastoVariable=Math.max(0, gastoMes - fijos);
+  const pctGasto=disponible>0?gastoVariable/disponible*100:(gastoVariable>0?100:0);
+  const restante=disponible-gastoVariable;
+  const colG=pctGasto>=100?"#ff4d6d":pctGasto>=80?"#ffb020":"#22e197";
+  const pctAhorro=ahorroMeta>0?Math.min(100,ahorroMes/ahorroMeta*100):0;
+
+  $("planStatus").innerHTML=`
+    <h2 style="margin:22px 0 12px">Cómo vas este mes</h2>
+    <div class="progress-block">
+      <div class="pb-head"><span>Gasto variable</span><span class="${pctGasto>=100?'over':''}">${money(gastoVariable)} / ${money(Math.max(0,disponible))}</span></div>
+      <div class="track"><span style="width:${Math.min(100,pctGasto)}%;background:${colG}"></span></div>
+      <div class="pb-foot ${restante<0?'over':''}">${restante>=0?'Te quedan '+money(restante)+' para gastar':'Te pasaste por '+money(-restante)}</div>
+    </div>
+    <div class="progress-block">
+      <div class="pb-head"><span>Ahorro del mes</span><span>${money(ahorroMes)} / ${money(ahorroMeta)}</span></div>
+      <div class="track"><span style="width:${pctAhorro}%;background:linear-gradient(90deg,#ffb020,#ffe08a)"></span></div>
+      <div class="pb-foot">${ahorroMeta>0?(pctAhorro>=100?'✅ ¡Meta de ahorro cumplida!':Math.round(pctAhorro)+'% de tu meta de ahorro'):'Sin meta de ahorro definida'}</div>
+    </div>`;
+}
+$("editPlan").onclick=()=>startOnboarding();
 
 function renderMetas(ahorroMes, byCat){
   // ahorro acumulado total (todos los meses)

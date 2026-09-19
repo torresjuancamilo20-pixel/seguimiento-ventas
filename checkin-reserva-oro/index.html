@@ -125,7 +125,7 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif;-web
  <div class="bar"><i class="b1" id="barC1"></i><i class="b2" id="barC2"></i></div>
  <div class="barleg"><span><i style="background:var(--ok)"></i>Check 1 (entrada)</span><span><i style="background:var(--c2)"></i>Check 2 (final)</span></div>
  <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="#f5c451" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
-  <input id="q" type="search" placeholder="Buscar por nombre, agente o ciudad..." autocomplete="off"></div>
+  <input id="q" type="search" placeholder="Buscar por nombre, apellido, correo, agente..." autocomplete="off"></div>
  <div class="chips" id="catChips"></div>
  <div class="chips" id="stChips">
   <div class="chip on" data-st="all">Todos</div>
@@ -188,10 +188,10 @@ try{if(sessionStorage.getItem("ro_ok")==="1")openApp();}catch(e){}
 /* ---- DATA ---- */
 async function load(){
  try{
-  const r=await fetch(REST+"?select=clave,nombre,categoria,telefono,ciudad,agente,acomp,dip,orden,presente,check2,acomp_presente&evento=eq."+EVENTO+"&order=orden.asc",{headers:HDRS});
+  const r=await fetch(REST+"?select=clave,nombre,categoria,telefono,ciudad,agente,correo,acomp,dip,orden,presente,check2,acomp_presente&evento=eq."+EVENTO+"&order=orden.asc",{headers:HDRS});
   if(!r.ok)throw 0;
   const rows=await r.json();
-  ROSTER=rows.map(x=>({id:x.clave,cat:x.categoria,nombre:x.nombre,tel:x.telefono,ciudad:x.ciudad,agente:x.agente,acomp:!!x.acomp,dip:x.dip}));
+  ROSTER=rows.map(x=>({id:x.clave,cat:x.categoria,nombre:x.nombre,tel:x.telefono,ciudad:x.ciudad,agente:x.agente,correo:x.correo||"",acomp:!!x.acomp,dip:x.dip}));
   rows.forEach(x=>STATE[x.clave]={c1:!!x.presente,c2:!!x.check2,acc:!!x.acomp_presente});
   setDot(true);
  }catch(e){setDot(false);}
@@ -226,12 +226,13 @@ function matches(p){
  if(filterSt==="c2yes"&&!s.c2)return false;
  if(filterSt==="dip"&&p.dip!=="SI")return false;
  if(filterSt==="acc"&&!p.acomp)return false;
- if(query){const q=norm(query);if(!(norm(p.nombre).includes(q)||norm(p.agente).includes(q)||norm(p.ciudad).includes(q)))return false;}
+ if(query){const q=norm(query);if(!(norm(p.nombre).includes(q)||norm(p.agente).includes(q)||norm(p.ciudad).includes(q)||norm(p.correo).includes(q)||norm(p.tel).includes(q)))return false;}
  return true;
 }
 const PIN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
 const USR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>';
 const TEL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3-8.6A2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.6a2 2 0 01-.5 2.1L8.1 9.9a16 16 0 006 6l1.5-1.1a2 2 0 012.1-.5c.8.3 1.7.5 2.6.6a2 2 0 011.7 2z"/></svg>';
+const MAIL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>';
 function render(){
  const list=$("list");
  if(!ROSTER.length){list.innerHTML='<div class="empty">Cargando lista...</div>';renderStats();return;}
@@ -253,6 +254,7 @@ function render(){
     +(p.agente?'<span class="mrow">'+USR+esc(p.agente)+'</span>':'')
     +(p.ciudad?'<span class="mrow">'+PIN+esc(p.ciudad)+'</span>':'')
     +(p.tel?'<span class="mrow">'+TEL+'<a href="tel:'+esc(p.tel)+'">'+esc(p.tel)+'</a></span>':'')
+    +(p.correo?'<span class="mrow">'+MAIL+esc(p.correo)+'</span>':'')
     +'</div>'
     +(p.acomp&&s.c1?'<button class="acc-btn '+(s.acc?"on":"")+'" data-acc="'+p.id+'">'+(s.acc?"✓ Acompañante llegó":"Marcar acompañante")+'</button>':'')
     +'</div>'
@@ -296,9 +298,9 @@ function setDot(ok){const d=$("dot"),t=$("syncTxt");if(!d)return;
 }
 let tTO;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tTO);tTO=setTimeout(()=>t.classList.remove("show"),1600);}
 function csv(){
- const rows=[["Categoria","Nombre","Agente","Ciudad","Telefono","Diploma","Acompanante","Check1","Check2","Acomp_presente"]];
+ const rows=[["Categoria","Nombre","Agente","Ciudad","Telefono","Correo","Diploma","Acompanante","Check1","Check2","Acomp_presente"]];
  CATS.forEach(c=>ROSTER.filter(p=>p.cat===c[0]).forEach(p=>{const s=STATE[p.id]||{};
-  rows.push([c[1],p.nombre,p.agente,p.ciudad,p.tel,p.dip==="SI"?"Si":"No",p.acomp?"Si":"No",s.c1?"Si":"No",s.c2?"Si":"No",p.acomp?(s.acc?"Si":"No"):""]);}));
+  rows.push([c[1],p.nombre,p.agente,p.ciudad,p.tel,p.correo,p.dip==="SI"?"Si":"No",p.acomp?"Si":"No",s.c1?"Si":"No",s.c2?"Si":"No",p.acomp?(s.acc?"Si":"No"):""]);}));
  const csvs=rows.map(r=>r.map(c=>'"'+String(c==null?"":c).replace(/"/g,'""')+'"').join(",")).join("\n");
  const b=new Blob(["﻿"+csvs],{type:"text/csv"});const a=document.createElement("a");
  a.href=URL.createObjectURL(b);a.download="checkin-reserva-oro.csv";a.click();

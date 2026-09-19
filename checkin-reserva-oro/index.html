@@ -84,6 +84,17 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif;-web
 .chk.c1.on{background:linear-gradient(135deg,var(--ok),#26b371);border-color:transparent;color:#062615;box-shadow:0 5px 16px rgba(57,217,138,.4)}
 .chk.c2.on{background:linear-gradient(135deg,var(--c2),#2f80d6);border-color:transparent;color:#041226;box-shadow:0 5px 16px rgba(93,180,255,.4)}
 .chk.dis{opacity:.3;cursor:not-allowed;border-style:dashed}
+.chk.lock{opacity:.28;cursor:not-allowed;filter:grayscale(.35)}
+.modebadge{display:flex;justify-content:center;align-items:center;gap:10px;margin:-2px 0 14px;font-size:12px;font-weight:700;color:var(--mut)}
+.modebadge b{color:var(--goldl)}
+.modebadge button{background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--gold);font-weight:700;font-size:11px;padding:5px 10px;border-radius:20px;cursor:pointer;font-family:'Manrope'}
+.mode-opts{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.mode-opts button{padding:15px 16px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--ink);font-family:'Manrope';font-weight:800;font-size:15px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:3px}
+.mode-opts button:hover{border-color:var(--gold)}
+.mode-opts button small{font-size:11px;color:var(--mut);font-weight:600}
+.mode-opts .m1{border-left:4px solid var(--ok)}
+.mode-opts .m2{border-left:4px solid var(--c2)}
+.mode-opts .ma{border-left:4px solid var(--gold)}
 .acc-btn{margin-top:7px;font-size:11px;font-weight:700;padding:5px 10px;border-radius:20px;cursor:pointer;
  border:1px dashed rgba(120,180,255,.5);background:transparent;color:#a9cbff}
 .acc-btn.on{background:rgba(120,180,255,.9);color:#04122b;border-style:solid}
@@ -113,10 +124,25 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif;-web
  </div>
 </div>
 
+<!-- SELECCION DE PUNTO -->
+<div class="gate hide" id="modewrap">
+ <div class="brand"><div class="mk"><svg viewBox="0 0 60 46" fill="none"><path d="M4 42 L4 6 L20 6 L40 34 L40 6 L56 6 L56 42 L40 42 L20 14 L20 42 Z" stroke="#f5c451" stroke-width="3" stroke-linejoin="round"/></svg></div><div class="tx">NEXUS</div></div>
+ <div class="gcard">
+  <h2>¿Qué punto controlas?</h2>
+  <p>Elige el punto de control de este dispositivo.</p>
+  <div class="mode-opts">
+   <button class="m1" data-mode="c1">✅ Punto 1 · Entrada<small>Solo marca Check 1. El Check 2 queda bloqueado.</small></button>
+   <button class="m2" data-mode="c2">🔵 Punto 2 · Final<small>Solo marca Check 2. El Check 1 queda bloqueado.</small></button>
+   <button class="ma" data-mode="all">⚙️ Admin · Ambos<small>Puede marcar Check 1 y Check 2.</small></button>
+  </div>
+ </div>
+</div>
+
 <!-- APP -->
 <div class="wrap hide" id="app">
  <div class="brand"><div class="mk"><svg viewBox="0 0 60 46" fill="none"><path d="M4 42 L4 6 L20 6 L40 34 L40 6 L56 6 L56 42 L40 42 L20 14 L20 42 Z" stroke="#f5c451" stroke-width="3" stroke-linejoin="round"/></svg></div><div class="tx">NEXUS</div></div>
  <div class="hero"><div class="kick">Evento presencial</div><div class="t1">RESERVA ORO</div><div class="sub">Check-in · Doble filtro</div></div>
+ <div class="modebadge" id="modeBadge"></div>
  <div class="stats">
   <div class="stat c1"><div class="n" id="sC1">0</div><div class="l">Check 1</div></div>
   <div class="stat c2"><div class="n" id="sC2">0</div><div class="l">Check 2</div></div>
@@ -155,6 +181,7 @@ const REST=SUPABASE_URL+"/rest/v1/checkin_asistencia";
 const HDRS={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
 const CATS=[["PRINCIPAL","Principal","#f5c451"],["ELITE","Elite","#5db4ff"],["MASTERS","Masters","#ff7a7a"],["PRIME","Prime","#4be0a0"],["LEGENDARY","Legendary","#c79bff"]];
 let ROSTER=[]; const STATE={};
+let MODE="all"; // c1 = solo Check 1, c2 = solo Check 2, all = ambos
 let filterCat="", filterSt="all", query="", pollTmr=null;
 const $=s=>document.getElementById(s);
 const norm=s=>(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
@@ -175,16 +202,31 @@ async function doEnter(){
  b.disabled=false;b.textContent="Entrar";
  if(!ok){$("gerr").textContent="Contraseña incorrecta.";return;}
  try{sessionStorage.setItem("ro_ok","1");}catch(e){}
- openApp();
+ afterLogin();
 }
 $("enter").onclick=doEnter;
 $("pass").addEventListener("keydown",e=>{if(e.key==="Enter")doEnter();});
 
-function openApp(){
- $("gate").classList.add("hide");$("app").classList.remove("hide");$("fbar").classList.remove("hide");
- catChips();load();if(pollTmr)clearInterval(pollTmr);pollTmr=setInterval(load,15000);
+function urlPunto(){try{const p=new URLSearchParams(location.search).get("punto");if(p==="1")return"c1";if(p==="2")return"c2";}catch(e){}return"";}
+function afterLogin(){
+ const up=urlPunto();
+ if(up){MODE=up;startApp();return;}
+ let sm="";try{sm=sessionStorage.getItem("ro_mode")||"";}catch(e){}
+ if(sm){MODE=sm;startApp();return;}
+ $("gate").classList.add("hide");$("modewrap").classList.remove("hide");
 }
-try{if(sessionStorage.getItem("ro_ok")==="1")openApp();}catch(e){}
+function pickMode(m){MODE=m;try{sessionStorage.setItem("ro_mode",m);}catch(e){}$("modewrap").classList.add("hide");startApp();}
+document.querySelectorAll("#modewrap [data-mode]").forEach(b=>b.onclick=()=>pickMode(b.dataset.mode));
+function renderBadge(){const b=$("modeBadge");if(!b)return;
+ const label=MODE==="c1"?"Punto 1 · Entrada (Check 1)":MODE==="c2"?"Punto 2 · Final (Check 2)":"Admin · Ambos";
+ b.innerHTML='Modo: <b>'+label+'</b> <button id="modeChange">Cambiar</button>';
+ $("modeChange").onclick=()=>{try{sessionStorage.removeItem("ro_mode");}catch(e){}location.href=location.pathname;};
+}
+function startApp(){
+ $("gate").classList.add("hide");$("modewrap").classList.add("hide");$("app").classList.remove("hide");$("fbar").classList.remove("hide");
+ renderBadge();catChips();load();if(pollTmr)clearInterval(pollTmr);pollTmr=setInterval(load,15000);
+}
+try{if(sessionStorage.getItem("ro_ok")==="1")afterLogin();}catch(e){}
 
 /* ---- DATA ---- */
 async function load(){
@@ -260,8 +302,12 @@ function render(){
     +(p.acomp&&s.c1?'<button class="acc-btn '+(s.acc?"on":"")+'" data-acc="'+p.id+'">'+(s.acc?"✓ Acompañante llegó":"Marcar acompañante")+'</button>':'')
     +'</div>'
     +'<div class="checks">'
-    +'<div class="chk c1 '+(s.c1?"on":"")+'" data-c1="'+p.id+'"><span class="lbl">Check</span><span class="ic">'+(s.c1?"✓":"1")+'</span></div>'
-    +'<div class="chk c2 '+(s.c2?"on":"")+(s.c1?"":" dis")+'" data-c2="'+p.id+'"><span class="lbl">Check</span><span class="ic">'+(s.c2?"✓":"2")+'</span></div>'
+    +(MODE==="c2"
+      ? '<div class="chk c1 lock '+(s.c1?"on":"")+'"><span class="lbl">Check</span><span class="ic">'+(s.c1?"✓":"1")+'</span></div>'
+      : '<div class="chk c1 '+(s.c1?"on":"")+'" data-c1="'+p.id+'"><span class="lbl">Check</span><span class="ic">'+(s.c1?"✓":"1")+'</span></div>')
+    +(MODE==="c1"
+      ? '<div class="chk c2 lock '+(s.c2?"on":"")+'"><span class="lbl">Check</span><span class="ic">'+(s.c2?"✓":"2")+'</span></div>'
+      : '<div class="chk c2 '+(s.c2?"on":"")+(s.c1?"":" dis")+'" data-c2="'+p.id+'"><span class="lbl">Check</span><span class="ic">'+(s.c2?"✓":"2")+'</span></div>')
     +'</div></div>';
   });
  });
@@ -272,6 +318,8 @@ function render(){
  renderStats();
 }
 function toggle(id,which){
+ if(which===1&&MODE==="c2")return;
+ if(which===2&&MODE==="c1")return;
  const s=STATE[id]||(STATE[id]={c1:false,c2:false,acc:false});
  const p=ROSTER.find(x=>x.id===id);const nm=p.nombre.split(" ")[0];
  if(which===1){s.c1=!s.c1;if(!s.c1){s.c2=false;s.acc=false;}

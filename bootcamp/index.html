@@ -59,7 +59,7 @@ input.file::file-selector-button{margin-right:12px;padding:7px 12px;border:1px s
      <input class="inp" type="tel" name="celular" placeholder="+57 300 000 0000">
 
      <label class="fl">Agente</label>
-     <select class="inp" name="agente" id="agente"><option value="">Selecciona un agente…</option></select>
+     <input class="inp" name="agente" id="agente" list="agentes-list" placeholder="Escribe el nombre del agente">
 
      <label class="fl">Número de comprobante de pago</label>
      <input class="inp" name="comprobante" placeholder="Ej. 000123456">
@@ -71,8 +71,8 @@ input.file::file-selector-button{margin-right:12px;padding:7px 12px;border:1px s
      <label class="fl">Monto de pago</label>
      <input class="inp" type="number" step="0.01" min="0" name="monto" placeholder="Ej. 500000">
 
-     <label class="fl">Directo / agente que apoyó la venta</label>
-     <input class="inp" name="venta_por" list="agentes-list" placeholder="Directo, o nombre del agente que apoyó">
+     <label class="fl">Director / agente que apoyó la venta</label>
+     <input class="inp" name="venta_por" list="agentes-list" placeholder="Director, o nombre del agente que apoyó">
      <datalist id="agentes-list"></datalist>
 
      <button class="btn" type="submit" id="btn">Guardar compra</button>
@@ -94,14 +94,12 @@ const REST=SUPABASE_URL+"/rest/v1/compras_bootcamp";
   const r=await fetch(SUPABASE_URL+'/rest/v1/agentes?select=nombre&order=nombre.asc',{headers:HDRS});
   if(!r.ok) return;
   const ags=await r.json();
-  const sel=document.getElementById('agente');
   const dl=document.getElementById('agentes-list');
   ags.forEach(a=>{
     if(!a.nombre) return;
-    const o=document.createElement('option');o.value=a.nombre;o.textContent=a.nombre;sel.appendChild(o);
-    const o2=document.createElement('option');o2.value=a.nombre;dl.appendChild(o2);
+    const o=document.createElement('option');o.value=a.nombre;dl.appendChild(o);
   });
- }catch(e){/* si falla, el campo agente queda vacío y se puede escribir en apoyó */}
+ }catch(e){/* si falla, se puede escribir el agente igualmente */}
 })();
 
 const form=document.getElementById('form'), btn=document.getElementById('btn'), msg=document.getElementById('msg');

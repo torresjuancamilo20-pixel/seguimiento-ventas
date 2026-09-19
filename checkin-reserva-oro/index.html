@@ -64,6 +64,8 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif;-web
 .row{display:flex;align-items:center;gap:10px;background:rgba(20,15,5,.6);border:1px solid var(--line);border-radius:15px;padding:12px 13px;margin-bottom:9px;transition:.16s}
 .row.c1on{background:linear-gradient(135deg,rgba(57,217,138,.10),rgba(20,15,5,.6));border-color:rgba(57,217,138,.35)}
 .row.c2on{background:linear-gradient(135deg,rgba(93,180,255,.12),rgba(20,15,5,.6));border-color:rgba(93,180,255,.45)}
+.row.flagred{border-color:rgba(255,90,90,.6);box-shadow:inset 3px 0 0 #ff5a5a}
+.pill.red{background:rgba(255,80,80,.18);color:#ffb3b3;border:1px solid rgba(255,80,80,.55)}
 .row .info{flex:1;min-width:0}
 .row .nm{font-weight:800;font-size:15.5px;color:#fff;line-height:1.2}
 .row.c1on .nm{color:var(--goldl)}
@@ -162,6 +164,7 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif;-web
   <div class="chip" data-st="c2yes">Con Check 2</div>
   <div class="chip" data-st="dip">🎓 Con diploma</div>
   <div class="chip" data-st="acc">+ Acompañante</div>
+  <div class="chip" data-st="rojo">🔴 Revisar</div>
  </div>
  <div id="list"><div class="empty">Cargando lista...</div></div>
 </div>
@@ -231,10 +234,10 @@ try{if(sessionStorage.getItem("ro_ok")==="1")afterLogin();}catch(e){}
 /* ---- DATA ---- */
 async function load(){
  try{
-  const r=await fetch(REST+"?select=clave,nombre,categoria,telefono,ciudad,agente,correo,acomp,dip,orden,presente,check2,acomp_presente&evento=eq."+EVENTO+"&order=orden.asc",{headers:HDRS});
+  const r=await fetch(REST+"?select=clave,nombre,categoria,telefono,ciudad,agente,correo,acomp,dip,orden,presente,check2,acomp_presente,flag&evento=eq."+EVENTO+"&order=orden.asc",{headers:HDRS});
   if(!r.ok)throw 0;
   const rows=await r.json();
-  ROSTER=rows.map(x=>({id:x.clave,cat:x.categoria,nombre:x.nombre,tel:x.telefono,ciudad:x.ciudad,agente:x.agente,correo:x.correo||"",acomp:!!x.acomp,dip:x.dip}));
+  ROSTER=rows.map(x=>({id:x.clave,cat:x.categoria,nombre:x.nombre,tel:x.telefono,ciudad:x.ciudad,agente:x.agente,correo:x.correo||"",acomp:!!x.acomp,dip:x.dip,flag:x.flag||""}));
   rows.forEach(x=>STATE[x.clave]={c1:!!x.presente,c2:!!x.check2,acc:!!x.acomp_presente});
   setDot(true);
  }catch(e){setDot(false);}
@@ -269,6 +272,7 @@ function matches(p){
  if(filterSt==="c2yes"&&!s.c2)return false;
  if(filterSt==="dip"&&p.dip!=="SI")return false;
  if(filterSt==="acc"&&!p.acomp)return false;
+ if(filterSt==="rojo"&&p.flag!=="rojo")return false;
  if(query){const q=norm(query);if(!(norm(p.nombre).includes(q)||norm(p.agente).includes(q)||norm(p.ciudad).includes(q)||norm(p.correo).includes(q)||norm(p.tel).includes(q)))return false;}
  return true;
 }
@@ -289,9 +293,10 @@ function render(){
   const n2=people.filter(p=>(STATE[p.id]||{}).c2).length;
   html+='<div class="cat-h" style="color:'+info[2]+'">'+info[1]+' <span>C1 '+n1+' · C2 '+n2+' / '+people.length+'</span></div>';
   people.forEach(p=>{shown++;const s=STATE[p.id]||{};
-   html+='<div class="row '+(s.c1?"c1on ":"")+(s.c2?"c2on":"")+'"><div class="info">'
+   html+='<div class="row '+(p.flag==="rojo"?"flagred ":"")+(s.c1?"c1on ":"")+(s.c2?"c2on":"")+'"><div class="info">'
     +'<div class="nm">'+esc(p.nombre)+'</div><div class="meta">'
     +'<span class="pill cat" style="background:'+info[2]+'">'+info[1]+'</span>'
+    +(p.flag==="rojo"?'<span class="pill red">🔴 Revisar</span>':'')
     +(p.dip==="SI"?'<span class="pill dip">🎓 Diploma</span>':'')
     +(p.acomp?'<span class="pill acc">+1 Acompañante</span>':'')
     +(p.agente?'<span class="mrow">'+USR+esc(p.agente)+'</span>':'')
@@ -347,9 +352,9 @@ function setDot(ok){const d=$("dot"),t=$("syncTxt");if(!d)return;
 }
 let tTO;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tTO);tTO=setTimeout(()=>t.classList.remove("show"),1600);}
 function csv(){
- const rows=[["Categoria","Nombre","Agente","Ciudad","Telefono","Correo","Diploma","Acompanante","Check1","Check2","Acomp_presente"]];
+ const rows=[["Categoria","Nombre","Agente","Ciudad","Telefono","Correo","Diploma","Acompanante","Check1","Check2","Acomp_presente","Flag"]];
  CATS.forEach(c=>ROSTER.filter(p=>p.cat===c[0]).forEach(p=>{const s=STATE[p.id]||{};
-  rows.push([c[1],p.nombre,p.agente,p.ciudad,p.tel,p.correo,p.dip==="SI"?"Si":"No",p.acomp?"Si":"No",s.c1?"Si":"No",s.c2?"Si":"No",p.acomp?(s.acc?"Si":"No"):""]);}));
+  rows.push([c[1],p.nombre,p.agente,p.ciudad,p.tel,p.correo,p.dip==="SI"?"Si":"No",p.acomp?"Si":"No",s.c1?"Si":"No",s.c2?"Si":"No",p.acomp?(s.acc?"Si":"No"):"",p.flag==="rojo"?"Revisar":""]);}));
  const csvs=rows.map(r=>r.map(c=>'"'+String(c==null?"":c).replace(/"/g,'""')+'"').join(",")).join("\n");
  const b=new Blob(["﻿"+csvs],{type:"text/csv"});const a=document.createElement("a");
  a.href=URL.createObjectURL(b);a.download="checkin-reserva-oro.csv";a.click();

@@ -48,6 +48,7 @@ th{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--mu
 tbody tr:hover{background:rgba(255,255,255,.03)}
 td.money{font-family:'Space Grotesk';font-weight:600}
 .tag{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:600;background:rgba(59,130,246,.14);color:#93c5fd}
+.thumb{width:42px;height:42px;object-fit:cover;border-radius:8px;border:1px solid var(--line);display:block}
 .empty{padding:40px;text-align:center;color:var(--mut);font-size:14px}
 .muted{color:var(--mut)}
 </style></head>
@@ -93,9 +94,9 @@ td.money{font-family:'Space Grotesk';font-weight:600}
   <table>
    <thead><tr>
     <th>Fecha</th><th>Nombre</th><th>Correo</th><th>Celular</th>
-    <th>Agente</th><th>Comprobante</th><th>Monto</th><th>Directo/Apoyó</th>
+    <th>Agente</th><th>Comprobante</th><th>Foto</th><th>Monto</th><th>Directo/Apoyó</th>
    </tr></thead>
-   <tbody id="rows"><tr><td colspan="8" class="empty">Cargando…</td></tr></tbody>
+   <tbody id="rows"><tr><td colspan="9" class="empty">Cargando…</td></tr></tbody>
   </table>
  </div>
 </div>
@@ -115,14 +116,14 @@ function esc(s){ return (s==null?'':String(s)).replace(/[&<>]/g,c=>({'&':'&amp;'
 function esHoy(s){ if(!s) return false; const d=new Date(s), n=new Date(); return d.toDateString()===n.toDateString(); }
 
 async function cargar(){
- $('rows').innerHTML='<tr><td colspan="8" class="empty">Cargando…</td></tr>';
+ $('rows').innerHTML='<tr><td colspan="9" class="empty">Cargando…</td></tr>';
  try{
   const r=await fetch(REST+'?select=*&order=creado.desc',{headers:HDRS});
   if(!r.ok) throw new Error('HTTP '+r.status);
   DATA=await r.json();
   render();
  }catch(e){
-  $('rows').innerHTML='<tr><td colspan="8" class="empty">No se pudo cargar. '+esc(e.message)+'</td></tr>';
+  $('rows').innerHTML='<tr><td colspan="9" class="empty">No se pudo cargar. '+esc(e.message)+'</td></tr>';
  }
 }
 
@@ -139,7 +140,7 @@ function render(){
  $('kMonto').textContent=money(DATA.reduce((a,x)=>a+(Number(x.monto)||0),0));
  $('kHoy').textContent=DATA.filter(x=>esHoy(x.creado)).length;
 
- if(!list.length){ $('rows').innerHTML='<tr><td colspan="8" class="empty">Sin compras registradas'+($('search').value?' para esa búsqueda':'')+'.</td></tr>'; return; }
+ if(!list.length){ $('rows').innerHTML='<tr><td colspan="9" class="empty">Sin compras registradas'+($('search').value?' para esa búsqueda':'')+'.</td></tr>'; return; }
  $('rows').innerHTML=list.map(x=>
   '<tr>'+
    '<td class="muted">'+fecha(x.creado)+'</td>'+
@@ -148,6 +149,7 @@ function render(){
    '<td>'+(esc(x.celular)||'—')+'</td>'+
    '<td>'+(x.agente?'<span class="tag">'+esc(x.agente)+'</span>':'—')+'</td>'+
    '<td>'+(esc(x.comprobante)||'—')+'</td>'+
+   '<td>'+(x.comprobante_url?'<a href="'+esc(x.comprobante_url)+'" target="_blank" rel="noopener"><img class="thumb" src="'+esc(x.comprobante_url)+'" alt="comprobante"></a>':'—')+'</td>'+
    '<td class="money">'+money(x.monto)+'</td>'+
    '<td>'+(esc(x.venta_por)||'—')+'</td>'+
   '</tr>'
@@ -155,7 +157,7 @@ function render(){
 }
 
 function exportCSV(){
- const cols=[['creado','Fecha'],['nombre','Nombre'],['correo','Correo'],['celular','Celular'],['agente','Agente'],['comprobante','Comprobante'],['monto','Monto'],['venta_por','Directo/Apoyo']];
+ const cols=[['creado','Fecha'],['nombre','Nombre'],['correo','Correo'],['celular','Celular'],['agente','Agente'],['comprobante','Comprobante'],['comprobante_url','Foto (URL)'],['monto','Monto'],['venta_por','Directo/Apoyo']];
  const head=cols.map(c=>c[1]).join(',');
  const q=s=>'"'+String(s==null?'':s).replace(/"/g,'""')+'"';
  const body=filtradas().map(x=>cols.map(c=>q(x[c[0]])).join(',')).join('\n');

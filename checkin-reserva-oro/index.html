@@ -87,6 +87,8 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif;-web
 .chk.c2.on{background:linear-gradient(135deg,var(--c2),#2f80d6);border-color:transparent;color:#041226;box-shadow:0 5px 16px rgba(93,180,255,.4)}
 .chk.dis{opacity:.3;cursor:not-allowed;border-style:dashed}
 .chk.lock{opacity:.28;cursor:not-allowed;filter:grayscale(.35)}
+.chk.locked{width:auto;min-width:52px;padding:0 14px;cursor:not-allowed;border-color:rgba(255,80,80,.5);background:rgba(255,80,80,.12);color:#ffb3b3}
+.chk.locked .ic{font-size:22px}
 .modebadge{display:flex;justify-content:center;align-items:center;gap:10px;margin:-2px 0 14px;font-size:12px;font-weight:700;color:var(--mut)}
 .modebadge b{color:var(--goldl)}
 .modebadge button{background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--gold);font-weight:700;font-size:11px;padding:5px 10px;border-radius:20px;cursor:pointer;font-family:'Manrope'}
@@ -304,15 +306,17 @@ function render(){
     +(p.tel?'<span class="mrow">'+TEL+'<a href="tel:'+esc(p.tel)+'">'+esc(p.tel)+'</a></span>':'')
     +(p.correo?'<span class="mrow">'+MAIL+esc(p.correo)+'</span>':'')
     +'</div>'
-    +(p.acomp&&s.c1?'<button class="acc-btn '+(s.acc?"on":"")+'" data-acc="'+p.id+'">'+(s.acc?"✓ Acompañante llegó":"Marcar acompañante")+'</button>':'')
+    +(p.acomp&&s.c1&&p.flag!=="rojo"?'<button class="acc-btn '+(s.acc?"on":"")+'" data-acc="'+p.id+'">'+(s.acc?"✓ Acompañante llegó":"Marcar acompañante")+'</button>':'')
     +'</div>'
     +'<div class="checks">'
-    +(MODE==="c2"
-      ? '<div class="chk c1 lock '+(s.c1?"on":"")+'"><span class="lbl">Check</span><span class="ic">'+(s.c1?"✓":"1")+'</span></div>'
-      : '<div class="chk c1 '+(s.c1?"on":"")+'" data-c1="'+p.id+'"><span class="lbl">Check</span><span class="ic">'+(s.c1?"✓":"1")+'</span></div>')
-    +(MODE==="c1"
-      ? '<div class="chk c2 lock '+(s.c2?"on":"")+'"><span class="lbl">Check</span><span class="ic">'+(s.c2?"✓":"2")+'</span></div>'
-      : '<div class="chk c2 '+(s.c2?"on":"")+(s.c1?"":" dis")+'" data-c2="'+p.id+'"><span class="lbl">Check</span><span class="ic">'+(s.c2?"✓":"2")+'</span></div>')
+    +(p.flag==="rojo"
+      ? '<div class="chk locked" title="Bloqueado"><span class="ic">🔒</span></div>'
+      : (MODE==="c2"
+        ? '<div class="chk c1 lock '+(s.c1?"on":"")+'"><span class="lbl">Check</span><span class="ic">'+(s.c1?"✓":"1")+'</span></div>'
+        : '<div class="chk c1 '+(s.c1?"on":"")+'" data-c1="'+p.id+'"><span class="lbl">Check</span><span class="ic">'+(s.c1?"✓":"1")+'</span></div>')
+       +(MODE==="c1"
+        ? '<div class="chk c2 lock '+(s.c2?"on":"")+'"><span class="lbl">Check</span><span class="ic">'+(s.c2?"✓":"2")+'</span></div>'
+        : '<div class="chk c2 '+(s.c2?"on":"")+(s.c1?"":" dis")+'" data-c2="'+p.id+'"><span class="lbl">Check</span><span class="ic">'+(s.c2?"✓":"2")+'</span></div>'))
     +'</div></div>';
   });
  });
@@ -323,10 +327,12 @@ function render(){
  renderStats();
 }
 function toggle(id,which){
+ const p=ROSTER.find(x=>x.id===id);
+ if(p&&p.flag==="rojo")return;
  if(which===1&&MODE==="c2")return;
  if(which===2&&MODE==="c1")return;
  const s=STATE[id]||(STATE[id]={c1:false,c2:false,acc:false});
- const p=ROSTER.find(x=>x.id===id);const nm=p.nombre.split(" ")[0];
+ const nm=p.nombre.split(" ")[0];
  if(which===1){s.c1=!s.c1;if(!s.c1){s.c2=false;s.acc=false;}
   toast(s.c1?"✅ "+nm+" — Check 1":"↩︎ "+nm+" — Sin Check 1");}
  else{if(!s.c1){toast("⚠️ "+nm+" — primero marca el Check 1");return;}s.c2=!s.c2;

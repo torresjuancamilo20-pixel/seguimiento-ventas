@@ -236,10 +236,10 @@ try{if(sessionStorage.getItem("ro_ok")==="1")afterLogin();}catch(e){}
 /* ---- DATA ---- */
 async function load(){
  try{
-  const r=await fetch(REST+"?select=clave,nombre,categoria,telefono,ciudad,agente,correo,acomp,dip,orden,presente,check2,acomp_presente,flag&evento=eq."+EVENTO+"&order=orden.asc",{headers:HDRS});
+  const r=await fetch(REST+"?select=clave,nombre,categoria,telefono,ciudad,agente,correo,acomp,acomp_nombre,dip,orden,presente,check2,acomp_presente,flag&evento=eq."+EVENTO+"&order=orden.asc",{headers:HDRS});
   if(!r.ok)throw 0;
   const rows=await r.json();
-  ROSTER=rows.map(x=>({id:x.clave,cat:x.categoria,nombre:x.nombre,tel:x.telefono,ciudad:x.ciudad,agente:x.agente,correo:x.correo||"",acomp:!!x.acomp,dip:x.dip,flag:x.flag||""}));
+  ROSTER=rows.map(x=>({id:x.clave,cat:x.categoria,nombre:x.nombre,tel:x.telefono,ciudad:x.ciudad,agente:x.agente,correo:x.correo||"",acomp:!!x.acomp,acompNombre:x.acomp_nombre||"",dip:x.dip,flag:x.flag||""}));
   rows.forEach(x=>STATE[x.clave]={c1:!!x.presente,c2:!!x.check2,acc:!!x.acomp_presente});
   setDot(true);
  }catch(e){setDot(false);}
@@ -275,7 +275,7 @@ function matches(p){
  if(filterSt==="dip"&&p.dip!=="SI")return false;
  if(filterSt==="acc"&&!p.acomp)return false;
  if(filterSt==="rojo"&&p.flag!=="rojo")return false;
- if(query){const q=norm(query);if(!(norm(p.nombre).includes(q)||norm(p.agente).includes(q)||norm(p.ciudad).includes(q)||norm(p.correo).includes(q)||norm(p.tel).includes(q)))return false;}
+ if(query){const q=norm(query);if(!(norm(p.nombre).includes(q)||norm(p.agente).includes(q)||norm(p.ciudad).includes(q)||norm(p.correo).includes(q)||norm(p.tel).includes(q)||norm(p.acompNombre).includes(q)))return false;}
  return true;
 }
 const PIN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
@@ -300,7 +300,7 @@ function render(){
     +'<span class="pill cat" style="background:'+info[2]+'">'+info[1]+'</span>'
     +(p.flag==="rojo"?'<span class="pill red">🔴 Revisar</span>':'')
     +(p.dip==="SI"?'<span class="pill dip">🎓 Diploma</span>':'')
-    +(p.acomp?'<span class="pill acc">+1 Acompañante</span>':'')
+    +(p.acomp?'<span class="pill acc">+1 '+(p.acompNombre?esc(p.acompNombre):'Acompañante')+'</span>':'')
     +(p.agente?'<span class="mrow">'+USR+esc(p.agente)+'</span>':'')
     +(p.ciudad?'<span class="mrow">'+PIN+esc(p.ciudad)+'</span>':'')
     +(p.tel?'<span class="mrow">'+TEL+'<a href="tel:'+esc(p.tel)+'">'+esc(p.tel)+'</a></span>':'')
@@ -358,9 +358,9 @@ function setDot(ok){const d=$("dot"),t=$("syncTxt");if(!d)return;
 }
 let tTO;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tTO);tTO=setTimeout(()=>t.classList.remove("show"),1600);}
 function csv(){
- const rows=[["Categoria","Nombre","Agente","Ciudad","Telefono","Correo","Diploma","Acompanante","Check1","Check2","Acomp_presente","Flag"]];
+ const rows=[["Categoria","Nombre","Agente","Ciudad","Telefono","Correo","Diploma","Acompanante","Acomp_nombre","Check1","Check2","Acomp_presente","Flag"]];
  CATS.forEach(c=>ROSTER.filter(p=>p.cat===c[0]).forEach(p=>{const s=STATE[p.id]||{};
-  rows.push([c[1],p.nombre,p.agente,p.ciudad,p.tel,p.correo,p.dip==="SI"?"Si":"No",p.acomp?"Si":"No",s.c1?"Si":"No",s.c2?"Si":"No",p.acomp?(s.acc?"Si":"No"):"",p.flag==="rojo"?"Revisar":""]);}));
+  rows.push([c[1],p.nombre,p.agente,p.ciudad,p.tel,p.correo,p.dip==="SI"?"Si":"No",p.acomp?"Si":"No",p.acompNombre||"",s.c1?"Si":"No",s.c2?"Si":"No",p.acomp?(s.acc?"Si":"No"):"",p.flag==="rojo"?"Revisar":""]);}));
  const csvs=rows.map(r=>r.map(c=>'"'+String(c==null?"":c).replace(/"/g,'""')+'"').join(",")).join("\n");
  const b=new Blob(["﻿"+csvs],{type:"text/csv"});const a=document.createElement("a");
  a.href=URL.createObjectURL(b);a.download="checkin-reserva-oro.csv";a.click();

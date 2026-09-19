@@ -1,0 +1,154 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro de Compras · Bootcamp</title>
+<link rel="icon" href="../reportes/favicon.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+:root{
+ --ink:#e6ecf5;--ink2:#aab6c8;--mut:#6b7688;--line:#1e2836;
+ --paper:#080b12;--white:#0f1520;
+ --sig:#3b82f6;--sigd:#60a5fa;
+ --good:#22c55e;--goodbg:rgba(34,197,94,.11);
+ --red:#ef4444;
+ --sh:0 1px 2px rgba(0,0,0,.4);--shl:0 8px 30px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(1000px 500px at 20% -10%,rgba(59,130,246,.09),transparent),var(--paper);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;color-scheme:dark;padding:20px;display:flex;justify-content:center;align-items:flex-start}
+.wrap{width:100%;max-width:520px;margin-top:24px}
+.brand{display:inline-flex;align-items:center;gap:9px;margin-bottom:18px}
+.brand .mk{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#1e293b,#334155);color:#e6ecf5;display:grid;place-items:center;font-family:'Space Grotesk';font-weight:700;font-size:14px}
+.brand .tx{font-family:'Space Grotesk';font-weight:700;letter-spacing:.16em;font-size:13px}
+.card{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:30px 26px;box-shadow:var(--shl)}
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--sig);font-weight:700}
+h1{font-family:'Space Grotesk';font-weight:700;font-size:26px;margin:6px 0 4px;letter-spacing:-.02em}
+p.sub{color:var(--mut);font-size:13px;margin-bottom:8px;line-height:1.5}
+label.fl{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);font-weight:700;display:block;margin:16px 0 7px}
+label.fl .req{color:var(--sig)}
+.inp{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:11px;background:var(--paper);font-family:'Inter';font-size:15px;color:var(--ink);transition:.15s}
+.inp:focus{outline:none;border-color:var(--sig);background:var(--white);box-shadow:0 0 0 3px rgba(59,130,246,.18)}
+select.inp{appearance:none;cursor:pointer}
+.btn{width:100%;padding:14px;border:none;border-radius:11px;background:var(--sig);color:#fff;font-size:14.5px;font-weight:700;cursor:pointer;margin-top:24px;transition:.15s}
+.btn:hover{background:var(--sigd)}.btn:disabled{opacity:.5;cursor:default}
+input.file{padding:10px 12px;font-size:13px;cursor:pointer}
+input.file::file-selector-button{margin-right:12px;padding:7px 12px;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.05);color:var(--ink2);font-weight:600;font-size:12.5px;cursor:pointer}
+.hint{color:var(--mut);font-size:11.5px;margin-top:6px}
+.msg{margin-top:14px;font-size:13px;font-weight:600;min-height:18px;text-align:center}
+.msg.ok{color:var(--good)}.msg.err{color:var(--red)}
+.ok-box{background:var(--goodbg);border:1px solid rgba(34,197,94,.3);border-radius:14px;padding:26px 22px;text-align:center}
+.ok-box .ic{font-size:40px;line-height:1}
+.ok-box h2{font-family:'Space Grotesk';font-size:20px;margin:12px 0 6px}
+.ok-box p{color:var(--ink2);font-size:13.5px;margin-bottom:18px}
+.foot{text-align:center;color:var(--mut);font-size:11px;margin-top:18px;letter-spacing:.04em}
+</style></head>
+<body>
+<div class="wrap">
+ <div class="brand"><span class="mk">N</span><span class="tx">NEXUS</span></div>
+ <div class="card" id="card">
+   <span class="eyebrow">Registro de venta</span>
+   <h1>Compra de Bootcamp</h1>
+   <p class="sub">Completa los datos de cada persona que compró el bootcamp hoy.</p>
+
+   <form id="form" autocomplete="off">
+     <label class="fl">Nombre <span class="req">*</span></label>
+     <input class="inp" name="nombre" required placeholder="Nombre completo">
+
+     <label class="fl">Correo electrónico</label>
+     <input class="inp" type="email" name="correo" placeholder="correo@ejemplo.com">
+
+     <label class="fl">Número de celular</label>
+     <input class="inp" type="tel" name="celular" placeholder="+57 300 000 0000">
+
+     <label class="fl">Agente</label>
+     <select class="inp" name="agente" id="agente"><option value="">Selecciona un agente…</option></select>
+
+     <label class="fl">Número de comprobante de pago</label>
+     <input class="inp" name="comprobante" placeholder="Ej. 000123456">
+
+     <label class="fl">Foto del comprobante de pago</label>
+     <input class="inp file" type="file" name="foto" id="foto" accept="image/*">
+     <div class="hint">Opcional. Sube una imagen del comprobante (JPG, PNG…).</div>
+
+     <label class="fl">Monto de pago</label>
+     <input class="inp" type="number" step="0.01" min="0" name="monto" placeholder="Ej. 500000">
+
+     <label class="fl">Directo / agente que apoyó la venta</label>
+     <input class="inp" name="venta_por" list="agentes-list" placeholder="Directo, o nombre del agente que apoyó">
+     <datalist id="agentes-list"></datalist>
+
+     <button class="btn" type="submit" id="btn">Guardar compra</button>
+     <div class="msg" id="msg"></div>
+   </form>
+ </div>
+ <div class="foot">NEXUS · Seguimiento de ventas</div>
+</div>
+
+<script>
+const SUPABASE_URL="https://fhixjvxztmuifrioevze.supabase.co";
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoaXhqdnh6dG11aWZyaW9ldnplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjgxNTUsImV4cCI6MjA5OTM0NDE1NX0.sTBxjWYr5m90-usvIJQyvTXon3TkD9Nk0V9z6IDQtmo";
+const HDRS={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
+const REST=SUPABASE_URL+"/rest/v1/compras_bootcamp";
+
+// Cargar lista de agentes
+(async()=>{
+ try{
+  const r=await fetch(SUPABASE_URL+'/rest/v1/agentes?select=nombre&order=nombre.asc',{headers:HDRS});
+  if(!r.ok) return;
+  const ags=await r.json();
+  const sel=document.getElementById('agente');
+  const dl=document.getElementById('agentes-list');
+  ags.forEach(a=>{
+    if(!a.nombre) return;
+    const o=document.createElement('option');o.value=a.nombre;o.textContent=a.nombre;sel.appendChild(o);
+    const o2=document.createElement('option');o2.value=a.nombre;dl.appendChild(o2);
+  });
+ }catch(e){/* si falla, el campo agente queda vacío y se puede escribir en apoyó */}
+})();
+
+const form=document.getElementById('form'), btn=document.getElementById('btn'), msg=document.getElementById('msg');
+form.addEventListener('submit',async(e)=>{
+ e.preventDefault();
+ msg.className='msg';msg.textContent='';
+ const fd=new FormData(form);
+ const nombre=(fd.get('nombre')||'').trim();
+ if(!nombre){msg.className='msg err';msg.textContent='El nombre es obligatorio.';return;}
+ const montoRaw=(fd.get('monto')||'').toString().trim();
+ const row={
+  nombre,
+  correo:(fd.get('correo')||'').trim()||null,
+  celular:(fd.get('celular')||'').trim()||null,
+  agente:(fd.get('agente')||'').trim()||null,
+  comprobante:(fd.get('comprobante')||'').trim()||null,
+  monto:montoRaw?Number(montoRaw):null,
+  venta_por:(fd.get('venta_por')||'').trim()||null
+ };
+ btn.disabled=true;btn.textContent='Guardando…';
+ try{
+  // Subir foto del comprobante (opcional)
+  const file=document.getElementById('foto').files[0];
+  if(file){
+   if(file.size>10*1024*1024){throw new Error('La imagen supera 10 MB.');}
+   btn.textContent='Subiendo foto…';
+   const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+   const path=Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
+   const up=await fetch(SUPABASE_URL+'/storage/v1/object/comprobantes/'+path,{
+     method:'POST',
+     headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':file.type||'image/jpeg','x-upsert':'true'},
+     body:file
+   });
+   if(!up.ok){const t=await up.text();throw new Error('No se pudo subir la foto. '+(t||('HTTP '+up.status)));}
+   row.comprobante_url=SUPABASE_URL+'/storage/v1/object/public/comprobantes/'+path;
+   btn.textContent='Guardando…';
+  }
+  const r=await fetch(REST,{method:'POST',headers:{...HDRS,'Prefer':'return=minimal'},body:JSON.stringify(row)});
+  if(!r.ok){const t=await r.text();throw new Error(t||('HTTP '+r.status));}
+  document.getElementById('card').innerHTML=
+   '<div class="ok-box"><div class="ic">✅</div><h2>¡Compra registrada!</h2>'+
+   '<p>Se guardó la compra de <b>'+nombre.replace(/</g,'&lt;')+'</b>.</p>'+
+   '<button class="btn" onclick="location.reload()">Registrar otra compra</button></div>';
+ }catch(err){
+  msg.className='msg err';msg.textContent='No se pudo guardar. Intenta de nuevo. '+(err.message||'');
+  btn.disabled=false;btn.textContent='Guardar compra';
+ }
+});
+</script>
+</body></html>

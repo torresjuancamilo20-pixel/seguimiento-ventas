@@ -1,0 +1,183 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compras del Bootcamp · Panel</title>
+<link rel="icon" href="../../reportes/favicon.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+:root{
+ --ink:#e6ecf5;--ink2:#aab6c8;--mut:#6b7688;--line:#1e2836;
+ --paper:#080b12;--white:#0f1520;
+ --sig:#3b82f6;--sigd:#60a5fa;--good:#22c55e;--red:#ef4444;
+ --sh:0 1px 2px rgba(0,0,0,.4);--shl:0 8px 30px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(1000px 500px at 20% -10%,rgba(59,130,246,.09),transparent),var(--paper);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;color-scheme:dark}
+.hide{display:none!important}
+/* Login */
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{background:var(--white);border:1px solid var(--line);border-radius:18px;width:100%;max-width:400px;padding:32px 28px;box-shadow:var(--shl)}
+.brand{display:inline-flex;align-items:center;gap:9px;margin-bottom:16px}
+.brand .mk{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#1e293b,#334155);color:#e6ecf5;display:grid;place-items:center;font-family:'Space Grotesk';font-weight:700;font-size:13px}
+.brand .tx{font-family:'Space Grotesk';font-weight:700;letter-spacing:.14em;font-size:13px}
+h1{font-family:'Space Grotesk';font-weight:700;font-size:23px;margin:2px 0 4px}
+p.sub{color:var(--mut);font-size:13px;margin-bottom:18px;line-height:1.5}
+label.fl{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);font-weight:700;display:block;margin:14px 0 7px}
+.inp{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:11px;background:var(--paper);font-family:'Inter';font-size:15px;color:var(--ink)}
+.inp:focus{outline:none;border-color:var(--sig);background:var(--white);box-shadow:0 0 0 3px rgba(59,130,246,.18)}
+.btn{padding:12px 16px;border:none;border-radius:11px;background:var(--sig);color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:.15s}
+.btn:hover{background:var(--sigd)}
+.btn.ghost{background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--ink2)}
+.btn.ghost:hover{background:rgba(255,255,255,.09);color:#fff}
+.wfull{width:100%;margin-top:18px}
+.err{color:var(--red);font-size:12.5px;margin-top:10px;font-weight:600;min-height:16px}
+/* Panel */
+.main{padding:24px 26px 70px;max-width:1200px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--sig);font-weight:700}
+h2.title{font-family:'Space Grotesk';font-weight:700;font-size:clamp(22px,3vw,30px);letter-spacing:-.02em;margin-top:5px}
+.actions{display:flex;gap:9px;flex-wrap:wrap}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.kpi{background:var(--white);border:1px solid var(--line);border-radius:13px;padding:16px 16px;box-shadow:var(--sh)}
+.kpi-l{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut);font-weight:700}
+.kpi-n{font-family:'Space Grotesk';font-weight:700;font-size:27px;line-height:1;margin-top:8px}
+.searchbar{margin-bottom:14px}
+.tablewrap{background:var(--white);border:1px solid var(--line);border-radius:14px;overflow:auto;box-shadow:var(--sh)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:820px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut);font-weight:700;position:sticky;top:0;background:var(--white)}
+tbody tr:hover{background:rgba(255,255,255,.03)}
+td.money{font-family:'Space Grotesk';font-weight:600}
+.tag{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:600;background:rgba(59,130,246,.14);color:#93c5fd}
+.thumb{width:42px;height:42px;object-fit:cover;border-radius:8px;border:1px solid var(--line);display:block}
+.empty{padding:40px;text-align:center;color:var(--mut);font-size:14px}
+.muted{color:var(--mut)}
+</style></head>
+<body>
+
+<!-- LOGIN -->
+<div class="login" id="login">
+ <div class="login-card">
+  <div class="brand"><span class="mk">N</span><span class="tx">NEXUS</span></div>
+  <h1>Compras del Bootcamp</h1>
+  <p class="sub">Ingresa la clave de director para ver el registro de compras.</p>
+  <label class="fl">Clave de director</label>
+  <input class="inp" type="password" id="pass" placeholder="••••••••" autofocus>
+  <button class="btn wfull" id="enter">Entrar</button>
+  <div class="err" id="loginErr"></div>
+ </div>
+</div>
+
+<!-- PANEL -->
+<div class="main hide" id="panel">
+ <div class="top">
+  <div>
+   <span class="eyebrow">Panel de director</span>
+   <h2 class="title">Compras del Bootcamp</h2>
+  </div>
+  <div class="actions">
+   <button class="btn ghost" id="reload">↻ Actualizar</button>
+   <button class="btn" id="csv">⬇ Exportar CSV</button>
+  </div>
+ </div>
+
+ <div class="kpis">
+  <div class="kpi"><div class="kpi-l">Compras registradas</div><div class="kpi-n" id="kTotal">—</div></div>
+  <div class="kpi"><div class="kpi-l">Monto total</div><div class="kpi-n" id="kMonto">—</div></div>
+  <div class="kpi"><div class="kpi-l">Compras de hoy</div><div class="kpi-n" id="kHoy">—</div></div>
+ </div>
+
+ <div class="searchbar">
+  <input class="inp" id="search" placeholder="Buscar por nombre, correo, agente, comprobante…">
+ </div>
+
+ <div class="tablewrap">
+  <table>
+   <thead><tr>
+    <th>Fecha</th><th>Nombre</th><th>Correo</th><th>Celular</th>
+    <th>Agente</th><th>Comprobante</th><th>Foto</th><th>Monto</th><th>Directo/Apoyó</th>
+   </tr></thead>
+   <tbody id="rows"><tr><td colspan="9" class="empty">Cargando…</td></tr></tbody>
+  </table>
+ </div>
+</div>
+
+<script>
+const SUPABASE_URL="https://fhixjvxztmuifrioevze.supabase.co";
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoaXhqdnh6dG11aWZyaW9ldnplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjgxNTUsImV4cCI6MjA5OTM0NDE1NX0.sTBxjWYr5m90-usvIJQyvTXon3TkD9Nk0V9z6IDQtmo";
+const DIRECTOR_PASS="Director2026";  // misma clave que la app principal
+const HDRS={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
+const REST=SUPABASE_URL+"/rest/v1/compras_bootcamp";
+const $=id=>document.getElementById(id);
+let DATA=[];
+
+function money(n){ if(n==null||n==='') return '—'; return '$'+Number(n).toLocaleString('es-CO'); }
+function fecha(s){ if(!s) return '—'; const d=new Date(s); return d.toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'})+' '+d.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'}); }
+function esc(s){ return (s==null?'':String(s)).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+function esHoy(s){ if(!s) return false; const d=new Date(s), n=new Date(); return d.toDateString()===n.toDateString(); }
+
+async function cargar(){
+ $('rows').innerHTML='<tr><td colspan="9" class="empty">Cargando…</td></tr>';
+ try{
+  const r=await fetch(REST+'?select=*&order=creado.desc',{headers:HDRS});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  DATA=await r.json();
+  render();
+ }catch(e){
+  $('rows').innerHTML='<tr><td colspan="9" class="empty">No se pudo cargar. '+esc(e.message)+'</td></tr>';
+ }
+}
+
+function filtradas(){
+ const q=$('search').value.trim().toLowerCase();
+ if(!q) return DATA;
+ return DATA.filter(x=>[x.nombre,x.correo,x.celular,x.agente,x.comprobante,x.venta_por].some(v=>(v||'').toString().toLowerCase().includes(q)));
+}
+
+function render(){
+ const list=filtradas();
+ // KPIs sobre el total (no el filtro)
+ $('kTotal').textContent=DATA.length;
+ $('kMonto').textContent=money(DATA.reduce((a,x)=>a+(Number(x.monto)||0),0));
+ $('kHoy').textContent=DATA.filter(x=>esHoy(x.creado)).length;
+
+ if(!list.length){ $('rows').innerHTML='<tr><td colspan="9" class="empty">Sin compras registradas'+($('search').value?' para esa búsqueda':'')+'.</td></tr>'; return; }
+ $('rows').innerHTML=list.map(x=>
+  '<tr>'+
+   '<td class="muted">'+fecha(x.creado)+'</td>'+
+   '<td><b>'+esc(x.nombre)+'</b></td>'+
+   '<td>'+(esc(x.correo)||'—')+'</td>'+
+   '<td>'+(esc(x.celular)||'—')+'</td>'+
+   '<td>'+(x.agente?'<span class="tag">'+esc(x.agente)+'</span>':'—')+'</td>'+
+   '<td>'+(esc(x.comprobante)||'—')+'</td>'+
+   '<td>'+(x.comprobante_url?'<a href="'+esc(x.comprobante_url)+'" target="_blank" rel="noopener"><img class="thumb" src="'+esc(x.comprobante_url)+'" alt="comprobante"></a>':'—')+'</td>'+
+   '<td class="money">'+money(x.monto)+'</td>'+
+   '<td>'+(esc(x.venta_por)||'—')+'</td>'+
+  '</tr>'
+ ).join('');
+}
+
+function exportCSV(){
+ const cols=[['creado','Fecha'],['nombre','Nombre'],['correo','Correo'],['celular','Celular'],['agente','Agente'],['comprobante','Comprobante'],['comprobante_url','Foto (URL)'],['monto','Monto'],['venta_por','Directo/Apoyo']];
+ const head=cols.map(c=>c[1]).join(',');
+ const q=s=>'"'+String(s==null?'':s).replace(/"/g,'""')+'"';
+ const body=filtradas().map(x=>cols.map(c=>q(x[c[0]])).join(',')).join('\n');
+ const blob=new Blob(["﻿"+head+'\n'+body],{type:'text/csv;charset=utf-8;'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+ a.download='compras-bootcamp-'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+}
+
+// Login
+function entrar(){
+ if($('pass').value!==DIRECTOR_PASS){ $('loginErr').textContent='Clave incorrecta.'; return; }
+ sessionStorage.setItem('bc_ok','1');
+ $('login').classList.add('hide'); $('panel').classList.remove('hide');
+ cargar();
+}
+$('enter').addEventListener('click',entrar);
+$('pass').addEventListener('keydown',e=>{if(e.key==='Enter')entrar();});
+$('reload').addEventListener('click',cargar);
+$('csv').addEventListener('click',exportCSV);
+$('search').addEventListener('input',render);
+if(sessionStorage.getItem('bc_ok')==='1'){ $('login').classList.add('hide'); $('panel').classList.remove('hide'); cargar(); }
+</script>
+</body></html>

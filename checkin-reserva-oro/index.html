@@ -83,6 +83,7 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif;-web
 .chk:active{transform:scale(.9)}
 .chk.c1.on{background:linear-gradient(135deg,var(--ok),#26b371);border-color:transparent;color:#062615;box-shadow:0 5px 16px rgba(57,217,138,.4)}
 .chk.c2.on{background:linear-gradient(135deg,var(--c2),#2f80d6);border-color:transparent;color:#041226;box-shadow:0 5px 16px rgba(93,180,255,.4)}
+.chk.dis{opacity:.3;cursor:not-allowed;border-style:dashed}
 .acc-btn{margin-top:7px;font-size:11px;font-weight:700;padding:5px 10px;border-radius:20px;cursor:pointer;
  border:1px dashed rgba(120,180,255,.5);background:transparent;color:#a9cbff}
 .acc-btn.on{background:rgba(120,180,255,.9);color:#04122b;border-style:solid}
@@ -260,7 +261,7 @@ function render(){
     +'</div>'
     +'<div class="checks">'
     +'<div class="chk c1 '+(s.c1?"on":"")+'" data-c1="'+p.id+'"><span class="lbl">Check</span><span class="ic">'+(s.c1?"✓":"1")+'</span></div>'
-    +'<div class="chk c2 '+(s.c2?"on":"")+'" data-c2="'+p.id+'"><span class="lbl">Check</span><span class="ic">'+(s.c2?"✓":"2")+'</span></div>'
+    +'<div class="chk c2 '+(s.c2?"on":"")+(s.c1?"":" dis")+'" data-c2="'+p.id+'"><span class="lbl">Check</span><span class="ic">'+(s.c2?"✓":"2")+'</span></div>'
     +'</div></div>';
   });
  });
@@ -275,7 +276,7 @@ function toggle(id,which){
  const p=ROSTER.find(x=>x.id===id);const nm=p.nombre.split(" ")[0];
  if(which===1){s.c1=!s.c1;if(!s.c1){s.c2=false;s.acc=false;}
   toast(s.c1?"✅ "+nm+" — Check 1":"↩︎ "+nm+" — Sin Check 1");}
- else{s.c2=!s.c2;if(s.c2&&!s.c1)s.c1=true;
+ else{if(!s.c1){toast("⚠️ "+nm+" — primero marca el Check 1");return;}s.c2=!s.c2;
   toast(s.c2?"🔵 "+nm+" — Check 2 (final)":"↩︎ "+nm+" — Sin Check 2");}
  render();save(id);
 }

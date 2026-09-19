@@ -94,7 +94,7 @@ td.money{font-family:'Space Grotesk';font-weight:600}
   <table>
    <thead><tr>
     <th>Fecha</th><th>Nombre</th><th>Correo</th><th>Celular</th>
-    <th>Agente</th><th>Comprobante</th><th>Foto</th><th>Monto</th><th>Directo/Apoyó</th>
+    <th>Agente</th><th>Comprobante</th><th>Foto</th><th>Monto</th><th>Director/Apoyó</th>
    </tr></thead>
    <tbody id="rows"><tr><td colspan="9" class="empty">Cargando…</td></tr></tbody>
   </table>
@@ -157,7 +157,7 @@ function render(){
 }
 
 function exportCSV(){
- const cols=[['creado','Fecha'],['nombre','Nombre'],['correo','Correo'],['celular','Celular'],['agente','Agente'],['comprobante','Comprobante'],['comprobante_url','Foto (URL)'],['monto','Monto'],['venta_por','Directo/Apoyo']];
+ const cols=[['creado','Fecha'],['nombre','Nombre'],['correo','Correo'],['celular','Celular'],['agente','Agente'],['comprobante','Comprobante'],['comprobante_url','Foto (URL)'],['monto','Monto'],['venta_por','Director/Apoyo']];
  const head=cols.map(c=>c[1]).join(',');
  const q=s=>'"'+String(s==null?'':s).replace(/"/g,'""')+'"';
  const body=filtradas().map(x=>cols.map(c=>q(x[c[0]])).join(',')).join('\n');

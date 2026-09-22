@@ -307,29 +307,32 @@
   @media(max-width:820px){.plan-cards{grid-template-columns:repeat(2,1fr)}.fijo-add{grid-template-columns:1fr 1fr auto}}
 </style>
 
-<!-- ============ CAPA PROFESIONAL (fintech · override final) ============ -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<!-- ============ CAPA PROFESIONAL (negro + rojo · override final) ============ -->
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0a0e17; --panelbg:#111726; --card:#111726; --card2:#161d2d;
-    --line:rgba(148,163,184,.12); --line2:rgba(148,163,184,.18);
-    --txt:#e6eaf3; --muted:#8b96ad;
-    --brand:#5b7cfa; --brand2:#4f6ef0; --neon:#5b7cfa;
-    --ok:#31c48d; --bad:#f0596e; --save:#e0a94a;
-    --grad:linear-gradient(180deg,#5b7cfa,#4f6ef0);
-    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px -18px rgba(0,0,0,.7);
-    --glow:0 1px 0 rgba(255,255,255,.02), 0 10px 30px -20px rgba(0,0,0,.8);
+    --bg:#0a0a0c; --panelbg:#141416; --card:#141416; --card2:#1c1c20;
+    --line:rgba(255,255,255,.08); --line2:rgba(229,52,43,.35);
+    --txt:#f2f2f4; --muted:#9a9aa2;
+    --brand:#e5342b; --brand2:#c31f1f; --neon:#e5342b;
+    --ok:#3ecf8e; --bad:#ff4d4d; --save:#f0b429;
+    --grad:linear-gradient(180deg,#e5342b,#b91c1c);
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 34px -18px rgba(0,0,0,.85);
+    --glow:0 1px 0 rgba(255,255,255,.02), 0 12px 34px -20px rgba(0,0,0,.9);
     --r:14px;
   }
-  body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt)}
+  body{font-family:'Montserrat',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt)}
+  /* Bebas Neue para titulares y cifras grandes */
+  h1,h2,.logo,.brand,.card .v,.pcard .pv,.price .amt,.ob-step h2,.paycard h2{
+    font-family:'Bebas Neue','Montserrat',sans-serif;letter-spacing:.02em;font-weight:400}
   /* Fondo sobrio: sin auroras animadas, solo un degradado sutil */
   body::before,body::after{display:none!important}
   .grain{background:
     radial-gradient(1200px 500px at 50% -8%, rgba(91,124,250,.10), transparent 70%),
     radial-gradient(900px 500px at 100% 0%, rgba(49,196,141,.05), transparent 60%);}
 
-  h1,h2{font-family:'Inter',sans-serif;font-weight:700;letter-spacing:-.01em}
-  .logo,.brand{font-family:'Space Grotesk','Inter',sans-serif;letter-spacing:-.02em}
+  h1,h2{font-family:'Bebas Neue','Montserrat',sans-serif;font-weight:400;letter-spacing:.03em}
+  .logo,.brand{font-family:'Bebas Neue','Montserrat',sans-serif;letter-spacing:.05em;font-weight:400}
 
   /* Superficies: planas, borde fino, sombra discreta, sin brillo de color */
   .panel,.card,.auth,.month-nav,.tabs,.goal,.item,.pcard,.paycard,.onbcard,
@@ -355,7 +358,7 @@
   /* KPIs: número sólido (sin degradado ni glow) */
   .cards{gap:12px}
   .card .k{text-transform:uppercase;letter-spacing:.06em;font-size:.7rem;color:var(--muted);font-weight:600}
-  .card .v{font-family:'Inter',sans-serif;font-size:1.65rem;font-weight:700;letter-spacing:-.02em;
+  .card .v{font-family:'Bebas Neue',sans-serif;font-size:2.1rem;font-weight:400;letter-spacing:.02em;
     -webkit-text-fill-color:currentColor;color:var(--txt);background:none!important}
   .card:nth-child(1) .v{color:var(--ok)}
   .card:nth-child(2) .v{color:var(--bad)}
@@ -381,7 +384,9 @@
   .item:hover{transform:none;border-color:var(--line2)}
   .item .ic{border-radius:9px;font-size:.95rem}
   .ic.ingreso{background:rgba(49,196,141,.12)} .ic.gasto{background:rgba(240,89,110,.12)} .ic.ahorro{background:rgba(224,169,74,.12)}
-  .amt{font-family:'Inter',sans-serif;font-weight:700}
+  .amt{font-family:'Montserrat',sans-serif;font-weight:700}
+  .pcard .pv{font-size:1.9rem}
+  .logo{font-size:1.5rem} .card .k{font-weight:600}
 
   /* Barras / tracks: sin glow */
   .bar span,.track>span,.alloc-bar span{box-shadow:none!important}
@@ -416,6 +421,15 @@
   .paywall{background:rgba(6,9,15,.72)}
 
   footer.foot{letter-spacing:0;color:var(--muted)}
+
+  /* Página única: secciones apiladas con aire entre ellas */
+  .tabpane{margin-bottom:20px}
+  .plan-hero{border-top:3px solid var(--brand)}
+  .card .v{font-size:2.1rem}
+  /* Acentos rojos en detalles */
+  .p-in{color:var(--ok)} .p-out{color:var(--bad)} .p-save{color:var(--save)} .p-bal{color:var(--brand)}
+  .stepdot.on{background:var(--brand)}
+  a{color:var(--brand)}
 </style>
 </head>
 <body>
@@ -516,29 +530,6 @@
     </div>
   </header>
 
-  <div class="tabs">
-    <button data-tab="plan" class="on">Mi Plan</button>
-    <button data-tab="resumen">Resumen</button>
-    <button data-tab="metas">Metas y presupuesto</button>
-    <button data-tab="reportes">Reportes</button>
-  </div>
-
-  <!-- TAB MI PLAN -->
-  <div class="tabpane" data-pane="plan">
-    <div class="panel plan-hero">
-      <div class="plan-head">
-        <h2>Tu plan de este mes</h2>
-        <button class="btn-ghost" id="editPlan">Editar plan</button>
-      </div>
-      <div class="plan-alloc">
-        <div class="alloc-bar" id="allocBar"></div>
-        <div class="alloc-legend" id="allocLegend"></div>
-      </div>
-      <div class="plan-cards" id="planCards"></div>
-      <div class="plan-status" id="planStatus"></div>
-    </div>
-  </div>
-
   <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
     <div class="month-nav">
       <button id="prevM" aria-label="Mes anterior">‹</button>
@@ -554,8 +545,24 @@
     <div class="card"><div class="k"><span class="pill p-bal"></span>Balance</div><div class="v" id="sumBal">$0</div></div>
   </section>
 
-  <!-- TAB RESUMEN -->
-  <div class="grid tabpane hidden" data-pane="resumen">
+  <!-- MI PLAN -->
+  <div class="tabpane" data-pane="plan">
+    <div class="panel plan-hero">
+      <div class="plan-head">
+        <h2>Tu plan de este mes</h2>
+        <button class="btn-ghost" id="editPlan">Editar plan</button>
+      </div>
+      <div class="plan-alloc">
+        <div class="alloc-bar" id="allocBar"></div>
+        <div class="alloc-legend" id="allocLegend"></div>
+      </div>
+      <div class="plan-cards" id="planCards"></div>
+      <div class="plan-status" id="planStatus"></div>
+    </div>
+  </div>
+
+  <!-- RESUMEN -->
+  <div class="grid tabpane" data-pane="resumen">
     <div class="panel">
       <h2>Registrar movimiento</h2>
       <form class="add" id="frm">
@@ -588,7 +595,7 @@
   </div>
 
   <!-- TAB METAS -->
-  <div class="tabpane hidden" data-pane="metas">
+  <div class="tabpane" data-pane="metas">
     <div class="grid">
       <div class="panel">
         <h2>Meta de ahorro</h2>
@@ -615,7 +622,7 @@
   </div>
 
   <!-- TAB REPORTES -->
-  <div class="tabpane hidden" data-pane="reportes">
+  <div class="tabpane" data-pane="reportes">
     <div class="panel">
       <h2>Evolución (últimos 6 meses)</h2>
       <div class="legend">

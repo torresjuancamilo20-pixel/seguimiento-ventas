@@ -408,50 +408,50 @@
     </section>
 
     <!-- Two columns: table + register/categorías -->
-    <section class="two-col">
-      <div class="panel" id="sec-mov">
-        <h2>Movimientos
-          <div class="tabs2" id="movTabs">
-            <button data-f="todos" class="on">Todos</button>
-            <button data-f="ingreso">Ingresos</button>
-            <button data-f="gasto">Gastos</button>
-            <button data-f="ahorro">Ahorro</button>
-          </div>
-        </h2>
-        <div style="overflow-x:auto">
-          <table class="tbl">
-            <thead><tr>
-              <th>Concepto</th><th>Tipo</th><th class="col-cap">Categoría</th><th>Fecha</th><th style="text-align:right">Monto</th><th></th>
-            </tr></thead>
-            <tbody id="list"></tbody>
-          </table>
+    <!-- Movimientos a todo el ancho -->
+    <section class="panel" id="sec-mov">
+      <h2>Movimientos
+        <div class="tabs2" id="movTabs">
+          <button data-f="todos" class="on">Todos</button>
+          <button data-f="ingreso">Ingresos</button>
+          <button data-f="gasto">Gastos</button>
+          <button data-f="ahorro">Ahorro</button>
         </div>
-        <div style="margin-top:14px"><button class="btn-ghost" id="export">Exportar CSV</button></div>
+      </h2>
+      <div style="overflow-x:auto">
+        <table class="tbl">
+          <thead><tr>
+            <th>Concepto</th><th>Tipo</th><th class="col-cap">Categoría</th><th>Fecha</th><th style="text-align:right">Monto</th><th></th>
+          </tr></thead>
+          <tbody id="list"></tbody>
+        </table>
       </div>
+      <div style="margin-top:14px"><button class="btn-ghost" id="export">Exportar CSV</button></div>
+    </section>
 
-      <div style="display:grid;gap:16px">
-        <div class="panel">
-          <h2>Registrar movimiento</h2>
-          <form class="add" id="frm" style="margin-top:12px">
-            <div class="seg">
-              <label><input type="radio" name="tipo" value="ingreso"><span>Ingreso</span></label>
-              <label><input type="radio" name="tipo" value="gasto" checked><span>Gasto</span></label>
-              <label><input type="radio" name="tipo" value="ahorro"><span>Ahorro</span></label>
-            </div>
-            <input type="text" id="desc" placeholder="Descripción (ej. Salario, Mercado)" required>
-            <div class="row2">
-              <input type="number" id="monto" placeholder="Monto" min="0" step="0.01" required>
-              <select id="cat"></select>
-            </div>
-            <input type="date" id="fecha">
-            <button class="primary" type="submit">Agregar</button>
-          </form>
-        </div>
-        <div class="panel">
-          <h2>Gastos por categoría</h2>
-          <div class="bar" id="catBar" style="margin-top:12px"></div>
-          <div id="catList"></div>
-        </div>
+    <!-- Registrar + Gastos por categoría -->
+    <section class="two-col">
+      <div class="panel">
+        <h2>Registrar movimiento</h2>
+        <form class="add" id="frm" style="margin-top:12px">
+          <div class="seg">
+            <label><input type="radio" name="tipo" value="ingreso"><span>Ingreso</span></label>
+            <label><input type="radio" name="tipo" value="gasto" checked><span>Gasto</span></label>
+            <label><input type="radio" name="tipo" value="ahorro"><span>Ahorro</span></label>
+          </div>
+          <input type="text" id="desc" placeholder="Descripción (ej. Salario, Mercado)" required>
+          <div class="row2">
+            <input type="number" id="monto" placeholder="Monto" min="0" step="0.01" required>
+            <select id="cat"></select>
+          </div>
+          <input type="date" id="fecha">
+          <button class="primary" type="submit">Agregar</button>
+        </form>
+      </div>
+      <div class="panel">
+        <h2>Gastos por categoría</h2>
+        <div class="bar" id="catBar" style="margin-top:12px"></div>
+        <div id="catList"></div>
       </div>
     </section>
 

@@ -335,7 +335,6 @@
       <div class="side-label">Menú</div>
       <a href="#sec-hero" class="nav-item active"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Dashboard</a>
       <a href="#sec-mov" class="nav-item"><svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg>Movimientos</a>
-      <a href="#sec-plan" class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 12l4-2"/><path d="M12 12v-5"/></svg>Mi Plan</a>
       <a href="#sec-rep" class="nav-item"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 15l5-5 4 3 6-7"/></svg>Reportes</a>
       <a href="#sec-metas" class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>Metas y presupuesto</a>
     </nav>
@@ -409,62 +408,54 @@
     </section>
 
     <!-- Two columns: table + register/categorías -->
-    <section class="two-col">
-      <div class="panel" id="sec-mov">
-        <h2>Movimientos
-          <div class="tabs2" id="movTabs">
-            <button data-f="todos" class="on">Todos</button>
-            <button data-f="ingreso">Ingresos</button>
-            <button data-f="gasto">Gastos</button>
-            <button data-f="ahorro">Ahorro</button>
-          </div>
-        </h2>
-        <div style="overflow-x:auto">
-          <table class="tbl">
-            <thead><tr>
-              <th>Concepto</th><th>Tipo</th><th class="col-cap">Categoría</th><th>Fecha</th><th style="text-align:right">Monto</th><th></th>
-            </tr></thead>
-            <tbody id="list"></tbody>
-          </table>
+    <!-- Movimientos a todo el ancho -->
+    <section class="panel" id="sec-mov">
+      <h2>Movimientos
+        <div class="tabs2" id="movTabs">
+          <button data-f="todos" class="on">Todos</button>
+          <button data-f="ingreso">Ingresos</button>
+          <button data-f="gasto">Gastos</button>
+          <button data-f="ahorro">Ahorro</button>
         </div>
-        <div style="margin-top:14px"><button class="btn-ghost" id="export">Exportar CSV</button></div>
+      </h2>
+      <div style="overflow-x:auto">
+        <table class="tbl">
+          <thead><tr>
+            <th>Concepto</th><th>Tipo</th><th class="col-cap">Categoría</th><th>Fecha</th><th style="text-align:right">Monto</th><th></th>
+          </tr></thead>
+          <tbody id="list"></tbody>
+        </table>
       </div>
+      <div style="margin-top:14px"><button class="btn-ghost" id="export">Exportar CSV</button></div>
+    </section>
 
-      <div style="display:grid;gap:16px">
-        <div class="panel">
-          <h2>Registrar movimiento</h2>
-          <form class="add" id="frm" style="margin-top:12px">
-            <div class="seg">
-              <label><input type="radio" name="tipo" value="ingreso"><span>Ingreso</span></label>
-              <label><input type="radio" name="tipo" value="gasto" checked><span>Gasto</span></label>
-              <label><input type="radio" name="tipo" value="ahorro"><span>Ahorro</span></label>
-            </div>
-            <input type="text" id="desc" placeholder="Descripción (ej. Salario, Mercado)" required>
-            <div class="row2">
-              <input type="number" id="monto" placeholder="Monto" min="0" step="0.01" required>
-              <select id="cat"></select>
-            </div>
-            <input type="date" id="fecha">
-            <button class="primary" type="submit">Agregar</button>
-          </form>
-        </div>
-        <div class="panel">
-          <h2>Gastos por categoría</h2>
-          <div class="bar" id="catBar" style="margin-top:12px"></div>
-          <div id="catList"></div>
-        </div>
+    <!-- Registrar + Gastos por categoría -->
+    <section class="two-col">
+      <div class="panel">
+        <h2>Registrar movimiento</h2>
+        <form class="add" id="frm" style="margin-top:12px">
+          <div class="seg">
+            <label><input type="radio" name="tipo" value="ingreso"><span>Ingreso</span></label>
+            <label><input type="radio" name="tipo" value="gasto" checked><span>Gasto</span></label>
+            <label><input type="radio" name="tipo" value="ahorro"><span>Ahorro</span></label>
+          </div>
+          <input type="text" id="desc" placeholder="Descripción (ej. Salario, Mercado)" required>
+          <div class="row2">
+            <input type="number" id="monto" placeholder="Monto" min="0" step="0.01" required>
+            <select id="cat"></select>
+          </div>
+          <input type="date" id="fecha">
+          <button class="primary" type="submit">Agregar</button>
+        </form>
+      </div>
+      <div class="panel">
+        <h2>Gastos por categoría</h2>
+        <div class="bar" id="catBar" style="margin-top:12px"></div>
+        <div id="catList"></div>
       </div>
     </section>
 
     <!-- Mi Plan -->
-    <section class="panel" id="sec-plan">
-      <h2>Tu plan de este mes <button class="btn-ghost" id="editPlan">Editar plan</button></h2>
-      <div class="alloc-bar" id="allocBar"></div>
-      <div class="alloc-legend" id="allocLegend"></div>
-      <div class="plan-cards" id="planCards"></div>
-      <div class="plan-status" id="planStatus"></div>
-    </section>
-
     <!-- Metas y presupuesto -->
     <section class="two-col" id="sec-metas">
       <div class="panel">
@@ -837,45 +828,8 @@ function render(){
 
   renderMetas(sav, byCat);
   renderReportes();
-  renderPlan(inc, out, sav);
 }
 
-/* ---------------- MI PLAN ---------------- */
-function renderPlan(incMes, gastoMes, ahorroMes){
-  const p=config.perfil;
-  if(!p){ $("planCards").innerHTML=`<div class="empty">Configura tu plan para ver el desglose.</div>`; $("allocBar").innerHTML=""; $("allocLegend").innerHTML=""; $("planStatus").innerHTML=""; return; }
-  const ingreso=p.ingreso||0;
-  const fijos=(p.fijos||[]).reduce((a,f)=>a+f.monto,0);
-  const ahorroMeta=p.ahorroMeta||0;
-  const disponible=ingreso-fijos-ahorroMeta;
-  const segs=[["Gastos fijos",fijos,"var(--bad)"],["Ahorro",ahorroMeta,"var(--save)"],["Disponible",Math.max(0,disponible),"var(--ok)"]];
-  const base=ingreso>0?ingreso:(fijos+ahorroMeta+Math.max(0,disponible))||1;
-  $("allocBar").innerHTML=segs.map(s=>`<span style="width:${s[1]/base*100}%;background:${s[2]}"></span>`).join("");
-  $("allocLegend").innerHTML=segs.map(s=>`<span><i style="background:${s[2]}"></i>${s[0]} · ${money(s[1])} (${base?Math.round(s[1]/base*100):0}%)</span>`).join("");
-  $("planCards").innerHTML=`
-    <div class="pcard"><div class="pk">Ingreso mensual</div><div class="pv in">${money(ingreso)}</div></div>
-    <div class="pcard"><div class="pk">Gastos fijos</div><div class="pv out">${money(fijos)}</div><div class="ps">${(p.fijos||[]).length} conceptos, automáticos</div></div>
-    <div class="pcard"><div class="pk">Meta de ahorro</div><div class="pv save">${money(ahorroMeta)}</div></div>
-    <div class="pcard"><div class="pk">Disponible para gastar</div><div class="pv" style="color:${disponible>=0?'var(--ok)':'var(--bad)'}">${money(disponible)}</div></div>`;
-  const gastoVariable=Math.max(0, gastoMes - fijos);
-  const pctGasto=disponible>0?gastoVariable/disponible*100:(gastoVariable>0?100:0);
-  const restante=disponible-gastoVariable;
-  const colG=pctGasto>=100?"var(--bad)":pctGasto>=80?"var(--save)":"var(--ok)";
-  const pctAhorro=ahorroMeta>0?Math.min(100,ahorroMes/ahorroMeta*100):0;
-  $("planStatus").innerHTML=`
-    <h2 style="margin:20px 0 12px;font-size:.95rem">Cómo vas este mes</h2>
-    <div class="progress-block">
-      <div class="pb-head"><span>Gasto variable</span><span class="${pctGasto>=100?'over':''}">${money(gastoVariable)} / ${money(Math.max(0,disponible))}</span></div>
-      <div class="track"><span style="width:${Math.min(100,pctGasto)}%;background:${colG}"></span></div>
-      <div class="pb-foot ${restante<0?'over':''}">${restante>=0?'Te quedan '+money(restante)+' para gastar':'Te pasaste por '+money(-restante)}</div>
-    </div>
-    <div class="progress-block">
-      <div class="pb-head"><span>Ahorro del mes</span><span>${money(ahorroMes)} / ${money(ahorroMeta)}</span></div>
-      <div class="track"><span style="width:${pctAhorro}%;background:linear-gradient(90deg,var(--save),#ffd479)"></span></div>
-      <div class="pb-foot">${ahorroMeta>0?(pctAhorro>=100?'✓ ¡Meta de ahorro cumplida!':Math.round(pctAhorro)+'% de tu meta de ahorro'):'Sin meta de ahorro definida'}</div>
-    </div>`;
-}
-$("editPlan").onclick=()=>startOnboarding();
 $("editPlan2").onclick=()=>startOnboarding();
 
 /* ---------------- MENÚ ACTIVO ---------------- */

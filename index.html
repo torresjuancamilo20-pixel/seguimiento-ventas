@@ -190,6 +190,15 @@
 
   footer.foot{text-align:center;color:var(--muted2);font-size:.78rem;margin-top:10px}
 
+  /* Registro rápido */
+  .rapido-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  .rk{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;margin-bottom:7px}
+  .key-row{display:flex;gap:8px}
+  .key-row input{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.82rem}
+  .steps-list{margin:0 0 14px 18px;display:grid;gap:8px;font-size:.88rem;color:var(--txt)}
+  .steps-list li{line-height:1.45}
+  @media(max-width:1000px){.rapido-grid{grid-template-columns:1fr}}
+
   /* Overlays (onboarding + paywall) */
   .overlay{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:20px;overflow:auto;
     background:rgba(4,7,16,.8);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
@@ -337,6 +346,7 @@
       <a href="#sec-mov" class="nav-item"><svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg>Movimientos</a>
       <a href="#sec-rep" class="nav-item"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 15l5-5 4 3 6-7"/></svg>Reportes</a>
       <a href="#sec-metas" class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>Metas y presupuesto</a>
+      <a href="#sec-rapido" class="nav-item"><svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><line x1="11" y1="18.5" x2="13" y2="18.5"/></svg>Registro rápido</a>
     </nav>
     <div class="side-foot">
       <button class="btn-ghost" id="editPlan2">Editar plan</button>
@@ -455,7 +465,42 @@
       </div>
     </section>
 
-    <!-- Mi Plan -->
+    <!-- Registro rápido (atajo de iPhone) -->
+    <section class="panel" id="sec-rapido">
+      <h2>Registro rápido desde tu iPhone <span class="badge" style="margin:0">Nuevo</span></h2>
+      <p class="card-sub" style="margin:6px 0 16px">Crea un atajo en tu iPhone y registra un gasto o ingreso en 3 segundos desde el Centro de Control, sin abrir la app. Te pregunta <b>“¿Qué es?”</b> y <b>“¿Cuánto?”</b>, y aparece aquí al instante.</p>
+
+      <div class="rapido-grid">
+        <div>
+          <div class="rk">Tu clave personal</div>
+          <div class="key-row">
+            <input type="text" id="tokenView" readonly placeholder="Genera tu clave…">
+            <button class="btn-ghost" id="copyToken">Copiar</button>
+            <button class="btn-ghost" id="genToken">Generar</button>
+          </div>
+          <div class="rk" style="margin-top:14px">Enlace del atajo (URL)</div>
+          <div class="key-row">
+            <input type="text" id="endpointView" readonly>
+            <button class="btn-ghost" id="copyUrl">Copiar</button>
+          </div>
+          <p class="card-sub" style="margin-top:10px">⚠ No compartas tu clave: quien la tenga puede registrar en tu cuenta. Si se filtra, pulsa <b>Generar</b> para reemplazarla.</p>
+        </div>
+        <div>
+          <div class="rk">Cómo crear el atajo (una sola vez)</div>
+          <ol class="steps-list">
+            <li>Abre la app <b>Atajos</b> (viene en el iPhone) y toca <b>＋</b> para crear uno nuevo.</li>
+            <li>Agrega <b>“Pedir entrada”</b> tipo <b>Texto</b>, con la pregunta <b>¿Qué es?</b></li>
+            <li>Agrega otra <b>“Pedir entrada”</b> tipo <b>Número</b>, con la pregunta <b>¿Cuánto cuesta?</b></li>
+            <li>(Opcional) <b>“Elegir de un menú”</b> con opciones <b>Gasto</b> e <b>Ingreso</b>.</li>
+            <li>Agrega <b>“Obtener contenido de una URL”</b>: pega tu enlace, método <b>POST</b>, cuerpo <b>JSON</b> con los campos <b>token</b>, <b>desc</b>, <b>monto</b> y <b>tipo</b> (usa las entradas anteriores).</li>
+            <li>Agrega <b>“Mostrar resultado”</b> para ver la confirmación.</li>
+            <li>Ponle nombre (ej. <b>Ingreso o gasto</b>) y añádelo al <b>Centro de Control</b>.</li>
+          </ol>
+          <button class="btn-ghost" id="copyBody">Copiar el JSON de ejemplo</button>
+        </div>
+      </div>
+    </section>
+
     <!-- Metas y presupuesto -->
     <section class="two-col" id="sec-metas">
       <div class="panel">
@@ -571,8 +616,43 @@ async function enterApp(){
   if(!config.perfil || !config.perfil.onboarded){ startOnboarding(); }
   else { await aplicarFijosMesActual(); }
   render();
+  await loadToken();
   await checkAccess();
 }
+
+/* ---------------- REGISTRO RÁPIDO (atajo iPhone) ---------------- */
+const RAPIDO_URL = SUPABASE_URL + "/functions/v1/registro-rapido";
+function renderRapido(token){
+  $("tokenView").value = token || "";
+  $("endpointView").value = RAPIDO_URL;
+  $("genToken").textContent = token ? "Regenerar" : "Generar";
+}
+async function loadToken(){
+  const {data} = await sb.from("finanzas_tokens").select("token").eq("user_id",user.id).maybeSingle();
+  renderRapido(data?.token || "");
+}
+async function genToken(){
+  if($("tokenView").value && !confirm("Al regenerar, tu atajo actual dejará de funcionar hasta que actualices la clave. ¿Continuar?")) return;
+  const rnd = (crypto.randomUUID?.() || (Date.now()+Math.random().toString(36))).replace(/-/g,"");
+  const token = "mf_"+rnd;
+  setSync("Guardando…");
+  const {error}=await sb.from("finanzas_tokens").upsert({user_id:user.id, token});
+  if(error){ setSync("Error"); alert("No se pudo generar la clave: "+error.message); return; }
+  setSync("✓ Sincronizado");
+  renderRapido(token);
+}
+function copiar(text,btn){
+  navigator.clipboard?.writeText(text).then(()=>{ const o=btn.textContent; btn.textContent="¡Copiado!"; setTimeout(()=>btn.textContent=o,1200); })
+    .catch(()=>alert("Copia manual:\n\n"+text));
+}
+$("genToken").onclick=genToken;
+$("copyToken").onclick=e=>{ if(!$("tokenView").value) return alert("Primero genera tu clave."); copiar($("tokenView").value,e.target); };
+$("copyUrl").onclick=e=>copiar($("endpointView").value,e.target);
+$("copyBody").onclick=e=>{
+  const tk=$("tokenView").value||"TU_CLAVE";
+  const json=JSON.stringify({token:tk, desc:"cena ayer", monto:"79,9", tipo:"gasto"}, null, 2);
+  copiar(json,e.target);
+};
 
 /* ---------------- ONBOARDING ---------------- */
 let obPaso=0; let obFijos=[];

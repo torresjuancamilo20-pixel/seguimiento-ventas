@@ -465,38 +465,31 @@
       </div>
     </section>
 
-    <!-- Registro rápido (atajo de iPhone) -->
+    <!-- Registro rápido (acceso en pantalla de inicio) -->
     <section class="panel" id="sec-rapido">
-      <h2>Registro rápido desde tu iPhone <span class="badge" style="margin:0">Nuevo</span></h2>
-      <p class="card-sub" style="margin:6px 0 16px">Crea un atajo en tu iPhone y registra un gasto o ingreso en 3 segundos desde el Centro de Control, sin abrir la app. Te pregunta <b>“¿Qué es?”</b> y <b>“¿Cuánto?”</b>, y aparece aquí al instante.</p>
+      <h2>Registro rápido desde tu celular <span class="badge" style="margin:0">Nuevo</span></h2>
+      <p class="card-sub" style="margin:6px 0 16px">Pon un <b>ícono en tu pantalla de inicio</b> y registra un gasto o ingreso en 2 toques, sin abrir toda la app. Te pregunta <b>“¿Qué es?”</b> y <b>“¿Cuánto?”</b>, y aparece aquí al instante.</p>
 
       <div class="rapido-grid">
         <div>
-          <div class="rk">Tu clave personal</div>
+          <div class="rk">1 · Tu enlace personal de registro</div>
           <div class="key-row">
-            <input type="text" id="tokenView" readonly placeholder="Genera tu clave…">
-            <button class="btn-ghost" id="copyToken">Copiar</button>
-            <button class="btn-ghost" id="genToken">Generar</button>
+            <input type="text" id="linkView" readonly placeholder="Genera tu clave…">
+            <button class="btn-ghost" id="copyLink">Copiar</button>
           </div>
-          <div class="rk" style="margin-top:14px">Enlace del atajo (URL)</div>
-          <div class="key-row">
-            <input type="text" id="endpointView" readonly>
-            <button class="btn-ghost" id="copyUrl">Copiar</button>
-          </div>
-          <p class="card-sub" style="margin-top:10px">⚠ No compartas tu clave: quien la tenga puede registrar en tu cuenta. Si se filtra, pulsa <b>Generar</b> para reemplazarla.</p>
+          <a id="openRapido" href="#" target="_blank" rel="noopener" style="display:inline-block;margin-top:10px;font-weight:700">Abrir mi registro rápido →</a>
+          <p class="card-sub" style="margin-top:12px">⚠ No compartas este enlace: quien lo tenga puede registrar en tu cuenta. Si se filtra, pulsa <b>Regenerar clave</b>.</p>
+          <button class="btn-ghost" id="genToken" style="margin-top:6px">Regenerar clave</button>
+          <input type="hidden" id="tokenView">
         </div>
         <div>
-          <div class="rk">Cómo crear el atajo (una sola vez)</div>
+          <div class="rk">2 · Ponlo en tu pantalla de inicio</div>
           <ol class="steps-list">
-            <li>Abre la app <b>Atajos</b> (viene en el iPhone) y toca <b>＋</b> para crear uno nuevo.</li>
-            <li>Agrega <b>“Pedir entrada”</b> tipo <b>Texto</b>, con la pregunta <b>¿Qué es?</b></li>
-            <li>Agrega otra <b>“Pedir entrada”</b> tipo <b>Número</b>, con la pregunta <b>¿Cuánto cuesta?</b></li>
-            <li>(Opcional) <b>“Elegir de un menú”</b> con opciones <b>Gasto</b> e <b>Ingreso</b>.</li>
-            <li>Agrega <b>“Obtener contenido de una URL”</b>: pega tu enlace, método <b>POST</b>, cuerpo <b>JSON</b> con los campos <b>token</b>, <b>desc</b>, <b>monto</b> y <b>tipo</b> (usa las entradas anteriores).</li>
-            <li>Agrega <b>“Mostrar resultado”</b> para ver la confirmación.</li>
-            <li>Ponle nombre (ej. <b>Ingreso o gasto</b>) y añádelo al <b>Centro de Control</b>.</li>
+            <li><b>iPhone (Safari):</b> abre tu enlace → toca <b>Compartir</b> (el cuadro con la flecha) → <b>Añadir a pantalla de inicio</b>.</li>
+            <li><b>Android (Chrome):</b> abre tu enlace → menú <b>⋮</b> → <b>Añadir a pantalla de inicio</b>.</li>
+            <li>Aparecerá un <b>ícono</b>. Al tocarlo se abre directo el registro: escribes qué y cuánto, <b>Guardar</b>, y listo.</li>
           </ol>
-          <button class="btn-ghost" id="copyBody">Copiar el JSON de ejemplo</button>
+          <p class="card-sub">Tip: puedes registrar varios seguidos; cada uno aparece al instante en tu panel.</p>
         </div>
       </div>
     </section>
@@ -621,38 +614,36 @@ async function enterApp(){
 }
 
 /* ---------------- REGISTRO RÁPIDO (atajo iPhone) ---------------- */
-const RAPIDO_URL = SUPABASE_URL + "/functions/v1/registro-rapido";
+function linkRapido(token){ return token ? (location.origin + "/rapido/?token=" + encodeURIComponent(token)) : ""; }
 function renderRapido(token){
   $("tokenView").value = token || "";
-  $("endpointView").value = RAPIDO_URL;
-  $("genToken").textContent = token ? "Regenerar" : "Generar";
+  const link = linkRapido(token);
+  $("linkView").value = link;
+  const a=$("openRapido");
+  if(link){ a.href=link; a.style.display="inline-block"; } else { a.style.display="none"; }
 }
 async function loadToken(){
-  const {data} = await sb.from("finanzas_tokens").select("token").eq("user_id",user.id).maybeSingle();
-  renderRapido(data?.token || "");
+  let {data} = await sb.from("finanzas_tokens").select("token").eq("user_id",user.id).maybeSingle();
+  if(!data?.token){ await genToken(true); return; }   // crea la clave automáticamente la primera vez
+  renderRapido(data.token);
 }
-async function genToken(){
-  if($("tokenView").value && !confirm("Al regenerar, tu atajo actual dejará de funcionar hasta que actualices la clave. ¿Continuar?")) return;
+async function genToken(silent){
+  if(!silent && $("tokenView").value && !confirm("Al regenerar, el ícono actual dejará de funcionar hasta que lo vuelvas a agregar con el nuevo enlace. ¿Continuar?")) return;
   const rnd = (crypto.randomUUID?.() || (Date.now()+Math.random().toString(36))).replace(/-/g,"");
   const token = "mf_"+rnd;
   setSync("Guardando…");
   const {error}=await sb.from("finanzas_tokens").upsert({user_id:user.id, token});
-  if(error){ setSync("Error"); alert("No se pudo generar la clave: "+error.message); return; }
+  if(error){ setSync("Error"); if(!silent) alert("No se pudo generar la clave: "+error.message); return; }
   setSync("✓ Sincronizado");
   renderRapido(token);
 }
 function copiar(text,btn){
+  if(!text) return alert("Aún no hay enlace.");
   navigator.clipboard?.writeText(text).then(()=>{ const o=btn.textContent; btn.textContent="¡Copiado!"; setTimeout(()=>btn.textContent=o,1200); })
     .catch(()=>alert("Copia manual:\n\n"+text));
 }
-$("genToken").onclick=genToken;
-$("copyToken").onclick=e=>{ if(!$("tokenView").value) return alert("Primero genera tu clave."); copiar($("tokenView").value,e.target); };
-$("copyUrl").onclick=e=>copiar($("endpointView").value,e.target);
-$("copyBody").onclick=e=>{
-  const tk=$("tokenView").value||"TU_CLAVE";
-  const json=JSON.stringify({token:tk, desc:"cena ayer", monto:"79,9", tipo:"gasto"}, null, 2);
-  copiar(json,e.target);
-};
+$("genToken").onclick=()=>genToken(false);
+$("copyLink").onclick=e=>copiar($("linkView").value,e.target);
 
 /* ---------------- ONBOARDING ---------------- */
 let obPaso=0; let obFijos=[];

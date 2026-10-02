@@ -444,14 +444,15 @@ function descargarCSV(filas,nombre){
  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=nombre;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500);
 }
 function horaLead(l){try{return new Date(l.llegada_at).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});}catch(e){return '';}}
+function fechaBog(ts){try{return new Date(ts).toLocaleDateString('en-CA',{timeZone:'America/Bogota'});}catch(e){return (ts||'').slice(0,10);}} // fecha YYYY-MM-DD en hora Colombia
 function filaLeadCSV(l){const cid=l.contact_id||'';const s=SEGU_MAP[cid]||{};
  const est=l.ftd_at?'FTD':l.registrado_at?'Registrado':'Nuevo';
- return [(l.llegada_at||'').slice(0,10),l.agente||'',l.nombre||'',l.telefono||'',horaLead(l),est,s.llamada1?'Sí':'No',s.llamada2?'Sí':'No',s.whatsapp?'Sí':'No',s.registrado?'Sí':'No',s.observacion||''];}
+ return [fechaBog(l.llegada_at),l.agente||'',l.nombre||'',l.telefono||'',horaLead(l),est,s.llamada1?'Sí':'No',s.llamada2?'Sí':'No',s.whatsapp?'Sí':'No',s.registrado?'Sí':'No',s.observacion||''];}
 const CAB_LEADS_CSV=['Fecha','Agente','Nombre','Teléfono','Hora','Estado','Llamada 1','Llamada 2','Bajado a WhatsApp','Registrado (check)','Observación'];
 function fuenteLeads(){return ROLE==='director'?LEADS_ALL.filter(l=>!excluido(l.agente)):LEADS_DET;}
 function exportarLeadsDia(){
  if(!LEAD_DIA){alert('Selecciona un día primero.');return;}
- const arr=fuenteLeads().filter(l=>(l.llegada_at||'').slice(0,10)===LEAD_DIA);
+ const arr=fuenteLeads().filter(l=>fechaBog(l.llegada_at)===LEAD_DIA);
  if(!arr.length){alert('No hay leads ese día.');return;}
  const quien=ROLE==='director'?'equipo':metaAgente().replace(/\s+/g,'_');
  descargarCSV([CAB_LEADS_CSV,...arr.map(filaLeadCSV)],'leads_'+quien+'_'+LEAD_DIA+'.csv');
@@ -868,12 +869,12 @@ function renderMeta(){
 function renderLeadsHTML(ag){
  if(ROLE==='director') return renderLeadsDirector();
  const byDay={};
- LEADS_DET.forEach(l=>{const f=(l.llegada_at||'').slice(0,10); if(!f)return; (byDay[f]=byDay[f]||[]).push(l);});
+ LEADS_DET.forEach(l=>{const f=fechaBog(l.llegada_at); if(!f)return; (byDay[f]=byDay[f]||[]).push(l);});
  const dias=Object.keys(byDay).sort().reverse();
  if(!dias.length) return `<div class="mcard"><h3>📥 Mis leads</h3><div class="hint">Aún no hay leads en los últimos días.</div></div>`;
  if(!LEAD_DIA||!byDay[LEAD_DIA]) LEAD_DIA=dias[0];
- const d=new Date(); d.setDate(d.getDate()-1); const ayer=d.toISOString().slice(0,10);
- const etiqueta=f=> f===hoyISO()?'Hoy': f===ayer?'Ayer': (f.slice(8)+'/'+f.slice(5,7));
+ const hoyB=fechaBog(new Date()), ayerB=fechaBog(new Date(Date.now()-86400000));
+ const etiqueta=f=> f===hoyB?'Hoy': f===ayerB?'Ayer': (f.slice(8)+'/'+f.slice(5,7));
  const chips=dias.map(f=>`<div class="daychip ${f===LEAD_DIA?'on':''}" data-dia="${f}">${etiqueta(f)}<span class="n">${byDay[f].length}</span></div>`).join('');
  const estado=l=> l.ftd_at?'<span class="pill ftd">FTD</span>': l.registrado_at?'<span class="pill reg">Registrado</span>':'<span class="pill new">Nuevo</span>';
  const hora=l=>{try{return new Date(l.llegada_at).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});}catch(e){return '';}};
@@ -895,19 +896,19 @@ function renderLeadsHTML(ag){
  </div>`;
 }
 function renderLeadsDirector(){
- const dAy=new Date(); dAy.setDate(dAy.getDate()-1); const ayerISO=dAy.toISOString().slice(0,10);
+ const hoyB=fechaBog(new Date()), ayerB=fechaBog(new Date(Date.now()-86400000));
  const byDay={};
- LEADS_ALL.forEach(l=>{const f=(l.llegada_at||'').slice(0,10); if(!f||excluido(l.agente))return; (byDay[f]=byDay[f]||[]).push(l);});
+ LEADS_ALL.forEach(l=>{const f=fechaBog(l.llegada_at); if(!f||excluido(l.agente))return; (byDay[f]=byDay[f]||[]).push(l);});
  const dias=Object.keys(byDay).sort().reverse();
  const cntDia=f=>(byDay[f]||[]).length;
  const hero=`<div class="mcard" style="text-align:center;background:linear-gradient(135deg,rgba(57,176,255,.14),transparent)">
    <div class="ftdday-lb" style="margin-bottom:4px">📥 Leads que llegaron hoy · todo el equipo</div>
-   <div style="font-family:'Space Grotesk';font-weight:800;font-size:72px;line-height:1;color:#39b0ff">${cntDia(hoyISO())}</div>
-   <div class="hint" style="margin-top:6px">Ayer llegaron <b style="color:var(--ink)">${cntDia(ayerISO)}</b> · ${hoyISO()}</div>
+   <div style="font-family:'Space Grotesk';font-weight:800;font-size:72px;line-height:1;color:#39b0ff">${cntDia(hoyB)}</div>
+   <div class="hint" style="margin-top:6px">Ayer llegaron <b style="color:var(--ink)">${cntDia(ayerB)}</b> · ${hoyB}</div>
   </div>`;
  if(!dias.length) return hero+`<div class="mcard"><h3>📥 Leads por día</h3><div class="hint">Aún no hay leads en el rango.</div></div>`;
  if(!LEAD_DIA||!byDay[LEAD_DIA]) LEAD_DIA=dias[0];
- const etiqueta=f=> f===hoyISO()?'Hoy': f===ayerISO?'Ayer': (f.slice(8)+'/'+f.slice(5,7));
+ const etiqueta=f=> f===hoyB?'Hoy': f===ayerB?'Ayer': (f.slice(8)+'/'+f.slice(5,7));
  const chips=dias.map(f=>`<div class="daychip ${f===LEAD_DIA?'on':''}" data-dia="${f}">${etiqueta(f)}<span class="n">${byDay[f].length}</span></div>`).join('');
  const hora=l=>{try{return new Date(l.llegada_at).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});}catch(e){return '';}};
  const estado=l=> l.ftd_at?'<span class="pill ftd">FTD</span>': l.registrado_at?'<span class="pill reg">Registrado</span>':'<span class="pill new">Nuevo</span>';

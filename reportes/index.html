@@ -622,8 +622,13 @@ async function loadLeadsDetalle(){
  const d=new Date(); d.setMonth(d.getMonth()-1); d.setDate(1);
  const desde=d.toISOString().slice(0,10);
  try{
-  const r=await fetch(SUPABASE_URL+'/rest/v1/clientes_lead?llegada_at=gte.'+desde+'&select=contact_id,agente,nombre,telefono,llegada_at,registrado_at,ftd_at&order=llegada_at.desc&limit=5000',{headers:HDRS});
-  const all=await r.json()||[];
+  // Paginado: el servidor limita las filas por respuesta (~1000), así que recorremos todo el rango.
+  let all=[], off=0; const page=1000;
+  for(let i=0;i<40;i++){
+   const r=await fetch(SUPABASE_URL+'/rest/v1/clientes_lead?llegada_at=gte.'+desde+'&select=contact_id,agente,nombre,telefono,llegada_at,registrado_at,ftd_at&order=llegada_at.desc&limit='+page+'&offset='+off,{headers:HDRS});
+   const b=await r.json(); if(!Array.isArray(b)||!b.length) break;
+   all=all.concat(b); if(b.length<page) break; off+=page;
+  }
   LEADS_ALL=all;
   const ag=metaAgente();
   LEADS_DET=all.filter(x=>sameAgent(x.agente,ag));

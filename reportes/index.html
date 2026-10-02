@@ -843,7 +843,7 @@ function renderMeta(){
  } else {
   bodyH = renderLeadsHTML(ag);
  }
- el.innerHTML = selectorD + tabs + bodyH;
+ el.innerHTML = (SUBTAB==='leads'?'':selectorD) + tabs + bodyH;
  document.querySelectorAll('.mtab').forEach(t=>t.onclick=()=>{SUBTAB=t.dataset.sub;renderMeta();});
  const sm=$('mSaveMeta'); if(sm) sm.onclick=guardarMeta;
  const me=$('mEditMeta'); if(me) me.onclick=()=>{META_EDIT=true;renderMeta();};
@@ -896,15 +896,15 @@ function renderLeadsHTML(ag){
 }
 function renderLeadsDirector(){
  const dAy=new Date(); dAy.setDate(dAy.getDate()-1); const ayerISO=dAy.toISOString().slice(0,10);
- const sumDia=f=>METRICAS.filter(x=>x.fecha===f&&!excluido(x.agente)).reduce((s,x)=>s+(+x.leads||0),0);
- const hero=`<div class="mcard" style="text-align:center;background:linear-gradient(135deg,rgba(57,176,255,.14),transparent)">
-   <div class="ftdday-lb" style="margin-bottom:4px">📥 Leads que llegaron hoy · todo el equipo</div>
-   <div style="font-family:'Space Grotesk';font-weight:800;font-size:72px;line-height:1;color:#39b0ff">${sumDia(hoyISO())}</div>
-   <div class="hint" style="margin-top:6px">Ayer llegaron <b style="color:var(--ink)">${sumDia(ayerISO)}</b> · ${hoyISO()}</div>
-  </div>`;
  const byDay={};
  LEADS_ALL.forEach(l=>{const f=(l.llegada_at||'').slice(0,10); if(!f||excluido(l.agente))return; (byDay[f]=byDay[f]||[]).push(l);});
  const dias=Object.keys(byDay).sort().reverse();
+ const cntDia=f=>(byDay[f]||[]).length;
+ const hero=`<div class="mcard" style="text-align:center;background:linear-gradient(135deg,rgba(57,176,255,.14),transparent)">
+   <div class="ftdday-lb" style="margin-bottom:4px">📥 Leads que llegaron hoy · todo el equipo</div>
+   <div style="font-family:'Space Grotesk';font-weight:800;font-size:72px;line-height:1;color:#39b0ff">${cntDia(hoyISO())}</div>
+   <div class="hint" style="margin-top:6px">Ayer llegaron <b style="color:var(--ink)">${cntDia(ayerISO)}</b> · ${hoyISO()}</div>
+  </div>`;
  if(!dias.length) return hero+`<div class="mcard"><h3>📥 Leads por día</h3><div class="hint">Aún no hay leads en el rango.</div></div>`;
  if(!LEAD_DIA||!byDay[LEAD_DIA]) LEAD_DIA=dias[0];
  const etiqueta=f=> f===hoyISO()?'Hoy': f===ayerISO?'Ayer': (f.slice(8)+'/'+f.slice(5,7));

@@ -210,6 +210,20 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
 .ftdbox:hover{border-color:#2fd18d}
 .ftdbox.on{background:rgba(47,209,141,.18);border-color:#2fd18d;color:#2fd18d}
 .ftdbox.extra.on{background:rgba(233,199,102,.2);border-color:#e9c766;color:#e9c766}
+.agbox{border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden;background:var(--paper)}
+.agrow{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;transition:background .12s}
+.agrow:hover{background:rgba(255,255,255,.03)}
+.agrow.on{background:rgba(57,176,255,.1)}
+.agrow .av{width:36px;height:36px;border-radius:50%;background:#15314f;color:#8fd0ff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
+.agrow .nm{font-weight:700;font-size:14.5px}
+.cntbadge{font-size:12.5px;font-weight:800;color:#39b0ff;background:rgba(57,176,255,.14);padding:5px 12px;border-radius:999px;white-space:nowrap}
+.caret{color:var(--mut);font-size:11px;width:14px;text-align:center}
+.agleads{padding:4px 14px 10px;border-top:1px solid var(--line)}
+.chkro{font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--mut);white-space:nowrap}
+.chkro.on{border-color:#2fd18d;background:rgba(47,209,141,.16);color:#2fd18d}
+.obsro{margin:8px 0 0 46px;font-size:13px;color:var(--ink2);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.obsro.vacia{color:var(--mut);font-style:italic}
+@media(max-width:760px){.obsro{margin-left:0}}
 .leadbtns{display:flex;gap:8px;margin:8px 0 0 46px}
 .lbtn{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:800;padding:8px 14px;border-radius:12px;text-decoration:none;cursor:pointer;color:#fff}
 .lbtn.wa{background:linear-gradient(90deg,#1faa53,#25d366)}
@@ -315,6 +329,8 @@ let APORTES=[];      // {agente,fecha,ftd,fact_usd}
 let SUBTAB='meta';   // 'meta' | 'leads'
 let META_EDIT=false; // mostrar el formulario de meta (solo al inicio de mes o al editar)
 let LEADS_DET=[];    // clientes_lead del agente (ultimos dias)
+let LEADS_ALL=[];    // clientes_lead de TODOS los agentes (vista director)
+let LEAD_AG_OPEN=null; // agente expandido en la vista director de leads
 let LEAD_DIA=null;   // fecha seleccionada en la pestaña Leads
 let SEGU_MAP={};     // contact_id -> {llamada1,llamada2,whatsapp,registrado,observacion}
 const GHL_LOC='LyDmZPr3s5ICw2mIFTI5'; // location de GoHighLevel (para deep-links)
@@ -430,18 +446,21 @@ function descargarCSV(filas,nombre){
 function horaLead(l){try{return new Date(l.llegada_at).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});}catch(e){return '';}}
 function filaLeadCSV(l){const cid=l.contact_id||'';const s=SEGU_MAP[cid]||{};
  const est=l.ftd_at?'FTD':l.registrado_at?'Registrado':'Nuevo';
- return [(l.llegada_at||'').slice(0,10),l.nombre||'',l.telefono||'',horaLead(l),est,s.llamada1?'Sí':'No',s.llamada2?'Sí':'No',s.whatsapp?'Sí':'No',s.registrado?'Sí':'No',s.observacion||''];}
-const CAB_LEADS_CSV=['Fecha','Nombre','Teléfono','Hora','Estado','Llamada 1','Llamada 2','Bajado a WhatsApp','Registrado (check)','Observación'];
+ return [(l.llegada_at||'').slice(0,10),l.agente||'',l.nombre||'',l.telefono||'',horaLead(l),est,s.llamada1?'Sí':'No',s.llamada2?'Sí':'No',s.whatsapp?'Sí':'No',s.registrado?'Sí':'No',s.observacion||''];}
+const CAB_LEADS_CSV=['Fecha','Agente','Nombre','Teléfono','Hora','Estado','Llamada 1','Llamada 2','Bajado a WhatsApp','Registrado (check)','Observación'];
+function fuenteLeads(){return ROLE==='director'?LEADS_ALL.filter(l=>!excluido(l.agente)):LEADS_DET;}
 function exportarLeadsDia(){
  if(!LEAD_DIA){alert('Selecciona un día primero.');return;}
- const arr=LEADS_DET.filter(l=>(l.llegada_at||'').slice(0,10)===LEAD_DIA);
+ const arr=fuenteLeads().filter(l=>(l.llegada_at||'').slice(0,10)===LEAD_DIA);
  if(!arr.length){alert('No hay leads ese día.');return;}
- descargarCSV([CAB_LEADS_CSV,...arr.map(filaLeadCSV)],'leads_'+metaAgente().replace(/\s+/g,'_')+'_'+LEAD_DIA+'.csv');
+ const quien=ROLE==='director'?'equipo':metaAgente().replace(/\s+/g,'_');
+ descargarCSV([CAB_LEADS_CSV,...arr.map(filaLeadCSV)],'leads_'+quien+'_'+LEAD_DIA+'.csv');
 }
 function exportarLeadsTodo(){
- const arr=[...LEADS_DET].sort((a,b)=>(b.llegada_at||'').localeCompare(a.llegada_at||''));
+ const arr=[...fuenteLeads()].sort((a,b)=>(b.llegada_at||'').localeCompare(a.llegada_at||''));
  if(!arr.length){alert('No hay leads para exportar.');return;}
- descargarCSV([CAB_LEADS_CSV,...arr.map(filaLeadCSV)],'leads_'+metaAgente().replace(/\s+/g,'_')+'_todos.csv');
+ const quien=ROLE==='director'?'equipo':metaAgente().replace(/\s+/g,'_');
+ descargarCSV([CAB_LEADS_CSV,...arr.map(filaLeadCSV)],'leads_'+quien+'_todos.csv');
 }
 /* ---- Generador de Excel (.xlsx) sin librerías externas ---- */
 const CRCT=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
@@ -604,6 +623,7 @@ async function loadLeadsDetalle(){
  try{
   const r=await fetch(SUPABASE_URL+'/rest/v1/clientes_lead?llegada_at=gte.'+desde+'&select=contact_id,agente,nombre,telefono,llegada_at,registrado_at,ftd_at&order=llegada_at.desc&limit=5000',{headers:HDRS});
   const all=await r.json()||[];
+  LEADS_ALL=all;
   const ag=metaAgente();
   LEADS_DET=all.filter(x=>sameAgent(x.agente,ag));
   await loadSeguimiento();
@@ -835,7 +855,8 @@ function renderMeta(){
  });
  const cd=$('csvDia'); if(cd) cd.onclick=exportarLeadsDia;
  const ct=$('csvTodo'); if(ct) ct.onclick=exportarLeadsTodo;
- document.querySelectorAll('.daychip').forEach(c=>c.onclick=()=>{LEAD_DIA=c.dataset.dia;renderMeta();});
+ document.querySelectorAll('.daychip').forEach(c=>c.onclick=()=>{LEAD_DIA=c.dataset.dia;LEAD_AG_OPEN=null;renderMeta();});
+ document.querySelectorAll('.agrow').forEach(r=>r.onclick=()=>{const a=r.dataset.ag;LEAD_AG_OPEN=(LEAD_AG_OPEN===a)?null:a;renderMeta();});
  document.querySelectorAll('.chk').forEach(ch=>ch.onclick=async()=>{
    const cid=ch.dataset.cid, k=ch.dataset.k; if(!cid)return;
    const nv=!ch.classList.contains('on');
@@ -845,22 +866,11 @@ function renderMeta(){
  document.querySelectorAll('.obsin').forEach(t=>t.onchange=()=>{const cid=t.dataset.cid; if(cid) guardarObs(cid,t.value.trim());});
 }
 function renderLeadsHTML(ag){
+ if(ROLE==='director') return renderLeadsDirector();
  const byDay={};
  LEADS_DET.forEach(l=>{const f=(l.llegada_at||'').slice(0,10); if(!f)return; (byDay[f]=byDay[f]||[]).push(l);});
  const dias=Object.keys(byDay).sort().reverse();
- const dAy=new Date(); dAy.setDate(dAy.getDate()-1); const ayerISO=dAy.toISOString().slice(0,10);
- // número general (solo director): total de leads que llegaron hoy en todo el equipo
- let hero='';
- if(ROLE==='director'){
-  const sumDia=f=>METRICAS.filter(x=>x.fecha===f&&!excluido(x.agente)).reduce((s,x)=>s+(+x.leads||0),0);
-  const totalHoy=sumDia(hoyISO()), totalAyer=sumDia(ayerISO);
-  hero=`<div class="mcard" style="text-align:center;background:linear-gradient(135deg,rgba(57,176,255,.14),transparent)">
-   <div class="ftdday-lb" style="margin-bottom:4px">📥 Leads que llegaron hoy · todo el equipo</div>
-   <div style="font-family:'Space Grotesk';font-weight:800;font-size:72px;line-height:1;color:#39b0ff">${totalHoy}</div>
-   <div class="hint" style="margin-top:6px">Ayer llegaron <b style="color:var(--ink)">${totalAyer}</b> · ${hoyISO()}</div>
-  </div>`;
- }
- if(!dias.length) return hero+`<div class="mcard"><h3>📥 Mis leads</h3><div class="hint">Aún no hay leads en los últimos días.</div></div>`;
+ if(!dias.length) return `<div class="mcard"><h3>📥 Mis leads</h3><div class="hint">Aún no hay leads en los últimos días.</div></div>`;
  if(!LEAD_DIA||!byDay[LEAD_DIA]) LEAD_DIA=dias[0];
  const d=new Date(); d.setDate(d.getDate()-1); const ayer=d.toISOString().slice(0,10);
  const etiqueta=f=> f===hoyISO()?'Hoy': f===ayer?'Ayer': (f.slice(8)+'/'+f.slice(5,7));
@@ -878,10 +888,44 @@ function renderLeadsHTML(ag){
    const v=esc((SEGU_MAP[cid]||{}).observacion||'');
    return `<textarea class="obsin" data-cid="${esc(cid)}" rows="2" placeholder="Observación: ¿qué pasó con el cliente?">${v}</textarea>`;};
  const rows=byDay[LEAD_DIA].map(l=>`<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${checks(l)}${acciones(l)}${obs(l)}</div>`).join('');
- return hero+`<div class="mcard"><h3>📥 Mis leads por día</h3><div class="hint">Toca un día para ver los leads; marca el avance, escribe la observación y abre el chat o la llamada en GoHighLevel.</div>
+ return `<div class="mcard"><h3>📥 Mis leads por día</h3><div class="hint">Toca un día para ver los leads; marca el avance, escribe la observación y abre el chat o la llamada en GoHighLevel.</div>
   <div class="leadbtns" style="margin:0 0 12px"><button class="lbtn call" id="csvDia">⬇️ CSV de este día</button><button class="lbtn" id="csvTodo" style="background:linear-gradient(90deg,#6b7280,#9aa3b2)">⬇️ CSV de todos</button></div>
   <div class="daychips">${chips}</div>
   <div><div style="color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${etiqueta(LEAD_DIA)} · ${byDay[LEAD_DIA].length} leads</div>${rows}</div>
+ </div>`;
+}
+function renderLeadsDirector(){
+ const dAy=new Date(); dAy.setDate(dAy.getDate()-1); const ayerISO=dAy.toISOString().slice(0,10);
+ const sumDia=f=>METRICAS.filter(x=>x.fecha===f&&!excluido(x.agente)).reduce((s,x)=>s+(+x.leads||0),0);
+ const hero=`<div class="mcard" style="text-align:center;background:linear-gradient(135deg,rgba(57,176,255,.14),transparent)">
+   <div class="ftdday-lb" style="margin-bottom:4px">📥 Leads que llegaron hoy · todo el equipo</div>
+   <div style="font-family:'Space Grotesk';font-weight:800;font-size:72px;line-height:1;color:#39b0ff">${sumDia(hoyISO())}</div>
+   <div class="hint" style="margin-top:6px">Ayer llegaron <b style="color:var(--ink)">${sumDia(ayerISO)}</b> · ${hoyISO()}</div>
+  </div>`;
+ const byDay={};
+ LEADS_ALL.forEach(l=>{const f=(l.llegada_at||'').slice(0,10); if(!f||excluido(l.agente))return; (byDay[f]=byDay[f]||[]).push(l);});
+ const dias=Object.keys(byDay).sort().reverse();
+ if(!dias.length) return hero+`<div class="mcard"><h3>📥 Leads por día</h3><div class="hint">Aún no hay leads en el rango.</div></div>`;
+ if(!LEAD_DIA||!byDay[LEAD_DIA]) LEAD_DIA=dias[0];
+ const etiqueta=f=> f===hoyISO()?'Hoy': f===ayerISO?'Ayer': (f.slice(8)+'/'+f.slice(5,7));
+ const chips=dias.map(f=>`<div class="daychip ${f===LEAD_DIA?'on':''}" data-dia="${f}">${etiqueta(f)}<span class="n">${byDay[f].length}</span></div>`).join('');
+ const hora=l=>{try{return new Date(l.llegada_at).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});}catch(e){return '';}};
+ const estado=l=> l.ftd_at?'<span class="pill ftd">FTD</span>': l.registrado_at?'<span class="pill reg">Registrado</span>':'<span class="pill new">Nuevo</span>';
+ const CAMPOS=[['llamada1','Llamada 1'],['llamada2','Llamada 2'],['whatsapp','Bajado a WhatsApp'],['registrado','Registrado']];
+ const leadRO=l=>{const cid=l.contact_id||''; const s=SEGU_MAP[cid]||{};
+   const chks=`<div class="chks">${CAMPOS.map(([k,lbl])=>`<span class="chkro ${s[k]?'on':''}">${s[k]?'✔ ':''}${lbl}</span>`).join('')}</div>`;
+   const obsv=s.observacion?`<div class="obsro">📝 ${esc(s.observacion)}</div>`:'<div class="obsro vacia">Sin observación</div>';
+   return `<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${chks}${obsv}</div>`;};
+ const leadsDia=byDay[LEAD_DIA];
+ const porAg={}; leadsDia.forEach(l=>{const a=l.agente||'(sin asignar)'; (porAg[a]=porAg[a]||[]).push(l);});
+ const agentes=Object.keys(porAg).sort((a,b)=>porAg[b].length-porAg[a].length);
+ const filas=agentes.map(a=>{const open=LEAD_AG_OPEN===a; const lst=porAg[a];
+   return `<div class="agbox"><div class="agrow ${open?'on':''}" data-ag="${esc(a)}"><div class="av">${initials(a)}</div><div style="flex:1;min-width:0"><div class="nm">${esc(a)}</div></div><span class="cntbadge">${lst.length} lead${lst.length!==1?'s':''}</span><span class="caret">${open?'▲':'▼'}</span></div>${open?`<div class="agleads">${lst.map(leadRO).join('')}</div>`:''}</div>`;}).join('');
+ return hero+`<div class="mcard"><h3>📥 Leads por día · por agente</h3><div class="hint">Elige un día y mira cuántos leads le llegaron a cada agente. Toca un agente para ver sus leads (solo lectura).</div>
+  <div class="leadbtns" style="margin:0 0 12px"><button class="lbtn call" id="csvDia">⬇️ CSV de este día</button><button class="lbtn" id="csvTodo" style="background:linear-gradient(90deg,#6b7280,#9aa3b2)">⬇️ CSV de todos</button></div>
+  <div class="daychips">${chips}</div>
+  <div style="color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin:4px 0 10px">${etiqueta(LEAD_DIA)} · ${leadsDia.length} leads · ${agentes.length} agentes</div>
+  ${filas}
  </div>`;
 }
 

@@ -180,7 +180,7 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
 .mcard .hint{color:var(--mut);font-size:12.5px;margin-bottom:16px}
 .race{position:relative;height:70px;margin:10px 0 6px;border-radius:999px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0 28px,transparent 28px 56px),var(--paper);border:1px solid var(--line);overflow:hidden}
 .race .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,rgba(47,209,141,.25),rgba(47,209,141,.55));transition:width 1s cubic-bezier(.3,1,.4,1)}
-.race .runner{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:34px;transition:left 1s cubic-bezier(.3,1,.4,1);filter:drop-shadow(0 3px 6px rgba(0,0,0,.5));z-index:2}
+.race .runner{position:absolute;top:50%;transform:translate(-50%,-50%) scaleX(-1);font-size:34px;transition:left 1s cubic-bezier(.3,1,.4,1);filter:drop-shadow(0 3px 6px rgba(0,0,0,.5));z-index:2}
 .race .flag{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:30px;opacity:.9}
 .race .you{position:absolute;top:8px;transform:translateX(-50%);font-size:11px;font-weight:800;color:#fff;background:#1e6fd6;padding:2px 9px;border-radius:999px;white-space:nowrap;transition:left 1s cubic-bezier(.3,1,.4,1);z-index:3}
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
@@ -197,6 +197,13 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
 .daychip{padding:9px 15px;border-radius:12px;border:1px solid var(--line);background:var(--white);color:var(--ink2);font-weight:700;font-size:13px;cursor:pointer;text-align:center;min-width:90px}
 .daychip .n{display:block;font-family:'Space Grotesk';font-size:19px;color:var(--ink);margin-top:2px}
 .daychip.on{border-color:#39b0ff;background:linear-gradient(180deg,rgba(57,176,255,.14),transparent)}
+.leaditem{border-top:1px solid var(--line);padding:4px 0 10px}
+.leaditem .leadrow{border-top:0}
+.chks{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 0 46px}
+.chk{font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--mut);cursor:pointer;user-select:none;white-space:nowrap;transition:all .12s}
+.chk:hover{border-color:#39b0ff}
+.chk.on{border-color:#2fd18d;background:rgba(47,209,141,.16);color:#2fd18d}
+@media(max-width:760px){.chks{margin-left:0}}
 .leadrow{display:flex;align-items:center;gap:12px;padding:12px 4px;border-top:1px solid var(--line)}
 .leadrow .av{width:34px;height:34px;border-radius:50%;background:#15314f;color:#8fd0ff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
 .leadrow .nm{font-weight:700;font-size:14px}
@@ -293,6 +300,7 @@ let APORTES=[];      // {agente,fecha,ftd,fact_usd}
 let SUBTAB='meta';   // 'meta' | 'leads'
 let LEADS_DET=[];    // clientes_lead del agente (ultimos dias)
 let LEAD_DIA=null;   // fecha seleccionada en la pestaña Leads
+let SEGU_MAP={};     // contact_id -> {llamada1,llamada2,whatsapp,registrado}
 function mesActual(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
 function hoyISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function diasDelMes(){const d=new Date();return new Date(d.getFullYear(),d.getMonth()+1,0).getDate();}
@@ -547,11 +555,24 @@ async function loadLeadsDetalle(){
  const d=new Date(); d.setDate(d.getDate()-14);
  const desde=d.toISOString().slice(0,10);
  try{
-  const r=await fetch(SUPABASE_URL+'/rest/v1/clientes_lead?llegada_at=gte.'+desde+'&select=agente,nombre,telefono,llegada_at,registrado_at,ftd_at&order=llegada_at.desc&limit=5000',{headers:HDRS});
+  const r=await fetch(SUPABASE_URL+'/rest/v1/clientes_lead?llegada_at=gte.'+desde+'&select=contact_id,agente,nombre,telefono,llegada_at,registrado_at,ftd_at&order=llegada_at.desc&limit=5000',{headers:HDRS});
   const all=await r.json()||[];
   const ag=metaAgente();
   LEADS_DET=all.filter(x=>sameAgent(x.agente,ag));
+  await loadSeguimiento();
  }catch(e){ LEADS_DET=[]; }
+}
+async function loadSeguimiento(){
+ try{
+  const r=await fetch(SUPABASE_URL+'/rest/v1/lead_seguimiento?select=contact_id,llamada1,llamada2,whatsapp,registrado&limit=10000',{headers:HDRS});
+  const b=await r.json()||[]; SEGU_MAP={};
+  if(Array.isArray(b)) b.forEach(x=>{SEGU_MAP[x.contact_id]=x;});
+ }catch(e){ SEGU_MAP={}; }
+}
+async function toggleSegu(cid,campo,val){
+ const cur=SEGU_MAP[cid]||{contact_id:cid}; cur[campo]=val; SEGU_MAP[cid]=cur;
+ const body={contact_id:cid,agente:metaAgente(),llamada1:!!cur.llamada1,llamada2:!!cur.llamada2,whatsapp:!!cur.whatsapp,registrado:!!cur.registrado,updated_at:new Date().toISOString()};
+ try{await fetch(SUPABASE_URL+'/rest/v1/lead_seguimiento?on_conflict=contact_id',{method:'POST',headers:{...WHDR,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});}catch(e){}
 }
 async function guardarMeta(){
  const ag=metaAgente(), mes=mesActual();
@@ -737,6 +758,12 @@ function renderMeta(){
  const sh=$('mSaveHoy'); if(sh) sh.onclick=guardarAporteHoy;
  const sel=$('mAgSel'); if(sel) sel.onchange=async()=>{META_AG=sel.value;LEAD_DIA=null;await Promise.all([loadMeta(),loadAportes(),loadLeadsDetalle()]);renderMeta();};
  document.querySelectorAll('.daychip').forEach(c=>c.onclick=()=>{LEAD_DIA=c.dataset.dia;renderMeta();});
+ document.querySelectorAll('.chk').forEach(ch=>ch.onclick=async()=>{
+   const cid=ch.dataset.cid, k=ch.dataset.k; if(!cid)return;
+   const nv=!ch.classList.contains('on');
+   ch.classList.toggle('on',nv); ch.innerHTML=(nv?'✔ ':'')+ch.dataset.lbl;
+   await toggleSegu(cid,k,nv);
+ });
 }
 function renderLeadsHTML(ag){
  const byDay={};
@@ -749,8 +776,11 @@ function renderLeadsHTML(ag){
  const chips=dias.map(f=>`<div class="daychip ${f===LEAD_DIA?'on':''}" data-dia="${f}">${etiqueta(f)}<span class="n">${byDay[f].length}</span></div>`).join('');
  const estado=l=> l.ftd_at?'<span class="pill ftd">FTD</span>': l.registrado_at?'<span class="pill reg">Registrado</span>':'<span class="pill new">Nuevo</span>';
  const hora=l=>{try{return new Date(l.llegada_at).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});}catch(e){return '';}};
- const rows=byDay[LEAD_DIA].map(l=>`<div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>`).join('');
- return `<div class="mcard"><h3>📥 Mis leads por día</h3><div class="hint">Toca un día para ver los leads que llegaron (desde GoHighLevel).</div>
+ const CAMPOS=[['llamada1','Llamada 1'],['llamada2','Llamada 2'],['whatsapp','Bajado a WhatsApp'],['registrado','Registrado']];
+ const checks=l=>{const cid=l.contact_id||''; const s=SEGU_MAP[cid]||{};
+   return `<div class="chks">${CAMPOS.map(([k,lbl])=>`<span class="chk ${s[k]?'on':''}" data-cid="${esc(cid)}" data-k="${k}" data-lbl="${lbl}">${s[k]?'✔ ':''}${lbl}</span>`).join('')}</div>`;};
+ const rows=byDay[LEAD_DIA].map(l=>`<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${checks(l)}</div>`).join('');
+ return `<div class="mcard"><h3>📥 Mis leads por día</h3><div class="hint">Toca un día para ver los leads; marca el avance de cada uno (Llamada 1/2, WhatsApp, Registrado).</div>
   <div class="daychips">${chips}</div>
   <div><div style="color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${etiqueta(LEAD_DIA)} · ${byDay[LEAD_DIA].length} leads</div>${rows}</div>
  </div>`;

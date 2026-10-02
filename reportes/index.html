@@ -203,7 +203,14 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
 .chk{font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--mut);cursor:pointer;user-select:none;white-space:nowrap;transition:all .12s}
 .chk:hover{border-color:#39b0ff}
 .chk.on{border-color:#2fd18d;background:rgba(47,209,141,.16);color:#2fd18d}
-@media(max-width:760px){.chks{margin-left:0}}
+.leadbtns{display:flex;gap:8px;margin:8px 0 0 46px}
+.lbtn{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:800;padding:8px 14px;border-radius:12px;text-decoration:none;cursor:pointer;color:#fff}
+.lbtn.wa{background:linear-gradient(90deg,#1faa53,#25d366)}
+.lbtn.call{background:linear-gradient(90deg,#1e6fd6,#39b0ff)}
+.lbtn:active{transform:scale(.97)}
+.obsin{display:block;width:calc(100% - 46px);margin:8px 0 2px 46px;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink);font-family:'Inter';font-size:13.5px;resize:vertical}
+.obsin:focus{outline:none;border-color:#39b0ff}
+@media(max-width:760px){.chks,.leadbtns{margin-left:0}.obsin{width:100%;margin-left:0}}
 .leadrow{display:flex;align-items:center;gap:12px;padding:12px 4px;border-top:1px solid var(--line)}
 .leadrow .av{width:34px;height:34px;border-radius:50%;background:#15314f;color:#8fd0ff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
 .leadrow .nm{font-weight:700;font-size:14px}
@@ -300,7 +307,8 @@ let APORTES=[];      // {agente,fecha,ftd,fact_usd}
 let SUBTAB='meta';   // 'meta' | 'leads'
 let LEADS_DET=[];    // clientes_lead del agente (ultimos dias)
 let LEAD_DIA=null;   // fecha seleccionada en la pestaña Leads
-let SEGU_MAP={};     // contact_id -> {llamada1,llamada2,whatsapp,registrado}
+let SEGU_MAP={};     // contact_id -> {llamada1,llamada2,whatsapp,registrado,observacion}
+const GHL_LOC='LyDmZPr3s5ICw2mIFTI5'; // location de GoHighLevel (para deep-links)
 function mesActual(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
 function hoyISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function diasDelMes(){const d=new Date();return new Date(d.getFullYear(),d.getMonth()+1,0).getDate();}
@@ -564,15 +572,19 @@ async function loadLeadsDetalle(){
 }
 async function loadSeguimiento(){
  try{
-  const r=await fetch(SUPABASE_URL+'/rest/v1/lead_seguimiento?select=contact_id,llamada1,llamada2,whatsapp,registrado&limit=10000',{headers:HDRS});
+  const r=await fetch(SUPABASE_URL+'/rest/v1/lead_seguimiento?select=contact_id,llamada1,llamada2,whatsapp,registrado,observacion&limit=10000',{headers:HDRS});
   const b=await r.json()||[]; SEGU_MAP={};
   if(Array.isArray(b)) b.forEach(x=>{SEGU_MAP[x.contact_id]=x;});
  }catch(e){ SEGU_MAP={}; }
 }
+function seguBody(cur){return {contact_id:cur.contact_id,agente:metaAgente(),llamada1:!!cur.llamada1,llamada2:!!cur.llamada2,whatsapp:!!cur.whatsapp,registrado:!!cur.registrado,observacion:cur.observacion||null,updated_at:new Date().toISOString()};}
 async function toggleSegu(cid,campo,val){
  const cur=SEGU_MAP[cid]||{contact_id:cid}; cur[campo]=val; SEGU_MAP[cid]=cur;
- const body={contact_id:cid,agente:metaAgente(),llamada1:!!cur.llamada1,llamada2:!!cur.llamada2,whatsapp:!!cur.whatsapp,registrado:!!cur.registrado,updated_at:new Date().toISOString()};
- try{await fetch(SUPABASE_URL+'/rest/v1/lead_seguimiento?on_conflict=contact_id',{method:'POST',headers:{...WHDR,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});}catch(e){}
+ try{await fetch(SUPABASE_URL+'/rest/v1/lead_seguimiento?on_conflict=contact_id',{method:'POST',headers:{...WHDR,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(seguBody(cur))});}catch(e){}
+}
+async function guardarObs(cid,txt){
+ const cur=SEGU_MAP[cid]||{contact_id:cid}; cur.observacion=txt; SEGU_MAP[cid]=cur;
+ try{await fetch(SUPABASE_URL+'/rest/v1/lead_seguimiento?on_conflict=contact_id',{method:'POST',headers:{...WHDR,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(seguBody(cur))});}catch(e){}
 }
 async function guardarMeta(){
  const ag=metaAgente(), mes=mesActual();
@@ -680,7 +692,7 @@ async function startApp(){
  Promise.all([loadMeta().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{})]).then(()=>renderMeta());
  await loadMetricas().catch(()=>{METRICAS=[];});renderMeta();
  // refresco de Mi Meta cada 60s: leads nuevos + aportes (sin pisar lo que se esté escribiendo)
- setInterval(async()=>{if(PAGE==='meta'){const editing=document.activeElement&&['mHoyFtd','mHoyFact','mMetaFtd','mMetaDia','mMetaFact'].includes(document.activeElement.id);if(editing)return;await Promise.all([loadMetricas().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{})]);renderMeta();}},60000);
+ setInterval(async()=>{if(PAGE==='meta'){const ae=document.activeElement;const editing=ae&&(['mHoyFtd','mHoyFact','mMetaFtd','mMetaDia','mMetaFact'].includes(ae.id)||(ae.classList&&ae.classList.contains('obsin')));if(editing)return;await Promise.all([loadMetricas().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{})]);renderMeta();}},60000);
 }
 function showView(v){
  PAGE=v;
@@ -764,6 +776,7 @@ function renderMeta(){
    ch.classList.toggle('on',nv); ch.innerHTML=(nv?'✔ ':'')+ch.dataset.lbl;
    await toggleSegu(cid,k,nv);
  });
+ document.querySelectorAll('.obsin').forEach(t=>t.onchange=()=>{const cid=t.dataset.cid; if(cid) guardarObs(cid,t.value.trim());});
 }
 function renderLeadsHTML(ag){
  const byDay={};
@@ -779,8 +792,15 @@ function renderLeadsHTML(ag){
  const CAMPOS=[['llamada1','Llamada 1'],['llamada2','Llamada 2'],['whatsapp','Bajado a WhatsApp'],['registrado','Registrado']];
  const checks=l=>{const cid=l.contact_id||''; const s=SEGU_MAP[cid]||{};
    return `<div class="chks">${CAMPOS.map(([k,lbl])=>`<span class="chk ${s[k]?'on':''}" data-cid="${esc(cid)}" data-k="${k}" data-lbl="${lbl}">${s[k]?'✔ ':''}${lbl}</span>`).join('')}</div>`;};
- const rows=byDay[LEAD_DIA].map(l=>`<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${checks(l)}</div>`).join('');
- return `<div class="mcard"><h3>📥 Mis leads por día</h3><div class="hint">Toca un día para ver los leads; marca el avance de cada uno (Llamada 1/2, WhatsApp, Registrado).</div>
+ const acciones=l=>{const cid=l.contact_id||''; if(!cid) return '';
+   const wa='https://app.gohighlevel.com/v2/location/'+GHL_LOC+'/conversations/conversations/'+encodeURIComponent(cid);
+   const call='https://app.gohighlevel.com/v2/location/'+GHL_LOC+'/contacts/detail/'+encodeURIComponent(cid);
+   return `<div class="leadbtns"><a class="lbtn wa" href="${wa}" target="_blank" rel="noopener">💬 WhatsApp</a><a class="lbtn call" href="${call}" target="_blank" rel="noopener">📞 Llamar</a></div>`;};
+ const obs=l=>{const cid=l.contact_id||''; if(!cid) return '';
+   const v=esc((SEGU_MAP[cid]||{}).observacion||'');
+   return `<textarea class="obsin" data-cid="${esc(cid)}" rows="2" placeholder="Observación: ¿qué pasó con el cliente?">${v}</textarea>`;};
+ const rows=byDay[LEAD_DIA].map(l=>`<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${checks(l)}${acciones(l)}${obs(l)}</div>`).join('');
+ return `<div class="mcard"><h3>📥 Mis leads por día</h3><div class="hint">Toca un día para ver los leads; marca el avance, escribe la observación y abre el chat o la llamada en GoHighLevel.</div>
   <div class="daychips">${chips}</div>
   <div><div style="color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${etiqueta(LEAD_DIA)} · ${byDay[LEAD_DIA].length} leads</div>${rows}</div>
  </div>`;

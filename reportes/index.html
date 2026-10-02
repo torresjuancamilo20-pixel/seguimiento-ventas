@@ -171,6 +171,41 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
  tbody td.ag .av-sm{width:34px;height:34px;font-size:12px}
  .barwrap{width:60px}
 }
+/* ---- Mi Meta (rediseño) ---- */
+.mtabs{display:flex;gap:8px;margin-bottom:22px}
+.mtab{display:flex;align-items:center;gap:8px;padding:11px 20px;border-radius:999px;border:1px solid var(--line);background:var(--white);color:var(--ink2);font-weight:700;font-size:14px;cursor:pointer;transition:.15s}
+.mtab.on{background:linear-gradient(90deg,#1e6fd6,#39b0ff);color:#fff;border-color:transparent;box-shadow:0 6px 18px rgba(44,130,230,.35)}
+.mcard{background:linear-gradient(180deg,rgba(57,176,255,.05),transparent),var(--white);border:1px solid var(--line);border-radius:20px;padding:22px 24px;margin-bottom:16px}
+.mcard h3{font-family:'Space Grotesk';font-size:15px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.mcard .hint{color:var(--mut);font-size:12.5px;margin-bottom:16px}
+.race{position:relative;height:70px;margin:10px 0 6px;border-radius:999px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0 28px,transparent 28px 56px),var(--paper);border:1px solid var(--line);overflow:hidden}
+.race .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,rgba(47,209,141,.25),rgba(47,209,141,.55));transition:width 1s cubic-bezier(.3,1,.4,1)}
+.race .runner{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:34px;transition:left 1s cubic-bezier(.3,1,.4,1);filter:drop-shadow(0 3px 6px rgba(0,0,0,.5));z-index:2}
+.race .flag{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:30px;opacity:.9}
+.race .you{position:absolute;top:8px;transform:translateX(-50%);font-size:11px;font-weight:800;color:#fff;background:#1e6fd6;padding:2px 9px;border-radius:999px;white-space:nowrap;transition:left 1s cubic-bezier(.3,1,.4,1);z-index:3}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mgrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.stat .k{color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.stat .v{font-family:'Space Grotesk';font-size:30px;font-weight:700;margin-top:4px}
+.mbar{height:12px;border-radius:9px;background:var(--paper);border:1px solid var(--line);overflow:hidden;margin:10px 0}
+.mbar>i{display:block;height:100%;border-radius:9px}
+.minp{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink);font-family:'Inter';font-size:15px}
+.mbtn{background:linear-gradient(90deg,#1e6fd6,#39b0ff);color:#fff;border:0;border-radius:12px;padding:12px 20px;font-weight:700;font-size:14px;cursor:pointer;margin-top:14px}
+.mbtn.gold{background:linear-gradient(90deg,#c08a2e,#e9c766)}
+.daychips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.daychip{padding:9px 15px;border-radius:12px;border:1px solid var(--line);background:var(--white);color:var(--ink2);font-weight:700;font-size:13px;cursor:pointer;text-align:center;min-width:90px}
+.daychip .n{display:block;font-family:'Space Grotesk';font-size:19px;color:var(--ink);margin-top:2px}
+.daychip.on{border-color:#39b0ff;background:linear-gradient(180deg,rgba(57,176,255,.14),transparent)}
+.leadrow{display:flex;align-items:center;gap:12px;padding:12px 4px;border-top:1px solid var(--line)}
+.leadrow .av{width:34px;height:34px;border-radius:50%;background:#15314f;color:#8fd0ff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
+.leadrow .nm{font-weight:700;font-size:14px}
+.leadrow .ph{color:var(--mut);font-size:12.5px}
+.pill{font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;margin-left:auto;white-space:nowrap}
+.pill.ftd{background:rgba(47,209,141,.16);color:#2fd18d}
+.pill.reg{background:rgba(57,176,255,.16);color:#66d0ff}
+.pill.new{background:rgba(255,255,255,.06);color:var(--mut)}
+@media(max-width:760px){.mgrid,.mgrid3{grid-template-columns:1fr}}
 </style></head><body>
 
 <!-- LOGIN -->
@@ -255,6 +290,9 @@ let METRICAS=[];     // {fecha,agente,leads,registros,ftd}
 let META_AG=null;    // agente seleccionado en la vista Mi Meta (director)
 let META_ROW=null;   // {agente,mes,meta_ftd,meta_diaria_ftd,meta_fact_usd}
 let APORTES=[];      // {agente,fecha,ftd,fact_usd}
+let SUBTAB='meta';   // 'meta' | 'leads'
+let LEADS_DET=[];    // clientes_lead del agente (ultimos dias)
+let LEAD_DIA=null;   // fecha seleccionada en la pestaña Leads
 function mesActual(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
 function hoyISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function diasDelMes(){const d=new Date();return new Date(d.getFullYear(),d.getMonth()+1,0).getDate();}
@@ -504,6 +542,17 @@ async function loadAportes(){
   APORTES=await r.json()||[];
  }catch(e){ APORTES=[]; }
 }
+async function loadLeadsDetalle(){
+ // Leads individuales del agente (ultimos 14 dias). Se filtra por fecha en el server y por agente en el cliente.
+ const d=new Date(); d.setDate(d.getDate()-14);
+ const desde=d.toISOString().slice(0,10);
+ try{
+  const r=await fetch(SUPABASE_URL+'/rest/v1/clientes_lead?llegada_at=gte.'+desde+'&select=agente,nombre,telefono,llegada_at,registrado_at,ftd_at&order=llegada_at.desc&limit=5000',{headers:HDRS});
+  const all=await r.json()||[];
+  const ag=metaAgente();
+  LEADS_DET=all.filter(x=>sameAgent(x.agente,ag));
+ }catch(e){ LEADS_DET=[]; }
+}
 async function guardarMeta(){
  const ag=metaAgente(), mes=mesActual();
  const body={agente:ag,mes,meta_ftd:parseInt($('mMetaFtd').value||'0',10)||0,meta_diaria_ftd:parseInt($('mMetaDia').value||'0',10)||0,meta_fact_usd:parseFloat($('mMetaFact').value||'0')||0,updated_at:new Date().toISOString()};
@@ -607,10 +656,10 @@ async function startApp(){
  document.querySelectorAll('.nav-item').forEach(n=>n.onclick=()=>showView(n.dataset.view));
  showView('meta');
  await loadAgentes().catch(()=>{});
- Promise.all([loadMeta().catch(()=>{}),loadAportes().catch(()=>{})]).then(()=>renderMeta());
+ Promise.all([loadMeta().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{})]).then(()=>renderMeta());
  await loadMetricas().catch(()=>{METRICAS=[];});renderMeta();
  // refresco de Mi Meta cada 60s: leads nuevos + aportes (sin pisar lo que se esté escribiendo)
- setInterval(async()=>{if(PAGE==='meta'){const editing=document.activeElement&&['mHoyFtd','mHoyFact','mMetaFtd','mMetaDia','mMetaFact'].includes(document.activeElement.id);if(editing)return;await Promise.all([loadMetricas().catch(()=>{}),loadAportes().catch(()=>{})]);renderMeta();}},60000);
+ setInterval(async()=>{if(PAGE==='meta'){const editing=document.activeElement&&['mHoyFtd','mHoyFact','mMetaFtd','mMetaDia','mMetaFact'].includes(document.activeElement.id);if(editing)return;await Promise.all([loadMetricas().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{})]);renderMeta();}},60000);
 }
 function showView(v){
  PAGE=v;
@@ -643,55 +692,73 @@ function renderMeta(){
  for(let d=1; d<=hoy.getDate(); d++){const f=y+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'); ordenAsc.push(f);}
  ordenAsc.forEach(f=>{const a=apById[f]; const v=a?(+a.ftd||0):0; acum+=v; hist.push({f,v,acum,fa:a?(+a.fact_usd||0):0});});
  hist.reverse();
- const selector = ROLE==='director' ? `<div style="margin-bottom:14px"><label class="fl">Agente</label><select class="inp" id="mAgSel" style="max-width:320px">${AGENTES.filter(a=>!excluido(a.nombre)).sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(a=>`<option ${a.nombre===ag?'selected':''}>${esc(a.nombre)}</option>`).join('')}</select></div>` : '';
- const col='var(--white)';
- el.innerHTML = selector + `
- <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-  <div style="background:${col};border:1px solid var(--line);border-radius:16px;padding:20px">
-   <div style="font-weight:700;margin-bottom:12px">🎯 Mi meta del mes</div>
-   <label class="fl">Meta de FTD (mes)</label><input class="inp" id="mMetaFtd" type="number" min="0" value="${metaFtd}">
-   <label class="fl">Meta diaria de FTD</label><input class="inp" id="mMetaDia" type="number" min="0" value="${metaDia}">
-   <label class="fl">Meta de facturación (USD, mes)</label><input class="inp" id="mMetaFact" type="number" min="0" value="${metaFact}">
-   <button class="btn" id="mSaveMeta" style="margin-top:12px">Guardar meta</button>
+ const selectorD = ROLE==='director' ? `<div style="margin-bottom:16px"><label class="fl">Agente</label><select class="minp" id="mAgSel" style="max-width:340px">${AGENTES.filter(a=>!excluido(a.nombre)).sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(a=>`<option ${a.nombre===ag?'selected':''}>${esc(a.nombre)}</option>`).join('')}</select></div>` : '';
+ const tabs = `<div class="mtabs"><div class="mtab ${SUBTAB==='meta'?'on':''}" data-sub="meta">🎯 Mi Meta</div><div class="mtab ${SUBTAB==='leads'?'on':''}" data-sub="leads">📥 Mis Leads</div></div>`;
+ let bodyH='';
+ if(SUBTAB!=='leads'){
+  const pos=Math.max(4,Math.min(96,pctFtd||0));
+  const nombre=esc((ag||'Tú').split(' ')[0]||'Tú');
+  bodyH = `
+  <div class="mcard">
+   <h3>🏁 Mi carrera hacia la meta</h3>
+   <div class="hint">${ftdAcum} de ${metaFtd} FTD · vas en el ${Math.round(pctFtd)}% del camino</div>
+   <div class="race">
+    <div class="fill" style="width:${pos}%"></div>
+    <div class="you" style="left:${pos}%">${nombre} · ${ftdAcum}</div>
+    <div class="runner" style="left:${pos}%">🏃</div>
+    <div class="flag">🏁</div>
+   </div>
+   <div class="hint" style="margin-top:14px">Faltan <b style="color:var(--ink)">${faltaFtd}</b> FTD · quedan <b style="color:var(--ink)">${dRest}</b> días · ritmo requerido <b style="color:var(--ink)">${ritmo.toFixed(1)}</b>/día${metaDia?` · meta diaria ${metaDia}`:''}</div>
   </div>
-  <div style="background:${col};border:1px solid var(--line);border-radius:16px;padding:20px">
-   <div style="font-weight:700;margin-bottom:12px">✍️ Registrar hoy (${hoyISO()})</div>
-   <label class="fl">FTD que hice hoy</label><input class="inp" id="mHoyFtd" type="number" min="0" value="${apById[hoyISO()]?(+apById[hoyISO()].ftd||0):''}" placeholder="0">
-   <label class="fl">Facturación de hoy (USD)</label><input class="inp" id="mHoyFact" type="number" min="0" value="${apById[hoyISO()]?(+apById[hoyISO()].fact_usd||0):''}" placeholder="0">
-   <button class="btn" id="mSaveHoy" style="margin-top:12px">Guardar día</button>
+  <div class="mgrid3">
+   <div class="stat"><div class="k">FTD acumulados</div><div class="v" style="color:#2fd18d">${ftdAcum}<span style="font-size:16px;color:var(--mut)"> / ${metaFtd}</span></div><div class="mbar"><i style="width:${Math.min(100,Math.round(pctFtd))}%;background:linear-gradient(90deg,#2fb183,#2fd18d)"></i></div></div>
+   <div class="stat"><div class="k">Facturación (USD)</div><div class="v" style="color:#e9c766">$${factAcum.toLocaleString('en-US')}<span style="font-size:15px;color:var(--mut)"> / $${metaFact.toLocaleString('en-US')}</span></div><div class="mbar"><i style="width:${Math.min(100,Math.round(pctFact))}%;background:linear-gradient(90deg,#c08a2e,#e9c766)"></i></div></div>
+   <div class="stat"><div class="k">Ritmo requerido</div><div class="v">${ritmo.toFixed(1)}<span style="font-size:15px;color:var(--mut)"> FTD/día</span></div><div class="hint" style="margin-top:8px">${dRest} días restantes · faltan ${faltaFtd}</div></div>
   </div>
- </div>
- <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
-  <div style="background:${col};border:1px solid var(--line);border-radius:16px;padding:20px">
-   <div style="font-weight:700;margin-bottom:6px">FTD · avance del mes</div>
-   <div style="font-family:'Space Grotesk';font-size:34px;font-weight:700">${ftdAcum} <span style="color:var(--mut);font-size:20px">/ ${metaFtd}</span></div>
-   <div style="margin:10px 0">${barHTML(pctFtd,'#2fb183')}</div>
-   <div style="color:var(--mut);font-size:13px">${Math.round(pctFtd)}% · faltan <b>${faltaFtd}</b> · quedan <b>${dRest}</b> días · ritmo requerido <b>${ritmo.toFixed(1)}</b> FTD/día${metaDia?` · meta diaria <b>${metaDia}</b>`:''}</div>
+  <div class="mgrid">
+   <div class="mcard"><h3>🎯 Mi meta del mes</h3>
+    <label class="fl">Meta de FTD (mes)</label><input class="minp" id="mMetaFtd" type="number" min="0" value="${metaFtd}">
+    <label class="fl">Meta diaria de FTD</label><input class="minp" id="mMetaDia" type="number" min="0" value="${metaDia}">
+    <label class="fl">Meta de facturación (USD)</label><input class="minp" id="mMetaFact" type="number" min="0" value="${metaFact}">
+    <button class="mbtn" id="mSaveMeta">Guardar meta</button>
+   </div>
+   <div class="mcard"><h3>✍️ Registrar hoy</h3><div class="hint">${hoyISO()}</div>
+    <label class="fl">FTD que hice hoy</label><input class="minp" id="mHoyFtd" type="number" min="0" value="${apById[hoyISO()]?(+apById[hoyISO()].ftd||0):''}" placeholder="0">
+    <label class="fl">Facturación de hoy (USD)</label><input class="minp" id="mHoyFact" type="number" min="0" value="${apById[hoyISO()]?(+apById[hoyISO()].fact_usd||0):''}" placeholder="0">
+    <button class="mbtn gold" id="mSaveHoy">Guardar día</button>
+   </div>
   </div>
-  <div style="background:${col};border:1px solid var(--line);border-radius:16px;padding:20px">
-   <div style="font-weight:700;margin-bottom:6px">Facturación · avance del mes</div>
-   <div style="font-family:'Space Grotesk';font-size:34px;font-weight:700">$${factAcum.toLocaleString('en-US')} <span style="color:var(--mut);font-size:20px">/ $${metaFact.toLocaleString('en-US')}</span></div>
-   <div style="margin:10px 0">${barHTML(pctFact,'#caa14a')}</div>
-   <div style="color:var(--mut);font-size:13px">${Math.round(pctFact)}% · faltan <b>$${faltaFact.toLocaleString('en-US')}</b> USD</div>
-  </div>
- </div>
- <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
-  <div style="background:${col};border:1px solid var(--line);border-radius:16px;padding:20px;overflow:auto">
-   <div style="font-weight:700;margin-bottom:10px">📆 Mi historial diario</div>
-   <table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="text-align:left;color:var(--mut)"><th style="padding:6px 4px">Día</th><th>FTD</th><th>Acum.</th><th>% meta</th><th>USD</th></tr></thead><tbody>
-   ${hist.map(h=>`<tr style="border-top:1px solid var(--line)"><td style="padding:6px 4px">${h.f.slice(8)}/${h.f.slice(5,7)}</td><td>${h.v||'·'}</td><td>${h.acum}</td><td>${metaFtd?Math.round(h.acum/metaFtd*100):0}%</td><td>${h.fa?('$'+h.fa.toLocaleString('en-US')):'·'}</td></tr>`).join('')||'<tr><td colspan="5" style="color:var(--mut);padding:8px 4px">Sin registros aún.</td></tr>'}
+  <div class="mcard" style="overflow:auto"><h3>📆 Mi historial diario</h3>
+   <table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="text-align:left;color:var(--mut)"><th style="padding:7px 4px">Día</th><th>FTD</th><th>Acum.</th><th>% meta</th><th>USD</th></tr></thead><tbody>
+   ${hist.map(h=>`<tr style="border-top:1px solid var(--line)"><td style="padding:7px 4px">${h.f.slice(8)}/${h.f.slice(5,7)}</td><td>${h.v||'·'}</td><td>${h.acum}</td><td>${metaFtd?Math.round(h.acum/metaFtd*100):0}%</td><td>${h.fa?('$'+h.fa.toLocaleString('en-US')):'·'}</td></tr>`).join('')||'<tr><td colspan="5" style="color:var(--mut);padding:8px 4px">Sin registros aún.</td></tr>'}
    </tbody></table>
-  </div>
-  <div style="background:${col};border:1px solid var(--line);border-radius:16px;padding:20px;overflow:auto">
-   <div style="font-weight:700;margin-bottom:10px">📥 Mis leads por día <span style="color:var(--mut);font-weight:400;font-size:12px">(desde GoHighLevel)</span></div>
-   <table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="text-align:left;color:var(--mut)"><th style="padding:6px 4px">Día</th><th>Leads</th><th>Registros</th><th>FTD</th></tr></thead><tbody>
-   ${diasLeads.map(f=>`<tr style="border-top:1px solid var(--line)"><td style="padding:6px 4px">${f.slice(8)}/${f.slice(5,7)}</td><td><b>${porDia[f].leads}</b></td><td>${porDia[f].registros}</td><td>${porDia[f].ftd}</td></tr>`).join('')||'<tr><td colspan="4" style="color:var(--mut);padding:8px 4px">Aún no hay leads registrados.</td></tr>'}
-   </tbody></table>
-  </div>
- </div>`;
+  </div>`;
+ } else {
+  bodyH = renderLeadsHTML(ag);
+ }
+ el.innerHTML = selectorD + tabs + bodyH;
+ document.querySelectorAll('.mtab').forEach(t=>t.onclick=()=>{SUBTAB=t.dataset.sub;renderMeta();});
  const sm=$('mSaveMeta'); if(sm) sm.onclick=guardarMeta;
  const sh=$('mSaveHoy'); if(sh) sh.onclick=guardarAporteHoy;
- const sel=$('mAgSel'); if(sel) sel.onchange=async()=>{META_AG=sel.value;await Promise.all([loadMeta(),loadAportes()]);renderMeta();};
+ const sel=$('mAgSel'); if(sel) sel.onchange=async()=>{META_AG=sel.value;LEAD_DIA=null;await Promise.all([loadMeta(),loadAportes(),loadLeadsDetalle()]);renderMeta();};
+ document.querySelectorAll('.daychip').forEach(c=>c.onclick=()=>{LEAD_DIA=c.dataset.dia;renderMeta();});
+}
+function renderLeadsHTML(ag){
+ const byDay={};
+ LEADS_DET.forEach(l=>{const f=(l.llegada_at||'').slice(0,10); if(!f)return; (byDay[f]=byDay[f]||[]).push(l);});
+ const dias=Object.keys(byDay).sort().reverse();
+ if(!dias.length) return `<div class="mcard"><h3>📥 Mis leads</h3><div class="hint">Aún no hay leads en los últimos días.</div></div>`;
+ if(!LEAD_DIA||!byDay[LEAD_DIA]) LEAD_DIA=dias[0];
+ const d=new Date(); d.setDate(d.getDate()-1); const ayer=d.toISOString().slice(0,10);
+ const etiqueta=f=> f===hoyISO()?'Hoy': f===ayer?'Ayer': (f.slice(8)+'/'+f.slice(5,7));
+ const chips=dias.map(f=>`<div class="daychip ${f===LEAD_DIA?'on':''}" data-dia="${f}">${etiqueta(f)}<span class="n">${byDay[f].length}</span></div>`).join('');
+ const estado=l=> l.ftd_at?'<span class="pill ftd">FTD</span>': l.registrado_at?'<span class="pill reg">Registrado</span>':'<span class="pill new">Nuevo</span>';
+ const hora=l=>{try{return new Date(l.llegada_at).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});}catch(e){return '';}};
+ const rows=byDay[LEAD_DIA].map(l=>`<div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>`).join('');
+ return `<div class="mcard"><h3>📥 Mis leads por día</h3><div class="hint">Toca un día para ver los leads que llegaron (desde GoHighLevel).</div>
+  <div class="daychips">${chips}</div>
+  <div><div style="color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${etiqueta(LEAD_DIA)} · ${byDay[LEAD_DIA].length} leads</div>${rows}</div>
+ </div>`;
 }
 
 /* ---------- VENTAS ---------- */

@@ -312,6 +312,7 @@ let META_AG=null;    // agente seleccionado en la vista Mi Meta (director)
 let META_ROW=null;   // {agente,mes,meta_ftd,meta_diaria_ftd,meta_fact_usd}
 let APORTES=[];      // {agente,fecha,ftd,fact_usd}
 let SUBTAB='meta';   // 'meta' | 'leads'
+let META_EDIT=false; // mostrar el formulario de meta (solo al inicio de mes o al editar)
 let LEADS_DET=[];    // clientes_lead del agente (ultimos dias)
 let LEAD_DIA=null;   // fecha seleccionada en la pestaña Leads
 let SEGU_MAP={};     // contact_id -> {llamada1,llamada2,whatsapp,registrado,observacion}
@@ -597,7 +598,7 @@ async function guardarMeta(){
  const ag=metaAgente(), mes=mesActual();
  const body={agente:ag,mes,meta_ftd:parseInt($('mMetaFtd').value||'0',10)||0,meta_diaria_ftd:parseInt($('mMetaDia').value||'0',10)||0,meta_fact_usd:parseFloat($('mMetaFact').value||'0')||0,updated_at:new Date().toISOString()};
  await fetch(SUPABASE_URL+'/rest/v1/metas_agente?on_conflict=agente,mes',{method:'POST',headers:{...WHDR,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});
- await loadMeta(); renderMeta();
+ META_EDIT=false; await loadMeta(); renderMeta();
 }
 async function guardarAporteHoy(){
  const ag=metaAgente();
@@ -703,10 +704,10 @@ async function startApp(){
  document.querySelectorAll('.nav-item').forEach(n=>n.onclick=()=>showView(n.dataset.view));
  showView('meta');
  await loadAgentes().catch(()=>{});
- Promise.all([loadMeta().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{})]).then(()=>renderMeta());
+ Promise.all([loadMeta().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{})]).then(()=>renderMeta());
  await loadMetricas().catch(()=>{METRICAS=[];});renderMeta();
- // refresco de Mi Meta cada 60s: leads nuevos + aportes (sin pisar lo que se esté escribiendo)
- setInterval(async()=>{if(PAGE==='meta'){const ae=document.activeElement;const editing=ae&&(['mHoyFtd','mHoyFact','mMetaFtd','mMetaDia','mMetaFact'].includes(ae.id)||(ae.classList&&ae.classList.contains('obsin')));if(editing)return;await Promise.all([loadMetricas().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{})]);renderMeta();}},60000);
+ // refresco de Mi Meta cada 60s: leads nuevos + aportes + facturación del Sheet (sin pisar lo que se esté escribiendo)
+ setInterval(async()=>{if(PAGE==='meta'){const ae=document.activeElement;const editing=ae&&(['mMetaFtd','mMetaDia','mMetaFact'].includes(ae.id)||(ae.classList&&ae.classList.contains('obsin')));if(editing)return;await Promise.all([loadMetricas().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{})]);renderMeta();}},60000);
 }
 function showView(v){
  PAGE=v;
@@ -723,7 +724,8 @@ function renderMeta(){
  const ag=metaAgente();
  const m=META_ROW||{meta_ftd:0,meta_diaria_ftd:0,meta_fact_usd:0};
  const ftdAcum=APORTES.reduce((s,a)=>s+(+a.ftd||0),0);
- const factAcum=APORTES.reduce((s,a)=>s+(+a.fact_usd||0),0);
+ const vrow=(Array.isArray(VENTAS)?VENTAS:[]).find(v=>sameAgent(v.name,ag));
+ const factAcum=vrow?(+vrow.total||0):0; // facturación directa del Google Sheet
  const metaFtd=+m.meta_ftd||0, metaDia=+m.meta_diaria_ftd||0, metaFact=+m.meta_fact_usd||0;
  const faltaFtd=Math.max(0,metaFtd-ftdAcum), faltaFact=Math.max(0,metaFact-factAcum);
  const pctFtd=metaFtd?ftdAcum/metaFtd*100:0, pctFact=metaFact?factAcum/metaFact*100:0;
@@ -766,27 +768,35 @@ function renderMeta(){
    <div class="stat"><div class="k">Facturación (USD)</div><div class="v" style="color:#e9c766">$${factAcum.toLocaleString('en-US')}<span style="font-size:15px;color:var(--mut)"> / $${metaFact.toLocaleString('en-US')}</span></div><div class="mbar"><i style="width:${Math.min(100,Math.round(pctFact))}%;background:linear-gradient(90deg,#c08a2e,#e9c766)"></i></div></div>
    <div class="stat"><div class="k">Ritmo requerido</div><div class="v">${ritmo.toFixed(1)}<span style="font-size:15px;color:var(--mut)"> FTD/día</span></div><div class="hint" style="margin-top:8px">${dRest} días restantes · faltan ${faltaFtd}</div></div>
   </div>
-  <div class="mgrid">
-   <div class="mcard"><h3>🎯 Mi meta del mes</h3>
-    <label class="fl">Meta de FTD (mes)</label><input class="minp" id="mMetaFtd" type="number" min="0" value="${metaFtd}">
-    <label class="fl">Meta diaria de FTD</label><input class="minp" id="mMetaDia" type="number" min="0" value="${metaDia}">
-    <label class="fl">Meta de facturación (USD)</label><input class="minp" id="mMetaFact" type="number" min="0" value="${metaFact}">
-    <button class="mbtn" id="mSaveMeta">Guardar meta</button>
-   </div>
-   <div class="mcard"><h3>✍️ Registrar hoy</h3><div class="hint">${hoyISO()}</div>
-    <label class="fl">FTD que hice hoy</label><input class="minp" id="mHoyFtd" type="number" min="0" value="${apById[hoyISO()]?(+apById[hoyISO()].ftd||0):''}" placeholder="0">
-    <label class="fl">Facturación de hoy (USD)</label><input class="minp" id="mHoyFact" type="number" min="0" value="${apById[hoyISO()]?(+apById[hoyISO()].fact_usd||0):''}" placeholder="0">
-    <button class="mbtn gold" id="mSaveHoy">Guardar día</button>
-   </div>
-  </div>`;
+  ${(()=>{const metaSet=metaFtd>0||metaDia>0||metaFact>0;
+    if(!metaSet||META_EDIT){
+     return `<div class="mcard"><h3>🎯 Mi meta del mes</h3>
+      <div class="hint">${metaSet?'Ajusta tu meta de este mes.':'Es inicio de mes: define tu meta para '+mesActual()+'.'}</div>
+      <div class="mgrid">
+       <div><label class="fl">Meta de FTD (mes)</label><input class="minp" id="mMetaFtd" type="number" min="0" value="${metaFtd||''}" placeholder="0"></div>
+       <div><label class="fl">Meta diaria de FTD</label><input class="minp" id="mMetaDia" type="number" min="0" value="${metaDia||''}" placeholder="0"></div>
+       <div><label class="fl">Meta de facturación (USD)</label><input class="minp" id="mMetaFact" type="number" min="0" value="${metaFact||''}" placeholder="0"></div>
+      </div>
+      <button class="mbtn" id="mSaveMeta">Guardar meta</button>${metaSet?' <button class="mbtn" id="mCancelMeta" style="background:transparent;border:1px solid var(--line);color:var(--mut)">Cancelar</button>':''}
+     </div>`;
+    }
+    return `<div class="mcard"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><h3 style="margin:0">🎯 Mi meta de ${mesActual()}</h3><button class="mbtn" id="mEditMeta" style="margin-top:0;padding:8px 14px;font-size:13px;background:transparent;border:1px solid var(--line);color:var(--ink)">✏️ Editar meta</button></div>
+     <div class="mgrid3" style="margin-top:12px">
+      <div class="stat"><div class="k">Meta FTD (mes)</div><div class="v" style="font-size:24px">${metaFtd}</div></div>
+      <div class="stat"><div class="k">Meta diaria FTD</div><div class="v" style="font-size:24px">${metaDia}</div></div>
+      <div class="stat"><div class="k">Meta facturación</div><div class="v" style="font-size:24px">$${metaFact.toLocaleString('en-US')}</div></div>
+     </div>
+     <div class="hint" style="margin-top:12px">Tu meta se solicita al inicio de cada mes. Los FTD del día se marcan en los cuadros de la carrera; la facturación se toma directo de tu Google Sheet.</div>
+    </div>`;})()}`;
  } else {
   bodyH = renderLeadsHTML(ag);
  }
  el.innerHTML = selectorD + tabs + bodyH;
  document.querySelectorAll('.mtab').forEach(t=>t.onclick=()=>{SUBTAB=t.dataset.sub;renderMeta();});
  const sm=$('mSaveMeta'); if(sm) sm.onclick=guardarMeta;
- const sh=$('mSaveHoy'); if(sh) sh.onclick=guardarAporteHoy;
- const sel=$('mAgSel'); if(sel) sel.onchange=async()=>{META_AG=sel.value;LEAD_DIA=null;await Promise.all([loadMeta(),loadAportes(),loadLeadsDetalle()]);renderMeta();};
+ const me=$('mEditMeta'); if(me) me.onclick=()=>{META_EDIT=true;renderMeta();};
+ const mc=$('mCancelMeta'); if(mc) mc.onclick=()=>{META_EDIT=false;renderMeta();};
+ const sel=$('mAgSel'); if(sel) sel.onchange=async()=>{META_AG=sel.value;LEAD_DIA=null;META_EDIT=false;await Promise.all([loadMeta(),loadAportes(),loadLeadsDetalle(),loadVentas()]);renderMeta();};
  document.querySelectorAll('.ftdbox').forEach(b=>b.onclick=()=>{
    const i=+b.dataset.i; const cont=b.closest('.ftdday'); const hoy=cont?(+cont.dataset.hoy||0):0;
    const target=(i+1===hoy)?i:(i+1); setHoyFtd(target);

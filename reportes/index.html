@@ -203,6 +203,13 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
 .chk{font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--mut);cursor:pointer;user-select:none;white-space:nowrap;transition:all .12s}
 .chk:hover{border-color:#39b0ff}
 .chk.on{border-color:#2fd18d;background:rgba(47,209,141,.16);color:#2fd18d}
+.ftdday{margin-top:14px}
+.ftdday-lb{color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.ftdboxes{display:flex;flex-wrap:wrap;gap:8px}
+.ftdbox{width:38px;height:38px;border-radius:10px;border:1.5px solid var(--line);background:var(--paper);color:var(--mut);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;cursor:pointer;user-select:none;transition:all .12s}
+.ftdbox:hover{border-color:#2fd18d}
+.ftdbox.on{background:rgba(47,209,141,.18);border-color:#2fd18d;color:#2fd18d}
+.ftdbox.extra.on{background:rgba(233,199,102,.2);border-color:#e9c766;color:#e9c766}
 .leadbtns{display:flex;gap:8px;margin:8px 0 0 46px}
 .lbtn{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:800;padding:8px 14px;border-radius:12px;text-decoration:none;cursor:pointer;color:#fff}
 .lbtn.wa{background:linear-gradient(90deg,#1faa53,#25d366)}
@@ -598,6 +605,13 @@ async function guardarAporteHoy(){
  await fetch(SUPABASE_URL+'/rest/v1/aporte_diario?on_conflict=agente,fecha',{method:'POST',headers:{...WHDR,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});
  await loadAportes(); renderMeta();
 }
+async function setHoyFtd(n){
+ const ag=metaAgente(), f=hoyISO();
+ const prev=APORTES.find(a=>a.fecha===f)||{};
+ const body={agente:ag,fecha:f,ftd:Math.max(0,n),fact_usd:+prev.fact_usd||0,updated_at:new Date().toISOString()};
+ await fetch(SUPABASE_URL+'/rest/v1/aporte_diario?on_conflict=agente,fecha',{method:'POST',headers:{...WHDR,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});
+ await loadAportes(); renderMeta();
+}
 async function loadLeadsFtd(){
  // Lista autoritativa de clientes con FTD (misma fuente que el conteo). Paginado para no truncar en 1000.
  let out=[],off=0;
@@ -742,6 +756,10 @@ function renderMeta(){
     <div class="flag">🏁</div>
    </div>
    <div class="hint" style="margin-top:14px">Faltan <b style="color:var(--ink)">${faltaFtd}</b> FTD · quedan <b style="color:var(--ink)">${dRest}</b> días · ritmo requerido <b style="color:var(--ink)">${ritmo.toFixed(1)}</b>/día${metaDia?` · meta diaria ${metaDia}`:''}</div>
+   ${(()=>{const hoyFtd=apById[hoyISO()]?(+apById[hoyISO()].ftd||0):0; const nCajas=Math.max(metaDia,hoyFtd);
+     if(metaDia===0 && hoyFtd===0) return `<div class="hint" style="margin-top:14px">Define tu meta diaria para ver los cuadros de FTD del día.</div>`;
+     let cajas=''; for(let i=0;i<nCajas;i++){cajas+=`<span class="ftdbox ${i<hoyFtd?'on':''} ${i>=metaDia?'extra':''}" data-i="${i}">${i<hoyFtd?'✓':(i+1)}</span>`;}
+     return `<div class="ftdday" data-hoy="${hoyFtd}"><div class="ftdday-lb">FTD de hoy · <b>${hoyFtd}</b>${metaDia?` / ${metaDia}`:''}</div><div class="ftdboxes">${cajas}</div></div>`;})()}
   </div>
   <div class="mgrid3">
    <div class="stat"><div class="k">FTD acumulados</div><div class="v" style="color:#2fd18d">${ftdAcum}<span style="font-size:16px;color:var(--mut)"> / ${metaFtd}</span></div><div class="mbar"><i style="width:${Math.min(100,Math.round(pctFtd))}%;background:linear-gradient(90deg,#2fb183,#2fd18d)"></i></div></div>
@@ -769,6 +787,10 @@ function renderMeta(){
  const sm=$('mSaveMeta'); if(sm) sm.onclick=guardarMeta;
  const sh=$('mSaveHoy'); if(sh) sh.onclick=guardarAporteHoy;
  const sel=$('mAgSel'); if(sel) sel.onchange=async()=>{META_AG=sel.value;LEAD_DIA=null;await Promise.all([loadMeta(),loadAportes(),loadLeadsDetalle()]);renderMeta();};
+ document.querySelectorAll('.ftdbox').forEach(b=>b.onclick=()=>{
+   const i=+b.dataset.i; const cont=b.closest('.ftdday'); const hoy=cont?(+cont.dataset.hoy||0):0;
+   const target=(i+1===hoy)?i:(i+1); setHoyFtd(target);
+ });
  document.querySelectorAll('.daychip').forEach(c=>c.onclick=()=>{LEAD_DIA=c.dataset.dia;renderMeta();});
  document.querySelectorAll('.chk').forEach(ch=>ch.onclick=async()=>{
    const cid=ch.dataset.cid, k=ch.dataset.k; if(!cid)return;

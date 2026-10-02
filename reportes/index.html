@@ -421,6 +421,27 @@ function celda(td){
  return extra?(base+' — '+extra):base;
 }
 function csvEscapa(v){v=String(v==null?'':v);return /[",;\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+function descargarCSV(filas,nombre){
+ const txt='﻿'+filas.map(f=>f.map(csvEscapa).join(',')).join('\r\n');
+ const blob=new Blob([txt],{type:'text/csv;charset=utf-8'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=nombre;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+}
+function horaLead(l){try{return new Date(l.llegada_at).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});}catch(e){return '';}}
+function filaLeadCSV(l){const cid=l.contact_id||'';const s=SEGU_MAP[cid]||{};
+ const est=l.ftd_at?'FTD':l.registrado_at?'Registrado':'Nuevo';
+ return [(l.llegada_at||'').slice(0,10),l.nombre||'',l.telefono||'',horaLead(l),est,s.llamada1?'Sí':'No',s.llamada2?'Sí':'No',s.whatsapp?'Sí':'No',s.registrado?'Sí':'No',s.observacion||''];}
+const CAB_LEADS_CSV=['Fecha','Nombre','Teléfono','Hora','Estado','Llamada 1','Llamada 2','Bajado a WhatsApp','Registrado (check)','Observación'];
+function exportarLeadsDia(){
+ if(!LEAD_DIA){alert('Selecciona un día primero.');return;}
+ const arr=LEADS_DET.filter(l=>(l.llegada_at||'').slice(0,10)===LEAD_DIA);
+ if(!arr.length){alert('No hay leads ese día.');return;}
+ descargarCSV([CAB_LEADS_CSV,...arr.map(filaLeadCSV)],'leads_'+metaAgente().replace(/\s+/g,'_')+'_'+LEAD_DIA+'.csv');
+}
+function exportarLeadsTodo(){
+ const arr=[...LEADS_DET].sort((a,b)=>(b.llegada_at||'').localeCompare(a.llegada_at||''));
+ if(!arr.length){alert('No hay leads para exportar.');return;}
+ descargarCSV([CAB_LEADS_CSV,...arr.map(filaLeadCSV)],'leads_'+metaAgente().replace(/\s+/g,'_')+'_todos.csv');
+}
 /* ---- Generador de Excel (.xlsx) sin librerías externas ---- */
 const CRCT=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
 function crc32(u8){let c=0xFFFFFFFF;for(let i=0;i<u8.length;i++)c=CRCT[(c^u8[i])&0xFF]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
@@ -567,8 +588,8 @@ async function loadAportes(){
  }catch(e){ APORTES=[]; }
 }
 async function loadLeadsDetalle(){
- // Leads individuales del agente (ultimos 14 dias). Se filtra por fecha en el server y por agente en el cliente.
- const d=new Date(); d.setDate(d.getDate()-14);
+ // Leads individuales del agente desde el inicio del mes anterior (cubre todo septiembre + mes actual).
+ const d=new Date(); d.setMonth(d.getMonth()-1); d.setDate(1);
  const desde=d.toISOString().slice(0,10);
  try{
   const r=await fetch(SUPABASE_URL+'/rest/v1/clientes_lead?llegada_at=gte.'+desde+'&select=contact_id,agente,nombre,telefono,llegada_at,registrado_at,ftd_at&order=llegada_at.desc&limit=5000',{headers:HDRS});
@@ -801,6 +822,8 @@ function renderMeta(){
    const i=+b.dataset.i; const cont=b.closest('.ftdday'); const hoy=cont?(+cont.dataset.hoy||0):0;
    const target=(i+1===hoy)?i:(i+1); setHoyFtd(target);
  });
+ const cd=$('csvDia'); if(cd) cd.onclick=exportarLeadsDia;
+ const ct=$('csvTodo'); if(ct) ct.onclick=exportarLeadsTodo;
  document.querySelectorAll('.daychip').forEach(c=>c.onclick=()=>{LEAD_DIA=c.dataset.dia;renderMeta();});
  document.querySelectorAll('.chk').forEach(ch=>ch.onclick=async()=>{
    const cid=ch.dataset.cid, k=ch.dataset.k; if(!cid)return;
@@ -833,6 +856,7 @@ function renderLeadsHTML(ag){
    return `<textarea class="obsin" data-cid="${esc(cid)}" rows="2" placeholder="Observación: ¿qué pasó con el cliente?">${v}</textarea>`;};
  const rows=byDay[LEAD_DIA].map(l=>`<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${checks(l)}${acciones(l)}${obs(l)}</div>`).join('');
  return `<div class="mcard"><h3>📥 Mis leads por día</h3><div class="hint">Toca un día para ver los leads; marca el avance, escribe la observación y abre el chat o la llamada en GoHighLevel.</div>
+  <div class="leadbtns" style="margin:0 0 12px"><button class="lbtn call" id="csvDia">⬇️ CSV de este día</button><button class="lbtn" id="csvTodo" style="background:linear-gradient(90deg,#6b7280,#9aa3b2)">⬇️ CSV de todos</button></div>
   <div class="daychips">${chips}</div>
   <div><div style="color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${etiqueta(LEAD_DIA)} · ${byDay[LEAD_DIA].length} leads</div>${rows}</div>
  </div>`;

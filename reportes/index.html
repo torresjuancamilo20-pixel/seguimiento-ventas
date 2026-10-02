@@ -837,7 +837,19 @@ function renderLeadsHTML(ag){
  const byDay={};
  LEADS_DET.forEach(l=>{const f=(l.llegada_at||'').slice(0,10); if(!f)return; (byDay[f]=byDay[f]||[]).push(l);});
  const dias=Object.keys(byDay).sort().reverse();
- if(!dias.length) return `<div class="mcard"><h3>📥 Mis leads</h3><div class="hint">Aún no hay leads en los últimos días.</div></div>`;
+ const dAy=new Date(); dAy.setDate(dAy.getDate()-1); const ayerISO=dAy.toISOString().slice(0,10);
+ // número general (solo director): total de leads que llegaron hoy en todo el equipo
+ let hero='';
+ if(ROLE==='director'){
+  const sumDia=f=>METRICAS.filter(x=>x.fecha===f&&!excluido(x.agente)).reduce((s,x)=>s+(+x.leads||0),0);
+  const totalHoy=sumDia(hoyISO()), totalAyer=sumDia(ayerISO);
+  hero=`<div class="mcard" style="text-align:center;background:linear-gradient(135deg,rgba(57,176,255,.14),transparent)">
+   <div class="ftdday-lb" style="margin-bottom:4px">📥 Leads que llegaron hoy · todo el equipo</div>
+   <div style="font-family:'Space Grotesk';font-weight:800;font-size:72px;line-height:1;color:#39b0ff">${totalHoy}</div>
+   <div class="hint" style="margin-top:6px">Ayer llegaron <b style="color:var(--ink)">${totalAyer}</b> · ${hoyISO()}</div>
+  </div>`;
+ }
+ if(!dias.length) return hero+`<div class="mcard"><h3>📥 Mis leads</h3><div class="hint">Aún no hay leads en los últimos días.</div></div>`;
  if(!LEAD_DIA||!byDay[LEAD_DIA]) LEAD_DIA=dias[0];
  const d=new Date(); d.setDate(d.getDate()-1); const ayer=d.toISOString().slice(0,10);
  const etiqueta=f=> f===hoyISO()?'Hoy': f===ayer?'Ayer': (f.slice(8)+'/'+f.slice(5,7));
@@ -855,7 +867,7 @@ function renderLeadsHTML(ag){
    const v=esc((SEGU_MAP[cid]||{}).observacion||'');
    return `<textarea class="obsin" data-cid="${esc(cid)}" rows="2" placeholder="Observación: ¿qué pasó con el cliente?">${v}</textarea>`;};
  const rows=byDay[LEAD_DIA].map(l=>`<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${checks(l)}${acciones(l)}${obs(l)}</div>`).join('');
- return `<div class="mcard"><h3>📥 Mis leads por día</h3><div class="hint">Toca un día para ver los leads; marca el avance, escribe la observación y abre el chat o la llamada en GoHighLevel.</div>
+ return hero+`<div class="mcard"><h3>📥 Mis leads por día</h3><div class="hint">Toca un día para ver los leads; marca el avance, escribe la observación y abre el chat o la llamada en GoHighLevel.</div>
   <div class="leadbtns" style="margin:0 0 12px"><button class="lbtn call" id="csvDia">⬇️ CSV de este día</button><button class="lbtn" id="csvTodo" style="background:linear-gradient(90deg,#6b7280,#9aa3b2)">⬇️ CSV de todos</button></div>
   <div class="daychips">${chips}</div>
   <div><div style="color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${etiqueta(LEAD_DIA)} · ${byDay[LEAD_DIA].length} leads</div>${rows}</div>

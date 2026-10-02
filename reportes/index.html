@@ -727,11 +727,6 @@ function renderMeta(){
     <label class="fl">Facturación de hoy (USD)</label><input class="minp" id="mHoyFact" type="number" min="0" value="${apById[hoyISO()]?(+apById[hoyISO()].fact_usd||0):''}" placeholder="0">
     <button class="mbtn gold" id="mSaveHoy">Guardar día</button>
    </div>
-  </div>
-  <div class="mcard" style="overflow:auto"><h3>📆 Mi historial diario</h3>
-   <table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="text-align:left;color:var(--mut)"><th style="padding:7px 4px">Día</th><th>FTD</th><th>Acum.</th><th>% meta</th><th>USD</th></tr></thead><tbody>
-   ${hist.map(h=>`<tr style="border-top:1px solid var(--line)"><td style="padding:7px 4px">${h.f.slice(8)}/${h.f.slice(5,7)}</td><td>${h.v||'·'}</td><td>${h.acum}</td><td>${metaFtd?Math.round(h.acum/metaFtd*100):0}%</td><td>${h.fa?('$'+h.fa.toLocaleString('en-US')):'·'}</td></tr>`).join('')||'<tr><td colspan="5" style="color:var(--mut);padding:8px 4px">Sin registros aún.</td></tr>'}
-   </tbody></table>
   </div>`;
  } else {
   bodyH = renderLeadsHTML(ag);

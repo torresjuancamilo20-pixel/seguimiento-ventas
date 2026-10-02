@@ -203,13 +203,7 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
  <aside class="sidebar">
   <div class="logo"><div class="mk">NX</div><div class="tx">LEGENDARY</div></div>
   <nav id="nav">
-   <div class="nav-item" data-view="meta"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.3"/></svg></span> Mi Meta</div>
-   <div class="nav-item active" data-view="ventas"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg></span> Ventas</div>
-   <div class="nav-item" data-view="ftds"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 6-7"/></svg></span> FTD's</div>
-   <div class="nav-item" data-view="prod"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></span> Productividad</div>
-   <div class="nav-item" data-view="pagos"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/></svg></span> Ventas Pendientes</div>
-   <div class="nav-item" data-view="clientes"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="3.2"/><path d="M18 8v6M21 11h-6"/></svg></span> Leads</div>
-   <div class="nav-item nav-dir hide" data-view="config"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span> Configuración</div>
+   <div class="nav-item active" data-view="meta"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.3"/></svg></span> Mi Meta</div>
   </nav>
   <div class="side-foot"><button class="side-btn" id="logoutBtn">↩ Cerrar sesión</button></div>
  </aside>
@@ -223,17 +217,10 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
    <div class="whoami">
     <div style="text-align:right"><div class="nm" id="waName">—</div><div class="ro" id="waRole">—</div></div>
     <div class="av" id="waAv">?</div>
-    <button class="logout-top" id="csvTop" title="Descargar esta sección en CSV">⤓ CSV</button>
     <button class="logout-top" id="logoutTop">Salir</button>
    </div>
   </div>
-  <div id="viewMeta" class="hide"></div>
-  <div id="viewVentas"></div>
-  <div id="viewFtds" class="hide"></div>
-  <div id="viewProd" class="hide"></div>
-  <div id="viewPagos" class="hide"></div>
-  <div id="viewClientes" class="hide"></div>
-  <div id="viewConfig" class="hide"></div>
+  <div id="viewMeta"></div>
  </main>
 </div>
 
@@ -490,7 +477,7 @@ function exportarCSV(){
 function logout(){localStorage.removeItem('nexrep_role');localStorage.removeItem('nexrep_me');location.reload();}
 $('logoutBtn').onclick=logout;
 $('logoutTop').onclick=logout;
-$('csvTop').onclick=exportarCSV;
+if($('csvTop'))$('csvTop').onclick=exportarCSV;
 
 /* ---------- DATA ---------- */
 async function loadAgentes(){
@@ -618,42 +605,19 @@ async function startApp(){
  $('waName').textContent=ME;$('waRole').textContent=ROLE==='director'?'Director':'Agente';
  $('waAv').textContent=initials(ME);$('waAv').classList.toggle('dir',ROLE==='director');
  document.querySelectorAll('.nav-item').forEach(n=>n.onclick=()=>showView(n.dataset.view));
- document.querySelectorAll('.nav-dir').forEach(n=>n.classList.toggle('hide',ROLE!=='director'));
- showView(ROLE==='agente'?'meta':'ventas');
- renderVentas();renderFtds();renderProd();renderPagos();renderClientes();
+ showView('meta');
  await loadAgentes().catch(()=>{});
- // Mi Meta (después de agentes para resolver el agente del director)
  Promise.all([loadMeta().catch(()=>{}),loadAportes().catch(()=>{})]).then(()=>renderMeta());
- await loadVentas().catch(()=>{VENTAS='error';});renderVentas();
- await loadMetricas().catch(()=>{METRICAS=[];});renderFtds();renderMeta();
- Promise.all([loadLeadsFtd().catch(()=>{LEADSFTD=[];}),loadClienteItems().catch(()=>{ITEMS_MAP={};})]).then(()=>renderFtds());
- await loadActividad().catch(()=>{ACTIVIDAD=[];});renderProd();
- await loadPagos().catch(()=>{PAGOS=[];});renderPagos();
- await loadClientes().catch(()=>{CLIENTES=[];});renderClientes();renderFtds();
- await loadProductos().catch(()=>{PRODUCTOS_DB=[];});renderConfig();renderVentas();renderPagos();
- // refresco de productividad cada 60s
- setInterval(async()=>{if(PAGE==='prod'){await loadActividad().catch(()=>{});renderProd();}},60000);
+ await loadMetricas().catch(()=>{METRICAS=[];});renderMeta();
  // refresco de Mi Meta cada 60s: leads nuevos + aportes (sin pisar lo que se esté escribiendo)
  setInterval(async()=>{if(PAGE==='meta'){const editing=document.activeElement&&['mHoyFtd','mHoyFact','mMetaFtd','mMetaDia','mMetaFact'].includes(document.activeElement.id);if(editing)return;await Promise.all([loadMetricas().catch(()=>{}),loadAportes().catch(()=>{})]);renderMeta();}},60000);
 }
 function showView(v){
  PAGE=v;
  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view===v));
- $('viewMeta').classList.toggle('hide',v!=='meta');
- $('viewVentas').classList.toggle('hide',v!=='ventas');
- $('viewFtds').classList.toggle('hide',v!=='ftds');
- $('viewProd').classList.toggle('hide',v!=='prod');
- $('viewPagos').classList.toggle('hide',v!=='pagos');
- $('viewClientes').classList.toggle('hide',v!=='clientes');
- $('viewConfig').classList.toggle('hide',v!=='config');
- const meta={meta:['Objetivo',ROLE==='agente'?'Mi meta del mes':'Metas por agente','Tu meta de FTD y facturación, tu avance diario y tus leads de cada día.'],
-   ventas:['Facturación','Reporte de ventas','Facturación por agente y del equipo.'],
-   ftds:['Conversión',"FTD's y registros",'Leads, registros, FTD y % de conversión.'],
-   prod:['Actividad','Productividad del equipo',PROD_FECHA==='hoy'?'Quién está activo hoy y quién no lleva registros.':'Actividad del día seleccionado.'],
-   pagos:['Pipeline',ROLE==='agente'?'Mis ventas pendientes':'Ventas pendientes del equipo',ROLE==='agente'?'Registra tus pagos agendados o posibles.':'Pagos agendados y posibles de cada agente.'],
-   clientes:['Seguimiento',ROLE==='agente'?'Mis leads':'Leads del equipo','Cada lead y qué se ha hecho con él: registro, FTD y tiempo transcurrido.'],
-   config:['Administración','Configuración','Membresías, precios y comisiones por venta.']}[v];
- $('eyebrow').textContent=meta[0];$('viewTitle').textContent=meta[1];$('viewSub').textContent=meta[2];
+ $('eyebrow').textContent='Objetivo';
+ $('viewTitle').textContent=ROLE==='agente'?'Mi meta del mes':'Metas por agente';
+ $('viewSub').textContent='Tu meta de FTD y facturación, tu avance diario y tus leads de cada día.';
 }
 
 /* ---------- MI META (render) ---------- */

@@ -309,6 +309,7 @@ let PAGE='ventas';
 let AGENTES=[];      // {email,nombre}
 let METRICAS=[];     // {fecha,agente,leads,registros,ftd}
 let META_AG=null;    // agente seleccionado en la vista Mi Meta (director)
+let METAS_MES=[];    // nombres de agentes con meta fijada en el mes actual (director solo ve estos)
 let META_ROW=null;   // {agente,mes,meta_ftd,meta_diaria_ftd,meta_fact_usd}
 let APORTES=[];      // {agente,fecha,ftd,fact_usd}
 let SUBTAB='meta';   // 'meta' | 'leads'
@@ -572,7 +573,16 @@ async function loadMetricas(){
  METRICAS=await r.json();
 }
 /* ---------- MI META ---------- */
-function metaAgente(){ return ROLE==='director' ? (META_AG||(AGENTES[0]&&AGENTES[0].nombre)||'') : ME; }
+async function loadMetasMes(){
+ try{const r=await fetch(SUPABASE_URL+'/rest/v1/metas_agente?mes=eq.'+mesActual()+'&select=agente',{headers:HDRS});const b=await r.json()||[];METAS_MES=Array.isArray(b)?b.map(x=>x.agente).filter(Boolean):[];}catch(e){METAS_MES=[];}
+}
+// Agentes que el director puede ver: solo los que tienen meta este mes (si aún no cargó, muestra todos).
+function agentesConMeta(){
+ const base=AGENTES.filter(a=>!excluido(a.nombre));
+ if(!METAS_MES.length) return base;
+ return base.filter(a=>METAS_MES.some(n=>sameAgent(n,a.nombre)));
+}
+function metaAgente(){ if(ROLE!=='director') return ME; if(META_AG) return META_AG; const l=agentesConMeta(); return (l[0]&&l[0].nombre)||(AGENTES[0]&&AGENTES[0].nombre)||''; }
 async function loadMeta(){
  const ag=metaAgente(); const mes=mesActual();
  try{
@@ -725,10 +735,11 @@ async function startApp(){
  document.querySelectorAll('.nav-item').forEach(n=>n.onclick=()=>showView(n.dataset.view));
  showView('meta');
  await loadAgentes().catch(()=>{});
+ await loadMetasMes().catch(()=>{});
  Promise.all([loadMeta().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{})]).then(()=>renderMeta());
  await loadMetricas().catch(()=>{METRICAS=[];});renderMeta();
  // refresco de Mi Meta cada 60s: leads nuevos + aportes + facturación del Sheet (sin pisar lo que se esté escribiendo)
- setInterval(async()=>{if(PAGE==='meta'){const ae=document.activeElement;const editing=ae&&(['mMetaFtd','mMetaDia','mMetaFact'].includes(ae.id)||(ae.classList&&ae.classList.contains('obsin')));if(editing)return;await Promise.all([loadMetricas().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{})]);renderMeta();}},60000);
+ setInterval(async()=>{if(PAGE==='meta'){const ae=document.activeElement;const editing=ae&&(['mMetaFtd','mMetaDia','mMetaFact'].includes(ae.id)||(ae.classList&&ae.classList.contains('obsin')));if(editing)return;await Promise.all([loadMetricas().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{}),loadMetasMes().catch(()=>{})]);renderMeta();}},60000);
 }
 function showView(v){
  PAGE=v;
@@ -762,7 +773,7 @@ function renderMeta(){
  for(let d=1; d<=hoy.getDate(); d++){const f=y+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'); ordenAsc.push(f);}
  ordenAsc.forEach(f=>{const a=apById[f]; const v=a?(+a.ftd||0):0; acum+=v; hist.push({f,v,acum,fa:a?(+a.fact_usd||0):0});});
  hist.reverse();
- const selectorD = ROLE==='director' ? `<div style="margin-bottom:16px"><label class="fl">Agente</label><select class="minp" id="mAgSel" style="max-width:340px">${AGENTES.filter(a=>!excluido(a.nombre)).sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(a=>`<option ${a.nombre===ag?'selected':''}>${esc(a.nombre)}</option>`).join('')}</select></div>` : '';
+ const selectorD = ROLE==='director' ? `<div style="margin-bottom:16px"><label class="fl">Agente</label><select class="minp" id="mAgSel" style="max-width:340px">${agentesConMeta().sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(a=>`<option ${a.nombre===ag?'selected':''}>${esc(a.nombre)}</option>`).join('')}</select></div>` : '';
  const tabs = `<div class="mtabs"><div class="mtab ${SUBTAB==='meta'?'on':''}" data-sub="meta">🎯 Mi Meta</div><div class="mtab ${SUBTAB==='leads'?'on':''}" data-sub="leads">📥 Mis Leads</div></div>`;
  let bodyH='';
  if(SUBTAB!=='leads'){

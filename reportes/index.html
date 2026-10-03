@@ -237,6 +237,14 @@ input[type=date].minp::-webkit-calendar-picker-indicator{filter:invert(.8);curso
 .posmark.on{background:rgba(47,209,141,.18);border-color:#2fd18d;color:#2fd18d}
 .posdesde{font-size:11px;color:#e9a23b;font-weight:800;white-space:nowrap}
 .posdel{border:0;background:transparent;color:#c0392b;font-weight:800;font-size:15px;cursor:pointer;padding:4px 8px}
+.lfilters{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 12px}
+.lfilchip{font-size:12px;font-weight:800;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--mut);cursor:pointer;user-select:none}
+.lfilchip:hover{border-color:#39b0ff}
+.lfilchip.on{border-color:#39b0ff;background:rgba(57,176,255,.16);color:#66d0ff}
+.ori{font-size:10px;font-weight:800;padding:1px 7px;border-radius:999px;vertical-align:middle;white-space:nowrap}
+.ori.wa{background:rgba(47,209,141,.16);color:#2fd18d}
+.ori.fb{background:rgba(57,176,255,.16);color:#66d0ff}
+.ori.ig{background:rgba(190,120,255,.16);color:#c79bff}
 .leadbtns{display:flex;gap:8px;margin:8px 0 0 46px}
 .lbtn{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:800;padding:8px 14px;border-radius:12px;text-decoration:none;cursor:pointer;color:#fff}
 .lbtn.wa{background:linear-gradient(90deg,#1faa53,#25d366)}
@@ -345,6 +353,8 @@ let LEADS_DET=[];    // clientes_lead del agente (ultimos dias)
 let LEADS_ALL=[];    // clientes_lead de TODOS los agentes (vista director)
 let LEAD_AG_OPEN=null; // agente expandido en la vista director de leads
 let LEAD_DIA=null;   // fecha seleccionada en la pestaña Leads
+let LEAD_FILTRO='todos'; // filtro por estado en Mis Leads
+let LEAD_BUSCA='';   // buscador en Mis Leads
 let SEGU_MAP={};     // contact_id -> {llamada1,llamada2,whatsapp,registrado,observacion}
 let POSIBLES=[];     // posibles del agente (prospectos del día)
 const GHL_LOC='LyDmZPr3s5ICw2mIFTI5'; // location de GoHighLevel (para deep-links)
@@ -639,7 +649,7 @@ async function loadLeadsDetalle(){
   // Paginado: el servidor limita las filas por respuesta (~1000), así que recorremos todo el rango.
   let all=[], off=0; const page=1000;
   for(let i=0;i<40;i++){
-   const r=await fetch(SUPABASE_URL+'/rest/v1/clientes_lead?llegada_at=gte.'+desde+'&select=contact_id,agente,nombre,telefono,llegada_at,registrado_at,ftd_at&order=llegada_at.desc&limit='+page+'&offset='+off,{headers:HDRS});
+   const r=await fetch(SUPABASE_URL+'/rest/v1/clientes_lead?llegada_at=gte.'+desde+'&select=contact_id,agente,nombre,telefono,email,origen,llegada_at,registrado_at,ftd_at&order=llegada_at.desc&limit='+page+'&offset='+off,{headers:HDRS});
    const b=await r.json(); if(!Array.isArray(b)||!b.length) break;
    all=all.concat(b); if(b.length<page) break; off+=page;
   }
@@ -797,7 +807,7 @@ async function startApp(){
  Promise.all([loadMeta().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{}),loadPosibles().catch(()=>{})]).then(()=>renderMeta());
  await loadMetricas().catch(()=>{METRICAS=[];});renderMeta();
  // refresco de Mi Meta cada 60s: leads nuevos + aportes + facturación del Sheet (sin pisar lo que se esté escribiendo)
- setInterval(async()=>{if(PAGE==='meta'){const ae=document.activeElement;const editing=ae&&(['mMetaFtd','mMetaDia','mMetaFact','posNombre'].includes(ae.id)||(ae.classList&&ae.classList.contains('obsin')));if(editing)return;await Promise.all([loadMetricas().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{}),loadMetasMes().catch(()=>{}),loadPosibles().catch(()=>{})]);renderMeta();}},60000);
+ setInterval(async()=>{if(PAGE==='meta'){const ae=document.activeElement;const editing=ae&&(['mMetaFtd','mMetaDia','mMetaFact','posNombre','lbusca'].includes(ae.id)||(ae.classList&&ae.classList.contains('obsin')));if(editing)return;await Promise.all([loadMetricas().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{}),loadMetasMes().catch(()=>{}),loadPosibles().catch(()=>{})]);renderMeta();}},60000);
 }
 function showView(v){
  PAGE=v;
@@ -893,6 +903,8 @@ function renderMeta(){
  });
  const cd=$('csvDia'); if(cd) cd.onclick=exportarLeadsDia;
  const ct=$('csvTodo'); if(ct) ct.onclick=exportarLeadsTodo;
+ document.querySelectorAll('.lfilchip').forEach(c=>c.onclick=()=>{LEAD_FILTRO=c.dataset.f;LEAD_AG_OPEN=null;renderMeta();});
+ const lb=$('lbusca'); if(lb) lb.oninput=()=>{LEAD_BUSCA=lb.value;LEAD_AG_OPEN=null;renderMeta();const n=$('lbusca');if(n){n.focus();const v=n.value;n.setSelectionRange(v.length,v.length);}};
  const mf=$('mFecha'); if(mf) mf.onchange=()=>{if(mf.value){LEAD_DIA=mf.value;LEAD_AG_OPEN=null;renderMeta();}};
  const bhf=$('btnHoyFecha'); if(bhf) bhf.onclick=()=>{LEAD_DIA=fechaBog(new Date());LEAD_AG_OPEN=null;renderMeta();};
  document.querySelectorAll('.agrow').forEach(r=>r.onclick=()=>{const a=r.dataset.ag;LEAD_AG_OPEN=(LEAD_AG_OPEN===a)?null:a;renderMeta();});
@@ -907,6 +919,27 @@ function renderMeta(){
  const pn=$('posNombre'); if(pn) pn.onkeydown=(e)=>{if(e.key==='Enter')agregarPosible();};
  document.querySelectorAll('.posbtn').forEach(b=>b.onclick=()=>posibleHecho(b.dataset.id, !(b.dataset.on==='1')));
  document.querySelectorAll('.posdel').forEach(b=>b.onclick=()=>{if(confirm('¿Descartar este posible?'))descartarPosible(b.dataset.id);});
+}
+function pasaFiltro(l){const s=SEGU_MAP[l.contact_id||'']||{};
+ switch(LEAD_FILTRO){
+  case 'ftd': return !!l.ftd_at;
+  case 'registrado': return !!s.registrado;
+  case 'llamada1': return !!s.llamada1;
+  case 'llamada2': return !!s.llamada2;
+  case 'whatsapp': return !!s.whatsapp;
+  default: return true;
+ }}
+function pasaBusca(l){const q=norm(LEAD_BUSCA); if(!q) return true;
+ return norm(l.nombre||'').includes(q) || norm(l.telefono||'').includes(q) || norm(l.email||'').includes(q);}
+function filtraLeads(arr){return arr.filter(l=>pasaFiltro(l)&&pasaBusca(l));}
+function origenBadge(l){const o=(l.origen||'').toLowerCase(); if(!o) return '';
+ if(o.includes('whatsapp')) return '<span class="ori wa">WhatsApp</span>';
+ if(o.includes('instagram')) return '<span class="ori ig">Instagram</span>';
+ return '<span class="ori fb">Facebook</span>';}
+function leadControlsHTML(){
+ const F=[['todos','Todos'],['ftd','FTD'],['registrado','Registrado'],['llamada1','Llamada 1'],['llamada2','Llamada 2'],['whatsapp','WhatsApp']];
+ return `<input id="lbusca" class="minp" placeholder="Buscar por nombre, número o correo…" value="${esc(LEAD_BUSCA)}" style="margin:0 0 10px">
+  <div class="lfilters">${F.map(([k,lbl])=>`<span class="lfilchip ${LEAD_FILTRO===k?'on':''}" data-f="${k}">${lbl}</span>`).join('')}</div>`;
 }
 function renderLeadsHTML(ag){
  if(ROLE==='director') return renderLeadsDirector();
@@ -931,12 +964,13 @@ function renderLeadsHTML(ag){
  const obs=l=>{const cid=l.contact_id||''; if(!cid) return '';
    const v=esc((SEGU_MAP[cid]||{}).observacion||'');
    return `<textarea class="obsin" data-cid="${esc(cid)}" rows="2" placeholder="Observación: ¿qué pasó con el cliente?">${v}</textarea>`;};
- const lista=byDay[LEAD_DIA]||[];
- const rows=lista.length? lista.map(l=>`<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${checks(l)}${acciones(l)}${obs(l)}</div>`).join('') : `<div class="hint">No te llegaron leads ese día.</div>`;
+ const todas=byDay[LEAD_DIA]||[]; const lista=filtraLeads(todas);
+ const rows=lista.length? lista.map(l=>`<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')} ${origenBadge(l)}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${checks(l)}${acciones(l)}${obs(l)}</div>`).join('') : `<div class="hint">${todas.length?'Ningún lead coincide con el filtro o la búsqueda.':'No te llegaron leads ese día.'}</div>`;
  return `<div class="mcard"><h3>📥 Mis leads por día</h3><div class="hint">Elige una fecha para ver tus leads; marca el avance, escribe la observación y abre el chat o la llamada en GoHighLevel.</div>
   ${selFecha}
   <div class="leadbtns" style="margin:0 0 12px"><button class="lbtn call" id="csvDia">⬇️ CSV de este día</button><button class="lbtn" id="csvTodo" style="background:linear-gradient(90deg,#6b7280,#9aa3b2)">⬇️ CSV de todos</button></div>
-  <div><div style="color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${etiqueta(LEAD_DIA)} · ${lista.length} leads</div>${rows}</div>
+  ${leadControlsHTML()}
+  <div><div style="color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${etiqueta(LEAD_DIA)} · ${lista.length}${lista.length!==todas.length?' de '+todas.length:''} leads</div>${rows}</div>
  </div>`;
 }
 function renderLeadsDirector(){
@@ -961,16 +995,17 @@ function renderLeadsDirector(){
  const leadRO=l=>{const cid=l.contact_id||''; const s=SEGU_MAP[cid]||{};
    const chks=`<div class="chks">${CAMPOS.map(([k,lbl])=>`<span class="chkro ${s[k]?'on':''}">${s[k]?'✔ ':''}${lbl}</span>`).join('')}</div>`;
    const obsv=s.observacion?`<div class="obsro">📝 ${esc(s.observacion)}</div>`:'<div class="obsro vacia">Sin observación</div>';
-   return `<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${chks}${obsv}</div>`;};
- const leadsDia=byDay[LEAD_DIA]||[];
+   return `<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')} ${origenBadge(l)}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${chks}${obsv}</div>`;};
+ const todasDia=byDay[LEAD_DIA]||[]; const leadsDia=filtraLeads(todasDia);
  const porAg={}; leadsDia.forEach(l=>{const a=l.agente||'(sin asignar)'; (porAg[a]=porAg[a]||[]).push(l);});
  const agentes=Object.keys(porAg).sort((a,b)=>porAg[b].length-porAg[a].length);
  const filas=leadsDia.length? agentes.map(a=>{const open=LEAD_AG_OPEN===a; const lst=porAg[a];
-   return `<div class="agbox"><div class="agrow ${open?'on':''}" data-ag="${esc(a)}"><div class="av">${initials(a)}</div><div style="flex:1;min-width:0"><div class="nm">${esc(a)}</div></div><span class="cntbadge">${lst.length} lead${lst.length!==1?'s':''}</span><span class="caret">${open?'▲':'▼'}</span></div>${open?`<div class="agleads">${lst.map(leadRO).join('')}</div>`:''}</div>`;}).join('') : `<div class="hint">No llegaron leads ese día.</div>`;
+   return `<div class="agbox"><div class="agrow ${open?'on':''}" data-ag="${esc(a)}"><div class="av">${initials(a)}</div><div style="flex:1;min-width:0"><div class="nm">${esc(a)}</div></div><span class="cntbadge">${lst.length} lead${lst.length!==1?'s':''}</span><span class="caret">${open?'▲':'▼'}</span></div>${open?`<div class="agleads">${lst.map(leadRO).join('')}</div>`:''}</div>`;}).join('') : `<div class="hint">${todasDia.length?'Ningún lead coincide con el filtro o la búsqueda.':'No llegaron leads ese día.'}</div>`;
  return hero+`<div class="mcard"><h3>📥 Leads por día · por agente</h3><div class="hint">Elige una fecha y mira cuántos leads le llegaron a cada agente. Toca un agente para ver sus leads (solo lectura).</div>
   ${selFecha}
   <div class="leadbtns" style="margin:0 0 12px"><button class="lbtn call" id="csvDia">⬇️ CSV de este día</button><button class="lbtn" id="csvTodo" style="background:linear-gradient(90deg,#6b7280,#9aa3b2)">⬇️ CSV de todos</button></div>
-  <div style="color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin:4px 0 10px">${etiqueta(LEAD_DIA)} · ${leadsDia.length} leads · ${agentes.length} agentes</div>
+  ${leadControlsHTML()}
+  <div style="color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin:4px 0 10px">${etiqueta(LEAD_DIA)} · ${leadsDia.length}${leadsDia.length!==todasDia.length?' de '+todasDia.length:''} leads · ${agentes.length} agentes</div>
   ${filas}
  </div>`;
 }

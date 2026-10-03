@@ -197,6 +197,9 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
 .daychip{padding:9px 15px;border-radius:12px;border:1px solid var(--line);background:var(--white);color:var(--ink2);font-weight:700;font-size:13px;cursor:pointer;text-align:center;min-width:90px}
 .daychip .n{display:block;font-family:'Space Grotesk';font-size:19px;color:var(--ink);margin-top:2px}
 .daychip.on{border-color:#39b0ff;background:linear-gradient(180deg,rgba(57,176,255,.14),transparent)}
+.fechasel{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:4px 0 14px}
+.fechasel .minp{max-width:210px;color-scheme:dark}
+input[type=date].minp::-webkit-calendar-picker-indicator{filter:invert(.8);cursor:pointer}
 .leaditem{border-top:1px solid var(--line);padding:4px 0 10px}
 .leaditem .leadrow{border-top:0}
 .chks{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 0 46px}
@@ -861,7 +864,8 @@ function renderMeta(){
  });
  const cd=$('csvDia'); if(cd) cd.onclick=exportarLeadsDia;
  const ct=$('csvTodo'); if(ct) ct.onclick=exportarLeadsTodo;
- document.querySelectorAll('.daychip').forEach(c=>c.onclick=()=>{LEAD_DIA=c.dataset.dia;LEAD_AG_OPEN=null;renderMeta();});
+ const mf=$('mFecha'); if(mf) mf.onchange=()=>{if(mf.value){LEAD_DIA=mf.value;LEAD_AG_OPEN=null;renderMeta();}};
+ const bhf=$('btnHoyFecha'); if(bhf) bhf.onclick=()=>{LEAD_DIA=fechaBog(new Date());LEAD_AG_OPEN=null;renderMeta();};
  document.querySelectorAll('.agrow').forEach(r=>r.onclick=()=>{const a=r.dataset.ag;LEAD_AG_OPEN=(LEAD_AG_OPEN===a)?null:a;renderMeta();});
  document.querySelectorAll('.chk').forEach(ch=>ch.onclick=async()=>{
    const cid=ch.dataset.cid, k=ch.dataset.k; if(!cid)return;
@@ -877,10 +881,11 @@ function renderLeadsHTML(ag){
  LEADS_DET.forEach(l=>{const f=fechaBog(l.llegada_at); if(!f)return; (byDay[f]=byDay[f]||[]).push(l);});
  const dias=Object.keys(byDay).sort().reverse();
  if(!dias.length) return `<div class="mcard"><h3>📥 Mis leads</h3><div class="hint">Aún no hay leads en los últimos días.</div></div>`;
- if(!LEAD_DIA||!byDay[LEAD_DIA]) LEAD_DIA=dias[0];
+ if(!LEAD_DIA) LEAD_DIA=dias[0];
  const hoyB=fechaBog(new Date()), ayerB=fechaBog(new Date(Date.now()-86400000));
- const etiqueta=f=> f===hoyB?'Hoy': f===ayerB?'Ayer': (f.slice(8)+'/'+f.slice(5,7));
- const chips=dias.map(f=>`<div class="daychip ${f===LEAD_DIA?'on':''}" data-dia="${f}">${etiqueta(f)}<span class="n">${byDay[f].length}</span></div>`).join('');
+ const minDia=dias[dias.length-1]||LEAD_DIA, maxDia=dias[0]>hoyB?dias[0]:hoyB;
+ const etiqueta=f=> f===hoyB?'Hoy': f===ayerB?'Ayer': (f.slice(8)+'/'+f.slice(5,7)+'/'+f.slice(0,4));
+ const selFecha=`<div class="fechasel"><label class="fl" style="margin:0">📅 Seleccionar fecha</label><input type="date" class="minp" id="mFecha" value="${LEAD_DIA}" min="${minDia}" max="${maxDia}"><button class="lbtn call" id="btnHoyFecha" style="padding:9px 14px">Hoy</button></div>`;
  const estado=l=> l.ftd_at?'<span class="pill ftd">FTD</span>': l.registrado_at?'<span class="pill reg">Registrado</span>':'<span class="pill new">Nuevo</span>';
  const hora=l=>{try{return new Date(l.llegada_at).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});}catch(e){return '';}};
  const CAMPOS=[['llamada1','Llamada 1'],['llamada2','Llamada 2'],['whatsapp','Bajado a WhatsApp'],['registrado','Registrado']];
@@ -893,11 +898,12 @@ function renderLeadsHTML(ag){
  const obs=l=>{const cid=l.contact_id||''; if(!cid) return '';
    const v=esc((SEGU_MAP[cid]||{}).observacion||'');
    return `<textarea class="obsin" data-cid="${esc(cid)}" rows="2" placeholder="Observación: ¿qué pasó con el cliente?">${v}</textarea>`;};
- const rows=byDay[LEAD_DIA].map(l=>`<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${checks(l)}${acciones(l)}${obs(l)}</div>`).join('');
- return `<div class="mcard"><h3>📥 Mis leads por día</h3><div class="hint">Toca un día para ver los leads; marca el avance, escribe la observación y abre el chat o la llamada en GoHighLevel.</div>
+ const lista=byDay[LEAD_DIA]||[];
+ const rows=lista.length? lista.map(l=>`<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${checks(l)}${acciones(l)}${obs(l)}</div>`).join('') : `<div class="hint">No te llegaron leads ese día.</div>`;
+ return `<div class="mcard"><h3>📥 Mis leads por día</h3><div class="hint">Elige una fecha para ver tus leads; marca el avance, escribe la observación y abre el chat o la llamada en GoHighLevel.</div>
+  ${selFecha}
   <div class="leadbtns" style="margin:0 0 12px"><button class="lbtn call" id="csvDia">⬇️ CSV de este día</button><button class="lbtn" id="csvTodo" style="background:linear-gradient(90deg,#6b7280,#9aa3b2)">⬇️ CSV de todos</button></div>
-  <div class="daychips">${chips}</div>
-  <div><div style="color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${etiqueta(LEAD_DIA)} · ${byDay[LEAD_DIA].length} leads</div>${rows}</div>
+  <div><div style="color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${etiqueta(LEAD_DIA)} · ${lista.length} leads</div>${rows}</div>
  </div>`;
 }
 function renderLeadsDirector(){
@@ -912,9 +918,10 @@ function renderLeadsDirector(){
    <div class="hint" style="margin-top:6px">Ayer llegaron <b style="color:var(--ink)">${cntDia(ayerB)}</b> · ${hoyB}</div>
   </div>`;
  if(!dias.length) return hero+`<div class="mcard"><h3>📥 Leads por día</h3><div class="hint">Aún no hay leads en el rango.</div></div>`;
- if(!LEAD_DIA||!byDay[LEAD_DIA]) LEAD_DIA=dias[0];
- const etiqueta=f=> f===hoyB?'Hoy': f===ayerB?'Ayer': (f.slice(8)+'/'+f.slice(5,7));
- const chips=dias.map(f=>`<div class="daychip ${f===LEAD_DIA?'on':''}" data-dia="${f}">${etiqueta(f)}<span class="n">${byDay[f].length}</span></div>`).join('');
+ if(!LEAD_DIA) LEAD_DIA=dias[0];
+ const minDia=dias[dias.length-1]||LEAD_DIA, maxDia=dias[0]>hoyB?dias[0]:hoyB;
+ const etiqueta=f=> f===hoyB?'Hoy': f===ayerB?'Ayer': (f.slice(8)+'/'+f.slice(5,7)+'/'+f.slice(0,4));
+ const selFecha=`<div class="fechasel"><label class="fl" style="margin:0">📅 Seleccionar fecha</label><input type="date" class="minp" id="mFecha" value="${LEAD_DIA}" min="${minDia}" max="${maxDia}"><button class="lbtn call" id="btnHoyFecha" style="padding:9px 14px">Hoy</button></div>`;
  const hora=l=>{try{return new Date(l.llegada_at).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});}catch(e){return '';}};
  const estado=l=> l.ftd_at?'<span class="pill ftd">FTD</span>': l.registrado_at?'<span class="pill reg">Registrado</span>':'<span class="pill new">Nuevo</span>';
  const CAMPOS=[['llamada1','Llamada 1'],['llamada2','Llamada 2'],['whatsapp','Bajado a WhatsApp'],['registrado','Registrado']];
@@ -922,14 +929,14 @@ function renderLeadsDirector(){
    const chks=`<div class="chks">${CAMPOS.map(([k,lbl])=>`<span class="chkro ${s[k]?'on':''}">${s[k]?'✔ ':''}${lbl}</span>`).join('')}</div>`;
    const obsv=s.observacion?`<div class="obsro">📝 ${esc(s.observacion)}</div>`:'<div class="obsro vacia">Sin observación</div>';
    return `<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${chks}${obsv}</div>`;};
- const leadsDia=byDay[LEAD_DIA];
+ const leadsDia=byDay[LEAD_DIA]||[];
  const porAg={}; leadsDia.forEach(l=>{const a=l.agente||'(sin asignar)'; (porAg[a]=porAg[a]||[]).push(l);});
  const agentes=Object.keys(porAg).sort((a,b)=>porAg[b].length-porAg[a].length);
- const filas=agentes.map(a=>{const open=LEAD_AG_OPEN===a; const lst=porAg[a];
-   return `<div class="agbox"><div class="agrow ${open?'on':''}" data-ag="${esc(a)}"><div class="av">${initials(a)}</div><div style="flex:1;min-width:0"><div class="nm">${esc(a)}</div></div><span class="cntbadge">${lst.length} lead${lst.length!==1?'s':''}</span><span class="caret">${open?'▲':'▼'}</span></div>${open?`<div class="agleads">${lst.map(leadRO).join('')}</div>`:''}</div>`;}).join('');
- return hero+`<div class="mcard"><h3>📥 Leads por día · por agente</h3><div class="hint">Elige un día y mira cuántos leads le llegaron a cada agente. Toca un agente para ver sus leads (solo lectura).</div>
+ const filas=leadsDia.length? agentes.map(a=>{const open=LEAD_AG_OPEN===a; const lst=porAg[a];
+   return `<div class="agbox"><div class="agrow ${open?'on':''}" data-ag="${esc(a)}"><div class="av">${initials(a)}</div><div style="flex:1;min-width:0"><div class="nm">${esc(a)}</div></div><span class="cntbadge">${lst.length} lead${lst.length!==1?'s':''}</span><span class="caret">${open?'▲':'▼'}</span></div>${open?`<div class="agleads">${lst.map(leadRO).join('')}</div>`:''}</div>`;}).join('') : `<div class="hint">No llegaron leads ese día.</div>`;
+ return hero+`<div class="mcard"><h3>📥 Leads por día · por agente</h3><div class="hint">Elige una fecha y mira cuántos leads le llegaron a cada agente. Toca un agente para ver sus leads (solo lectura).</div>
+  ${selFecha}
   <div class="leadbtns" style="margin:0 0 12px"><button class="lbtn call" id="csvDia">⬇️ CSV de este día</button><button class="lbtn" id="csvTodo" style="background:linear-gradient(90deg,#6b7280,#9aa3b2)">⬇️ CSV de todos</button></div>
-  <div class="daychips">${chips}</div>
   <div style="color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin:4px 0 10px">${etiqueta(LEAD_DIA)} · ${leadsDia.length} leads · ${agentes.length} agentes</div>
   ${filas}
  </div>`;

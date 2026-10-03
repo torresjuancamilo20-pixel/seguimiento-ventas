@@ -227,6 +227,16 @@ input[type=date].minp::-webkit-calendar-picker-indicator{filter:invert(.8);curso
 .obsro{margin:8px 0 0 46px;font-size:13px;color:var(--ink2);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
 .obsro.vacia{color:var(--mut);font-style:italic}
 @media(max-width:760px){.obsro{margin-left:0}}
+.posrow{display:flex;align-items:center;gap:12px;padding:11px 4px;border-top:1px solid var(--line)}
+.posrow .nm{font-weight:700;font-size:14.5px;flex:1;min-width:0}
+.posrow.done .nm{text-decoration:line-through;color:var(--mut)}
+.posbtn{font-size:12.5px;font-weight:800;padding:8px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer;white-space:nowrap;transition:all .12s}
+.posbtn:hover{border-color:#2fd18d}
+.posbtn.on{background:rgba(47,209,141,.18);border-color:#2fd18d;color:#2fd18d}
+.posmark{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;border:1.5px solid var(--line);color:var(--mut)}
+.posmark.on{background:rgba(47,209,141,.18);border-color:#2fd18d;color:#2fd18d}
+.posdesde{font-size:11px;color:#e9a23b;font-weight:800;white-space:nowrap}
+.posdel{border:0;background:transparent;color:#c0392b;font-weight:800;font-size:15px;cursor:pointer;padding:4px 8px}
 .leadbtns{display:flex;gap:8px;margin:8px 0 0 46px}
 .lbtn{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:800;padding:8px 14px;border-radius:12px;text-decoration:none;cursor:pointer;color:#fff}
 .lbtn.wa{background:linear-gradient(90deg,#1faa53,#25d366)}
@@ -336,6 +346,7 @@ let LEADS_ALL=[];    // clientes_lead de TODOS los agentes (vista director)
 let LEAD_AG_OPEN=null; // agente expandido en la vista director de leads
 let LEAD_DIA=null;   // fecha seleccionada en la pestaña Leads
 let SEGU_MAP={};     // contact_id -> {llamada1,llamada2,whatsapp,registrado,observacion}
+let POSIBLES=[];     // posibles del agente (prospectos del día)
 const GHL_LOC='LyDmZPr3s5ICw2mIFTI5'; // location de GoHighLevel (para deep-links)
 function mesActual(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
 function hoyISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -654,6 +665,24 @@ async function guardarObs(cid,txt){
  const cur=SEGU_MAP[cid]||{contact_id:cid}; cur.observacion=txt; SEGU_MAP[cid]=cur;
  try{await fetch(SUPABASE_URL+'/rest/v1/lead_seguimiento?on_conflict=contact_id',{method:'POST',headers:{...WHDR,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(seguBody(cur))});}catch(e){}
 }
+async function loadPosibles(){
+ const ag=metaAgente();
+ try{const r=await fetch(SUPABASE_URL+'/rest/v1/posibles?agente=eq.'+encodeURIComponent(ag)+'&descartado=eq.false&select=*&order=creado_fecha.asc',{headers:HDRS});POSIBLES=await r.json()||[];}catch(e){POSIBLES=[];}
+}
+async function agregarPosible(){
+ const inp=$('posNombre'); if(!inp)return; const nombre=(inp.value||'').trim(); if(!nombre)return;
+ const body={agente:metaAgente(),nombre,creado_fecha:hoyISO(),hecho:false,updated_at:new Date().toISOString()};
+ try{await fetch(SUPABASE_URL+'/rest/v1/posibles',{method:'POST',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify(body)});}catch(e){}
+ await loadPosibles(); renderMeta();
+}
+async function posibleHecho(id,val){
+ try{await fetch(SUPABASE_URL+'/rest/v1/posibles?id=eq.'+id,{method:'PATCH',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify({hecho:val,hecho_at:val?new Date().toISOString():null,updated_at:new Date().toISOString()})});}catch(e){}
+ await loadPosibles(); renderMeta();
+}
+async function descartarPosible(id){
+ try{await fetch(SUPABASE_URL+'/rest/v1/posibles?id=eq.'+id,{method:'PATCH',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify({descartado:true,updated_at:new Date().toISOString()})});}catch(e){}
+ await loadPosibles(); renderMeta();
+}
 async function guardarMeta(){
  const ag=metaAgente(), mes=mesActual();
  const body={agente:ag,mes,meta_ftd:parseInt($('mMetaFtd').value||'0',10)||0,meta_diaria_ftd:parseInt($('mMetaDia').value||'0',10)||0,meta_fact_usd:parseFloat($('mMetaFact').value||'0')||0,updated_at:new Date().toISOString()};
@@ -765,10 +794,10 @@ async function startApp(){
  showView('meta');
  await loadAgentes().catch(()=>{});
  await loadMetasMes().catch(()=>{});
- Promise.all([loadMeta().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{})]).then(()=>renderMeta());
+ Promise.all([loadMeta().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{}),loadPosibles().catch(()=>{})]).then(()=>renderMeta());
  await loadMetricas().catch(()=>{METRICAS=[];});renderMeta();
  // refresco de Mi Meta cada 60s: leads nuevos + aportes + facturación del Sheet (sin pisar lo que se esté escribiendo)
- setInterval(async()=>{if(PAGE==='meta'){const ae=document.activeElement;const editing=ae&&(['mMetaFtd','mMetaDia','mMetaFact'].includes(ae.id)||(ae.classList&&ae.classList.contains('obsin')));if(editing)return;await Promise.all([loadMetricas().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{}),loadMetasMes().catch(()=>{})]);renderMeta();}},60000);
+ setInterval(async()=>{if(PAGE==='meta'){const ae=document.activeElement;const editing=ae&&(['mMetaFtd','mMetaDia','mMetaFact','posNombre'].includes(ae.id)||(ae.classList&&ae.classList.contains('obsin')));if(editing)return;await Promise.all([loadMetricas().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{}),loadMetasMes().catch(()=>{}),loadPosibles().catch(()=>{})]);renderMeta();}},60000);
 }
 function showView(v){
  PAGE=v;
@@ -803,9 +832,11 @@ function renderMeta(){
  ordenAsc.forEach(f=>{const a=apById[f]; const v=a?(+a.ftd||0):0; acum+=v; hist.push({f,v,acum,fa:a?(+a.fact_usd||0):0});});
  hist.reverse();
  const selectorD = ROLE==='director' ? `<div style="margin-bottom:16px"><label class="fl">Agente</label><select class="minp" id="mAgSel" style="max-width:340px">${agentesConMeta().sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(a=>`<option ${a.nombre===ag?'selected':''}>${esc(a.nombre)}</option>`).join('')}</select></div>` : '';
- const tabs = `<div class="mtabs"><div class="mtab ${SUBTAB==='meta'?'on':''}" data-sub="meta">🎯 Mi Meta</div><div class="mtab ${SUBTAB==='leads'?'on':''}" data-sub="leads">📥 Mis Leads</div></div>`;
+ const tabs = `<div class="mtabs"><div class="mtab ${SUBTAB==='meta'?'on':''}" data-sub="meta">🎯 Mi Meta</div><div class="mtab ${SUBTAB==='leads'?'on':''}" data-sub="leads">📥 Mis Leads</div><div class="mtab ${SUBTAB==='posibles'?'on':''}" data-sub="posibles">🔥 Posibles</div></div>`;
  let bodyH='';
- if(SUBTAB!=='leads'){
+ if(SUBTAB==='leads'){ bodyH = renderLeadsHTML(ag); }
+ else if(SUBTAB==='posibles'){ bodyH = renderPosibles(ag); }
+ else {
   const pos=Math.max(4,Math.min(96,pctFtd||0));
   const nombre=esc((ag||'Tú').split(' ')[0]||'Tú');
   bodyH = `
@@ -849,15 +880,13 @@ function renderMeta(){
      </div>
      <div class="hint" style="margin-top:12px">Tu meta se solicita al inicio de cada mes. Los FTD del día se marcan en los cuadros de la carrera; la facturación se toma directo de tu Google Sheet.</div>
     </div>`;})()}`;
- } else {
-  bodyH = renderLeadsHTML(ag);
  }
  el.innerHTML = (SUBTAB==='leads'?'':selectorD) + tabs + bodyH;
  document.querySelectorAll('.mtab').forEach(t=>t.onclick=()=>{SUBTAB=t.dataset.sub;renderMeta();});
  const sm=$('mSaveMeta'); if(sm) sm.onclick=guardarMeta;
  const me=$('mEditMeta'); if(me) me.onclick=()=>{META_EDIT=true;renderMeta();};
  const mc=$('mCancelMeta'); if(mc) mc.onclick=()=>{META_EDIT=false;renderMeta();};
- const sel=$('mAgSel'); if(sel) sel.onchange=async()=>{META_AG=sel.value;LEAD_DIA=null;META_EDIT=false;await Promise.all([loadMeta(),loadAportes(),loadLeadsDetalle(),loadVentas()]);renderMeta();};
+ const sel=$('mAgSel'); if(sel) sel.onchange=async()=>{META_AG=sel.value;LEAD_DIA=null;META_EDIT=false;await Promise.all([loadMeta(),loadAportes(),loadLeadsDetalle(),loadVentas(),loadPosibles()]);renderMeta();};
  document.querySelectorAll('.ftdbox').forEach(b=>b.onclick=()=>{
    const i=+b.dataset.i; const cont=b.closest('.ftdday'); const hoy=cont?(+cont.dataset.hoy||0):0;
    const target=(i+1===hoy)?i:(i+1); setHoyFtd(target);
@@ -874,6 +903,10 @@ function renderMeta(){
    await toggleSegu(cid,k,nv);
  });
  document.querySelectorAll('.obsin').forEach(t=>t.onchange=()=>{const cid=t.dataset.cid; if(cid) guardarObs(cid,t.value.trim());});
+ const pa=$('posAdd'); if(pa) pa.onclick=agregarPosible;
+ const pn=$('posNombre'); if(pn) pn.onkeydown=(e)=>{if(e.key==='Enter')agregarPosible();};
+ document.querySelectorAll('.posbtn').forEach(b=>b.onclick=()=>posibleHecho(b.dataset.id, !(b.dataset.on==='1')));
+ document.querySelectorAll('.posdel').forEach(b=>b.onclick=()=>{if(confirm('¿Descartar este posible?'))descartarPosible(b.dataset.id);});
 }
 function renderLeadsHTML(ag){
  if(ROLE==='director') return renderLeadsDirector();
@@ -940,6 +973,30 @@ function renderLeadsDirector(){
   <div style="color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin:4px 0 10px">${etiqueta(LEAD_DIA)} · ${leadsDia.length} leads · ${agentes.length} agentes</div>
   ${filas}
  </div>`;
+}
+function renderPosibles(ag){
+ const dir=ROLE==='director';
+ const hoy=hoyISO();
+ const deHoy=POSIBLES.filter(p=>p.creado_fecha===hoy);
+ const pend=POSIBLES.filter(p=>p.creado_fecha<hoy && !p.hecho);
+ const hechosHoy=deHoy.filter(p=>p.hecho).length;
+ const ddmm=f=>(f||'').slice(8,10)+'/'+(f||'').slice(5,7);
+ const fila=(p,desde)=>`<div class="posrow ${p.hecho?'done':''}">
+   ${dir?`<span class="posmark ${p.hecho?'on':''}">${p.hecho?'✓':'•'}</span>`:`<button class="posbtn ${p.hecho?'on':''}" data-id="${p.id}" data-on="${p.hecho?1:0}">${p.hecho?'✓ Hizo FTD':'Marcar FTD'}</button>`}
+   <span class="nm">${esc(p.nombre||'')}</span>
+   ${desde?`<span class="posdesde">desde ${ddmm(p.creado_fecha)}</span>`:''}
+   ${dir?'':`<button class="posdel" data-id="${p.id}" title="Descartar">✕</button>`}
+  </div>`;
+ const addCard = dir?'':`<div class="mcard"><h3>🔥 Agregar posible de hoy</h3>
+   <div class="fechasel" style="margin:6px 0 0"><input class="minp" id="posNombre" placeholder="Nombre del posible…" style="max-width:320px"><button class="mbtn gold" id="posAdd" style="margin-top:0">Agregar</button></div>
+   <div class="hint" style="margin-top:8px">Escribe cada posible del día. Márcalo cuando haga FTD; si no, queda pendiente para mañana.</div></div>`;
+ const hoyCard = `<div class="mcard"><h3>📅 Posibles de hoy</h3>
+   <div class="hint">Hoy: <b style="color:var(--ink)">${deHoy.length}</b> · hicieron FTD: <b style="color:#2fd18d">${hechosHoy}</b> · pendientes: <b style="color:#e9a23b">${deHoy.length-hechosHoy}</b></div>
+   ${deHoy.length? deHoy.map(p=>fila(p,false)).join('') : '<div class="hint" style="margin-top:8px">Aún no hay posibles hoy.</div>'}</div>`;
+ const pendCard = pend.length? `<div class="mcard"><h3>⏳ Pendientes de días anteriores</h3>
+   <div class="hint">Posibles de días pasados que todavía no han hecho FTD (${pend.length}).</div>
+   ${pend.map(p=>fila(p,true)).join('')}</div>` : '';
+ return addCard + hoyCard + pendCard;
 }
 
 /* ---------- VENTAS ---------- */

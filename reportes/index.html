@@ -345,6 +345,8 @@ let AGENTES=[];      // {email,nombre}
 let METRICAS=[];     // {fecha,agente,leads,registros,ftd}
 let META_AG=null;    // agente seleccionado en la vista Mi Meta (director)
 let METAS_MES=[];    // nombres de agentes con meta fijada en el mes actual (director solo ve estos)
+let EQUIPO_FTD={};   // agente -> FTD acumulado del mes (panel director)
+let EQUIPO_METAS={}; // agente -> fila de meta del mes (panel director)
 let META_ROW=null;   // {agente,mes,meta_ftd,meta_diaria_ftd,meta_fact_usd}
 let APORTES=[];      // {agente,fecha,ftd,fact_usd}
 let SUBTAB='meta';   // 'meta' | 'leads'
@@ -620,6 +622,12 @@ async function loadMetricas(){
 async function loadMetasMes(){
  try{const r=await fetch(SUPABASE_URL+'/rest/v1/metas_agente?mes=eq.'+mesActual()+'&select=agente',{headers:HDRS});const b=await r.json()||[];METAS_MES=Array.isArray(b)?b.map(x=>x.agente).filter(Boolean):[];}catch(e){METAS_MES=[];}
 }
+async function loadPanel(){
+ if(ROLE!=='director') return;
+ const desde=mesActual()+'-01';
+ try{const r=await fetch(SUPABASE_URL+'/rest/v1/aporte_diario?fecha=gte.'+desde+'&select=agente,ftd&limit=20000',{headers:HDRS});const b=await r.json()||[];EQUIPO_FTD={};b.forEach(x=>{EQUIPO_FTD[x.agente]=(EQUIPO_FTD[x.agente]||0)+(+x.ftd||0);});}catch(e){EQUIPO_FTD={};}
+ try{const r=await fetch(SUPABASE_URL+'/rest/v1/metas_agente?mes=eq.'+mesActual()+'&select=*',{headers:HDRS});const b=await r.json()||[];EQUIPO_METAS={};b.forEach(x=>{EQUIPO_METAS[x.agente]=x;});}catch(e){EQUIPO_METAS={};}
+}
 // Agentes que el director puede ver: solo los que tienen meta este mes (si aún no cargó, muestra todos).
 function agentesConMeta(){
  const base=AGENTES.filter(a=>!excluido(a.nombre));
@@ -804,10 +812,10 @@ async function startApp(){
  showView('meta');
  await loadAgentes().catch(()=>{});
  await loadMetasMes().catch(()=>{});
- Promise.all([loadMeta().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{}),loadPosibles().catch(()=>{})]).then(()=>renderMeta());
+ Promise.all([loadMeta().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{}),loadPosibles().catch(()=>{}),loadPanel().catch(()=>{})]).then(()=>renderMeta());
  await loadMetricas().catch(()=>{METRICAS=[];});renderMeta();
  // refresco de Mi Meta cada 60s: leads nuevos + aportes + facturación del Sheet (sin pisar lo que se esté escribiendo)
- setInterval(async()=>{if(PAGE==='meta'){const ae=document.activeElement;const editing=ae&&(['mMetaFtd','mMetaDia','mMetaFact','posNombre','lbusca'].includes(ae.id)||(ae.classList&&ae.classList.contains('obsin')));if(editing)return;await Promise.all([loadMetricas().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{}),loadMetasMes().catch(()=>{}),loadPosibles().catch(()=>{})]);renderMeta();}},60000);
+ setInterval(async()=>{if(PAGE==='meta'){const ae=document.activeElement;const editing=ae&&(['mMetaFtd','mMetaDia','mMetaFact','posNombre','lbusca'].includes(ae.id)||(ae.classList&&ae.classList.contains('obsin')));if(editing)return;await Promise.all([loadMetricas().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{}),loadMetasMes().catch(()=>{}),loadPosibles().catch(()=>{}),loadPanel().catch(()=>{})]);renderMeta();}},60000);
 }
 function showView(v){
  PAGE=v;
@@ -842,9 +850,10 @@ function renderMeta(){
  ordenAsc.forEach(f=>{const a=apById[f]; const v=a?(+a.ftd||0):0; acum+=v; hist.push({f,v,acum,fa:a?(+a.fact_usd||0):0});});
  hist.reverse();
  const selectorD = ROLE==='director' ? `<div style="margin-bottom:16px"><label class="fl">Agente</label><select class="minp" id="mAgSel" style="max-width:340px">${agentesConMeta().sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(a=>`<option ${a.nombre===ag?'selected':''}>${esc(a.nombre)}</option>`).join('')}</select></div>` : '';
- const tabs = `<div class="mtabs"><div class="mtab ${SUBTAB==='meta'?'on':''}" data-sub="meta">🎯 Mi Meta</div><div class="mtab ${SUBTAB==='leads'?'on':''}" data-sub="leads">📥 Mis Leads</div></div>`;
+ const tabs = `<div class="mtabs"><div class="mtab ${SUBTAB==='meta'?'on':''}" data-sub="meta">🎯 Mi Meta</div><div class="mtab ${SUBTAB==='leads'?'on':''}" data-sub="leads">📥 Mis Leads</div>${ROLE==='director'?`<div class="mtab ${SUBTAB==='panel'?'on':''}" data-sub="panel">📊 Panel equipo</div>`:''}</div>`;
  let bodyH='';
  if(SUBTAB==='leads'){ bodyH = renderLeadsHTML(ag); }
+ else if(SUBTAB==='panel' && ROLE==='director'){ bodyH = renderPanel(); }
  else {
   const pos=Math.max(4,Math.min(96,pctFtd||0));
   const nombre=esc((ag||'Tú').split(' ')[0]||'Tú');
@@ -891,7 +900,7 @@ function renderMeta(){
      <div class="hint" style="margin-top:12px">Tu meta se solicita al inicio de cada mes. Los FTD del día se marcan en los cuadros de la carrera; la facturación se toma directo de tu Google Sheet.</div>
     </div>`;})()}`;
  }
- el.innerHTML = (SUBTAB==='leads'?'':selectorD) + tabs + bodyH;
+ el.innerHTML = (SUBTAB==='meta'?selectorD:'') + tabs + bodyH;
  document.querySelectorAll('.mtab').forEach(t=>t.onclick=()=>{SUBTAB=t.dataset.sub;renderMeta();});
  const sm=$('mSaveMeta'); if(sm) sm.onclick=guardarMeta;
  const me=$('mEditMeta'); if(me) me.onclick=()=>{META_EDIT=true;renderMeta();};
@@ -1032,6 +1041,38 @@ function renderPosibles(ag){
    <div class="hint">Posibles de días pasados que todavía no han hecho FTD (${pend.length}).</div>
    ${pend.map(p=>fila(p,true)).join('')}</div>` : '';
  return addCard + hoyCard + pendCard;
+}
+function renderPanel(){
+ const set={}; agentesConMeta().forEach(a=>set[a.nombre]=1); Object.keys(EQUIPO_FTD).forEach(n=>set[n]=1);
+ const lista=Object.keys(set).filter(n=>n && !excluido(n) && n!=='sin asignar').map(n=>{
+   const m=EQUIPO_METAS[n]||{}; const ftd=EQUIPO_FTD[n]||0;
+   const vrow=(Array.isArray(VENTAS)?VENTAS:[]).find(v=>sameAgent(v.name,n));
+   const fact=vrow?(+vrow.total||0):0;
+   return {n,ftd,metaFtd:+m.meta_ftd||0,fact,metaFact:+m.meta_fact_usd||0};
+ }).sort((a,b)=> b.ftd-a.ftd || b.fact-a.fact);
+ const totFtd=lista.reduce((s,x)=>s+x.ftd,0), totMetaFtd=lista.reduce((s,x)=>s+x.metaFtd,0);
+ const totFact=lista.reduce((s,x)=>s+x.fact,0), totMetaFact=lista.reduce((s,x)=>s+x.metaFact,0);
+ const money=v=>'$'+Math.round(v).toLocaleString('en-US');
+ const bar=(v,m,c)=>`<div class="mbar" style="height:9px;margin:6px 0 0"><i style="width:${m?Math.min(100,Math.round(v/m*100)):0}%;background:${c}"></i></div>`;
+ const filas=lista.map((x,i)=>`<div class="agbox"><div class="agrow" style="cursor:default;align-items:stretch">
+   <div class="av">${initials(x.n)}</div>
+   <div style="flex:1;min-width:0">
+     <div class="nm">${i<3?['🥇','🥈','🥉'][i]+' ':''}${esc(x.n)}</div>
+     <div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:6px">
+       <div style="min-width:150px;flex:1">
+         <div class="ph">FTD <b style="color:#2fd18d">${x.ftd}</b>${x.metaFtd?` / ${x.metaFtd}`:''}</div>${bar(x.ftd,x.metaFtd,'linear-gradient(90deg,#2fb183,#2fd18d)')}
+       </div>
+       <div style="min-width:150px;flex:1">
+         <div class="ph">Ventas <b style="color:#e9c766">${money(x.fact)}</b>${x.metaFact?` / ${money(x.metaFact)}`:''}</div>${bar(x.fact,x.metaFact,'linear-gradient(90deg,#c08a2e,#e9c766)')}
+       </div>
+     </div>
+   </div>
+  </div></div>`).join('');
+ return `<div class="mgrid">
+   <div class="mcard" style="text-align:center;background:linear-gradient(135deg,rgba(47,209,141,.14),transparent)"><div class="ftdday-lb">🎯 Total FTD del equipo</div><div style="font-family:'Space Grotesk';font-weight:800;font-size:60px;line-height:1;color:#2fd18d">${totFtd}</div><div class="hint" style="margin-top:6px">Meta del equipo: ${totMetaFtd} FTD</div></div>
+   <div class="mcard" style="text-align:center;background:linear-gradient(135deg,rgba(233,199,102,.14),transparent)"><div class="ftdday-lb">💵 Total ventas del equipo</div><div style="font-family:'Space Grotesk';font-weight:800;font-size:60px;line-height:1;color:#e9c766">${money(totFact)}</div><div class="hint" style="margin-top:6px">Meta del equipo: ${money(totMetaFact)}</div></div>
+  </div>
+  <div class="mcard"><h3>👥 Por agente</h3><div class="hint">FTD acumulado y ventas (Google Sheet) de cada agente este mes · ${mesActual()}</div><div style="margin-top:12px">${filas||'<div class="hint">Sin datos.</div>'}</div></div>`;
 }
 
 /* ---------- VENTAS ---------- */

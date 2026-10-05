@@ -842,10 +842,9 @@ function renderMeta(){
  ordenAsc.forEach(f=>{const a=apById[f]; const v=a?(+a.ftd||0):0; acum+=v; hist.push({f,v,acum,fa:a?(+a.fact_usd||0):0});});
  hist.reverse();
  const selectorD = ROLE==='director' ? `<div style="margin-bottom:16px"><label class="fl">Agente</label><select class="minp" id="mAgSel" style="max-width:340px">${agentesConMeta().sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(a=>`<option ${a.nombre===ag?'selected':''}>${esc(a.nombre)}</option>`).join('')}</select></div>` : '';
- const tabs = `<div class="mtabs"><div class="mtab ${SUBTAB==='meta'?'on':''}" data-sub="meta">🎯 Mi Meta</div><div class="mtab ${SUBTAB==='leads'?'on':''}" data-sub="leads">📥 Mis Leads</div><div class="mtab ${SUBTAB==='posibles'?'on':''}" data-sub="posibles">🔥 Posibles</div></div>`;
+ const tabs = `<div class="mtabs"><div class="mtab ${SUBTAB==='meta'?'on':''}" data-sub="meta">🎯 Mi Meta</div><div class="mtab ${SUBTAB==='leads'?'on':''}" data-sub="leads">📥 Mis Leads</div></div>`;
  let bodyH='';
  if(SUBTAB==='leads'){ bodyH = renderLeadsHTML(ag); }
- else if(SUBTAB==='posibles'){ bodyH = renderPosibles(ag); }
  else {
   const pos=Math.max(4,Math.min(96,pctFtd||0));
   const nombre=esc((ag||'Tú').split(' ')[0]||'Tú');
@@ -889,7 +888,7 @@ function renderMeta(){
       <div class="stat"><div class="k">Meta facturación</div><div class="v" style="font-size:24px">$${metaFact.toLocaleString('en-US')}</div></div>
      </div>
      <div class="hint" style="margin-top:12px">Tu meta se solicita al inicio de cada mes. Los FTD del día se marcan en los cuadros de la carrera; la facturación se toma directo de tu Google Sheet.</div>
-    </div>`;})()}`;
+    </div>`;})()}` + renderPosibles(ag);
  }
  el.innerHTML = (SUBTAB==='leads'?'':selectorD) + tabs + bodyH;
  document.querySelectorAll('.mtab').forEach(t=>t.onclick=()=>{SUBTAB=t.dataset.sub;renderMeta();});

@@ -864,6 +864,7 @@ function renderMeta(){
      let cajas=''; for(let i=0;i<nCajas;i++){cajas+=`<span class="ftdbox ${i<hoyFtd?'on':''} ${i>=metaDia?'extra':''}" data-i="${i}">${i<hoyFtd?'✓':(i+1)}</span>`;}
      return `<div class="ftdday" data-hoy="${hoyFtd}"><div class="ftdday-lb">FTD de hoy · <b>${hoyFtd}</b>${metaDia?` / ${metaDia}`:''}</div><div class="ftdboxes">${cajas}</div></div>`;})()}
   </div>
+  ${renderPosibles(ag)}
   <div class="mgrid3">
    <div class="stat"><div class="k">FTD acumulados</div><div class="v" style="color:#2fd18d">${ftdAcum}<span style="font-size:16px;color:var(--mut)"> / ${metaFtd}</span></div><div class="mbar"><i style="width:${Math.min(100,Math.round(pctFtd))}%;background:linear-gradient(90deg,#2fb183,#2fd18d)"></i></div></div>
    <div class="stat"><div class="k">Facturación (USD)</div><div class="v" style="color:#e9c766">$${factAcum.toLocaleString('en-US')}<span style="font-size:15px;color:var(--mut)"> / $${metaFact.toLocaleString('en-US')}</span></div><div class="mbar"><i style="width:${Math.min(100,Math.round(pctFact))}%;background:linear-gradient(90deg,#c08a2e,#e9c766)"></i></div></div>
@@ -888,7 +889,7 @@ function renderMeta(){
       <div class="stat"><div class="k">Meta facturación</div><div class="v" style="font-size:24px">$${metaFact.toLocaleString('en-US')}</div></div>
      </div>
      <div class="hint" style="margin-top:12px">Tu meta se solicita al inicio de cada mes. Los FTD del día se marcan en los cuadros de la carrera; la facturación se toma directo de tu Google Sheet.</div>
-    </div>`;})()}` + renderPosibles(ag);
+    </div>`;})()}`;
  }
  el.innerHTML = (SUBTAB==='leads'?'':selectorD) + tabs + bodyH;
  document.querySelectorAll('.mtab').forEach(t=>t.onclick=()=>{SUBTAB=t.dataset.sub;renderMeta();});

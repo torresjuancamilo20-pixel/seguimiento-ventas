@@ -355,6 +355,8 @@ let LEADS_DET=[];    // clientes_lead del agente (ultimos dias)
 let LEADS_ALL=[];    // clientes_lead de TODOS los agentes (vista director)
 let LEAD_AG_OPEN=null; // agente expandido en la vista director de leads
 let LEAD_DIA=null;   // fecha seleccionada en la pestaña Leads
+let LEAD_DESDE=null; // rango de fechas (director)
+let LEAD_HASTA=null;
 let LEAD_FILTRO='todos'; // filtro por estado en Mis Leads
 let LEAD_BUSCA='';   // buscador en Mis Leads
 let SEGU_MAP={};     // contact_id -> {llamada1,llamada2,whatsapp,registrado,observacion}
@@ -477,11 +479,19 @@ function filaLeadCSV(l){const cid=l.contact_id||'';const s=SEGU_MAP[cid]||{};
 const CAB_LEADS_CSV=['Fecha','Agente','Nombre','Teléfono','Hora','Estado','Llamada 1','Llamada 2','Bajado a WhatsApp','Registrado (check)','FTD (check)','Observación'];
 function fuenteLeads(){return ROLE==='director'?LEADS_ALL.filter(l=>!excluido(l.agente)):LEADS_DET;}
 function exportarLeadsDia(){
+ if(ROLE==='director'){
+  let a=LEAD_DESDE||LEAD_DIA, b=LEAD_HASTA||LEAD_DIA; if(a&&b&&a>b){const t=a;a=b;b=t;}
+  if(!a){alert('Selecciona una fecha primero.');return;}
+  const arr=fuenteLeads().filter(l=>{const f=fechaBog(l.llegada_at);return f>=a&&f<=b;});
+  if(!arr.length){alert('No hay leads en ese rango.');return;}
+  const suf = a===b ? a : (a+'_a_'+b);
+  descargarCSV([CAB_LEADS_CSV,...arr.map(filaLeadCSV)],'leads_equipo_'+suf+'.csv');
+  return;
+ }
  if(!LEAD_DIA){alert('Selecciona un día primero.');return;}
  const arr=fuenteLeads().filter(l=>fechaBog(l.llegada_at)===LEAD_DIA);
  if(!arr.length){alert('No hay leads ese día.');return;}
- const quien=ROLE==='director'?'equipo':metaAgente().replace(/\s+/g,'_');
- descargarCSV([CAB_LEADS_CSV,...arr.map(filaLeadCSV)],'leads_'+quien+'_'+LEAD_DIA+'.csv');
+ descargarCSV([CAB_LEADS_CSV,...arr.map(filaLeadCSV)],'leads_'+metaAgente().replace(/\s+/g,'_')+'_'+LEAD_DIA+'.csv');
 }
 function exportarLeadsTodo(){
  const arr=[...fuenteLeads()].sort((a,b)=>(b.llegada_at||'').localeCompare(a.llegada_at||''));
@@ -915,7 +925,9 @@ function renderMeta(){
  document.querySelectorAll('.lfilchip').forEach(c=>c.onclick=()=>{LEAD_FILTRO=c.dataset.f;LEAD_AG_OPEN=null;renderMeta();});
  const lb=$('lbusca'); if(lb) lb.oninput=()=>{LEAD_BUSCA=lb.value;LEAD_AG_OPEN=null;renderMeta();const n=$('lbusca');if(n){n.focus();const v=n.value;n.setSelectionRange(v.length,v.length);}};
  const mf=$('mFecha'); if(mf) mf.onchange=()=>{if(mf.value){LEAD_DIA=mf.value;LEAD_AG_OPEN=null;renderMeta();}};
- const bhf=$('btnHoyFecha'); if(bhf) bhf.onclick=()=>{LEAD_DIA=fechaBog(new Date());LEAD_AG_OPEN=null;renderMeta();};
+ const mdd=$('mDesde'); if(mdd) mdd.onchange=()=>{if(mdd.value){LEAD_DESDE=mdd.value;LEAD_AG_OPEN=null;renderMeta();}};
+ const mhh=$('mHasta'); if(mhh) mhh.onchange=()=>{if(mhh.value){LEAD_HASTA=mhh.value;LEAD_AG_OPEN=null;renderMeta();}};
+ const bhf=$('btnHoyFecha'); if(bhf) bhf.onclick=()=>{const h=fechaBog(new Date());LEAD_DIA=h;LEAD_DESDE=h;LEAD_HASTA=h;LEAD_AG_OPEN=null;renderMeta();};
  document.querySelectorAll('.agrow').forEach(r=>r.onclick=()=>{const a=r.dataset.ag;LEAD_AG_OPEN=(LEAD_AG_OPEN===a)?null:a;renderMeta();});
  document.querySelectorAll('.chk').forEach(ch=>ch.onclick=async()=>{
    const cid=ch.dataset.cid, k=ch.dataset.k; if(!cid)return;
@@ -995,9 +1007,12 @@ function renderLeadsDirector(){
   </div>`;
  if(!dias.length) return hero+`<div class="mcard"><h3>📥 Leads por día</h3><div class="hint">Aún no hay leads en el rango.</div></div>`;
  if(!LEAD_DIA) LEAD_DIA=dias[0];
+ if(!LEAD_DESDE) LEAD_DESDE=LEAD_DIA;
+ if(!LEAD_HASTA) LEAD_HASTA=LEAD_DIA;
+ let dA=LEAD_DESDE, dB=LEAD_HASTA; if(dA>dB){const t=dA;dA=dB;dB=t;}
  const minDia=dias[dias.length-1]||LEAD_DIA, maxDia=dias[0]>hoyB?dias[0]:hoyB;
  const etiqueta=f=> f===hoyB?'Hoy': f===ayerB?'Ayer': (f.slice(8)+'/'+f.slice(5,7)+'/'+f.slice(0,4));
- const selFecha=`<div class="fechasel"><label class="fl" style="margin:0">📅 Seleccionar fecha</label><input type="date" class="minp" id="mFecha" value="${LEAD_DIA}" min="${minDia}" max="${maxDia}"><button class="lbtn call" id="btnHoyFecha" style="padding:9px 14px">Hoy</button></div>`;
+ const selFecha=`<div class="fechasel"><label class="fl" style="margin:0">📅 Desde</label><input type="date" class="minp" id="mDesde" value="${dA}" min="${minDia}" max="${maxDia}"><label class="fl" style="margin:0">Hasta</label><input type="date" class="minp" id="mHasta" value="${dB}" min="${minDia}" max="${maxDia}"><button class="lbtn call" id="btnHoyFecha" style="padding:9px 14px">Hoy</button></div>`;
  const hora=l=>{try{return new Date(l.llegada_at).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});}catch(e){return '';}};
  const estado=l=> l.ftd_at?'<span class="pill ftd">FTD</span>': l.registrado_at?'<span class="pill reg">Registrado</span>':'<span class="pill new">Nuevo</span>';
  const CAMPOS=[['llamada1','Llamada 1'],['llamada2','Llamada 2'],['whatsapp','Bajado a WhatsApp'],['registrado','Registrado'],['ftd','FTD']];
@@ -1005,16 +1020,17 @@ function renderLeadsDirector(){
    const chks=`<div class="chks">${CAMPOS.map(([k,lbl])=>`<span class="chkro ${s[k]?'on':''}">${s[k]?'✔ ':''}${lbl}</span>`).join('')}</div>`;
    const obsv=s.observacion?`<div class="obsro">📝 ${esc(s.observacion)}</div>`:'<div class="obsro vacia">Sin observación</div>';
    return `<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')} ${origenBadge(l)}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${chks}${obsv}</div>`;};
- const todasDia=byDay[LEAD_DIA]||[]; const leadsDia=filtraLeads(todasDia);
+ const todasDia=LEADS_ALL.filter(l=>!excluido(l.agente)&&(()=>{const f=fechaBog(l.llegada_at);return f>=dA&&f<=dB;})()); const leadsDia=filtraLeads(todasDia);
  const porAg={}; leadsDia.forEach(l=>{const a=l.agente||'(sin asignar)'; (porAg[a]=porAg[a]||[]).push(l);});
  const agentes=Object.keys(porAg).sort((a,b)=>porAg[b].length-porAg[a].length);
+ const rotuloRango = dA===dB ? etiqueta(dA) : (etiqueta(dA)+' — '+etiqueta(dB));
  const filas=leadsDia.length? agentes.map(a=>{const open=LEAD_AG_OPEN===a; const lst=porAg[a];
-   return `<div class="agbox"><div class="agrow ${open?'on':''}" data-ag="${esc(a)}"><div class="av">${initials(a)}</div><div style="flex:1;min-width:0"><div class="nm">${esc(a)}</div></div><span class="cntbadge">${lst.length} lead${lst.length!==1?'s':''}</span><span class="caret">${open?'▲':'▼'}</span></div>${open?`<div class="agleads">${lst.map(leadRO).join('')}</div>`:''}</div>`;}).join('') : `<div class="hint">${todasDia.length?'Ningún lead coincide con el filtro o la búsqueda.':'No llegaron leads ese día.'}</div>`;
- return hero+`<div class="mcard"><h3>📥 Leads por día · por agente</h3><div class="hint">Elige una fecha y mira cuántos leads le llegaron a cada agente. Toca un agente para ver sus leads (solo lectura).</div>
+   return `<div class="agbox"><div class="agrow ${open?'on':''}" data-ag="${esc(a)}"><div class="av">${initials(a)}</div><div style="flex:1;min-width:0"><div class="nm">${esc(a)}</div></div><span class="cntbadge">${lst.length} lead${lst.length!==1?'s':''}</span><span class="caret">${open?'▲':'▼'}</span></div>${open?`<div class="agleads">${lst.map(leadRO).join('')}</div>`:''}</div>`;}).join('') : `<div class="hint">${todasDia.length?'Ningún lead coincide con el filtro o la búsqueda.':'No llegaron leads en ese rango.'}</div>`;
+ return hero+`<div class="mcard"><h3>📥 Leads por fecha · por agente</h3><div class="hint">Elige una fecha o un rango (Desde–Hasta) y mira cuántos leads le llegaron a cada agente. Toca un agente para ver sus leads (solo lectura).</div>
   ${selFecha}
-  <div class="leadbtns" style="margin:0 0 12px"><button class="lbtn call" id="csvDia">⬇️ CSV de este día</button><button class="lbtn" id="csvTodo" style="background:linear-gradient(90deg,#6b7280,#9aa3b2)">⬇️ CSV de todos</button></div>
+  <div class="leadbtns" style="margin:0 0 12px"><button class="lbtn call" id="csvDia">⬇️ CSV del rango</button><button class="lbtn" id="csvTodo" style="background:linear-gradient(90deg,#6b7280,#9aa3b2)">⬇️ CSV de todos</button></div>
   ${leadControlsHTML()}
-  <div style="color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin:4px 0 10px">${etiqueta(LEAD_DIA)} · ${leadsDia.length}${leadsDia.length!==todasDia.length?' de '+todasDia.length:''} leads · ${agentes.length} agentes</div>
+  <div style="color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin:4px 0 10px">${rotuloRango} · ${leadsDia.length}${leadsDia.length!==todasDia.length?' de '+todasDia.length:''} leads · ${agentes.length} agentes</div>
   ${filas}
  </div>`;
 }

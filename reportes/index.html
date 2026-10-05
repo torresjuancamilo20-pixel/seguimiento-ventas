@@ -473,8 +473,8 @@ function horaLead(l){try{return new Date(l.llegada_at).toLocaleTimeString('es-CO
 function fechaBog(ts){try{return new Date(ts).toLocaleDateString('en-CA',{timeZone:'America/Bogota'});}catch(e){return (ts||'').slice(0,10);}} // fecha YYYY-MM-DD en hora Colombia
 function filaLeadCSV(l){const cid=l.contact_id||'';const s=SEGU_MAP[cid]||{};
  const est=l.ftd_at?'FTD':l.registrado_at?'Registrado':'Nuevo';
- return [fechaBog(l.llegada_at),l.agente||'',l.nombre||'',l.telefono||'',horaLead(l),est,s.llamada1?'Sí':'No',s.llamada2?'Sí':'No',s.whatsapp?'Sí':'No',s.registrado?'Sí':'No',s.observacion||''];}
-const CAB_LEADS_CSV=['Fecha','Agente','Nombre','Teléfono','Hora','Estado','Llamada 1','Llamada 2','Bajado a WhatsApp','Registrado (check)','Observación'];
+ return [fechaBog(l.llegada_at),l.agente||'',l.nombre||'',l.telefono||'',horaLead(l),est,s.llamada1?'Sí':'No',s.llamada2?'Sí':'No',s.whatsapp?'Sí':'No',s.registrado?'Sí':'No',s.ftd?'Sí':'No',s.observacion||''];}
+const CAB_LEADS_CSV=['Fecha','Agente','Nombre','Teléfono','Hora','Estado','Llamada 1','Llamada 2','Bajado a WhatsApp','Registrado (check)','FTD (check)','Observación'];
 function fuenteLeads(){return ROLE==='director'?LEADS_ALL.filter(l=>!excluido(l.agente)):LEADS_DET;}
 function exportarLeadsDia(){
  if(!LEAD_DIA){alert('Selecciona un día primero.');return;}
@@ -669,12 +669,12 @@ async function loadLeadsDetalle(){
 }
 async function loadSeguimiento(){
  try{
-  const r=await fetch(SUPABASE_URL+'/rest/v1/lead_seguimiento?select=contact_id,llamada1,llamada2,whatsapp,registrado,observacion&limit=10000',{headers:HDRS});
+  const r=await fetch(SUPABASE_URL+'/rest/v1/lead_seguimiento?select=contact_id,llamada1,llamada2,whatsapp,registrado,ftd,observacion&limit=10000',{headers:HDRS});
   const b=await r.json()||[]; SEGU_MAP={};
   if(Array.isArray(b)) b.forEach(x=>{SEGU_MAP[x.contact_id]=x;});
  }catch(e){ SEGU_MAP={}; }
 }
-function seguBody(cur){return {contact_id:cur.contact_id,agente:metaAgente(),llamada1:!!cur.llamada1,llamada2:!!cur.llamada2,whatsapp:!!cur.whatsapp,registrado:!!cur.registrado,observacion:cur.observacion||null,updated_at:new Date().toISOString()};}
+function seguBody(cur){return {contact_id:cur.contact_id,agente:metaAgente(),llamada1:!!cur.llamada1,llamada2:!!cur.llamada2,whatsapp:!!cur.whatsapp,registrado:!!cur.registrado,ftd:!!cur.ftd,observacion:cur.observacion||null,updated_at:new Date().toISOString()};}
 async function toggleSegu(cid,campo,val){
  const cur=SEGU_MAP[cid]||{contact_id:cid}; cur[campo]=val; SEGU_MAP[cid]=cur;
  try{await fetch(SUPABASE_URL+'/rest/v1/lead_seguimiento?on_conflict=contact_id',{method:'POST',headers:{...WHDR,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(seguBody(cur))});}catch(e){}
@@ -931,7 +931,7 @@ function renderMeta(){
 }
 function pasaFiltro(l){const s=SEGU_MAP[l.contact_id||'']||{};
  switch(LEAD_FILTRO){
-  case 'ftd': return !!l.ftd_at;
+  case 'ftd': return !!l.ftd_at || !!s.ftd;
   case 'registrado': return !!s.registrado;
   case 'llamada1': return !!s.llamada1;
   case 'llamada2': return !!s.llamada2;
@@ -963,7 +963,7 @@ function renderLeadsHTML(ag){
  const selFecha=`<div class="fechasel"><label class="fl" style="margin:0">📅 Seleccionar fecha</label><input type="date" class="minp" id="mFecha" value="${LEAD_DIA}" min="${minDia}" max="${maxDia}"><button class="lbtn call" id="btnHoyFecha" style="padding:9px 14px">Hoy</button></div>`;
  const estado=l=> l.ftd_at?'<span class="pill ftd">FTD</span>': l.registrado_at?'<span class="pill reg">Registrado</span>':'<span class="pill new">Nuevo</span>';
  const hora=l=>{try{return new Date(l.llegada_at).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});}catch(e){return '';}};
- const CAMPOS=[['llamada1','Llamada 1'],['llamada2','Llamada 2'],['whatsapp','Bajado a WhatsApp'],['registrado','Registrado']];
+ const CAMPOS=[['llamada1','Llamada 1'],['llamada2','Llamada 2'],['whatsapp','Bajado a WhatsApp'],['registrado','Registrado'],['ftd','FTD']];
  const checks=l=>{const cid=l.contact_id||''; const s=SEGU_MAP[cid]||{};
    return `<div class="chks">${CAMPOS.map(([k,lbl])=>`<span class="chk ${s[k]?'on':''}" data-cid="${esc(cid)}" data-k="${k}" data-lbl="${lbl}">${s[k]?'✔ ':''}${lbl}</span>`).join('')}</div>`;};
  const acciones=l=>{const cid=l.contact_id||''; if(!cid) return '';
@@ -1000,7 +1000,7 @@ function renderLeadsDirector(){
  const selFecha=`<div class="fechasel"><label class="fl" style="margin:0">📅 Seleccionar fecha</label><input type="date" class="minp" id="mFecha" value="${LEAD_DIA}" min="${minDia}" max="${maxDia}"><button class="lbtn call" id="btnHoyFecha" style="padding:9px 14px">Hoy</button></div>`;
  const hora=l=>{try{return new Date(l.llegada_at).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});}catch(e){return '';}};
  const estado=l=> l.ftd_at?'<span class="pill ftd">FTD</span>': l.registrado_at?'<span class="pill reg">Registrado</span>':'<span class="pill new">Nuevo</span>';
- const CAMPOS=[['llamada1','Llamada 1'],['llamada2','Llamada 2'],['whatsapp','Bajado a WhatsApp'],['registrado','Registrado']];
+ const CAMPOS=[['llamada1','Llamada 1'],['llamada2','Llamada 2'],['whatsapp','Bajado a WhatsApp'],['registrado','Registrado'],['ftd','FTD']];
  const leadRO=l=>{const cid=l.contact_id||''; const s=SEGU_MAP[cid]||{};
    const chks=`<div class="chks">${CAMPOS.map(([k,lbl])=>`<span class="chkro ${s[k]?'on':''}">${s[k]?'✔ ':''}${lbl}</span>`).join('')}</div>`;
    const obsv=s.observacion?`<div class="obsro">📝 ${esc(s.observacion)}</div>`:'<div class="obsro vacia">Sin observación</div>';

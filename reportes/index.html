@@ -206,6 +206,12 @@ input[type=date].minp::-webkit-calendar-picker-indicator{filter:invert(.8);curso
 .chk{font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--mut);cursor:pointer;user-select:none;white-space:nowrap;transition:all .12s}
 .chk:hover{border-color:#39b0ff}
 .chk.on{border-color:#2fd18d;background:rgba(47,209,141,.16);color:#2fd18d}
+.atraso{margin-top:12px;display:flex;gap:11px;align-items:flex-start;background:rgba(224,122,63,.12);border:1px solid rgba(224,122,63,.4);border-radius:14px;padding:12px 15px;color:#f0b67f}
+.atraso.ok{background:rgba(47,209,141,.12);border-color:rgba(47,209,141,.4);color:#8fe9c4}
+.atraso .ic{font-size:20px;line-height:1.2}
+.atraso b{color:var(--ink);font-size:15px}
+.atraso .s{color:var(--mut);font-size:12.5px;margin-top:3px;font-weight:500}
+.atraso.ok b{color:#eafff6}
 .ftdday{margin-top:14px}
 .ftdday-lb{color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
 .ftdboxes{display:flex;flex-wrap:wrap;gap:10px}
@@ -878,6 +884,11 @@ function renderMeta(){
     <div class="flag">🏁</div>
    </div>
    <div class="hint" style="margin-top:14px">Faltan <b style="color:var(--ink)">${faltaFtd}</b> FTD · quedan <b style="color:var(--ink)">${dRest}</b> días · ritmo requerido <b style="color:var(--ink)">${ritmo.toFixed(1)}</b>/día${metaDia?` · meta diaria ${metaDia}`:''}</div>
+   ${(()=>{ if(!metaFtd) return '';
+     const diaMes=new Date().getDate(); const esperado=Math.round(metaFtd*diaMes/diasDelMes()); const atraso=esperado-ftdAcum;
+     if(atraso>0) return `<div class="atraso"><span class="ic">⚠️</span><div><b>Vas atrasado: ${atraso} FTD</b><div class="s">A esta fecha deberías llevar <b>${esperado}</b> y llevas <b>${ftdAcum}</b>. Ponte al día.</div></div></div>`;
+     const adel=-atraso;
+     return `<div class="atraso ok"><span class="ic">✅</span><div><b>${adel>0?'Vas adelantado: +'+adel+' FTD':'Vas al día'}</b><div class="s">A esta fecha el ritmo esperado es <b>${esperado}</b> y llevas <b>${ftdAcum}</b>.</div></div></div>`;})()}
    ${(()=>{const hoyFtd=apById[hoyISO()]?(+apById[hoyISO()].ftd||0):0; const nCajas=Math.max(metaDia,hoyFtd);
      if(metaDia===0 && hoyFtd===0) return `<div class="hint" style="margin-top:14px">Define tu meta diaria para ver los cuadros de FTD del día.</div>`;
      let cajas=''; for(let i=0;i<nCajas;i++){cajas+=`<span class="ftdbox ${i<hoyFtd?'on':''} ${i>=metaDia?'extra':''}" data-i="${i}">${i<hoyFtd?'✓':(i+1)}</span>`;}

@@ -885,10 +885,12 @@ function renderMeta(){
    </div>
    <div class="hint" style="margin-top:14px">Faltan <b style="color:var(--ink)">${faltaFtd}</b> FTD · quedan <b style="color:var(--ink)">${dRest}</b> días · ritmo requerido <b style="color:var(--ink)">${ritmo.toFixed(1)}</b>/día${metaDia?` · meta diaria ${metaDia}`:''}</div>
    ${(()=>{ if(!metaFtd) return '';
-     const diaMes=new Date().getDate(); const esperado=Math.round(metaFtd*diaMes/diasDelMes()); const atraso=esperado-ftdAcum;
-     if(atraso>0) return `<div class="atraso"><span class="ic">⚠️</span><div><b>Vas atrasado: ${atraso} FTD</b><div class="s">A esta fecha deberías llevar <b>${esperado}</b> y llevas <b>${ftdAcum}</b>. Ponte al día.</div></div></div>`;
+     const diasCerrados=Math.max(0,new Date().getDate()-1); // dias ya terminados (hasta ayer)
+     if(diasCerrados===0) return '';
+     const esperado=Math.round(metaFtd*diasCerrados/diasDelMes()); const atraso=esperado-ftdAcum;
+     if(atraso>0) return `<div class="atraso"><span class="ic">⚠️</span><div><b>Vas atrasado: ${atraso} FTD</b><div class="s">Al cierre de ayer deberías llevar <b>${esperado}</b> y llevas <b>${ftdAcum}</b>. Ponte al día.</div></div></div>`;
      const adel=-atraso;
-     return `<div class="atraso ok"><span class="ic">✅</span><div><b>${adel>0?'Vas adelantado: +'+adel+' FTD':'Vas al día'}</b><div class="s">A esta fecha el ritmo esperado es <b>${esperado}</b> y llevas <b>${ftdAcum}</b>.</div></div></div>`;})()}
+     return `<div class="atraso ok"><span class="ic">✅</span><div><b>${adel>0?'Vas adelantado: +'+adel+' FTD':'Vas al día'}</b><div class="s">Al cierre de ayer el ritmo esperado era <b>${esperado}</b> y llevas <b>${ftdAcum}</b>.</div></div></div>`;})()}
    ${(()=>{const hoyFtd=apById[hoyISO()]?(+apById[hoyISO()].ftd||0):0; const nCajas=Math.max(metaDia,hoyFtd);
      if(metaDia===0 && hoyFtd===0) return `<div class="hint" style="margin-top:14px">Define tu meta diaria para ver los cuadros de FTD del día.</div>`;
      let cajas=''; for(let i=0;i<nCajas;i++){cajas+=`<span class="ftdbox ${i<hoyFtd?'on':''} ${i>=metaDia?'extra':''}" data-i="${i}">${i<hoyFtd?'✓':(i+1)}</span>`;}

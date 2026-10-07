@@ -1109,19 +1109,14 @@ function barHTML(pct,color){pct=Math.max(0,Math.min(100,Math.round(pct)));return
 function carreraChartSVG(apById, metaFtd, ftdAcum, pctFtd){
  const W=680,H=300,PL=16,PR=16,PT=36,PB=18;
  const dim=diasDelMes(); const hoyDia=new Date().getDate();
- const mes=mesActual(); let acum=0; const raw=[];
- for(let d=1; d<=hoyDia; d++){ const f=mes+'-'+String(d).padStart(2,'0'); const v=apById[f]?(+apById[f].ftd||0):0; acum+=v; raw.push({d,acum,v}); }
- // Línea SIEMPRE ascendente: colapsa los días planos (sin FTD), dejando solo los puntos donde el acumulado sube.
- let pts=[], dias=[], diario=[];
- raw.forEach((r,i)=>{ if(i===0 || r.acum!==raw[i-1].acum){ pts.push(r.acum); dias.push(r.d); diario.push(r.v); } });
- if(pts.length<2 || pts[pts.length-1]===pts[0]){
-   // aún no hay acumulado (o todo plano): curva de ascenso simbólica
-   pts=[0,1,2,3,4,5]; dias=[]; diario=[];
- }
- const n=pts.length; const topY=Math.max(pts[pts.length-1],1)*1.18;
+ const mes=mesActual();
+ // Curva de ascenso SIEMPRE suave en S (ease-in-out) hasta el acumulado real.
+ const acum=Math.max(0,+ftdAcum||0);
+ const n=24; const ease=t=> t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
+ const fin=acum>0?acum:5; const topY=fin*1.18;
  const X=i=> PL + (W-PL-PR) * (i/(n-1));
  const Y=v=> PT + (H-PT-PB) * (1 - v/topY);
- const P=pts.map((v,i)=>[X(i),Y(v)]);
+ const P=[]; for(let i=0;i<n;i++){ const v=fin*ease(i/(n-1)); P.push([X(i),Y(v)]); }
  // curva suave (Catmull-Rom -> Bézier)
  let line=`M ${P[0][0].toFixed(1)} ${P[0][1].toFixed(1)}`;
  for(let i=0;i<P.length-1;i++){
@@ -1152,7 +1147,6 @@ function carreraChartSVG(apById, metaFtd, ftdAcum, pctFtd){
    ${grid}
    <path d="${area}" fill="url(#rcArea)"/>
    <path class="rc-line" d="${line}" fill="none" stroke="url(#rcLine)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#rcGlow)"/>
-   ${P.map((p,i)=>`<circle class="rc-dot" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4.5" fill="#c4b5fd">${dias[i]?`<title>Día ${dias[i]}: +${diario[i]} FTD (acumulado ${pts[i]})</title>`:''}</circle>`).join('')}
    <circle cx="${nx.toFixed(1)}" cy="${ny.toFixed(1)}" r="13" fill="rgba(167,139,250,.25)"/>
    <circle cx="${nx.toFixed(1)}" cy="${ny.toFixed(1)}" r="6" fill="#fff" filter="url(#rcGlow)"/>
   </svg>

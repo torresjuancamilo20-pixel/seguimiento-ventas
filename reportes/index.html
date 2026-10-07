@@ -1109,10 +1109,10 @@ function barHTML(pct,color){pct=Math.max(0,Math.min(100,Math.round(pct)));return
 function carreraChartSVG(apById, metaFtd, ftdAcum, pctFtd){
  const W=680,H=300,PL=16,PR=16,PT=36,PB=18;
  const dim=diasDelMes(); const hoyDia=new Date().getDate();
- const mes=mesActual(); let acum=0; const pts=[]; const dias=[];
- for(let d=1; d<=hoyDia; d++){ const f=mes+'-'+String(d).padStart(2,'0'); const v=apById[f]?(+apById[f].ftd||0):0; acum+=v; pts.push(v); dias.push(d); }
- if(pts.length===1){ pts.unshift(0); dias.unshift(0); } // asegurar al menos 2 puntos
- const n=pts.length; const topY=Math.max(...pts,1)*1.25;
+ const mes=mesActual(); let acum=0; const pts=[]; const dias=[]; const diario=[];
+ for(let d=1; d<=hoyDia; d++){ const f=mes+'-'+String(d).padStart(2,'0'); const v=apById[f]?(+apById[f].ftd||0):0; acum+=v; pts.push(acum); dias.push(d); diario.push(v); }
+ if(pts.length===1){ pts.unshift(0); dias.unshift(0); diario.unshift(0); } // asegurar al menos 2 puntos
+ const n=pts.length; const topY=Math.max(acum,1)*1.18;
  const X=i=> PL + (W-PL-PR) * (i/(n-1));
  const Y=v=> PT + (H-PT-PB) * (1 - v/topY);
  const P=pts.map((v,i)=>[X(i),Y(v)]);
@@ -1146,7 +1146,7 @@ function carreraChartSVG(apById, metaFtd, ftdAcum, pctFtd){
    ${grid}
    <path d="${area}" fill="url(#rcArea)"/>
    <path class="rc-line" d="${line}" fill="none" stroke="url(#rcLine)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#rcGlow)"/>
-   ${P.map((p,i)=>`<circle class="rc-dot" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4.5" fill="#c4b5fd"><title>Día ${dias[i]}: ${pts[i]} FTD</title></circle>`).join('')}
+   ${P.map((p,i)=>`<circle class="rc-dot" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4.5" fill="#c4b5fd"><title>Día ${dias[i]}: +${diario[i]} FTD (acumulado ${pts[i]})</title></circle>`).join('')}
    <circle cx="${nx.toFixed(1)}" cy="${ny.toFixed(1)}" r="13" fill="rgba(167,139,250,.25)"/>
    <circle cx="${nx.toFixed(1)}" cy="${ny.toFixed(1)}" r="6" fill="#fff" filter="url(#rcGlow)"/>
   </svg>

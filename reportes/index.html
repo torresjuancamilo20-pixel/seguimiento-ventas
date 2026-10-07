@@ -231,8 +231,18 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
 .race .runner{position:absolute;top:50%;transform:translate(-50%,-50%) scaleX(-1);font-size:34px;transition:left 1s cubic-bezier(.3,1,.4,1);filter:drop-shadow(0 3px 6px rgba(0,0,0,.5));z-index:2}
 .race .flag{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:30px;opacity:.9}
 .race .you{position:absolute;top:8px;transform:translateX(-50%);font-size:11px;font-weight:800;color:#fff;background:#6d28d9;padding:2px 9px;border-radius:999px;white-space:nowrap;transition:left 1s cubic-bezier(.3,1,.4,1);z-index:3}
-.racechart{margin:12px 0 4px;height:200px;border-radius:18px;padding:6px 8px;background:linear-gradient(180deg,rgba(139,92,246,.08),transparent 70%),rgba(255,255,255,.03);border:1px solid var(--glassbd)}
-.racechart svg{display:block;overflow:visible}
+.racechart{position:relative;margin:12px 0 4px;border-radius:20px;padding:16px 16px 22px;background:radial-gradient(120% 90% at 50% 0,rgba(139,92,246,.18),transparent 60%),rgba(255,255,255,.03);border:1px solid var(--glassbd);box-shadow:inset 0 1px 0 rgba(255,255,255,.05);overflow:hidden}
+.rc-top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2}
+.rc-live{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--ink2)}
+.rc-live i{width:7px;height:7px;border-radius:50%;background:#a78bfa;box-shadow:0 0 0 3px rgba(167,139,250,.25);animation:rcpulse 1.6s infinite}
+@keyframes rcpulse{0%,100%{opacity:1}50%{opacity:.35}}
+.rc-chip{font-size:12px;font-weight:700;color:#c4b5fd;background:rgba(139,92,246,.14);border:1px solid rgba(139,92,246,.35);padding:5px 12px;border-radius:999px}
+.rc-svg{display:block;width:100%;height:230px;margin-top:-6px}
+.rc-stat{position:absolute;left:0;right:0;bottom:20px;text-align:center;z-index:2;pointer-events:none}
+.rc-lb{color:var(--ink2);font-size:13px;font-weight:600;letter-spacing:.02em}
+.rc-n{font-family:'Space Grotesk';font-weight:800;font-size:clamp(44px,9vw,72px);line-height:1;color:#fff;letter-spacing:-.02em;margin-top:2px}
+.rc-ar{font-size:.32em;vertical-align:super;color:#a78bfa;margin-left:4px;font-weight:700}
+.rc-sub{color:var(--mut);font-size:12.5px;margin-top:6px}
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .mgrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .stat{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
@@ -1091,50 +1101,50 @@ function showView(v){
 
 /* ---------- MI META (render) ---------- */
 function barHTML(pct,color){pct=Math.max(0,Math.min(100,Math.round(pct)));return `<div style="height:14px;border-radius:9px;background:var(--paper);border:1px solid var(--line);overflow:hidden"><div style="height:100%;width:${pct}%;background:${color};border-radius:9px"></div></div>`;}
-function carreraChartSVG(apById, metaFtd){
- const W=640,H=200,PL=10,PR=18,PT=26,PB=24;
+function carreraChartSVG(apById, metaFtd, ftdAcum, pctFtd){
+ const W=680,H=300,PL=16,PR=16,PT=36,PB=18;
  const dim=diasDelMes(); const hoyDia=new Date().getDate();
- // acumulado real por día (hasta hoy)
  const mes=mesActual(); let acum=0; const pts=[];
- for(let d=1; d<=dim; d++){
-   const fecha=mes+'-'+String(d).padStart(2,'0');
-   if(d<=hoyDia){ acum += apById[fecha]?(+apById[fecha].ftd||0):0; pts.push({d,acum}); }
+ for(let d=1; d<=hoyDia; d++){ const f=mes+'-'+String(d).padStart(2,'0'); acum += apById[f]?(+apById[f].ftd||0):0; pts.push(acum); }
+ if(pts.length===1) pts.unshift(0); // asegurar al menos 2 puntos
+ const n=pts.length; const topY=Math.max(acum,1)*1.18;
+ const X=i=> PL + (W-PL-PR) * (i/(n-1));
+ const Y=v=> PT + (H-PT-PB) * (1 - v/topY);
+ const P=pts.map((v,i)=>[X(i),Y(v)]);
+ // curva suave (Catmull-Rom -> Bézier)
+ let line=`M ${P[0][0].toFixed(1)} ${P[0][1].toFixed(1)}`;
+ for(let i=0;i<P.length-1;i++){
+   const p0=P[i-1]||P[i], p1=P[i], p2=P[i+1], p3=P[i+2]||p2;
+   const c1x=p1[0]+(p2[0]-p0[0])/6, c1y=p1[1]+(p2[1]-p0[1])/6;
+   const c2x=p2[0]-(p3[0]-p1[0])/6, c2y=p2[1]-(p3[1]-p1[1])/6;
+   line+=` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
  }
- const hoyFtd = apById[mes+'-'+String(hoyDia).padStart(2,'0')] ? (+apById[mes+'-'+String(hoyDia).padStart(2,'0')].ftd||0) : 0;
- const topY = Math.max(metaFtd, acum, 1);
- const x = d => PL + (W-PL-PR) * ((d-1)/(dim-1||1));
- const y = v => PT + (H-PT-PB) * (1 - v/topY);
- // ritmo ideal (diagonal punteada hasta la meta)
- const ideal = `M ${x(1).toFixed(1)} ${y(0).toFixed(1)} L ${x(dim).toFixed(1)} ${y(metaFtd).toFixed(1)}`;
- // línea real
- let line = pts.map((p,i)=>`${i?'L':'M'} ${x(p.d).toFixed(1)} ${y(p.acum).toFixed(1)}`).join(' ');
- const last = pts[pts.length-1] || {d:1,acum:0};
- const area = line + ` L ${x(last.d).toFixed(1)} ${y(0).toFixed(1)} L ${x(1).toFixed(1)} ${y(0).toFixed(1)} Z`;
- const nx=x(last.d), ny=y(last.acum);
- const tipW=118, tipX=Math.max(PL, Math.min(W-PR-tipW, nx-tipW/2));
+ const nx=P[n-1][0], ny=P[n-1][1];
+ const area=line+` L ${nx.toFixed(1)} ${(H-PB).toFixed(1)} L ${P[0][0].toFixed(1)} ${(H-PB).toFixed(1)} Z`;
+ // grilla
+ let grid=''; const cols=8, rows=5;
+ for(let c=0;c<=cols;c++){const gx=(PL+(W-PL-PR)*c/cols).toFixed(1);grid+=`<line x1="${gx}" y1="${PT}" x2="${gx}" y2="${H-PB}" stroke="rgba(167,139,250,.08)" stroke-width="1"/>`;}
+ for(let r=0;r<=rows;r++){const gy=(PT+(H-PT-PB)*r/rows).toFixed(1);grid+=`<line x1="${PL}" y1="${gy}" x2="${W-PR}" y2="${gy}" stroke="rgba(167,139,250,.08)" stroke-width="1"/>`;}
+ const pct=Math.round(pctFtd||0);
  return `<div class="racechart">
-  <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" width="100%" height="100%">
+  <div class="rc-top"><span class="rc-live"><i></i> En vivo</span><span class="rc-chip">Este mes</span></div>
+  <svg class="rc-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
    <defs>
      <linearGradient id="rcArea" x1="0" y1="0" x2="0" y2="1">
-       <stop offset="0%" stop-color="rgba(139,92,246,.42)"/>
-       <stop offset="100%" stop-color="rgba(139,92,246,0)"/>
+       <stop offset="0%" stop-color="rgba(139,92,246,.35)"/><stop offset="100%" stop-color="rgba(139,92,246,0)"/>
      </linearGradient>
-     <filter id="rcGlow" x="-20%" y="-40%" width="140%" height="180%">
-       <feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-     </filter>
+     <linearGradient id="rcLine" x1="0" y1="0" x2="1" y2="0">
+       <stop offset="0%" stop-color="#6d28d9"/><stop offset="100%" stop-color="#c4b5fd"/>
+     </linearGradient>
+     <filter id="rcGlow" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
    </defs>
-   <line x1="${PL}" y1="${y(metaFtd).toFixed(1)}" x2="${W-PR}" y2="${y(metaFtd).toFixed(1)}" stroke="rgba(196,181,253,.35)" stroke-width="1" stroke-dasharray="2 5"/>
-   <text x="${W-PR}" y="${(y(metaFtd)-7).toFixed(1)}" text-anchor="end" fill="#c4b5fd" font-size="12" font-family="'Space Grotesk',sans-serif" font-weight="700">Meta ${metaFtd}</text>
-   <path d="${ideal}" fill="none" stroke="rgba(167,139,250,.45)" stroke-width="1.5" stroke-dasharray="5 5"/>
+   ${grid}
    <path d="${area}" fill="url(#rcArea)"/>
-   <path d="${line}" fill="none" stroke="#a78bfa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#rcGlow)"/>
-   <circle cx="${nx.toFixed(1)}" cy="${ny.toFixed(1)}" r="6.5" fill="#0a0712" stroke="#a78bfa" stroke-width="3"/>
-   <g transform="translate(${tipX.toFixed(1)}, ${Math.max(2,ny-46).toFixed(1)})">
-     <rect width="${tipW}" height="34" rx="9" fill="rgba(124,58,237,.92)"/>
-     <text x="12" y="15" fill="#fff" font-size="12" font-family="'Space Grotesk',sans-serif" font-weight="800">${last.acum} FTD</text>
-     <text x="12" y="28" fill="#e9deff" font-size="10.5" font-family="Inter,sans-serif">${hoyFtd>0?'+'+hoyFtd+' hoy':'hoy sin FTD'}</text>
-   </g>
+   <path d="${line}" fill="none" stroke="url(#rcLine)" stroke-width="3.5" stroke-linecap="round" filter="url(#rcGlow)"/>
+   <circle cx="${nx.toFixed(1)}" cy="${ny.toFixed(1)}" r="13" fill="rgba(167,139,250,.25)"/>
+   <circle cx="${nx.toFixed(1)}" cy="${ny.toFixed(1)}" r="6" fill="#fff" filter="url(#rcGlow)"/>
   </svg>
+  <div class="rc-stat"><div class="rc-lb">Avance hacia tu meta</div><div class="rc-n">${pct}%<span class="rc-ar">↗</span></div><div class="rc-sub">${ftdAcum} de ${metaFtd} FTD este mes</div></div>
  </div>`;
 }
 function renderMeta(){
@@ -1171,7 +1181,7 @@ function renderMeta(){
   <div class="mcard">
    <h3>📈 Mi carrera hacia la meta</h3>
    <div class="hint">${ftdAcum} de ${metaFtd} FTD · vas en el ${Math.round(pctFtd)}% del camino</div>
-   ${metaFtd>0 ? carreraChartSVG(apById, metaFtd) : '<div class="hint" style="margin-top:10px">Define tu meta de FTD del mes para ver tu línea de avance.</div>'}
+   ${metaFtd>0 ? carreraChartSVG(apById, metaFtd, ftdAcum, pctFtd) : '<div class="hint" style="margin-top:10px">Define tu meta de FTD del mes para ver tu línea de avance.</div>'}
    <div class="hint" style="margin-top:14px">Faltan <b style="color:var(--ink)">${faltaFtd}</b> FTD · quedan <b style="color:var(--ink)">${dRest}</b> días · ritmo requerido <b style="color:var(--ink)">${ritmo.toFixed(1)}</b>/día${metaDia?` · meta diaria ${metaDia}`:''}</div>
    ${(()=>{ if(!metaFtd) return '';
      const diasCerrados=Math.max(0,new Date().getDate()-1); // dias ya terminados (hasta ayer)

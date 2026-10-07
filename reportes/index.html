@@ -1270,6 +1270,9 @@ function pasaFiltro(l){const s=SEGU_MAP[l.contact_id||'']||{};
   case 'llamada1': return !!s.llamada1;
   case 'llamada2': return !!s.llamada2;
   case 'whatsapp': return !!s.whatsapp;
+  case 'seg_dia1': return !!s.seg_dia1;
+  case 'seg_dia2': return !!s.seg_dia2;
+  case 'seg_dia3': return !!s.seg_dia3;
   default: return true;
  }}
 function pasaBusca(l){const q=norm(LEAD_BUSCA); if(!q) return true;
@@ -1280,7 +1283,7 @@ function origenBadge(l){const o=(l.origen||'').toLowerCase(); if(!o) return '';
  if(o.includes('instagram')) return '<span class="ori ig">Instagram</span>';
  return '<span class="ori fb">Facebook</span>';}
 function leadControlsHTML(){
- const F=[['todos','Todos'],['ftd','FTD'],['registrado','Registrado'],['llamada1','Llamada 1'],['llamada2','Llamada 2'],['whatsapp','WhatsApp']];
+ const F=[['todos','Todos'],['ftd','FTD'],['registrado','Registrado'],['llamada1','Llamada 1'],['llamada2','Llamada 2'],['whatsapp','WhatsApp'],['seg_dia1','Seguimiento 1'],['seg_dia2','Seguimiento 2'],['seg_dia3','Seguimiento 3']];
  return `<input id="lbusca" class="minp" placeholder="Buscar por nombre, número o correo…" value="${esc(LEAD_BUSCA)}" style="margin:0 0 10px">
   <div class="lfilters">${F.map(([k,lbl])=>`<span class="lfilchip ${LEAD_FILTRO===k?'on':''}" data-f="${k}">${lbl}</span>`).join('')}</div>`;
 }

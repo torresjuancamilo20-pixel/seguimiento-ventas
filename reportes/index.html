@@ -806,6 +806,14 @@ async function descartarPV(id){
  try{await fetch(SUPABASE_URL+'/rest/v1/posibles_ventas?id=eq.'+id,{method:'PATCH',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify({descartado:true,updated_at:new Date().toISOString()})});}catch(e){}
  await loadPV(); renderPV();
 }
+function exportarPV(){
+ const si=b=>b?'Sí':'No';
+ const CAB=['Agente','Nombre','Celular','Producto','Fecha posible de pago','Observación','Inv. clase','Inv. operativa','Inv. presentación','1 a 1'];
+ const base=PVENTAS.filter(p=> PV_FILTRO==='todos' ? true : !!p[PV_FILTRO]);
+ const filas=base.map(p=>[p.agente||'',p.nombre||'',p.celular||'',p.producto||'',p.fecha_pago||'',p.observacion||'',si(p.inv_clase),si(p.inv_operativa),si(p.inv_presentacion),si(p.uno_a_uno)]);
+ const quien=ROLE==='director'?'equipo':(ME||'agente').replace(/\s+/g,'_');
+ descargarCSV([CAB,...filas],'posibles_ventas_'+quien+'_'+hoyISO()+'.csv');
+}
 async function procesarPendientesVencidos(){
  if(ROLE!=='agente') return; // el director no modifica datos
  const hoy=hoyISO();
@@ -1244,6 +1252,7 @@ function renderPV(){
    ? `<div class="pvbtns">${PV_BTNS.map(([k,l])=>`<span class="pvchip ${p[k]?'on':''}">${p[k]?'✔ ':''}${l}</span>`).join('')}</div>`
    : `<div class="pvbtns">${PV_BTNS.map(([k,l])=>`<button class="pvbtn ${p[k]?'on':''}" data-id="${p.id}" data-campo="${k}" data-on="${p[k]?1:0}">${p[k]?'✔ ':''}${l}</button>`).join('')}</div>`;
  const fpfmt=f=>f?((f).slice(8,10)+'/'+(f).slice(5,7)+'/'+(f).slice(0,4)):'';
+ const acc=p=>{const d=(p.celular||'').replace(/[^0-9]/g,''); if(!d) return ''; return `<div class="leadbtns" style="margin:10px 0 0"><a class="lbtn wa" href="https://wa.me/${d}" target="_blank" rel="noopener">💬 WhatsApp</a><a class="lbtn call" href="tel:+${d}" rel="noopener">📞 Llamar</a></div>`;};
  const tarjeta=p=>`<div class="pvitem">
    <div class="pvhead">
      <div class="pvwho"><div class="nm">${esc(p.nombre||'(sin nombre)')}</div><div class="cel">${p.celular?('📱 '+esc(p.celular)):'<span class="mut">sin número</span>'}</div></div>
@@ -1256,6 +1265,7 @@ function renderPV(){
          <div class="posf"><label>Fecha posible de pago</label><input type="date" class="pvpago" data-id="${p.id}" value="${esc(p.fecha_pago||'')}"></div>
        </div>
        <input class="pvobs" data-id="${p.id}" value="${esc(p.observacion||'')}" placeholder="Observación del cliente…">`}
+   ${acc(p)}
    ${btns(p)}
   </div>`;
  const addCard = dir?'' : `<div class="mcard"><h3>➕ Agregar posible venta</h3>
@@ -1269,7 +1279,8 @@ function renderPV(){
    </div>
    <div class="hint" style="margin-top:8px">Agrega los clientes que escriben y marca cada invitación que les hagas.</div></div>`;
  const FILTROS=[['todos','Todos']].concat(PV_BTNS);
- const filtroCard=`<div class="mcard"><h3>🔎 Filtrar</h3><div class="lfilters" style="margin-bottom:0">${FILTROS.map(([k,l])=>`<span class="lfilchip pvfil ${PV_FILTRO===k?'on':''}" data-f="${k}">${l}</span>`).join('')}</div></div>`;
+ const filtroCard=`<div class="mcard"><h3>🔎 Filtrar</h3><div class="lfilters">${FILTROS.map(([k,l])=>`<span class="lfilchip pvfil ${PV_FILTRO===k?'on':''}" data-f="${k}">${l}</span>`).join('')}</div>
+   <div class="leadbtns" style="margin:4px 0 0"><button class="lbtn call" id="pvCsv">⬇️ Exportar a Excel</button></div></div>`;
  const pasa=p=> PV_FILTRO==='todos' ? true : !!p[PV_FILTRO];
  let lista;
  if(dir){
@@ -1285,6 +1296,7 @@ function renderPV(){
  const pa=$('pvAdd'); if(pa) pa.onclick=agregarPV;
  const pn=$('pvNombre'); if(pn) pn.onkeydown=(e)=>{if(e.key==='Enter')agregarPV();};
  el.querySelectorAll('.pvfil').forEach(c=>c.onclick=()=>{PV_FILTRO=c.dataset.f;renderPV();});
+ const pcsv=$('pvCsv'); if(pcsv) pcsv.onclick=exportarPV;
  el.querySelectorAll('.pvbtn').forEach(b=>b.onclick=()=>pvToggle(b.dataset.id,b.dataset.campo,!(b.dataset.on==='1')));
  el.querySelectorAll('.pvobs').forEach(i=>i.onchange=()=>pvCampo(i.dataset.id,'observacion',i.value.trim()||null));
  el.querySelectorAll('.pvprod').forEach(i=>i.onchange=()=>pvCampo(i.dataset.id,'producto',i.value.trim()||null));

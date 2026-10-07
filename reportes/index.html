@@ -237,7 +237,7 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
 .rc-live i{width:7px;height:7px;border-radius:50%;background:#a78bfa;box-shadow:0 0 0 3px rgba(167,139,250,.25);animation:rcpulse 1.6s infinite}
 @keyframes rcpulse{0%,100%{opacity:1}50%{opacity:.35}}
 .rc-chip{font-size:12px;font-weight:700;color:#c4b5fd;background:rgba(139,92,246,.14);border:1px solid rgba(139,92,246,.35);padding:5px 12px;border-radius:999px}
-.rc-svg{display:block;width:100%;height:210px;margin-top:-6px}
+.rc-svg{display:block;width:100%;height:auto;margin-top:-2px}
 .rc-stat{text-align:center;margin:18px 0 2px}
 .rc-lb{color:var(--ink2);font-size:13px;font-weight:600;letter-spacing:.02em}
 .rc-n{font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(44px,9vw,72px);line-height:1;color:#fff;letter-spacing:-.03em;margin-top:2px}
@@ -1134,21 +1134,23 @@ function carreraChartSVG(apById, metaFtd, ftdAcum, pctFtd){
  const pct=Math.round(pctFtd||0);
  return `<div class="racechart">
   <div class="rc-top"><span class="rc-live"><i></i> En vivo</span><span class="rc-chip">Este mes</span></div>
-  <svg class="rc-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+  <svg class="rc-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
    <defs>
      <linearGradient id="rcArea" x1="0" y1="0" x2="0" y2="1">
-       <stop offset="0%" stop-color="rgba(139,92,246,.35)"/><stop offset="100%" stop-color="rgba(139,92,246,0)"/>
+       <stop offset="0%" stop-color="rgba(139,92,246,.32)"/><stop offset="100%" stop-color="rgba(139,92,246,0)"/>
      </linearGradient>
      <linearGradient id="rcLine" x1="0" y1="0" x2="1" y2="0">
-       <stop offset="0%" stop-color="#6d28d9"/><stop offset="100%" stop-color="#c4b5fd"/>
+       <stop offset="0%" stop-color="#7c3aed"/><stop offset="55%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#d7cbff"/>
      </linearGradient>
-     <filter id="rcGlow" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+     <filter id="rcGlow" x="-40%" y="-80%" width="180%" height="260%"><feGaussianBlur stdDeviation="7"/></filter>
    </defs>
    ${grid}
    <path d="${area}" fill="url(#rcArea)"/>
-   <path class="rc-line" d="${line}" fill="none" stroke="url(#rcLine)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#rcGlow)"/>
-   <circle cx="${nx.toFixed(1)}" cy="${ny.toFixed(1)}" r="13" fill="rgba(167,139,250,.25)"/>
-   <circle cx="${nx.toFixed(1)}" cy="${ny.toFixed(1)}" r="6" fill="#fff" filter="url(#rcGlow)"/>
+   <path d="${line}" fill="none" stroke="#a78bfa" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity=".45" filter="url(#rcGlow)"/>
+   <path class="rc-line" d="${line}" fill="none" stroke="url(#rcLine)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+   <circle cx="${nx.toFixed(1)}" cy="${ny.toFixed(1)}" r="16" fill="#a78bfa" opacity=".22" filter="url(#rcGlow)"/>
+   <circle cx="${nx.toFixed(1)}" cy="${ny.toFixed(1)}" r="5.5" fill="#fff"/>
+   <circle cx="${nx.toFixed(1)}" cy="${ny.toFixed(1)}" r="5.5" fill="none" stroke="#a78bfa" stroke-width="2"/>
   </svg>
  </div>
  <div class="rc-stat"><div class="rc-lb">Avance hacia tu meta</div><div class="rc-n">${pct}%<span class="rc-ar">↗</span></div><div class="rc-sub">${ftdAcum} de ${metaFtd} FTD este mes</div></div>`;

@@ -271,6 +271,23 @@ input[type=date].minp::-webkit-calendar-picker-indicator{filter:invert(.8);curso
 .pendavisox{position:absolute;top:12px;right:12px;border:0;background:transparent;color:#e9a23b;font-weight:800;font-size:16px;cursor:pointer;padding:4px 8px}
 .pendavisolist{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .pendavisochip{font-size:12.5px;padding:7px 12px;border-radius:999px;border:1px solid rgba(233,162,59,.4);background:rgba(233,162,59,.1);color:var(--ink)}
+.pvform{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.pvform .minp{flex:1;min-width:150px;max-width:280px}
+.pvitem{border-top:1px solid var(--line);padding:14px 2px}
+.pvitem:first-of-type{border-top:0}
+.pvhead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.pvwho .nm{font-weight:800;font-size:15px}
+.pvwho .cel{font-size:12.5px;color:var(--ink2);margin-top:2px}
+.pvwho .cel .mut{color:var(--mut);font-style:italic}
+.pvdel{border:0;background:transparent;color:#c0392b;font-weight:800;font-size:15px;cursor:pointer;padding:2px 6px}
+.pvobs{display:block;width:100%;margin:8px 0 2px;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink);font-family:'Inter';font-size:13.5px}
+.pvobs:focus{outline:none;border-color:#39b0ff}
+.pvbtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pvbtn{font-size:12.5px;font-weight:800;padding:8px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer;transition:all .12s}
+.pvbtn:hover{border-color:#39b0ff}
+.pvbtn.on{background:rgba(47,209,141,.18);border-color:#2fd18d;color:#2fd18d}
+.pvchip{font-size:12.5px;font-weight:800;padding:8px 14px;border-radius:12px;border:1px solid var(--line);background:var(--paper);color:var(--mut)}
+.pvchip.on{background:rgba(47,209,141,.14);border-color:#2fd18d;color:#2fd18d}
 .lfilters{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 12px}
 .lfilchip{font-size:12px;font-weight:800;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--mut);cursor:pointer;user-select:none}
 .lfilchip:hover{border-color:#39b0ff}
@@ -329,6 +346,7 @@ input[type=date].minp::-webkit-calendar-picker-indicator{filter:invert(.8);curso
   <div class="logo"><div class="mk">NX</div><div class="tx">LEGENDARY</div></div>
   <nav id="nav">
    <div class="nav-item active" data-view="meta"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.3"/></svg></span> Mi Meta</div>
+   <div class="nav-item" data-view="pventas"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h2l.4 2M7 13h10l3-7H6.4M7 13 5.4 5M7 13l-2 4h12"/><circle cx="9" cy="20" r="1.2"/><circle cx="17" cy="20" r="1.2"/></svg></span> Posibles ventas</div>
   </nav>
   <div class="side-foot"><button class="side-btn" id="logoutBtn">↩ Cerrar sesión</button></div>
  </aside>
@@ -346,6 +364,7 @@ input[type=date].minp::-webkit-calendar-picker-indicator{filter:invert(.8);curso
    </div>
   </div>
   <div id="viewMeta"></div>
+  <div id="viewPV" class="hide"></div>
  </main>
 </div>
 
@@ -396,6 +415,8 @@ let LEAD_BUSCA='';   // buscador en Mis Leads
 let SEGU_MAP={};     // contact_id -> {llamada1,llamada2,whatsapp,registrado,observacion}
 let POSIBLES=[];     // posibles del agente (prospectos del día)
 let PEND_QUITADOS=[];// {id,nombre,dias} posibles quitados por +2 días sin FTD (para el aviso)
+let PVENTAS=[];      // posibles ventas (del agente, o de todos si director)
+let PV_AG=null;      // agente seleccionado en Posibles ventas (director)
 const GHL_LOC='LyDmZPr3s5ICw2mIFTI5'; // location de GoHighLevel (para deep-links)
 function mesActual(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
 function hoyISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -754,6 +775,34 @@ async function descartarPosible(id){
  try{await fetch(SUPABASE_URL+'/rest/v1/posibles?id=eq.'+id,{method:'PATCH',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify({descartado:true,updated_at:new Date().toISOString()})});}catch(e){}
  await loadPosibles(); renderMeta();
 }
+/* ---------- POSIBLES VENTAS ---------- */
+async function loadPV(){
+ try{
+  let url=SUPABASE_URL+'/rest/v1/posibles_ventas?descartado=eq.false&select=*&order=updated_at.desc';
+  if(ROLE!=='director') url+='&agente=eq.'+encodeURIComponent(ME);
+  const r=await fetch(url,{headers:HDRS}); PVENTAS=await r.json()||[];
+ }catch(e){ PVENTAS=[]; }
+}
+async function agregarPV(){
+ const n=$('pvNombre'), c=$('pvCel'), o=$('pvObs');
+ if(!n) return; const nombre=(n.value||'').trim(); if(!nombre){ n.focus(); return; }
+ const body={agente:ME,nombre,celular:(c&&c.value.trim())||null,observacion:(o&&o.value.trim())||null,updated_at:new Date().toISOString()};
+ try{await fetch(SUPABASE_URL+'/rest/v1/posibles_ventas',{method:'POST',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify(body)});}catch(e){}
+ await loadPV(); renderPV();
+}
+async function pvToggle(id,campo,val){
+ const p=PVENTAS.find(x=>x.id===id); if(p) p[campo]=val;
+ try{await fetch(SUPABASE_URL+'/rest/v1/posibles_ventas?id=eq.'+id,{method:'PATCH',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify({[campo]:val,updated_at:new Date().toISOString()})});}catch(e){}
+ renderPV();
+}
+async function pvCampo(id,campo,val){
+ const p=PVENTAS.find(x=>x.id===id); if(p) p[campo]=val;
+ try{await fetch(SUPABASE_URL+'/rest/v1/posibles_ventas?id=eq.'+id,{method:'PATCH',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify({[campo]:val,updated_at:new Date().toISOString()})});}catch(e){}
+}
+async function descartarPV(id){
+ try{await fetch(SUPABASE_URL+'/rest/v1/posibles_ventas?id=eq.'+id,{method:'PATCH',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify({descartado:true,updated_at:new Date().toISOString()})});}catch(e){}
+ await loadPV(); renderPV();
+}
 async function procesarPendientesVencidos(){
  if(ROLE!=='agente') return; // el director no modifica datos
  const hoy=hoyISO();
@@ -914,9 +963,19 @@ async function showAvisoDiario(){
 function showView(v){
  PAGE=v;
  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view===v));
- $('eyebrow').textContent='Objetivo';
- $('viewTitle').textContent=ROLE==='agente'?'Mi meta del mes':'Metas por agente';
- $('viewSub').textContent='Tu meta de FTD y facturación, tu avance diario y tus leads de cada día.';
+ const pv=v==='pventas';
+ $('viewMeta').classList.toggle('hide',pv);
+ $('viewPV').classList.toggle('hide',!pv);
+ if(pv){
+   $('eyebrow').textContent='Prospectos';
+   $('viewTitle').textContent='Posibles ventas';
+   $('viewSub').textContent='Clientes que escriben y las invitaciones que les has hecho.';
+   loadPV().then(renderPV); renderPV();
+ }else{
+   $('eyebrow').textContent='Objetivo';
+   $('viewTitle').textContent=ROLE==='agente'?'Mi meta del mes':'Metas por agente';
+   $('viewSub').textContent='Tu meta de FTD y facturación, tu avance diario y tus leads de cada día.';
+ }
 }
 
 /* ---------- MI META (render) ---------- */
@@ -1173,6 +1232,47 @@ function renderPosibles(ag){
    <div class="hint">Estos posibles llevaban <b>más de 2 días</b> sin hacer FTD y se quitaron del listado de pendientes:</div>
    <div class="pendavisolist">${PEND_QUITADOS.map(x=>`<span class="pendavisochip"><b>${esc(x.nombre||'(sin nombre)')}</b> · ${x.dias} días</span>`).join('')}</div></div>` : '';
  return addCard + avisoCard + hoyCard + pendCard;
+}
+const PV_BTNS=[['inv_clase','Invitación a clase'],['inv_operativa','Invitación a operativa'],['inv_presentacion','Invitación a presentación'],['uno_a_uno','1 a 1']];
+function renderPV(){
+ const el=$('viewPV'); if(!el) return;
+ const dir=ROLE==='director';
+ const btns=p=> dir
+   ? `<div class="pvbtns">${PV_BTNS.map(([k,l])=>`<span class="pvchip ${p[k]?'on':''}">${p[k]?'✔ ':''}${l}</span>`).join('')}</div>`
+   : `<div class="pvbtns">${PV_BTNS.map(([k,l])=>`<button class="pvbtn ${p[k]?'on':''}" data-id="${p.id}" data-campo="${k}" data-on="${p[k]?1:0}">${p[k]?'✔ ':''}${l}</button>`).join('')}</div>`;
+ const tarjeta=p=>`<div class="pvitem">
+   <div class="pvhead">
+     <div class="pvwho"><div class="nm">${esc(p.nombre||'(sin nombre)')}</div><div class="cel">${p.celular?('📱 '+esc(p.celular)):'<span class="mut">sin número</span>'}</div></div>
+     ${dir?'':`<button class="pvdel" data-id="${p.id}" title="Quitar">✕</button>`}
+   </div>
+   ${dir
+     ? (p.observacion?`<div class="obsro">📝 ${esc(p.observacion)}</div>`:'')
+     : `<input class="pvobs" data-id="${p.id}" value="${esc(p.observacion||'')}" placeholder="Observación del cliente…">`}
+   ${btns(p)}
+  </div>`;
+ const addCard = dir?'' : `<div class="mcard"><h3>➕ Agregar posible venta</h3>
+   <div class="pvform">
+     <input class="minp" id="pvNombre" placeholder="Nombre">
+     <input class="minp" id="pvCel" placeholder="Número de celular">
+     <input class="minp" id="pvObs" placeholder="Observación del cliente">
+     <button class="mbtn gold" id="pvAdd" style="margin-top:0">Agregar</button>
+   </div>
+   <div class="hint" style="margin-top:8px">Agrega los clientes que escriben y marca cada invitación que les hagas.</div></div>`;
+ let lista;
+ if(dir){
+   const porAg={}; PVENTAS.forEach(p=>{const a=p.agente||'(sin asignar)';(porAg[a]=porAg[a]||[]).push(p);});
+   const ags=Object.keys(porAg).filter(a=>!excluido(a)).sort((a,b)=>porAg[b].length-porAg[a].length);
+   lista = ags.length? ags.map(a=>`<div class="mcard"><h3>👤 ${esc(a)} · ${porAg[a].length}</h3>${porAg[a].map(tarjeta).join('')}</div>`).join('')
+     : '<div class="mcard"><div class="hint">Aún no hay posibles ventas registrados.</div></div>';
+ }else{
+   lista = `<div class="mcard"><h3>🛒 Mis posibles ventas (${PVENTAS.length})</h3>${PVENTAS.length? PVENTAS.map(tarjeta).join('') : '<div class="hint">Aún no has agregado posibles ventas.</div>'}</div>`;
+ }
+ el.innerHTML = addCard + lista;
+ const pa=$('pvAdd'); if(pa) pa.onclick=agregarPV;
+ const pn=$('pvNombre'); if(pn) pn.onkeydown=(e)=>{if(e.key==='Enter')agregarPV();};
+ el.querySelectorAll('.pvbtn').forEach(b=>b.onclick=()=>pvToggle(b.dataset.id,b.dataset.campo,!(b.dataset.on==='1')));
+ el.querySelectorAll('.pvobs').forEach(i=>i.onchange=()=>pvCampo(i.dataset.id,'observacion',i.value.trim()||null));
+ el.querySelectorAll('.pvdel').forEach(b=>b.onclick=()=>{if(confirm('¿Quitar este posible venta?'))descartarPV(b.dataset.id);});
 }
 function renderPanel(){
  const set={}; agentesConMeta().forEach(a=>set[a.nombre]=1); Object.keys(EQUIPO_FTD).forEach(n=>set[n]=1);

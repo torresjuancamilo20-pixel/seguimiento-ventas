@@ -255,6 +255,17 @@ input[type=date].minp::-webkit-calendar-picker-indicator{filter:invert(.8);curso
 .posfro{margin:0 0 10px 46px;font-size:12.5px;color:var(--ink2);display:flex;flex-wrap:wrap;gap:4px 14px}
 .posfro b{color:var(--ink)}
 @media(max-width:760px){.posfields,.posfro{margin-left:0}.posf.nota{min-width:140px}}
+.avisoov{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(5,8,14,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:avisofade .25s ease}
+@keyframes avisofade{from{opacity:0}to{opacity:1}}
+.avisocard{width:100%;max-width:460px;text-align:center;background:linear-gradient(160deg,#111c30,#0a1220);border:1px solid rgba(90,120,160,.35);border-top:4px solid #2fd18d;border-radius:22px;padding:34px 28px 30px;box-shadow:0 24px 70px rgba(0,0,0,.6);animation:avisopop .3s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes avisopop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.avisobadge{font-size:11.5px;font-weight:800;letter-spacing:3px;color:#8fd0ff}
+.avisottl{margin-top:14px;font-size:21px;font-weight:900;letter-spacing:1px;color:#f1f6ff}
+.avisonum{font-size:92px;line-height:1;font-weight:900;margin:6px 0 0;background:linear-gradient(90deg,#2fd18d,#8fe9c2);-webkit-background-clip:text;background-clip:text;color:transparent}
+.avisoftd{font-size:22px;font-weight:900;letter-spacing:6px;color:#2fd18d;margin-top:2px}
+.avisomsg{margin-top:16px;font-size:15px;line-height:1.5;color:#c7d3e4}
+.avisobtn{margin-top:22px;font-size:16px;padding:12px 26px}
+@media(max-width:760px){.avisonum{font-size:72px}}
 .lfilters{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 12px}
 .lfilchip{font-size:12px;font-weight:800;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--mut);cursor:pointer;user-select:none}
 .lfilchip:hover{border-color:#39b0ff}
@@ -382,6 +393,7 @@ let POSIBLES=[];     // posibles del agente (prospectos del día)
 const GHL_LOC='LyDmZPr3s5ICw2mIFTI5'; // location de GoHighLevel (para deep-links)
 function mesActual(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
 function hoyISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function ayerISO(){const d=new Date();d.setDate(d.getDate()-1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function diasDelMes(){const d=new Date();return new Date(d.getFullYear(),d.getMonth()+1,0).getDate();}
 function diasRestantes(){const d=new Date();return diasDelMes()-d.getDate()+1;}
 let VENTAS=null;     // parsed sheet -> [{name, total, prods:{}}]
@@ -848,8 +860,35 @@ async function startApp(){
  await loadMetasMes().catch(()=>{});
  Promise.all([loadMeta().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{}),loadPosibles().catch(()=>{}),loadPanel().catch(()=>{})]).then(()=>renderMeta());
  await loadMetricas().catch(()=>{METRICAS=[];});renderMeta();
+ showAvisoDiario().catch(()=>{});
  // refresco de Mi Meta cada 60s: leads nuevos + aportes + facturación del Sheet (sin pisar lo que se esté escribiendo)
  setInterval(async()=>{if(PAGE==='meta'){const ae=document.activeElement;const editing=ae&&(['mMetaFtd','mMetaDia','mMetaFact','posNombre','lbusca'].includes(ae.id)||(ae.classList&&(ae.classList.contains('obsin')||ae.classList.contains('posnota')||ae.classList.contains('posregid')||ae.classList.contains('posftdhora'))));if(editing)return;await Promise.all([loadMetricas().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{}),loadMetasMes().catch(()=>{}),loadPosibles().catch(()=>{}),loadPanel().catch(()=>{})]);renderMeta();}},60000);
+}
+async function showAvisoDiario(){
+ if(!ME) return;
+ const clave='nexrep_aviso_'+ME+'_'+hoyISO();
+ try{ if(localStorage.getItem(clave)) return; }catch(e){}
+ const ayer=ayerISO(); const dir=ROLE==='director';
+ let ftdAyer=0;
+ try{
+  const q=dir?('fecha=eq.'+ayer+'&select=ftd'):('agente=eq.'+encodeURIComponent(ME)+'&fecha=eq.'+ayer+'&select=ftd');
+  const r=await fetch(SUPABASE_URL+'/rest/v1/aporte_diario?'+q+'&limit=20000',{headers:HDRS});
+  const b=await r.json()||[]; ftdAyer=(Array.isArray(b)?b:[]).reduce((s,x)=>s+(+x.ftd||0),0);
+ }catch(e){ ftdAyer=0; }
+ const titulo=dir?'AYER AL EQUIPO LE LLEGARON':'AYER TE LLEGARON';
+ const ov=document.createElement('div'); ov.className='avisoov';
+ ov.innerHTML=`<div class="avisocard">
+   <div class="avisobadge">◎ NEXUS · LEGENDARY</div>
+   <div class="avisottl">${titulo}</div>
+   <div class="avisonum">${ftdAyer}</div>
+   <div class="avisoftd">FTD</div>
+   <div class="avisomsg">Recuerda revisar qué sucedió con cada uno de ellos.<br><b>¡Hoy vamos a lograr nuestra meta! 🔥</b></div>
+   <button class="mbtn gold avisobtn">¡Vamos! 💪</button>
+  </div>`;
+ const close=()=>{ try{localStorage.setItem(clave,'1');}catch(e){} ov.remove(); };
+ ov.querySelector('.avisobtn').onclick=close;
+ ov.onclick=(e)=>{ if(e.target===ov) close(); };
+ document.getElementById('appScreen').appendChild(ov);
 }
 function showView(v){
  PAGE=v;

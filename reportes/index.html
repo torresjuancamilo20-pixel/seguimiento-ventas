@@ -237,8 +237,8 @@ tfoot td.lb{text-align:left;text-transform:uppercase;font-size:10px;letter-spaci
 .rc-live i{width:7px;height:7px;border-radius:50%;background:#a78bfa;box-shadow:0 0 0 3px rgba(167,139,250,.25);animation:rcpulse 1.6s infinite}
 @keyframes rcpulse{0%,100%{opacity:1}50%{opacity:.35}}
 .rc-chip{font-size:12px;font-weight:700;color:#c4b5fd;background:rgba(139,92,246,.14);border:1px solid rgba(139,92,246,.35);padding:5px 12px;border-radius:999px}
-.rc-svg{display:block;width:100%;height:230px;margin-top:-6px}
-.rc-stat{position:absolute;left:0;right:0;bottom:20px;text-align:center;z-index:2;pointer-events:none}
+.rc-svg{display:block;width:100%;height:210px;margin-top:-6px}
+.rc-stat{text-align:center;margin:18px 0 2px}
 .rc-lb{color:var(--ink2);font-size:13px;font-weight:600;letter-spacing:.02em}
 .rc-n{font-family:'Inter',sans-serif;font-weight:800;font-size:clamp(44px,9vw,72px);line-height:1;color:#fff;letter-spacing:-.03em;margin-top:2px}
 .rc-line{stroke-dasharray:2600;stroke-dashoffset:2600;animation:rcdraw 1.5s cubic-bezier(.4,0,.2,1) forwards}
@@ -1150,8 +1150,8 @@ function carreraChartSVG(apById, metaFtd, ftdAcum, pctFtd){
    <circle cx="${nx.toFixed(1)}" cy="${ny.toFixed(1)}" r="13" fill="rgba(167,139,250,.25)"/>
    <circle cx="${nx.toFixed(1)}" cy="${ny.toFixed(1)}" r="6" fill="#fff" filter="url(#rcGlow)"/>
   </svg>
-  <div class="rc-stat"><div class="rc-lb">Avance hacia tu meta</div><div class="rc-n">${pct}%<span class="rc-ar">↗</span></div><div class="rc-sub">${ftdAcum} de ${metaFtd} FTD este mes</div></div>
- </div>`;
+ </div>
+ <div class="rc-stat"><div class="rc-lb">Avance hacia tu meta</div><div class="rc-n">${pct}%<span class="rc-ar">↗</span></div><div class="rc-sub">${ftdAcum} de ${metaFtd} FTD este mes</div></div>`;
 }
 function renderMeta(){
  const el=$('viewMeta'); if(!el) return;

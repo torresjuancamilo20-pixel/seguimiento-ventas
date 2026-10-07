@@ -348,6 +348,17 @@ input[type=date].minp::-webkit-calendar-picker-indicator{filter:invert(.8);curso
 .pvdel{border:0;background:transparent;color:#c0392b;font-weight:800;font-size:15px;cursor:pointer;padding:2px 6px}
 .pvobs{display:block;width:100%;margin:8px 0 2px;padding:9px 12px;border:1px solid var(--glassbd);border-radius:12px;background:rgba(255,255,255,.04);color:var(--ink);font-family:'Inter';font-size:13.5px}
 .pvobs:focus{outline:none;border-color:#a78bfa;box-shadow:0 0 0 3px rgba(139,92,246,.25)}
+.poschks{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 2px;align-items:center}
+.poschk{font-size:12.5px;font-weight:800;padding:8px 14px;border-radius:12px;border:1px solid var(--glassbd);background:rgba(255,255,255,.04);color:var(--ink2);cursor:pointer;transition:.12s}
+.poschk:hover{border-color:#a78bfa}
+.poschk.on{background:rgba(47,209,141,.18);border-color:#2fd18d;color:#2fd18d}
+.posestsel{display:inline-flex;border:1px solid var(--glassbd);border-radius:12px;overflow:hidden;margin-left:auto}
+.posest{font-size:12.5px;font-weight:800;padding:8px 14px;border:0;background:transparent;color:var(--mut);cursor:pointer}
+.posest.on{background:linear-gradient(135deg,#7c3aed,#a78bfa);color:#fff}
+.posest.pend.on{background:linear-gradient(135deg,#b45309,#e9a23b)}
+.posbadge{font-size:11px;font-weight:800;padding:2px 10px;border-radius:999px}
+.posbadge.pos{background:rgba(139,92,246,.18);color:#c4b5fd}
+.posbadge.pend{background:rgba(233,162,59,.18);color:#e9a23b}
 .pvfields{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 2px}
 .pvfields .posf.nota{min-width:180px}
 .pvbtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
@@ -1263,6 +1274,8 @@ function renderMeta(){
  document.querySelectorAll('.posnota').forEach(i=>i.onchange=()=>posibleCampo(i.dataset.id,'nota',i.value.trim()||null));
  document.querySelectorAll('.posftdhora').forEach(i=>i.onchange=()=>posibleCampo(i.dataset.id,'ftd_hora',i.value||null));
  document.querySelectorAll('.posregid').forEach(i=>i.onchange=()=>posibleCampo(i.dataset.id,'registro_id',i.value.trim()||null));
+ document.querySelectorAll('.poschk').forEach(b=>b.onclick=()=>{posibleCampo(b.dataset.id,b.dataset.campo,!(b.dataset.on==='1'));renderMeta();});
+ document.querySelectorAll('.posest').forEach(b=>b.onclick=()=>{posibleCampo(b.dataset.id,'estado',b.dataset.estado);renderMeta();});
  const pac=$('pendAvisoClose'); if(pac) pac.onclick=()=>{PEND_QUITADOS=[];renderMeta();};
 }
 function pasaFiltro(l){const s=SEGU_MAP[l.contact_id||'']||{};
@@ -1369,14 +1382,23 @@ function renderPosibles(ag){
  const hechosHoy=deHoy.filter(p=>p.hecho).length;
  const ddmm=f=>(f||'').slice(8,10)+'/'+(f||'').slice(5,7);
  const campos=(p)=>{
+   const est=(p.estado==='pendiente')?'pendiente':'posible';
    if(dir){
      const parts=[];
+     parts.push(est==='pendiente'?'<span class="posbadge pend">Pendiente</span>':'<span class="posbadge pos">Posible</span>');
+     if(p.registrado) parts.push('✅ Registrado');
+     if(p.whatsapp) parts.push('💬 Bajado a WhatsApp');
      if(p.nota) parts.push(`📝 ${esc(p.nota)}`);
      if(p.ftd_hora) parts.push(`🕒 FTD <b>${esc(p.ftd_hora)}</b>`);
      if(p.registro_id) parts.push(`🆔 Registro <b>${esc(p.registro_id)}</b>`);
-     return parts.length?`<div class="posfro">${parts.join('')}</div>`:'';
+     return `<div class="posfro">${parts.join('')}</div>`;
    }
-   return `<div class="posfields">
+   return `<div class="poschks">
+     <button class="poschk ${p.registrado?'on':''}" data-id="${p.id}" data-campo="registrado" data-on="${p.registrado?1:0}">${p.registrado?'✔ ':''}Registrado</button>
+     <button class="poschk ${p.whatsapp?'on':''}" data-id="${p.id}" data-campo="whatsapp" data-on="${p.whatsapp?1:0}">${p.whatsapp?'✔ ':''}Bajado a WhatsApp</button>
+     <span class="posestsel"><button class="posest ${est==='posible'?'on':''}" data-id="${p.id}" data-estado="posible">Posible</button><button class="posest pend ${est==='pendiente'?'on':''}" data-id="${p.id}" data-estado="pendiente">Pendiente</button></span>
+    </div>
+    <div class="posfields">
      <div class="posf nota"><label>¿Cómo va?</label><input class="posnota" data-id="${p.id}" value="${esc(p.nota||'')}" placeholder="Escribe cómo va…"></div>
      <div class="posf"><label>Hora FTD</label><input type="time" class="posftdhora" data-id="${p.id}" value="${esc(p.ftd_hora||'')}"></div>
      <div class="posf"><label>ID de registro</label><input class="posregid" data-id="${p.id}" value="${esc(p.registro_id||'')}" placeholder="ID…"></div>

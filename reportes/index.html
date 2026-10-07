@@ -869,19 +869,21 @@ async function showAvisoDiario(){
  const clave='nexrep_aviso_'+ME+'_'+hoyISO();
  try{ if(localStorage.getItem(clave)) return; }catch(e){}
  const ayer=ayerISO(); const dir=ROLE==='director';
- let ftdAyer=0;
+ // Bogotá es UTC-5: el día X va de X 05:00Z a (X+1) 05:00Z
+ const desdeUtc=ayer+'T05:00:00Z', hastaUtc=hoyISO()+'T05:00:00Z';
+ let leadsAyer=0;
  try{
-  const q=dir?('fecha=eq.'+ayer+'&select=ftd'):('agente=eq.'+encodeURIComponent(ME)+'&fecha=eq.'+ayer+'&select=ftd');
-  const r=await fetch(SUPABASE_URL+'/rest/v1/aporte_diario?'+q+'&limit=20000',{headers:HDRS});
-  const b=await r.json()||[]; ftdAyer=(Array.isArray(b)?b:[]).reduce((s,x)=>s+(+x.ftd||0),0);
- }catch(e){ ftdAyer=0; }
+  const filtro=dir?'':('&agente=eq.'+encodeURIComponent(ME));
+  const r=await fetch(SUPABASE_URL+'/rest/v1/clientes_lead?select=contact_id&llegada_at=gte.'+desdeUtc+'&llegada_at=lt.'+hastaUtc+filtro+'&limit=20000',{headers:HDRS});
+  const b=await r.json()||[]; leadsAyer=Array.isArray(b)?b.length:0;
+ }catch(e){ leadsAyer=0; }
  const titulo=dir?'AYER AL EQUIPO LE LLEGARON':'AYER TE LLEGARON';
  const ov=document.createElement('div'); ov.className='avisoov';
  ov.innerHTML=`<div class="avisocard">
    <div class="avisobadge">◎ NEXUS · LEGENDARY</div>
    <div class="avisottl">${titulo}</div>
-   <div class="avisonum">${ftdAyer}</div>
-   <div class="avisoftd">FTD</div>
+   <div class="avisonum">${leadsAyer}</div>
+   <div class="avisoftd">LEADS</div>
    <div class="avisomsg">Recuerda revisar qué sucedió con cada uno de ellos.<br><b>¡Hoy vamos a lograr nuestra meta! 🔥</b></div>
    <button class="mbtn gold avisobtn">¡Vamos! 💪</button>
   </div>`;

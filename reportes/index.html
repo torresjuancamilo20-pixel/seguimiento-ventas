@@ -382,7 +382,9 @@ input[type=date].minp::-webkit-calendar-picker-indicator{filter:invert(.8);curso
 .lbtn:active{transform:scale(.97)}
 .obsin{display:block;width:calc(100% - 46px);margin:8px 0 2px 46px;padding:9px 12px;border:1px solid var(--glassbd);border-radius:12px;background:rgba(255,255,255,.04);color:var(--ink);font-family:'Inter';font-size:13.5px;resize:vertical}
 .obsin:focus{outline:none;border-color:#a78bfa;box-shadow:0 0 0 3px rgba(139,92,246,.25)}
-@media(max-width:760px){.chks,.leadbtns{margin-left:0}.obsin{width:100%;margin-left:0}}
+.regidin{display:block;width:calc(100% - 46px);margin:8px 0 2px 46px;padding:9px 12px;border:1px solid var(--glassbd);border-radius:12px;background:rgba(255,255,255,.04);color:var(--ink);font-family:'Inter';font-size:13.5px}
+.regidin:focus{outline:none;border-color:#a78bfa;box-shadow:0 0 0 3px rgba(139,92,246,.25)}
+@media(max-width:760px){.chks,.leadbtns{margin-left:0}.obsin,.regidin{width:100%;margin-left:0}}
 .leadrow{display:flex;align-items:center;gap:12px;padding:12px 4px;border-top:1px solid var(--line)}
 .leadrow .av{width:34px;height:34px;border-radius:50%;background:#15314f;color:#c4b5fd;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
 .leadrow .nm{font-weight:700;font-size:14px}
@@ -661,8 +663,8 @@ function horaLead(l){try{return new Date(l.llegada_at).toLocaleTimeString('es-CO
 function fechaBog(ts){try{return new Date(ts).toLocaleDateString('en-CA',{timeZone:'America/Bogota'});}catch(e){return (ts||'').slice(0,10);}} // fecha YYYY-MM-DD en hora Colombia
 function filaLeadCSV(l){const cid=l.contact_id||'';const s=SEGU_MAP[cid]||{};
  const est=l.ftd_at?'FTD':l.registrado_at?'Registrado':'Nuevo';
- return [fechaBog(l.llegada_at),l.agente||'',l.nombre||'',l.telefono||'',horaLead(l),est,s.llamada1?'Sí':'No',s.llamada2?'Sí':'No',s.whatsapp?'Sí':'No',s.registrado?'Sí':'No',s.ftd?'Sí':'No',s.seg_dia1?'Sí':'No',s.seg_dia2?'Sí':'No',s.seg_dia3?'Sí':'No',s.observacion||''];}
-const CAB_LEADS_CSV=['Fecha','Agente','Nombre','Teléfono','Hora','Estado','Llamada 1','Llamada 2','Bajado a WhatsApp','Registrado (check)','FTD (check)','Seg. día 1','Seg. día 2','Seg. día 3','Observación'];
+ return [fechaBog(l.llegada_at),l.agente||'',l.nombre||'',l.telefono||'',horaLead(l),est,s.llamada1?'Sí':'No',s.llamada2?'Sí':'No',s.whatsapp?'Sí':'No',s.registrado?'Sí':'No',s.ftd?'Sí':'No',s.seg_dia1?'Sí':'No',s.seg_dia2?'Sí':'No',s.seg_dia3?'Sí':'No',s.registro_id||'',s.observacion||''];}
+const CAB_LEADS_CSV=['Fecha','Agente','Nombre','Teléfono','Hora','Estado','Llamada 1','Llamada 2','Bajado a WhatsApp','Registrado (check)','FTD (check)','Seg. día 1','Seg. día 2','Seg. día 3','ID de registro','Observación'];
 function fuenteLeads(){return ROLE==='director'?LEADS_ALL.filter(l=>!excluido(l.agente)):LEADS_DET;}
 function exportarLeadsDia(){
  if(ROLE==='director'){
@@ -865,18 +867,22 @@ async function loadLeadsDetalle(){
 }
 async function loadSeguimiento(){
  try{
-  const r=await fetch(SUPABASE_URL+'/rest/v1/lead_seguimiento?select=contact_id,llamada1,llamada2,whatsapp,registrado,ftd,seg_dia1,seg_dia2,seg_dia3,observacion&limit=10000',{headers:HDRS});
+  const r=await fetch(SUPABASE_URL+'/rest/v1/lead_seguimiento?select=contact_id,llamada1,llamada2,whatsapp,registrado,ftd,seg_dia1,seg_dia2,seg_dia3,observacion,registro_id&limit=10000',{headers:HDRS});
   const b=await r.json()||[]; SEGU_MAP={};
   if(Array.isArray(b)) b.forEach(x=>{SEGU_MAP[x.contact_id]=x;});
  }catch(e){ SEGU_MAP={}; }
 }
-function seguBody(cur){return {contact_id:cur.contact_id,agente:metaAgente(),llamada1:!!cur.llamada1,llamada2:!!cur.llamada2,whatsapp:!!cur.whatsapp,registrado:!!cur.registrado,ftd:!!cur.ftd,seg_dia1:!!cur.seg_dia1,seg_dia2:!!cur.seg_dia2,seg_dia3:!!cur.seg_dia3,observacion:cur.observacion||null,updated_at:new Date().toISOString()};}
+function seguBody(cur){return {contact_id:cur.contact_id,agente:metaAgente(),llamada1:!!cur.llamada1,llamada2:!!cur.llamada2,whatsapp:!!cur.whatsapp,registrado:!!cur.registrado,ftd:!!cur.ftd,seg_dia1:!!cur.seg_dia1,seg_dia2:!!cur.seg_dia2,seg_dia3:!!cur.seg_dia3,observacion:cur.observacion||null,registro_id:cur.registro_id||null,updated_at:new Date().toISOString()};}
 async function toggleSegu(cid,campo,val){
  const cur=SEGU_MAP[cid]||{contact_id:cid}; cur[campo]=val; SEGU_MAP[cid]=cur;
  try{await fetch(SUPABASE_URL+'/rest/v1/lead_seguimiento?on_conflict=contact_id',{method:'POST',headers:{...WHDR,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(seguBody(cur))});}catch(e){}
 }
 async function guardarObs(cid,txt){
  const cur=SEGU_MAP[cid]||{contact_id:cid}; cur.observacion=txt; SEGU_MAP[cid]=cur;
+ try{await fetch(SUPABASE_URL+'/rest/v1/lead_seguimiento?on_conflict=contact_id',{method:'POST',headers:{...WHDR,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(seguBody(cur))});}catch(e){}
+}
+async function guardarRegid(cid,txt){
+ const cur=SEGU_MAP[cid]||{contact_id:cid}; cur.registro_id=txt||null; SEGU_MAP[cid]=cur;
  try{await fetch(SUPABASE_URL+'/rest/v1/lead_seguimiento?on_conflict=contact_id',{method:'POST',headers:{...WHDR,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(seguBody(cur))});}catch(e){}
 }
 async function loadPosibles(){
@@ -1067,7 +1073,7 @@ async function startApp(){
  await loadMetricas().catch(()=>{METRICAS=[];});renderMeta();
  showAvisoDiario().catch(()=>{});
  // refresco de Mi Meta cada 60s: leads nuevos + aportes + facturación del Sheet (sin pisar lo que se esté escribiendo)
- setInterval(async()=>{if(PAGE==='meta'){const ae=document.activeElement;const editing=ae&&(['mMetaFtd','mMetaDia','mMetaFact','posNombre','lbusca'].includes(ae.id)||(ae.classList&&(ae.classList.contains('obsin')||ae.classList.contains('posnota')||ae.classList.contains('posregid')||ae.classList.contains('posftdhora'))));if(editing)return;await Promise.all([loadMetricas().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{}),loadMetasMes().catch(()=>{}),loadPosibles().catch(()=>{}),loadPanel().catch(()=>{})]);renderMeta();procesarPendientesVencidos().catch(()=>{});}},60000);
+ setInterval(async()=>{if(PAGE==='meta'){const ae=document.activeElement;const editing=ae&&(['mMetaFtd','mMetaDia','mMetaFact','posNombre','lbusca'].includes(ae.id)||(ae.classList&&(ae.classList.contains('obsin')||ae.classList.contains('regidin')||ae.classList.contains('posnota')||ae.classList.contains('posregid')||ae.classList.contains('posftdhora'))));if(editing)return;await Promise.all([loadMetricas().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{}),loadMetasMes().catch(()=>{}),loadPosibles().catch(()=>{}),loadPanel().catch(()=>{})]);renderMeta();procesarPendientesVencidos().catch(()=>{});}},60000);
 }
 async function showAvisoDiario(){
  if(!ME) return;
@@ -1267,6 +1273,7 @@ function renderMeta(){
    await toggleSegu(cid,k,nv);
  });
  document.querySelectorAll('.obsin').forEach(t=>t.onchange=()=>{const cid=t.dataset.cid; if(cid) guardarObs(cid,t.value.trim());});
+ document.querySelectorAll('.regidin').forEach(i=>i.onchange=()=>{const cid=i.dataset.cid; if(cid) guardarRegid(cid,i.value.trim());});
  const pa=$('posAdd'); if(pa) pa.onclick=agregarPosible;
  const pn=$('posNombre'); if(pn) pn.onkeydown=(e)=>{if(e.key==='Enter')agregarPosible();};
  document.querySelectorAll('.posbtn').forEach(b=>b.onclick=()=>posibleHecho(b.dataset.id, !(b.dataset.on==='1')));
@@ -1325,8 +1332,11 @@ function renderLeadsHTML(ag){
  const obs=l=>{const cid=l.contact_id||''; if(!cid) return '';
    const v=esc((SEGU_MAP[cid]||{}).observacion||'');
    return `<textarea class="obsin" data-cid="${esc(cid)}" rows="2" placeholder="Observación: ¿qué pasó con el cliente?">${v}</textarea>`;};
+ const regid=l=>{const cid=l.contact_id||''; if(!cid) return '';
+   const v=esc((SEGU_MAP[cid]||{}).registro_id||'');
+   return `<input class="regidin" data-cid="${esc(cid)}" value="${v}" placeholder="🆔 ID de registro…">`;};
  const todas=byDay[LEAD_DIA]||[]; const lista=filtraLeads(todas);
- const rows=lista.length? lista.map(l=>`<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')} ${origenBadge(l)}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${checks(l)}${acciones(l)}${obs(l)}</div>`).join('') : `<div class="hint">${todas.length?'Ningún lead coincide con el filtro o la búsqueda.':'No te llegaron leads ese día.'}</div>`;
+ const rows=lista.length? lista.map(l=>`<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')} ${origenBadge(l)}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${checks(l)}${acciones(l)}${regid(l)}${obs(l)}</div>`).join('') : `<div class="hint">${todas.length?'Ningún lead coincide con el filtro o la búsqueda.':'No te llegaron leads ese día.'}</div>`;
  return `<div class="mcard"><h3>📥 Mis leads por día</h3><div class="hint">Elige una fecha para ver tus leads; marca el avance, escribe la observación y abre el chat o la llamada en GoHighLevel.</div>
   ${selFecha}
   <div class="leadbtns" style="margin:0 0 12px"><button class="lbtn call" id="csvDia">⬇️ CSV de este día</button><button class="lbtn" id="csvTodo" style="background:linear-gradient(90deg,#6b7280,#9aa3b2)">⬇️ CSV de todos</button></div>
@@ -1359,7 +1369,8 @@ function renderLeadsDirector(){
  const leadRO=l=>{const cid=l.contact_id||''; const s=SEGU_MAP[cid]||{};
    const chks=`<div class="chks">${CAMPOS.map(([k,lbl])=>`<span class="chkro ${s[k]?'on':''}">${s[k]?'✔ ':''}${lbl}</span>`).join('')}</div>`;
    const obsv=s.observacion?`<div class="obsro">📝 ${esc(s.observacion)}</div>`:'<div class="obsro vacia">Sin observación</div>';
-   return `<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')} ${origenBadge(l)}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${chks}${obsv}</div>`;};
+   const regidv=s.registro_id?`<div class="obsro">🆔 Registro <b>${esc(s.registro_id)}</b></div>`:'';
+   return `<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')} ${origenBadge(l)}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${chks}${regidv}${obsv}</div>`;};
  const todasDia=LEADS_ALL.filter(l=>!excluido(l.agente)&&(()=>{const f=fechaBog(l.llegada_at);return f>=dA&&f<=dB;})()); const leadsDia=filtraLeads(todasDia);
  const porAg={}; leadsDia.forEach(l=>{const a=l.agente||'(sin asignar)'; (porAg[a]=porAg[a]||[]).push(l);});
  const agentes=Object.keys(porAg).sort((a,b)=>porAg[b].length-porAg[a].length);

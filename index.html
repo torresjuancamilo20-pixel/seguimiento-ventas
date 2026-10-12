@@ -189,6 +189,14 @@
   .goal .h{display:flex;justify-content:space-between;font-weight:600;margin-bottom:8px;font-size:.9rem}
 
   footer.foot{text-align:center;color:var(--muted2);font-size:.78rem;margin-top:10px}
+  footer.foot a{color:var(--muted);text-decoration:none}
+  footer.foot a:hover{color:var(--txt)}
+  .consent{display:flex;align-items:flex-start;gap:9px;font-size:.82rem;color:var(--muted);text-align:left;line-height:1.4}
+  .consent input{width:auto;margin-top:2px;accent-color:var(--brand)}
+  .consent a{color:var(--brand)}
+  .auth-legal{text-align:center;margin-top:16px;font-size:.78rem}
+  .auth-legal a{color:var(--muted);text-decoration:none}
+  .auth-legal a:hover{color:var(--txt)}
 
   /* Registro rápido */
   .rapido-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
@@ -273,10 +281,15 @@
     <form id="authForm">
       <input type="email" id="email" placeholder="Correo electrónico" required autocomplete="email">
       <input type="password" id="pass" placeholder="Contraseña (mín. 6 caracteres)" required minlength="6" autocomplete="current-password">
+      <label id="consentRow" class="consent hidden">
+        <input type="checkbox" id="consent">
+        <span>Acepto los <a href="/legal/terminos/" target="_blank" rel="noopener">Términos</a> y la <a href="/legal/privacidad/" target="_blank" rel="noopener">Política de Privacidad</a>.</span>
+      </label>
       <div id="authMsg" class="msg hidden"></div>
       <button class="primary" id="authBtn" type="submit">Entrar</button>
     </form>
     <div class="switch" id="authSwitch">¿No tienes cuenta? <b id="toggleMode">Regístrate</b></div>
+    <div class="auth-legal"><a href="/legal/terminos/" target="_blank" rel="noopener">Términos</a> · <a href="/legal/privacidad/" target="_blank" rel="noopener">Privacidad</a> · <a href="/legal/reembolsos/" target="_blank" rel="noopener">Reembolsos</a></div>
   </div>
 </div>
 
@@ -336,7 +349,7 @@
       <li>✓ Sincronización segura en la nube</li>
     </ul>
     <button class="primary" id="payBtn" onclick="irAPagar()">Iniciar prueba de 72 h</button>
-    <p class="mini-txt">Pago seguro con Stripe · Cancela cuando quieras · Necesitas una tarjeta para la prueba.</p>
+    <p class="mini-txt">Pago seguro con Stripe · Cancela cuando quieras · Necesitas una tarjeta para la prueba.<br>Al suscribirte aceptas los <a href="/legal/terminos/" target="_blank" rel="noopener">Términos</a>, la <a href="/legal/privacidad/" target="_blank" rel="noopener">Privacidad</a> y la <a href="/legal/reembolsos/" target="_blank" rel="noopener">Política de Reembolsos</a>.</p>
     <button class="linkout" id="logout2">Cerrar sesión</button>
   </div>
 </div>
@@ -530,7 +543,9 @@
       </div>
     </section>
 
-    <footer class="foot">Tus datos se guardan en la nube de forma privada y segura. · Mis Finanzas</footer>
+    <footer class="foot">Tus datos se guardan en la nube de forma privada y segura. · Mis Finanzas
+      <br><a href="/legal/terminos/" target="_blank" rel="noopener">Términos</a> · <a href="/legal/privacidad/" target="_blank" rel="noopener">Privacidad</a> · <a href="/legal/reembolsos/" target="_blank" rel="noopener">Reembolsos</a>
+    </footer>
   </main>
 </div>
 
@@ -569,12 +584,14 @@ function toggleMode(){
     ? '¿Ya tienes cuenta? <b id="toggleMode">Inicia sesión</b>'
     : '¿No tienes cuenta? <b id="toggleMode">Regístrate</b>';
   $("toggleMode").onclick=toggleMode;
+  $("consentRow").classList.toggle("hidden", !isRegister);
   $("authMsg").classList.add("hidden");
 }
 $("toggleMode").onclick=toggleMode;
 
 $("authForm").addEventListener("submit", async e=>{
   e.preventDefault();
+  if(isRegister && !$("consent").checked){ showMsg("Debes aceptar los Términos y la Política de Privacidad para crear tu cuenta.", false); return; }
   $("authBtn").disabled=true;
   const email=$("email").value.trim(), password=$("pass").value;
   try{

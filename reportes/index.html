@@ -361,6 +361,14 @@ input[type=date].minp::-webkit-calendar-picker-indicator{filter:invert(.8);curso
 .posbadge.pend{background:rgba(233,162,59,.18);color:#e9a23b}
 .pvfields{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 2px}
 .pvfields .posf.nota{min-width:180px}
+.ftdmodal{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(5,4,12,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.ftdmodal-card{width:100%;max-width:420px;background:rgba(18,15,31,.98);border:1px solid var(--glassbd);border-radius:20px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.55)}
+.ftdmodal-card h3{margin:0 0 4px}
+.ftdmodal-card .minp{width:100%;margin:0 0 4px}
+.fml{display:block;font-size:10.5px;font-weight:800;letter-spacing:.3px;color:var(--mut);text-transform:uppercase;margin:8px 0 3px}
+.fmchks{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px}
+.fmbtns{display:flex;gap:10px;margin-top:16px}
+.fmbtns .mbtn{flex:1}
 .pvbtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .pvbtn{font-size:12.5px;font-weight:800;padding:8px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer;transition:all .12s}
 .pvbtn:hover{border-color:#8b5cf6}
@@ -1033,6 +1041,52 @@ function renderFTD(){
  el.querySelectorAll('.ftdid').forEach(i=>i.onchange=()=>ftdCampo(i.dataset.id,'registro_id',i.value.trim()||null));
  el.querySelectorAll('.pvdel').forEach(b=>b.onclick=()=>{if(confirm('¿Quitar este FTD?'))descartarFTD(b.dataset.id);});
 }
+function leadByCid(cid){
+ return (LEADS_DET||[]).find(l=>l.contact_id===cid) || (LEADS_ALL||[]).find(l=>l.contact_id===cid) || null;
+}
+async function ftdDescartarPorContacto(cid){
+ try{await fetch(SUPABASE_URL+'/rest/v1/ftds_registro?contact_id=eq.'+encodeURIComponent(cid),{method:'PATCH',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify({descartado:true,updated_at:new Date().toISOString()})});}catch(e){}
+}
+// Modal: registrar un FTD desde un lead (al marcar el chip FTD). Prellena lo que ya se tiene.
+function openFtdModal(cid, chipEl){
+ const l=leadByCid(cid)||{}; const s=SEGU_MAP[cid]||{};
+ const nombre=l.nombre||''; const cel=l.telefono||''; const rid=s.registro_id||'';
+ const ov=document.createElement('div'); ov.className='ftdmodal';
+ ov.innerHTML=`<div class="ftdmodal-card">
+   <h3>✅ Registrar FTD</h3>
+   <div class="hint" style="margin:0 0 10px">Confirma los datos del cliente y marca lo que aplique. Lo que falte, complétalo aquí.</div>
+   <label class="fml">Nombre</label><input class="minp" id="fmNombre" value="${esc(nombre)}" placeholder="Nombre del cliente">
+   <label class="fml">Número de celular</label><input class="minp" id="fmCel" value="${esc(cel)}" placeholder="Número de celular">
+   <label class="fml">ID de registro</label><input class="minp" id="fmId" value="${esc(rid)}" placeholder="ID de registro">
+   <div class="fmchks">
+     <button class="pvbtn" data-k="tiene_plataforma" data-on="0">Tiene plataforma</button>
+     <button class="pvbtn" data-k="canal" data-on="0">Canal</button>
+     <button class="pvbtn" data-k="clase_7pm" data-on="0">Ingresó a la clase 7:00pm</button>
+   </div>
+   <div class="fmbtns"><button class="mbtn gold" id="fmSave">Guardar FTD</button><button class="lbtn" id="fmCancel" style="background:linear-gradient(90deg,#6b7280,#9aa3b2)">Cancelar</button></div>
+  </div>`;
+ const close=()=>ov.remove();
+ ov.onclick=(e)=>{ if(e.target===ov) close(); };
+ ov.querySelectorAll('.fmchks .pvbtn').forEach(b=>b.onclick=()=>{const on=b.dataset.on==='1';b.dataset.on=on?'0':'1';b.classList.toggle('on',!on);b.innerHTML=(on?'':'✔ ')+(b.dataset.k==='tiene_plataforma'?'Tiene plataforma':b.dataset.k==='canal'?'Canal':'Ingresó a la clase 7:00pm');});
+ ov.querySelector('#fmCancel').onclick=close;
+ ov.querySelector('#fmSave').onclick=async()=>{
+   const nom=(ov.querySelector('#fmNombre').value||'').trim();
+   if(!nom){ ov.querySelector('#fmNombre').focus(); return; }
+   const celv=(ov.querySelector('#fmCel').value||'').trim()||null;
+   const idv=(ov.querySelector('#fmId').value||'').trim()||null;
+   const get=k=>ov.querySelector('.fmchks .pvbtn[data-k="'+k+'"]').dataset.on==='1';
+   const body={contact_id:cid,agente:ME,nombre:nom,celular:celv,registro_id:idv,
+     tiene_plataforma:get('tiene_plataforma'),canal:get('canal'),clase_7pm:get('clase_7pm'),
+     descartado:false,updated_at:new Date().toISOString()};
+   try{await fetch(SUPABASE_URL+'/rest/v1/ftds_registro?on_conflict=contact_id',{method:'POST',headers:{...WHDR,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});}catch(e){}
+   if(idv && idv!==(s.registro_id||'')) { await guardarRegid(cid,idv); }
+   await toggleSegu(cid,'ftd',true);
+   if(chipEl){ chipEl.classList.add('on'); chipEl.innerHTML='✔ '+chipEl.dataset.lbl; }
+   close();
+ };
+ document.getElementById('appScreen').appendChild(ov);
+ setTimeout(()=>{const f=ov.querySelector('#fmId'); if(f && !rid) f.focus(); },50);
+}
 async function procesarPendientesVencidos(){
  if(ROLE!=='agente') return; // el director no modifica datos
  const hoy=hoyISO();
@@ -1363,6 +1417,11 @@ function renderMeta(){
  document.querySelectorAll('.chk').forEach(ch=>ch.onclick=async()=>{
    const cid=ch.dataset.cid, k=ch.dataset.k; if(!cid)return;
    const nv=!ch.classList.contains('on');
+   if(k==='ftd'){
+     if(nv){ openFtdModal(cid, ch); return; }           // abrir formulario; el chip se marca al guardar
+     ch.classList.remove('on'); ch.innerHTML=ch.dataset.lbl;
+     await toggleSegu(cid,'ftd',false); await ftdDescartarPorContacto(cid); return;
+   }
    ch.classList.toggle('on',nv); ch.innerHTML=(nv?'✔ ':'')+ch.dataset.lbl;
    await toggleSegu(cid,k,nv);
  });

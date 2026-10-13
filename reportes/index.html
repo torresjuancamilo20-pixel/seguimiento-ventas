@@ -517,6 +517,10 @@ const VENTAS_CSV_URL="https://docs.google.com/spreadsheets/d/1-xleSrkekqfKX1DUzW
 const EXCLUIR=['alejandro facundo','alejandro facundo junior','dannia cordoba','isabel ramirez','juan carlos','valentina gutierrez','juan miguel pacheco'];
 function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim();}
 function excluido(a){return EXCLUIR.includes(norm(a));}
+// Oficina extensión: estos agentes se muestran agrupados como "Legendary extensión" en las vistas del director.
+const EXT_LABEL='Legendary extensión';
+function esExtension(a){const t=norm(a);return t.includes('keiner')||t.includes('liseth')||(t.includes('rojas')&&t.includes('santiago'));}
+function grpAgente(a){return esExtension(a)?EXT_LABEL:(a||'');}
 // Excluidos SOLO de Productividad y FTD's (siguen apareciendo en Ventas y Leads)
 const EXCLUIR_METRICAS=['juliana facundo'];
 function excluidoMetricas(a){return excluido(a)||EXCLUIR_METRICAS.includes(norm(a));}
@@ -1551,7 +1555,7 @@ function renderLeadsDirector(){
    const regidv=s.registro_id?`<div class="obsro">🆔 Registro <b>${esc(s.registro_id)}</b></div>`:'';
    return `<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')} ${origenBadge(l)}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${chks}${regidv}${obsv}</div>`;};
  const todasDia=LEADS_ALL.filter(l=>!excluido(l.agente)&&(()=>{const f=fechaBog(l.llegada_at);return f>=dA&&f<=dB;})()); const leadsDia=filtraLeads(todasDia);
- const porAg={}; leadsDia.forEach(l=>{const a=l.agente||'(sin asignar)'; (porAg[a]=porAg[a]||[]).push(l);});
+ const porAg={}; leadsDia.forEach(l=>{const a=grpAgente(l.agente||'(sin asignar)'); (porAg[a]=porAg[a]||[]).push(l);});
  const agentes=Object.keys(porAg).sort((a,b)=>porAg[b].length-porAg[a].length);
  const rotuloRango = dA===dB ? etiqueta(dA) : (etiqueta(dA)+' — '+etiqueta(dB));
  const filas=leadsDia.length? agentes.map(a=>{const open=LEAD_AG_OPEN===a; const lst=porAg[a];
@@ -1679,12 +1683,16 @@ function renderPV(){
 }
 function renderPanel(){
  const set={}; agentesConMeta().forEach(a=>set[a.nombre]=1); Object.keys(EQUIPO_FTD).forEach(n=>set[n]=1);
- const lista=Object.keys(set).filter(n=>n && !excluido(n) && n!=='sin asignar').map(n=>{
+ const agg={};
+ Object.keys(set).filter(n=>n && !excluido(n) && n!=='sin asignar').forEach(n=>{
    const m=EQUIPO_METAS[n]||{}; const ftd=EQUIPO_FTD[n]||0;
    const vrow=(Array.isArray(VENTAS)?VENTAS:[]).find(v=>sameAgent(v.name,n));
    const fact=vrow?(+vrow.total||0):0;
-   return {n,ftd,metaFtd:+m.meta_ftd||0,fact,metaFact:+m.meta_fact_usd||0};
- }).sort((a,b)=> b.ftd-a.ftd || b.fact-a.fact);
+   const key=grpAgente(n);
+   const a=agg[key]||(agg[key]={n:key,ftd:0,metaFtd:0,fact:0,metaFact:0});
+   a.ftd+=ftd; a.metaFtd+=(+m.meta_ftd||0); a.fact+=fact; a.metaFact+=(+m.meta_fact_usd||0);
+ });
+ const lista=Object.values(agg).sort((a,b)=> b.ftd-a.ftd || b.fact-a.fact);
  const totFtd=lista.reduce((s,x)=>s+x.ftd,0), totMetaFtd=lista.reduce((s,x)=>s+x.metaFtd,0);
  const totFact=lista.reduce((s,x)=>s+x.fact,0), totMetaFact=lista.reduce((s,x)=>s+x.metaFact,0);
  const money=v=>'$'+Math.round(v).toLocaleString('en-US');

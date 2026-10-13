@@ -473,6 +473,7 @@ input[type=date].minp::-webkit-calendar-picker-indicator{filter:invert(.8);curso
   <nav id="nav">
    <div class="nav-item active" data-view="meta"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.3"/></svg></span> Mi Meta</div>
    <div class="nav-item" data-view="pventas"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h2l.4 2M7 13h10l3-7H6.4M7 13 5.4 5M7 13l-2 4h12"/><circle cx="9" cy="20" r="1.2"/><circle cx="17" cy="20" r="1.2"/></svg></span> Posibles ventas</div>
+   <div class="nav-item" data-view="misftd"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span> Mis FTD's</div>
   </nav>
   <div class="side-foot"><button class="side-btn" id="logoutBtn">↩ Cerrar sesión</button></div>
  </aside>
@@ -491,6 +492,7 @@ input[type=date].minp::-webkit-calendar-picker-indicator{filter:invert(.8);curso
   </div>
   <div id="viewMeta"></div>
   <div id="viewPV" class="hide"></div>
+  <div id="viewFTD" class="hide"></div>
  </main>
 </div>
 
@@ -544,6 +546,8 @@ let PEND_QUITADOS=[];// {id,nombre,dias} posibles quitados por +2 días sin FTD 
 let PVENTAS=[];      // posibles ventas (del agente, o de todos si director)
 let PV_AG=null;      // agente seleccionado en Posibles ventas (director)
 let PV_FILTRO='todos'; // filtro por botón: todos|inv_clase|inv_operativa|inv_presentacion|uno_a_uno
+let FTDREG=[];       // Mis FTD's (del agente, o de todos si director)
+let FTDREG_FILTRO='todos'; // filtro: todos|tiene_plataforma|canal|clase_7pm
 const GHL_LOC='LyDmZPr3s5ICw2mIFTI5'; // location de GoHighLevel (para deep-links)
 function mesActual(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
 function hoyISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -945,6 +949,90 @@ function exportarPV(){
  const quien=ROLE==='director'?'equipo':(ME||'agente').replace(/\s+/g,'_');
  descargarCSV([CAB,...filas],'posibles_ventas_'+quien+'_'+hoyISO()+'.csv');
 }
+/* ---------- MIS FTD'S ---------- */
+async function loadFTDS(){
+ try{
+  let url=SUPABASE_URL+'/rest/v1/ftds_registro?descartado=eq.false&select=*&order=updated_at.desc';
+  if(ROLE!=='director') url+='&agente=eq.'+encodeURIComponent(ME);
+  const r=await fetch(url,{headers:HDRS}); FTDREG=await r.json()||[];
+ }catch(e){ FTDREG=[]; }
+}
+async function agregarFTD(){
+ const n=$('ftdNombre'), c=$('ftdCel'), id=$('ftdId');
+ if(!n) return; const nombre=(n.value||'').trim(); if(!nombre){ n.focus(); return; }
+ const body={agente:ME,nombre,celular:(c&&c.value.trim())||null,registro_id:(id&&id.value.trim())||null,updated_at:new Date().toISOString()};
+ try{await fetch(SUPABASE_URL+'/rest/v1/ftds_registro',{method:'POST',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify(body)});}catch(e){}
+ await loadFTDS(); renderFTD();
+}
+async function ftdToggle(id,campo,val){
+ const p=FTDREG.find(x=>x.id===id); if(p) p[campo]=val;
+ try{await fetch(SUPABASE_URL+'/rest/v1/ftds_registro?id=eq.'+id,{method:'PATCH',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify({[campo]:val,updated_at:new Date().toISOString()})});}catch(e){}
+ renderFTD();
+}
+async function ftdCampo(id,campo,val){
+ const p=FTDREG.find(x=>x.id===id); if(p) p[campo]=val;
+ try{await fetch(SUPABASE_URL+'/rest/v1/ftds_registro?id=eq.'+id,{method:'PATCH',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify({[campo]:val,updated_at:new Date().toISOString()})});}catch(e){}
+}
+async function descartarFTD(id){
+ try{await fetch(SUPABASE_URL+'/rest/v1/ftds_registro?id=eq.'+id,{method:'PATCH',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify({descartado:true,updated_at:new Date().toISOString()})});}catch(e){}
+ await loadFTDS(); renderFTD();
+}
+function exportarFTDS(){
+ const si=b=>b?'Sí':'No';
+ const CAB=['Agente','Nombre','Celular','ID','Tiene plataforma','Canal','Ingresó clase 7:00pm','Fecha'];
+ const base=FTDREG.filter(p=> FTDREG_FILTRO==='todos' ? true : !!p[FTDREG_FILTRO]);
+ const filas=base.map(p=>[p.agente||'',p.nombre||'',p.celular||'',p.registro_id||'',si(p.tiene_plataforma),si(p.canal),si(p.clase_7pm),p.creado_fecha||'']);
+ const quien=ROLE==='director'?'equipo':(ME||'agente').replace(/\s+/g,'_');
+ descargarCSV([CAB,...filas],'mis_ftds_'+quien+'_'+hoyISO()+'.csv');
+}
+const FTD_CHKS=[['tiene_plataforma','Tiene plataforma'],['canal','Canal'],['clase_7pm','Ingresó a la clase 7:00pm']];
+function renderFTD(){
+ const el=$('viewFTD'); if(!el) return;
+ const dir=ROLE==='director';
+ const chks=p=> dir
+   ? `<div class="pvbtns">${FTD_CHKS.map(([k,l])=>`<span class="pvchip ${p[k]?'on':''}">${p[k]?'✔ ':''}${l}</span>`).join('')}</div>`
+   : `<div class="pvbtns">${FTD_CHKS.map(([k,l])=>`<button class="pvbtn ${p[k]?'on':''}" data-id="${p.id}" data-campo="${k}" data-on="${p[k]?1:0}">${p[k]?'✔ ':''}${l}</button>`).join('')}</div>`;
+ const acc=p=>{const d=(p.celular||'').replace(/[^0-9]/g,''); if(!d) return ''; return `<div class="leadbtns" style="margin:10px 0 0"><a class="lbtn wa" href="https://wa.me/${d}" target="_blank" rel="noopener">💬 WhatsApp</a><a class="lbtn call" href="tel:+${d}" rel="noopener">📞 Llamar</a></div>`;};
+ const tarjeta=p=>`<div class="pvitem">
+   <div class="pvhead">
+     <div class="pvwho"><div class="nm">${esc(p.nombre||'(sin nombre)')}</div><div class="cel">${p.celular?('📱 '+esc(p.celular)):'<span class="mut">sin número</span>'}${p.registro_id?(' · 🆔 '+esc(p.registro_id)):''}</div></div>
+     ${dir?'':`<button class="pvdel" data-id="${p.id}" title="Quitar">✕</button>`}
+   </div>
+   ${dir?'':`<div class="pvfields"><div class="posf"><label>ID de registro</label><input class="ftdid" data-id="${p.id}" value="${esc(p.registro_id||'')}" placeholder="ID…"></div></div>`}
+   ${chks(p)}
+   ${acc(p)}
+  </div>`;
+ const addCard = dir?'' : `<div class="mcard"><h3>➕ Agregar FTD</h3>
+   <div class="pvform">
+     <input class="minp" id="ftdNombre" placeholder="Nombre">
+     <input class="minp" id="ftdCel" placeholder="Número de celular">
+     <input class="minp" id="ftdId" placeholder="ID de registro">
+     <button class="mbtn gold" id="ftdAdd" style="margin-top:0">Agregar</button>
+   </div>
+   <div class="hint" style="margin-top:8px">Registra cada FTD y marca si tiene plataforma, el canal y si entró a la clase de las 7:00pm.</div></div>`;
+ const FILTROS=[['todos','Todos']].concat(FTD_CHKS);
+ const filtroCard=`<div class="mcard"><h3>🔎 Filtrar</h3><div class="lfilters">${FILTROS.map(([k,l])=>`<span class="lfilchip ftdfil ${FTDREG_FILTRO===k?'on':''}" data-f="${k}">${l}</span>`).join('')}</div>
+   <div class="leadbtns" style="margin:4px 0 0"><button class="lbtn call" id="ftdCsv">⬇️ Exportar a Excel</button></div></div>`;
+ const pasa=p=> FTDREG_FILTRO==='todos' ? true : !!p[FTDREG_FILTRO];
+ let lista;
+ if(dir){
+   const porAg={}; FTDREG.filter(pasa).forEach(p=>{const a=p.agente||'(sin asignar)';(porAg[a]=porAg[a]||[]).push(p);});
+   const ags=Object.keys(porAg).filter(a=>!excluido(a)).sort((a,b)=>porAg[b].length-porAg[a].length);
+   lista = ags.length? ags.map(a=>`<div class="mcard"><h3>👤 ${esc(a)} · ${porAg[a].length}</h3>${porAg[a].map(tarjeta).join('')}</div>`).join('')
+     : '<div class="mcard"><div class="hint">Ningún FTD coincide con el filtro.</div></div>';
+ }else{
+   const fl=FTDREG.filter(pasa);
+   lista = `<div class="mcard"><h3>✅ Mis FTD's (${fl.length}${fl.length!==FTDREG.length?' de '+FTDREG.length:''})</h3>${fl.length? fl.map(tarjeta).join('') : '<div class="hint">Aún no has registrado FTD.</div>'}</div>`;
+ }
+ el.innerHTML = addCard + filtroCard + lista;
+ const fa=$('ftdAdd'); if(fa) fa.onclick=agregarFTD;
+ const fn=$('ftdNombre'); if(fn) fn.onkeydown=(e)=>{if(e.key==='Enter')agregarFTD();};
+ el.querySelectorAll('.ftdfil').forEach(c=>c.onclick=()=>{FTDREG_FILTRO=c.dataset.f;renderFTD();});
+ const fcsv=$('ftdCsv'); if(fcsv) fcsv.onclick=exportarFTDS;
+ el.querySelectorAll('.pvbtn').forEach(b=>b.onclick=()=>ftdToggle(b.dataset.id,b.dataset.campo,!(b.dataset.on==='1')));
+ el.querySelectorAll('.ftdid').forEach(i=>i.onchange=()=>ftdCampo(i.dataset.id,'registro_id',i.value.trim()||null));
+ el.querySelectorAll('.pvdel').forEach(b=>b.onclick=()=>{if(confirm('¿Quitar este FTD?'))descartarFTD(b.dataset.id);});
+}
 async function procesarPendientesVencidos(){
  if(ROLE!=='agente') return; // el director no modifica datos
  const hoy=hoyISO();
@@ -1106,14 +1194,20 @@ async function showAvisoDiario(){
 function showView(v){
  PAGE=v;
  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view===v));
- const pv=v==='pventas';
- $('viewMeta').classList.toggle('hide',pv);
+ const pv=v==='pventas', ftd=v==='misftd';
+ $('viewMeta').classList.toggle('hide',pv||ftd);
  $('viewPV').classList.toggle('hide',!pv);
+ $('viewFTD').classList.toggle('hide',!ftd);
  if(pv){
    $('eyebrow').textContent='Prospectos';
    $('viewTitle').textContent='Posibles ventas';
    $('viewSub').textContent='Clientes que escriben y las invitaciones que les has hecho.';
    loadPV().then(renderPV); renderPV();
+ }else if(ftd){
+   $('eyebrow').textContent='Depósitos';
+   $('viewTitle').textContent="Mis FTD's";
+   $('viewSub').textContent='Registra cada FTD y marca su plataforma, canal e ingreso a la clase.';
+   loadFTDS().then(renderFTD); renderFTD();
  }else{
    $('eyebrow').textContent='Objetivo';
    $('viewTitle').textContent=ROLE==='agente'?'Mi meta del mes':'Metas por agente';

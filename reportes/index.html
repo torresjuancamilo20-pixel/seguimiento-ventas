@@ -1107,10 +1107,14 @@ function openFtdModal(cid, chipEl){
    const body={contact_id:cid,agente:ME,nombre:nom,celular:celv,registro_id:idv,mes:mesv,
      tiene_plataforma:get('tiene_plataforma'),canal:get('canal'),clase_7pm:get('clase_7pm'),
      descartado:false,updated_at:new Date().toISOString()};
-   // ¿ya existía un FTD activo para este contacto? (para no sumar dos veces al avance)
-   let yaContaba=false;
-   try{const r=await fetch(SUPABASE_URL+'/rest/v1/ftds_registro?contact_id=eq.'+encodeURIComponent(cid)+'&select=descartado&limit=1',{headers:HDRS});const b=await r.json(); if(b&&b[0]&&b[0].descartado===false) yaContaba=true;}catch(e){}
-   try{await fetch(SUPABASE_URL+'/rest/v1/ftds_registro?on_conflict=contact_id',{method:'POST',headers:{...WHDR,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});}catch(e){}
+   // ¿ya existía un registro para este contacto? Si sí, actualizar; si no, crear. (sin upsert)
+   let existing=null;
+   try{const r=await fetch(SUPABASE_URL+'/rest/v1/ftds_registro?contact_id=eq.'+encodeURIComponent(cid)+'&select=id,descartado&limit=1',{headers:HDRS});const b=await r.json(); if(b&&b[0]) existing=b[0];}catch(e){}
+   try{
+     if(existing){ await fetch(SUPABASE_URL+'/rest/v1/ftds_registro?id=eq.'+existing.id,{method:'PATCH',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify(body)}); }
+     else { await fetch(SUPABASE_URL+'/rest/v1/ftds_registro',{method:'POST',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify(body)}); }
+   }catch(e){}
+   const yaContaba = existing && existing.descartado===false;
    if(!yaContaba && mesv===mesActual()) aporteDelta(1);   // suma al avance de la meta
    if(idv && idv!==(s.registro_id||'')) { await guardarRegid(cid,idv); }
    await toggleSegu(cid,'ftd',true);

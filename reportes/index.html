@@ -688,10 +688,12 @@ function exportarLeadsDia(){
   descargarCSV([CAB_LEADS_CSV,...arr.map(filaLeadCSV)],'leads_equipo_'+suf+'.csv');
   return;
  }
- if(!LEAD_DIA){alert('Selecciona un día primero.');return;}
- const arr=fuenteLeads().filter(l=>fechaBog(l.llegada_at)===LEAD_DIA);
- if(!arr.length){alert('No hay leads ese día.');return;}
- descargarCSV([CAB_LEADS_CSV,...arr.map(filaLeadCSV)],'leads_'+metaAgente().replace(/\s+/g,'_')+'_'+LEAD_DIA+'.csv');
+ let a=LEAD_DESDE||LEAD_DIA, b=LEAD_HASTA||LEAD_DIA; if(a&&b&&a>b){const t=a;a=b;b=t;}
+ if(!a){alert('Selecciona una fecha primero.');return;}
+ const arr=fuenteLeads().filter(l=>{const f=fechaBog(l.llegada_at);return f>=a&&f<=b;});
+ if(!arr.length){alert('No hay leads en ese rango.');return;}
+ const suf = a===b ? a : (a+'_a_'+b);
+ descargarCSV([CAB_LEADS_CSV,...arr.map(filaLeadCSV)],'leads_'+metaAgente().replace(/\s+/g,'_')+'_'+suf+'.csv');
 }
 function exportarLeadsTodo(){
  const arr=[...fuenteLeads()].sort((a,b)=>(b.llegada_at||'').localeCompare(a.llegada_at||''));
@@ -1469,10 +1471,13 @@ function renderLeadsHTML(ag){
  const dias=Object.keys(byDay).sort().reverse();
  if(!dias.length) return `<div class="mcard"><h3>📥 Mis leads</h3><div class="hint">Aún no hay leads en los últimos días.</div></div>`;
  if(!LEAD_DIA) LEAD_DIA=dias[0];
+ if(!LEAD_DESDE) LEAD_DESDE=LEAD_DIA;
+ if(!LEAD_HASTA) LEAD_HASTA=LEAD_DIA;
+ let dA=LEAD_DESDE||LEAD_DIA, dB=LEAD_HASTA||LEAD_DIA; if(dA&&dB&&dA>dB){const t=dA;dA=dB;dB=t;}
  const hoyB=fechaBog(new Date()), ayerB=fechaBog(new Date(Date.now()-86400000));
  const minDia=dias[dias.length-1]||LEAD_DIA, maxDia=dias[0]>hoyB?dias[0]:hoyB;
  const etiqueta=f=> f===hoyB?'Hoy': f===ayerB?'Ayer': (f.slice(8)+'/'+f.slice(5,7)+'/'+f.slice(0,4));
- const selFecha=`<div class="fechasel"><label class="fl" style="margin:0">📅 Seleccionar fecha</label><input type="date" class="minp" id="mFecha" value="${LEAD_DIA}" min="${minDia}" max="${maxDia}"><button class="lbtn call" id="btnHoyFecha" style="padding:9px 14px">Hoy</button></div>`;
+ const selFecha=`<div class="fechasel"><label class="fl" style="margin:0">📅 Desde</label><input type="date" class="minp" id="mDesde" value="${dA}" min="${minDia}" max="${maxDia}"><label class="fl" style="margin:0">Hasta</label><input type="date" class="minp" id="mHasta" value="${dB}" min="${minDia}" max="${maxDia}"><button class="lbtn call" id="btnHoyFecha" style="padding:9px 14px">Hoy</button></div>`;
  const estado=l=> l.ftd_at?'<span class="pill ftd">FTD</span>': l.registrado_at?'<span class="pill reg">Registrado</span>':'<span class="pill new">Nuevo</span>';
  const hora=l=>{try{return new Date(l.llegada_at).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});}catch(e){return '';}};
  const CAMPOS=[['llamada1','Llamada 1'],['llamada2','Llamada 2'],['whatsapp','Bajado a WhatsApp'],['registrado','Registrado'],['ftd','FTD'],['seg_dia1','Seguimiento día 1'],['seg_dia2','Seguimiento día 2'],['seg_dia3','Seguimiento día 3']];
@@ -1488,13 +1493,18 @@ function renderLeadsHTML(ag){
  const regid=l=>{const cid=l.contact_id||''; if(!cid) return '';
    const v=esc((SEGU_MAP[cid]||{}).registro_id||'');
    return `<input class="regidin" data-cid="${esc(cid)}" value="${v}" placeholder="🆔 ID de registro…">`;};
- const todas=byDay[LEAD_DIA]||[]; const lista=filtraLeads(todas);
- const rows=lista.length? lista.map(l=>`<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')} ${origenBadge(l)}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${checks(l)}${acciones(l)}${regid(l)}${obs(l)}</div>`).join('') : `<div class="hint">${todas.length?'Ningún lead coincide con el filtro o la búsqueda.':'No te llegaron leads ese día.'}</div>`;
- return `<div class="mcard"><h3>📥 Mis leads por día</h3><div class="hint">Elige una fecha para ver tus leads; marca el avance, escribe la observación y abre el chat o la llamada en GoHighLevel.</div>
+ const busca=(LEAD_BUSCA||'').trim()!=='';
+ const ignoraFecha = (LEAD_FILTRO!=='todos') || busca;   // al filtrar o buscar, mostrar todos sin importar la fecha
+ const enRango=l=>{const f=fechaBog(l.llegada_at); return f>=dA&&f<=dB;};
+ const todas=(ignoraFecha? LEADS_DET.slice() : LEADS_DET.filter(enRango)).sort((a,b)=> (a.llegada_at<b.llegada_at?1:-1));
+ const lista=filtraLeads(todas);
+ const rotulo = ignoraFecha ? 'Todos los resultados' : (dA===dB?etiqueta(dA):(etiqueta(dA)+' — '+etiqueta(dB)));
+ const rows=lista.length? lista.map(l=>`<div class="leaditem"><div class="leadrow"><div class="av">${initials(l.nombre||'?')}</div><div style="min-width:0"><div class="nm">${esc(l.nombre||'(sin nombre)')} ${origenBadge(l)}</div><div class="ph">${esc(l.telefono||'sin número')} · ${hora(l)}</div></div>${estado(l)}</div>${checks(l)}${acciones(l)}${regid(l)}${obs(l)}</div>`).join('') : `<div class="hint">${todas.length?'Ningún lead coincide con el filtro o la búsqueda.':'No te llegaron leads en ese rango.'}</div>`;
+ return `<div class="mcard"><h3>📥 Mis leads</h3><div class="hint">Elige un rango de fechas (Desde–Hasta) para ver tus leads. Al activar un filtro o buscar, se muestran todos sin importar la fecha.</div>
   ${selFecha}
-  <div class="leadbtns" style="margin:0 0 12px"><button class="lbtn call" id="csvDia">⬇️ CSV de este día</button><button class="lbtn" id="csvTodo" style="background:linear-gradient(90deg,#6b7280,#9aa3b2)">⬇️ CSV de todos</button></div>
+  <div class="leadbtns" style="margin:0 0 12px"><button class="lbtn call" id="csvDia">⬇️ CSV del rango</button><button class="lbtn" id="csvTodo" style="background:linear-gradient(90deg,#6b7280,#9aa3b2)">⬇️ CSV de todos</button></div>
   ${leadControlsHTML()}
-  <div><div style="color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${etiqueta(LEAD_DIA)} · ${lista.length}${lista.length!==todas.length?' de '+todas.length:''} leads</div>${rows}</div>
+  <div><div style="color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${rotulo} · ${lista.length} leads</div>${rows}</div>
  </div>`;
 }
 function renderLeadsDirector(){

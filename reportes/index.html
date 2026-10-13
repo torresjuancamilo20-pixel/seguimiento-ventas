@@ -521,6 +521,7 @@ function excluido(a){return EXCLUIR.includes(norm(a));}
 const EXT_LABEL='Legendary extensión';
 function esExtension(a){const t=norm(a);return t.includes('keiner')||t.includes('liseth')||(t.includes('rojas')&&t.includes('santiago'));}
 function grpAgente(a){return esExtension(a)?EXT_LABEL:(a||'');}
+let EXT_OPEN=false;  // ¿está desplegado el cuadro "Legendary extensión" en el Panel equipo?
 // Excluidos SOLO de Productividad y FTD's (siguen apareciendo en Ventas y Leads)
 const EXCLUIR_METRICAS=['juliana facundo'];
 function excluidoMetricas(a){return excluido(a)||EXCLUIR_METRICAS.includes(norm(a));}
@@ -979,6 +980,7 @@ async function agregarFTD(){
  if(!n) return; const nombre=(n.value||'').trim(); if(!nombre){ n.focus(); return; }
  const body={agente:ME,nombre,celular:(c&&c.value.trim())||null,registro_id:(id&&id.value.trim())||null,mes:(ms&&ms.value)||mesActual(),updated_at:new Date().toISOString()};
  try{await fetch(SUPABASE_URL+'/rest/v1/ftds_registro',{method:'POST',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify(body)});}catch(e){}
+ if(body.mes===mesActual()) aporteDelta(1);   // suma al avance de la meta
  await loadFTDS(); renderFTD();
 }
 async function ftdToggle(id,campo,val){
@@ -991,7 +993,9 @@ async function ftdCampo(id,campo,val){
  try{await fetch(SUPABASE_URL+'/rest/v1/ftds_registro?id=eq.'+id,{method:'PATCH',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify({[campo]:val,updated_at:new Date().toISOString()})});}catch(e){}
 }
 async function descartarFTD(id){
+ const p=FTDREG.find(x=>x.id===id);
  try{await fetch(SUPABASE_URL+'/rest/v1/ftds_registro?id=eq.'+id,{method:'PATCH',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify({descartado:true,updated_at:new Date().toISOString()})});}catch(e){}
+ if(p && !p.descartado && (p.mes||'')===mesActual()) aporteDelta(-1);   // resta del avance de la meta
  await loadFTDS(); renderFTD();
 }
 function exportarFTDS(){
@@ -1065,7 +1069,10 @@ function leadByCid(cid){
  return (LEADS_DET||[]).find(l=>l.contact_id===cid) || (LEADS_ALL||[]).find(l=>l.contact_id===cid) || null;
 }
 async function ftdDescartarPorContacto(cid){
+ let dec=false;
+ try{const r=await fetch(SUPABASE_URL+'/rest/v1/ftds_registro?contact_id=eq.'+encodeURIComponent(cid)+'&select=mes,descartado&limit=1',{headers:HDRS});const b=await r.json(); if(b&&b[0]&&b[0].descartado===false&&(b[0].mes||'')===mesActual()) dec=true;}catch(e){}
  try{await fetch(SUPABASE_URL+'/rest/v1/ftds_registro?contact_id=eq.'+encodeURIComponent(cid),{method:'PATCH',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify({descartado:true,updated_at:new Date().toISOString()})});}catch(e){}
+ if(dec) aporteDelta(-1);   // resta del avance de la meta
 }
 // Modal: registrar un FTD desde un lead (al marcar el chip FTD). Prellena lo que ya se tiene.
 function openFtdModal(cid, chipEl){
@@ -1100,7 +1107,11 @@ function openFtdModal(cid, chipEl){
    const body={contact_id:cid,agente:ME,nombre:nom,celular:celv,registro_id:idv,mes:mesv,
      tiene_plataforma:get('tiene_plataforma'),canal:get('canal'),clase_7pm:get('clase_7pm'),
      descartado:false,updated_at:new Date().toISOString()};
+   // ¿ya existía un FTD activo para este contacto? (para no sumar dos veces al avance)
+   let yaContaba=false;
+   try{const r=await fetch(SUPABASE_URL+'/rest/v1/ftds_registro?contact_id=eq.'+encodeURIComponent(cid)+'&select=descartado&limit=1',{headers:HDRS});const b=await r.json(); if(b&&b[0]&&b[0].descartado===false) yaContaba=true;}catch(e){}
    try{await fetch(SUPABASE_URL+'/rest/v1/ftds_registro?on_conflict=contact_id',{method:'POST',headers:{...WHDR,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});}catch(e){}
+   if(!yaContaba && mesv===mesActual()) aporteDelta(1);   // suma al avance de la meta
    if(idv && idv!==(s.registro_id||'')) { await guardarRegid(cid,idv); }
    await toggleSegu(cid,'ftd',true);
    if(chipEl){ chipEl.classList.add('on'); chipEl.innerHTML='✔ '+chipEl.dataset.lbl; }
@@ -1139,6 +1150,16 @@ async function setHoyFtd(n){
  const body={agente:ag,fecha:f,ftd:Math.max(0,n),fact_usd:+prev.fact_usd||0,updated_at:new Date().toISOString()};
  await fetch(SUPABASE_URL+'/rest/v1/aporte_diario?on_conflict=agente,fecha',{method:'POST',headers:{...WHDR,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});
  await loadAportes(); renderMeta();
+}
+// Suma/resta al aporte del día de hoy cuando se registra/descarta un FTD en Mis FTD's (solo agente, mes actual).
+async function aporteDelta(delta){
+ if(ROLE!=='agente' || !delta) return;
+ const ag=ME, f=hoyISO(); let cur=0, fact=0;
+ try{const r=await fetch(SUPABASE_URL+'/rest/v1/aporte_diario?agente=eq.'+encodeURIComponent(ag)+'&fecha=eq.'+f+'&select=ftd,fact_usd',{headers:HDRS});const b=await r.json(); if(b&&b[0]){cur=+b[0].ftd||0; fact=+b[0].fact_usd||0;}}catch(e){}
+ const nv=Math.max(0,cur+delta);
+ const body={agente:ag,fecha:f,ftd:nv,fact_usd:fact,updated_at:new Date().toISOString()};
+ try{await fetch(SUPABASE_URL+'/rest/v1/aporte_diario?on_conflict=agente,fecha',{method:'POST',headers:{...WHDR,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});}catch(e){}
+ try{await loadAportes(); renderMeta();}catch(e){}
 }
 async function loadLeadsFtd(){
  // Lista autoritativa de clientes con FTD (misma fuente que el conteo). Paginado para no truncar en 1000.
@@ -1419,6 +1440,7 @@ function renderMeta(){
  }
  el.innerHTML = (SUBTAB==='meta'?selectorD:'') + tabs + bodyH;
  document.querySelectorAll('.mtab').forEach(t=>t.onclick=()=>{SUBTAB=t.dataset.sub;renderMeta();});
+ const exr=el.querySelector('.extrow'); if(exr) exr.onclick=()=>{EXT_OPEN=!EXT_OPEN;renderMeta();};
  const sm=$('mSaveMeta'); if(sm) sm.onclick=guardarMeta;
  const me=$('mEditMeta'); if(me) me.onclick=()=>{META_EDIT=true;renderMeta();};
  const mc=$('mCancelMeta'); if(mc) mc.onclick=()=>{META_EDIT=false;renderMeta();};
@@ -1683,20 +1705,35 @@ function renderPV(){
 }
 function renderPanel(){
  const set={}; agentesConMeta().forEach(a=>set[a.nombre]=1); Object.keys(EQUIPO_FTD).forEach(n=>set[n]=1);
- const agg={};
+ const lista=[]; const ext=[];
  Object.keys(set).filter(n=>n && !excluido(n) && n!=='sin asignar').forEach(n=>{
    const m=EQUIPO_METAS[n]||{}; const ftd=EQUIPO_FTD[n]||0;
    const vrow=(Array.isArray(VENTAS)?VENTAS:[]).find(v=>sameAgent(v.name,n));
    const fact=vrow?(+vrow.total||0):0;
-   const key=grpAgente(n);
-   const a=agg[key]||(agg[key]={n:key,ftd:0,metaFtd:0,fact:0,metaFact:0});
-   a.ftd+=ftd; a.metaFtd+=(+m.meta_ftd||0); a.fact+=fact; a.metaFact+=(+m.meta_fact_usd||0);
+   const row={n,ftd,metaFtd:+m.meta_ftd||0,fact,metaFact:+m.meta_fact_usd||0};
+   if(esExtension(n)) ext.push(row); else lista.push(row);   // la extensión va en su propio cuadro, aparte del total
  });
- const lista=Object.values(agg).sort((a,b)=> b.ftd-a.ftd || b.fact-a.fact);
+ lista.sort((a,b)=> b.ftd-a.ftd || b.fact-a.fact);
+ ext.sort((a,b)=> b.ftd-a.ftd || b.fact-a.fact);
  const totFtd=lista.reduce((s,x)=>s+x.ftd,0), totMetaFtd=lista.reduce((s,x)=>s+x.metaFtd,0);
  const totFact=lista.reduce((s,x)=>s+x.fact,0), totMetaFact=lista.reduce((s,x)=>s+x.metaFact,0);
+ const extFtd=ext.reduce((s,x)=>s+x.ftd,0), extMetaFtd=ext.reduce((s,x)=>s+x.metaFtd,0), extFact=ext.reduce((s,x)=>s+x.fact,0);
  const money=v=>'$'+Math.round(v).toLocaleString('en-US');
  const bar=(v,m,c)=>`<div class="mbar" style="height:9px;margin:6px 0 0"><i style="width:${m?Math.min(100,Math.round(v/m*100)):0}%;background:${c}"></i></div>`;
+ const filaAg=x=>`<div class="agbox"><div class="agrow" style="cursor:default;align-items:stretch">
+   <div class="av">${initials(x.n)}</div>
+   <div style="flex:1;min-width:0"><div class="nm">${esc(x.n)}</div>
+     <div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:6px">
+       <div style="min-width:150px;flex:1"><div class="ph">FTD <b style="color:#2fd18d">${x.ftd}</b>${x.metaFtd?` / ${x.metaFtd}`:''}</div>${bar(x.ftd,x.metaFtd,'linear-gradient(90deg,#2fb183,#2fd18d)')}</div>
+       <div style="min-width:150px;flex:1"><div class="ph">Ventas <b style="color:#e9c766">${money(x.fact)}</b>${x.metaFact?` / ${money(x.metaFact)}`:''}</div>${bar(x.fact,x.metaFact,'linear-gradient(90deg,#c08a2e,#e9c766)')}</div>
+     </div>
+   </div>
+  </div></div>`;
+ const extCard = ext.length? `<div class="mcard" style="margin-top:14px"><div class="extrow" style="display:flex;align-items:center;gap:12px;cursor:pointer">
+     <div class="av">LE</div>
+     <div style="flex:1;min-width:0"><div class="nm">🏢 Legendary extensión</div><div class="ph">FTD <b style="color:#2fd18d">${extFtd}</b>${extMetaFtd?` / ${extMetaFtd}`:''} · ${ext.length} agente${ext.length!==1?'s':''}</div></div>
+     <span class="caret">${EXT_OPEN?'▲':'▼'}</span>
+   </div>${EXT_OPEN? `<div style="margin-top:10px">${ext.map(filaAg).join('')}</div>`:''}</div>` : '';
  const filas=lista.map((x,i)=>`<div class="agbox"><div class="agrow" style="cursor:default;align-items:stretch">
    <div class="av">${initials(x.n)}</div>
    <div style="flex:1;min-width:0">
@@ -1715,7 +1752,8 @@ function renderPanel(){
    <div class="mcard" style="text-align:center;background:linear-gradient(135deg,rgba(47,209,141,.14),transparent)"><div class="ftdday-lb">🎯 Total FTD del equipo</div><div style="font-family:'Space Grotesk';font-weight:800;font-size:60px;line-height:1;color:#2fd18d">${totFtd}</div><div class="hint" style="margin-top:6px">Meta del equipo: ${totMetaFtd} FTD</div></div>
    <div class="mcard" style="text-align:center;background:linear-gradient(135deg,rgba(233,199,102,.14),transparent)"><div class="ftdday-lb">💵 Total ventas del equipo</div><div style="font-family:'Space Grotesk';font-weight:800;font-size:60px;line-height:1;color:#e9c766">${money(totFact)}</div><div class="hint" style="margin-top:6px">Meta del equipo: ${money(totMetaFact)}</div></div>
   </div>
-  <div class="mcard"><h3>👥 Por agente</h3><div class="hint">FTD acumulado y ventas (Google Sheet) de cada agente este mes · ${mesActual()}</div><div style="margin-top:12px">${filas||'<div class="hint">Sin datos.</div>'}</div></div>`;
+  <div class="mcard"><h3>👥 Por agente</h3><div class="hint">FTD acumulado y ventas (Google Sheet) de cada agente este mes · ${mesActual()}. La oficina extensión va en su propio cuadro, aparte del total.</div><div style="margin-top:12px">${filas||'<div class="hint">Sin datos.</div>'}</div></div>
+  ${extCard}`;
 }
 
 /* ---------- VENTAS ---------- */

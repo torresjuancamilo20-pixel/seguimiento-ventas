@@ -556,6 +556,9 @@ let PV_AG=null;      // agente seleccionado en Posibles ventas (director)
 let PV_FILTRO='todos'; // filtro por botón: todos|inv_clase|inv_operativa|inv_presentacion|uno_a_uno
 let FTDREG=[];       // Mis FTD's (del agente, o de todos si director)
 let FTDREG_FILTRO='todos'; // filtro: todos|tiene_plataforma|canal|clase_7pm
+let FTDREG_MES=null; // filtro por mes 'YYYY-MM' (null → mes actual)
+const MESNOM=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+function mesLabel(m){ if(!m) return 'Sin mes'; const p=m.split('-'); const i=(+p[1])-1; return (MESNOM[i]||p[1])+' '+p[0]; }
 const GHL_LOC='LyDmZPr3s5ICw2mIFTI5'; // location de GoHighLevel (para deep-links)
 function mesActual(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
 function hoyISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -968,9 +971,9 @@ async function loadFTDS(){
  }catch(e){ FTDREG=[]; }
 }
 async function agregarFTD(){
- const n=$('ftdNombre'), c=$('ftdCel'), id=$('ftdId');
+ const n=$('ftdNombre'), c=$('ftdCel'), id=$('ftdId'), ms=$('ftdMes');
  if(!n) return; const nombre=(n.value||'').trim(); if(!nombre){ n.focus(); return; }
- const body={agente:ME,nombre,celular:(c&&c.value.trim())||null,registro_id:(id&&id.value.trim())||null,updated_at:new Date().toISOString()};
+ const body={agente:ME,nombre,celular:(c&&c.value.trim())||null,registro_id:(id&&id.value.trim())||null,mes:(ms&&ms.value)||mesActual(),updated_at:new Date().toISOString()};
  try{await fetch(SUPABASE_URL+'/rest/v1/ftds_registro',{method:'POST',headers:{...WHDR,'Prefer':'return=minimal'},body:JSON.stringify(body)});}catch(e){}
  await loadFTDS(); renderFTD();
 }
@@ -989,11 +992,12 @@ async function descartarFTD(id){
 }
 function exportarFTDS(){
  const si=b=>b?'Sí':'No';
- const CAB=['Agente','Nombre','Celular','ID','Tiene plataforma','Canal','Ingresó clase 7:00pm','Fecha'];
- const base=FTDREG.filter(p=> FTDREG_FILTRO==='todos' ? true : !!p[FTDREG_FILTRO]);
- const filas=base.map(p=>[p.agente||'',p.nombre||'',p.celular||'',p.registro_id||'',si(p.tiene_plataforma),si(p.canal),si(p.clase_7pm),p.creado_fecha||'']);
+ const CAB=['Agente','Mes','Nombre','Celular','ID','Tiene plataforma','Canal','Ingresó clase 7:00pm','Fecha'];
+ const base=FTDREG.filter(p=> ((FTDREG_MES==='todos'||!FTDREG_MES)?true:(p.mes||'')===FTDREG_MES) && (FTDREG_FILTRO==='todos' ? true : !!p[FTDREG_FILTRO]));
+ const filas=base.map(p=>[p.agente||'',mesLabel(p.mes),p.nombre||'',p.celular||'',p.registro_id||'',si(p.tiene_plataforma),si(p.canal),si(p.clase_7pm),p.creado_fecha||'']);
  const quien=ROLE==='director'?'equipo':(ME||'agente').replace(/\s+/g,'_');
- descargarCSV([CAB,...filas],'mis_ftds_'+quien+'_'+hoyISO()+'.csv');
+ const sufMes=(FTDREG_MES && FTDREG_MES!=='todos')?('_'+FTDREG_MES):'';
+ descargarCSV([CAB,...filas],'mis_ftds_'+quien+sufMes+'_'+hoyISO()+'.csv');
 }
 const FTD_CHKS=[['tiene_plataforma','Tiene plataforma'],['canal','Canal'],['clase_7pm','Ingresó a la clase 7:00pm']];
 function renderFTD(){
@@ -1005,7 +1009,7 @@ function renderFTD(){
  const acc=p=>{const d=(p.celular||'').replace(/[^0-9]/g,''); if(!d) return ''; return `<div class="leadbtns" style="margin:10px 0 0"><a class="lbtn wa" href="https://wa.me/${d}" target="_blank" rel="noopener">💬 WhatsApp</a><a class="lbtn call" href="tel:+${d}" rel="noopener">📞 Llamar</a></div>`;};
  const tarjeta=p=>`<div class="pvitem">
    <div class="pvhead">
-     <div class="pvwho"><div class="nm">${esc(p.nombre||'(sin nombre)')}</div><div class="cel">${p.celular?('📱 '+esc(p.celular)):'<span class="mut">sin número</span>'}${p.registro_id?(' · 🆔 '+esc(p.registro_id)):''}</div></div>
+     <div class="pvwho"><div class="nm">${esc(p.nombre||'(sin nombre)')}</div><div class="cel">${p.celular?('📱 '+esc(p.celular)):'<span class="mut">sin número</span>'}${p.registro_id?(' · 🆔 '+esc(p.registro_id)):''}${p.mes?(' · 🗓️ '+esc(mesLabel(p.mes))):''}</div></div>
      ${dir?'':`<button class="pvdel" data-id="${p.id}" title="Quitar">✕</button>`}
    </div>
    ${dir?'':`<div class="pvfields"><div class="posf"><label>ID de registro</label><input class="ftdid" data-id="${p.id}" value="${esc(p.registro_id||'')}" placeholder="ID…"></div></div>`}
@@ -1017,26 +1021,36 @@ function renderFTD(){
      <input class="minp" id="ftdNombre" placeholder="Nombre">
      <input class="minp" id="ftdCel" placeholder="Número de celular">
      <input class="minp" id="ftdId" placeholder="ID de registro">
+     <input class="minp" id="ftdMes" type="month" value="${mesActual()}" title="Mes del FTD">
      <button class="mbtn gold" id="ftdAdd" style="margin-top:0">Agregar</button>
    </div>
    <div class="hint" style="margin-top:8px">Registra cada FTD y marca si tiene plataforma, el canal y si entró a la clase de las 7:00pm.</div></div>`;
+ // meses disponibles (los que hay en los datos + el mes actual), descendente
+ const mesesSet={}; FTDREG.forEach(p=>{if(p.mes) mesesSet[p.mes]=1;}); mesesSet[mesActual()]=1;
+ const meses=Object.keys(mesesSet).sort().reverse();
+ if(!FTDREG_MES) FTDREG_MES = meses.includes(mesActual())?mesActual():(meses[0]||mesActual());
+ const MFILTROS=[['todos','Todos los meses']].concat(meses.map(m=>[m,mesLabel(m)]));
+ const mesCard=`<div class="mcard"><h3>🗓️ Mes</h3><div class="lfilters">${MFILTROS.map(([k,l])=>`<span class="lfilchip ftdmes ${FTDREG_MES===k?'on':''}" data-m="${k}">${l}</span>`).join('')}</div></div>`;
  const FILTROS=[['todos','Todos']].concat(FTD_CHKS);
  const filtroCard=`<div class="mcard"><h3>🔎 Filtrar</h3><div class="lfilters">${FILTROS.map(([k,l])=>`<span class="lfilchip ftdfil ${FTDREG_FILTRO===k?'on':''}" data-f="${k}">${l}</span>`).join('')}</div>
    <div class="leadbtns" style="margin:4px 0 0"><button class="lbtn call" id="ftdCsv">⬇️ Exportar a Excel</button></div></div>`;
- const pasa=p=> FTDREG_FILTRO==='todos' ? true : !!p[FTDREG_FILTRO];
+ const pasaMes=p=> (FTDREG_MES==='todos'||!FTDREG_MES) ? true : (p.mes||'')===FTDREG_MES;
+ const pasa=p=> pasaMes(p) && (FTDREG_FILTRO==='todos' ? true : !!p[FTDREG_FILTRO]);
+ const rotMes = FTDREG_MES==='todos' ? 'Todos los meses' : mesLabel(FTDREG_MES);
  let lista;
  if(dir){
    const porAg={}; FTDREG.filter(pasa).forEach(p=>{const a=p.agente||'(sin asignar)';(porAg[a]=porAg[a]||[]).push(p);});
    const ags=Object.keys(porAg).filter(a=>!excluido(a)).sort((a,b)=>porAg[b].length-porAg[a].length);
    lista = ags.length? ags.map(a=>`<div class="mcard"><h3>👤 ${esc(a)} · ${porAg[a].length}</h3>${porAg[a].map(tarjeta).join('')}</div>`).join('')
-     : '<div class="mcard"><div class="hint">Ningún FTD coincide con el filtro.</div></div>';
+     : '<div class="mcard"><div class="hint">Ningún FTD en '+esc(rotMes)+' con ese filtro.</div></div>';
  }else{
    const fl=FTDREG.filter(pasa);
-   lista = `<div class="mcard"><h3>✅ Mis FTD's (${fl.length}${fl.length!==FTDREG.length?' de '+FTDREG.length:''})</h3>${fl.length? fl.map(tarjeta).join('') : '<div class="hint">Aún no has registrado FTD.</div>'}</div>`;
+   lista = `<div class="mcard"><h3>✅ Mis FTD's · ${esc(rotMes)} (${fl.length})</h3>${fl.length? fl.map(tarjeta).join('') : '<div class="hint">Sin FTD en '+esc(rotMes)+'.</div>'}</div>`;
  }
- el.innerHTML = addCard + filtroCard + lista;
+ el.innerHTML = addCard + mesCard + filtroCard + lista;
  const fa=$('ftdAdd'); if(fa) fa.onclick=agregarFTD;
  const fn=$('ftdNombre'); if(fn) fn.onkeydown=(e)=>{if(e.key==='Enter')agregarFTD();};
+ el.querySelectorAll('.ftdmes').forEach(c=>c.onclick=()=>{FTDREG_MES=c.dataset.m;renderFTD();});
  el.querySelectorAll('.ftdfil').forEach(c=>c.onclick=()=>{FTDREG_FILTRO=c.dataset.f;renderFTD();});
  const fcsv=$('ftdCsv'); if(fcsv) fcsv.onclick=exportarFTDS;
  el.querySelectorAll('.pvbtn').forEach(b=>b.onclick=()=>ftdToggle(b.dataset.id,b.dataset.campo,!(b.dataset.on==='1')));
@@ -1060,6 +1074,7 @@ function openFtdModal(cid, chipEl){
    <label class="fml">Nombre</label><input class="minp" id="fmNombre" value="${esc(nombre)}" placeholder="Nombre del cliente">
    <label class="fml">Número de celular</label><input class="minp" id="fmCel" value="${esc(cel)}" placeholder="Número de celular">
    <label class="fml">ID de registro</label><input class="minp" id="fmId" value="${esc(rid)}" placeholder="ID de registro">
+   <label class="fml">Mes del FTD</label><input class="minp" id="fmMes" type="month" value="${mesActual()}">
    <div class="fmchks">
      <button class="pvbtn" data-k="tiene_plataforma" data-on="0">Tiene plataforma</button>
      <button class="pvbtn" data-k="canal" data-on="0">Canal</button>
@@ -1077,7 +1092,8 @@ function openFtdModal(cid, chipEl){
    const celv=(ov.querySelector('#fmCel').value||'').trim()||null;
    const idv=(ov.querySelector('#fmId').value||'').trim()||null;
    const get=k=>ov.querySelector('.fmchks .pvbtn[data-k="'+k+'"]').dataset.on==='1';
-   const body={contact_id:cid,agente:ME,nombre:nom,celular:celv,registro_id:idv,
+   const mesv=(ov.querySelector('#fmMes').value||'')||mesActual();
+   const body={contact_id:cid,agente:ME,nombre:nom,celular:celv,registro_id:idv,mes:mesv,
      tiene_plataforma:get('tiene_plataforma'),canal:get('canal'),clase_7pm:get('clase_7pm'),
      descartado:false,updated_at:new Date().toISOString()};
    try{await fetch(SUPABASE_URL+'/rest/v1/ftds_registro?on_conflict=contact_id',{method:'POST',headers:{...WHDR,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});}catch(e){}

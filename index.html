@@ -465,7 +465,7 @@
         <div class="ret" id="heroRet"></div>
       </div>
       <div class="panel">
-        <h2>Mi resumen <span class="card-sub" id="count"></span></h2>
+        <h2>Mi resumen <span class="card-sub" id="resumenMes"></span> <span class="card-sub" id="count"></span></h2>
         <div class="mini-grid" style="margin-top:14px">
           <div class="mini"><div class="mk"><span class="dotc c-in"></span>Ingresos</div><div class="mv in" id="sumIn">$0</div></div>
           <div class="mini"><div class="mk"><span class="dotc c-out"></span>Gastos</div><div class="mv out" id="sumOut">$0</div></div>
@@ -1076,6 +1076,7 @@ function renderTabla(){
 
 function render(){
   $("monthLbl").textContent=monthName(cursor);
+  { const mn=monthName(cursor); $("resumenMes").textContent='“'+mn.charAt(0).toUpperCase()+mn.slice(1)+'”'; }
   const items=currentItems();
   const sum=t=>items.filter(x=>x.tipo===t).reduce((a,x)=>a+x.monto,0);
   const inc=sum("ingreso"), out=sum("gasto"), sav=sum("ahorro");

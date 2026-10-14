@@ -99,13 +99,14 @@
   .card-sub{color:var(--muted);font-size:.8rem}
 
   /* Hero row */
-  .hero-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:16px}
+  .hero-grid{display:grid;grid-template-columns:1.1fr 1.4fr;gap:16px}
+  .hero-card{min-width:0}
   .hero-card{background:
      radial-gradient(120% 140% at 90% 0%, rgba(226,75,216,.18), transparent 55%),
      var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:22px;position:relative;overflow:hidden}
   .hero-card .lbl{color:var(--muted);font-size:.82rem;font-weight:600}
-  .hero-card .big{font-size:clamp(1.6rem,4.2vw,2.4rem);font-weight:800;letter-spacing:-1px;margin:12px 0 8px;
-    line-height:1.05;white-space:nowrap;overflow-wrap:normal}
+  .hero-card .big{font-size:clamp(1.3rem,2.3vw,1.9rem);font-weight:800;letter-spacing:-.5px;margin:12px 0 8px;
+    line-height:1.1;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
   .hero-card .ret{display:inline-flex;align-items:center;gap:7px;font-size:.85rem;color:var(--muted)}
   .chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-weight:700;font-size:.78rem}
   .chip.up{background:rgba(34,197,94,.15);color:var(--ok)}

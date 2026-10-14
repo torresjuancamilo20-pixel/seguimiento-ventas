@@ -550,6 +550,13 @@ let LEADS_ALL=[];    // clientes_lead de TODOS los agentes (vista director)
 let LEAD_AG_OPEN=null; // agente expandido en la vista director de leads
 let LEAD_DIA=null;   // fecha seleccionada en la pestaña Leads
 let LEAD_DESDE=null; // rango de fechas (director)
+let LEAD_MODO='rango'; // 'rango' | 'dia' (modo del selector de fechas en Mis Leads)
+function selFechaHTML(dA,dB,maxDia){
+ const modo=LEAD_MODO||'rango';
+ const chips=`<div class="lfilters" style="margin:0 0 8px"><span class="lfilchip lmodo ${modo==='dia'?'on':''}" data-m="dia">📅 Un día</span><span class="lfilchip lmodo ${modo==='rango'?'on':''}" data-m="rango">📅 Rango de fechas</span></div>`;
+ if(modo==='dia') return `${chips}<div class="fechasel"><label class="fl" style="margin:0">📅 Fecha</label><input type="date" class="minp fcal" id="mUno" value="${dA}" max="${maxDia}"><button class="lbtn call" id="btnHoyFecha" style="padding:9px 14px">Hoy</button></div>`;
+ return `${chips}<div class="fechasel"><label class="fl" style="margin:0">📅 Desde</label><input type="date" class="minp fcal" id="mDesde" value="${dA}" max="${maxDia}"><label class="fl" style="margin:0">Hasta</label><input type="date" class="minp fcal" id="mHasta" value="${dB}" max="${maxDia}"><button class="lbtn call" id="btnHoyFecha" style="padding:9px 14px">Hoy</button></div>`;
+}
 let LEAD_HASTA=null;
 let LEAD_FILTRO='todos'; // filtro por estado en Mis Leads
 let LEAD_BUSCA='';   // buscador en Mis Leads
@@ -1460,6 +1467,9 @@ function renderMeta(){
  const mf=$('mFecha'); if(mf) mf.onchange=()=>{if(mf.value){LEAD_DIA=mf.value;LEAD_AG_OPEN=null;renderMeta();}};
  const mdd=$('mDesde'); if(mdd) mdd.onchange=()=>{if(mdd.value){LEAD_DESDE=mdd.value;LEAD_AG_OPEN=null;renderMeta();}};
  const mhh=$('mHasta'); if(mhh) mhh.onchange=()=>{if(mhh.value){LEAD_HASTA=mhh.value;LEAD_AG_OPEN=null;renderMeta();}};
+ const muno=$('mUno'); if(muno) muno.onchange=()=>{if(muno.value){LEAD_DESDE=muno.value;LEAD_HASTA=muno.value;LEAD_DIA=muno.value;LEAD_AG_OPEN=null;renderMeta();}};
+ document.querySelectorAll('.lmodo').forEach(c=>c.onclick=()=>{LEAD_MODO=c.dataset.m; if(LEAD_MODO==='dia') LEAD_HASTA=LEAD_DESDE; LEAD_AG_OPEN=null; renderMeta();});
+ document.querySelectorAll('.fcal').forEach(i=>i.addEventListener('click',()=>{try{if(i.showPicker)i.showPicker();}catch(e){}}));
  const bhf=$('btnHoyFecha'); if(bhf) bhf.onclick=()=>{const h=fechaBog(new Date());LEAD_DIA=h;LEAD_DESDE=h;LEAD_HASTA=h;LEAD_AG_OPEN=null;renderMeta();};
  document.querySelectorAll('.agrow').forEach(r=>r.onclick=()=>{const a=r.dataset.ag;LEAD_AG_OPEN=(LEAD_AG_OPEN===a)?null:a;renderMeta();});
  document.querySelectorAll('.chk').forEach(ch=>ch.onclick=async()=>{
@@ -1523,7 +1533,7 @@ function renderLeadsHTML(ag){
  const hoyB=fechaBog(new Date()), ayerB=fechaBog(new Date(Date.now()-86400000));
  const minDia=dias[dias.length-1]||LEAD_DIA, maxDia=dias[0]>hoyB?dias[0]:hoyB;
  const etiqueta=f=> f===hoyB?'Hoy': f===ayerB?'Ayer': (f.slice(8)+'/'+f.slice(5,7)+'/'+f.slice(0,4));
- const selFecha=`<div class="fechasel"><label class="fl" style="margin:0">📅 Desde</label><input type="date" class="minp" id="mDesde" value="${dA}" max="${maxDia}"><label class="fl" style="margin:0">Hasta</label><input type="date" class="minp" id="mHasta" value="${dB}" max="${maxDia}"><button class="lbtn call" id="btnHoyFecha" style="padding:9px 14px">Hoy</button></div>`;
+ const selFecha=selFechaHTML(dA,dB,maxDia);
  const estado=l=> l.ftd_at?'<span class="pill ftd">FTD</span>': l.registrado_at?'<span class="pill reg">Registrado</span>':'<span class="pill new">Nuevo</span>';
  const hora=l=>{try{return new Date(l.llegada_at).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});}catch(e){return '';}};
  const CAMPOS=[['llamada1','Llamada 1'],['llamada2','Llamada 2'],['whatsapp','Bajado a WhatsApp'],['registrado','Registrado'],['ftd','FTD'],['seg_dia1','Seguimiento día 1'],['seg_dia2','Seguimiento día 2'],['seg_dia3','Seguimiento día 3']];
@@ -1571,7 +1581,7 @@ function renderLeadsDirector(){
  let dA=LEAD_DESDE, dB=LEAD_HASTA; if(dA>dB){const t=dA;dA=dB;dB=t;}
  const minDia=dias[dias.length-1]||LEAD_DIA, maxDia=dias[0]>hoyB?dias[0]:hoyB;
  const etiqueta=f=> f===hoyB?'Hoy': f===ayerB?'Ayer': (f.slice(8)+'/'+f.slice(5,7)+'/'+f.slice(0,4));
- const selFecha=`<div class="fechasel"><label class="fl" style="margin:0">📅 Desde</label><input type="date" class="minp" id="mDesde" value="${dA}" max="${maxDia}"><label class="fl" style="margin:0">Hasta</label><input type="date" class="minp" id="mHasta" value="${dB}" max="${maxDia}"><button class="lbtn call" id="btnHoyFecha" style="padding:9px 14px">Hoy</button></div>`;
+ const selFecha=selFechaHTML(dA,dB,maxDia);
  const hora=l=>{try{return new Date(l.llegada_at).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});}catch(e){return '';}};
  const estado=l=> l.ftd_at?'<span class="pill ftd">FTD</span>': l.registrado_at?'<span class="pill reg">Registrado</span>':'<span class="pill new">Nuevo</span>';
  const CAMPOS=[['llamada1','Llamada 1'],['llamada2','Llamada 2'],['whatsapp','Bajado a WhatsApp'],['registrado','Registrado'],['ftd','FTD'],['seg_dia1','Seguimiento día 1'],['seg_dia2','Seguimiento día 2'],['seg_dia3','Seguimiento día 3']];

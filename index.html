@@ -1220,15 +1220,16 @@ function renderReportes(){
   };
   svg.onmouseleave=()=>{ tip.style.opacity="0"; line.setAttribute("opacity","0"); };
 
-  const avg=k=>Math.round(chartData.reduce((a,x)=>a+x[k],0)/chartData.length);
-  const ultimo=chartData[chartData.length-1], prev=chartData[chartData.length-2]||{out:0};
-  const diff = prev.out? Math.round((ultimo.out-prev.out)/prev.out*100):0;
-  $("stats").innerHTML=`
-    <div class="catrow"><span>Ingreso promedio (6m)</span><b class="mv in" style="font-size:.95rem">${money(avg("in"))}</b></div>
-    <div class="catrow"><span>Gasto promedio (6m)</span><b class="mv out" style="font-size:.95rem">${money(avg("out"))}</b></div>
-    <div class="catrow"><span>Ahorro promedio (6m)</span><b class="mv save" style="font-size:.95rem">${money(avg("save"))}</b></div>
-    <div class="catrow"><span>Tendencia de gasto vs. mes anterior</span>
-      <b style="font-size:.95rem;color:${diff>0?'var(--bad)':'var(--ok)'}">${diff>0?'▲ +':'▼ '}${diff}%</b></div>`;
+  // Promedio mensual de gasto de las 3 categorías en las que más gastas (6 meses)
+  const kset=new Set(chartData.map(x=>ymKey(x.d)));
+  const catTot={};
+  state.filter(t=>t.tipo==='gasto' && t.fecha && kset.has(t.fecha.slice(0,7)))
+       .forEach(t=>catTot[t.cat]=(catTot[t.cat]||0)+t.monto);
+  const top=Object.entries(catTot).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  $("stats").innerHTML = top.length
+    ? `<div class="catrow" style="border:0;color:var(--muted);font-size:.8rem">Tus 3 categorías con más gasto · promedio mensual (6m)</div>`
+      + top.map(([cat,tot],i)=>`<div class="catrow"><span><span class="dot-cat" style="background:${CAT_COLORS[i%CAT_COLORS.length]}"></span>${esc(cat)}</span><b class="mv" style="font-size:.95rem">${money(Math.round(tot/6))}</b></div>`).join("")
+    : `<div class="empty">Aún no hay gastos para promediar.</div>`;
 }
 function niceMax(v){ const p=Math.pow(10,Math.floor(Math.log10(v))); const f=v/p; const nf=f<=1?1:f<=2?2:f<=5?5:10; return nf*p; }
 function kfmt(v){ if(v>=1e6) return (v/1e6).toFixed(v%1e6?1:0)+"M"; if(v>=1e3) return Math.round(v/1e3)+"k"; return String(Math.round(v)); }

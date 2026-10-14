@@ -10,22 +10,26 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --page1:#0b1f6b; --page2:#060a1c;
-    --shell:#0a0f1e; --panel:#0e1526; --panel2:#131c30; --tile:#0f1728;
-    --line:rgba(255,255,255,.07); --line2:rgba(255,255,255,.13);
-    --txt:#eaf0fb; --muted:#8b93ab; --muted2:#5f6880;
-    --brand:#3b74ff; --brand2:#2b5cf0; --brandsoft:rgba(59,116,255,.15);
+    --shell:#0b0712; --panel:#15101f; --panel2:#1b1428; --tile:#1b1426;
+    --line:rgba(255,255,255,.07); --line2:rgba(236,110,224,.28);
+    --txt:#f3eefb; --muted:#a99fb8; --muted2:#6e6480;
+    --brand:#e24bd8; --brand2:#a855f7; --brandsoft:rgba(226,75,216,.16);
+    --grad:linear-gradient(135deg,#f06ce0,#c026d3 50%,#a855f7);
     --ok:#22c55e; --bad:#ef4757; --save:#f5a623;
-    --r:18px; --shadow:0 20px 50px -24px rgba(0,0,0,.8);
+    --r:18px; --shadow:0 20px 50px -24px rgba(0,0,0,.85);
+    --glow:0 0 40px -8px rgba(226,75,216,.5);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Montserrat',system-ui,-apple-system,sans-serif;color:var(--txt);
-    background:linear-gradient(140deg,var(--page1),var(--page2) 55%);min-height:100vh;-webkit-font-smoothing:antialiased}
+    background:#070410;min-height:100vh;-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
+  body::before,body::after{content:"";position:fixed;z-index:0;filter:blur(90px);pointer-events:none;border-radius:50%}
+  body::before{width:46vw;height:46vw;top:-14vw;left:-10vw;background:radial-gradient(circle,rgba(226,75,216,.42),transparent 65%)}
+  body::after{width:42vw;height:42vw;top:-8vw;right:-6vw;background:radial-gradient(circle,rgba(168,85,247,.32),transparent 65%)}
   .hidden{display:none!important}
   .muted{color:var(--muted)}
   a{color:var(--brand);text-decoration:none}
   ::-webkit-scrollbar{width:10px;height:10px}
-  ::-webkit-scrollbar-thumb{background:#1e2740;border-radius:20px}
+  ::-webkit-scrollbar-thumb{background:#2a2036;border-radius:20px}
 
   /* ---------- AUTH ---------- */
   #authView{min-height:100vh;display:grid;place-items:center;padding:20px}
@@ -47,8 +51,9 @@
   button.primary:disabled{opacity:.55;cursor:default}
 
   /* ---------- SHELL ---------- */
-  .app-shell{display:flex;max-width:1440px;margin:0 auto;min-height:100vh;background:var(--shell)}
-  @media(min-width:1100px){.app-shell{margin:18px auto;min-height:calc(100vh - 36px);border-radius:26px;border:1px solid var(--line);overflow:hidden;box-shadow:var(--shadow)}}
+  .app-shell{display:flex;max-width:1440px;margin:0 auto;min-height:100vh;position:relative;z-index:1;
+    background:linear-gradient(180deg,rgba(26,16,38,.72),rgba(11,7,18,.92) 40%)}
+  @media(min-width:1100px){.app-shell{margin:18px auto;min-height:calc(100vh - 36px);border-radius:26px;border:1px solid var(--line);overflow:hidden;box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.04)}}
 
   /* Sidebar */
   .sidebar{width:236px;flex-shrink:0;padding:22px 16px;display:flex;flex-direction:column;gap:20px;border-right:1px solid var(--line)}
@@ -96,7 +101,7 @@
   /* Hero row */
   .hero-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:16px}
   .hero-card{background:
-     radial-gradient(120% 140% at 90% 0%, rgba(59,116,255,.18), transparent 55%),
+     radial-gradient(120% 140% at 90% 0%, rgba(226,75,216,.18), transparent 55%),
      var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:22px;position:relative;overflow:hidden}
   .hero-card .lbl{color:var(--muted);font-size:.82rem;font-weight:600}
   .hero-card .big{font-size:2.6rem;font-weight:800;letter-spacing:-1px;margin:12px 0 8px}
@@ -131,7 +136,7 @@
   /* Table */
   .tabs2{display:flex;gap:6px}
   .tabs2 button{background:var(--tile);border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:6px 14px;font-size:.76rem;font-weight:600;cursor:pointer}
-  .tabs2 button.on{background:var(--brandsoft);color:#bcd0ff;border-color:rgba(59,116,255,.4)}
+  .tabs2 button.on{background:var(--brandsoft);color:#bcd0ff;border-color:rgba(226,75,216,.4)}
   table.tbl{width:100%;border-collapse:collapse;margin-top:8px}
   table.tbl th{text-align:left;color:var(--muted);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:10px 8px;border-bottom:1px solid var(--line)}
   table.tbl td{padding:12px 8px;border-bottom:1px solid var(--line);font-size:.88rem;vertical-align:middle}
@@ -192,7 +197,7 @@
   /* Logotipo Eva (E grande + va pequeño) */
   .wm{display:inline-flex;align-items:baseline;line-height:1;gap:0}
   .wm-e{font-family:'Playfair Display',Georgia,serif;font-size:2.05rem;font-weight:700;
-    background:linear-gradient(135deg,#6a9bff,#3b74ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+    background:linear-gradient(135deg,#f06ce0,#e24bd8);-webkit-background-clip:text;background-clip:text;color:transparent}
   .wm-va{font-family:'Montserrat',sans-serif;font-size:1.1rem;font-weight:500;color:var(--txt);letter-spacing:.5px;margin-left:1px}
   .auth .brand .wm-e{font-size:2.6rem} .auth .brand .wm-va{font-size:1.4rem}
 
@@ -221,7 +226,7 @@
   body.locked{overflow:hidden}
   .paycard{max-width:460px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:30px;box-shadow:var(--shadow);text-align:center}
   .onbcard{max-width:480px}
-  .badge{display:inline-block;background:var(--brandsoft);color:#bcd0ff;border:1px solid rgba(59,116,255,.35);padding:6px 14px;border-radius:999px;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
+  .badge{display:inline-block;background:var(--brandsoft);color:#bcd0ff;border:1px solid rgba(226,75,216,.35);padding:6px 14px;border-radius:999px;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
   .paycard h2{font-size:1.5rem;margin-bottom:10px}
   .grad{color:var(--brand)}
   .price{margin:18px 0 6px;display:flex;align-items:baseline;justify-content:center;gap:8px}
@@ -277,6 +282,25 @@
   }
   @media(max-width:560px){.mini-grid{grid-template-columns:repeat(2,1fr)}.big{font-size:2rem}
     table.tbl .col-cap,table.tbl .col-vol{display:none}}
+
+  /* ===== TEMA MAGENTA / GLASS (override final) ===== */
+  .sidebar{background:rgba(18,11,28,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  .panel,.mini,.pcard,.goal,.fijo-item,.ob-preview,.progress-block,.paycard,.onbcard,.pill-nav,.month-nav,.user-chip,.search,.tabs2 button,.range-pills button,.icon-btn{
+    backdrop-filter:blur(12px) saturate(130%);-webkit-backdrop-filter:blur(12px) saturate(130%)}
+  .panel{background:rgba(32,22,46,.5);border:1px solid var(--line)}
+  .hero-card{background:
+     radial-gradient(130% 150% at 85% -10%, rgba(226,75,216,.30), transparent 55%),
+     rgba(32,22,46,.55);border:1px solid var(--line);box-shadow:var(--shadow),var(--glow)}
+  .mini,.pcard,.tile,.tabs2 button,.range-pills button{background:rgba(255,255,255,.035)}
+  .panel:hover,.card:hover,.mini:hover{border-color:var(--line2)}
+  .nav-item.active{box-shadow:0 8px 30px -6px rgba(226,75,216,.8)}
+  button.primary{box-shadow:0 10px 28px -8px rgba(226,75,216,.75)}
+  .go{box-shadow:0 10px 28px -8px rgba(226,75,216,.75)}
+  .tabs2 button.on,.range-pills button.on{box-shadow:0 6px 20px -8px rgba(226,75,216,.8)}
+  .pill-nav,.month-nav,.user-chip,.search{background:rgba(255,255,255,.04)}
+  .avatar{box-shadow:0 6px 18px -6px rgba(226,75,216,.8)}
+  .c-acc{background:var(--brand)}
+  input:focus,select:focus{box-shadow:0 0 0 3px rgba(226,75,216,.25)}
 </style>
 </head>
 <body>
@@ -568,7 +592,7 @@ const CATS = {
   gasto:["Alimentación","Transporte","Vivienda","Servicios","Salud","Educación","Ocio","Ropa","Otro"],
   ahorro:["Fondo emergencia","Meta de ahorro","Inversión","Retiro","Otro"]
 };
-const CAT_COLORS = ["#3b74ff","#7c5cff","#22c55e","#f5a623","#ef4757","#37c9d6","#ff9f43","#c78bff","#8a94ad"];
+const CAT_COLORS = ["#e24bd8","#7c5cff","#22c55e","#f5a623","#ef4757","#37c9d6","#ff9f43","#c78bff","#8a94ad"];
 
 let state = [];
 let config = {metas:[], presupuestos:{}, perfil:null, fijosAplicados:[]};
@@ -1010,17 +1034,17 @@ function renderReportes(){
   let xlab="", dots="";
   chartData.forEach((x,i)=>{
     xlab+=`<text x="${xs(i).toFixed(1)}" y="${H-10}" fill="#8b93ab" font-size="10" text-anchor="middle">${x.d.toLocaleDateString("es-CO",{month:"short"})}</text>`;
-    dots+=`<circle cx="${xs(i).toFixed(1)}" cy="${ys(x.in).toFixed(1)}" r="3.2" fill="#3b74ff"/>`;
+    dots+=`<circle cx="${xs(i).toFixed(1)}" cy="${ys(x.in).toFixed(1)}" r="3.2" fill="#e24bd8"/>`;
   });
   $("chart").innerHTML=`
     <svg viewBox="0 0 ${W} ${H}" id="chsvg" preserveAspectRatio="none">
       <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#3b74ff" stop-opacity=".38"/>
-        <stop offset="1" stop-color="#3b74ff" stop-opacity="0"/>
+        <stop offset="0" stop-color="#e24bd8" stop-opacity=".38"/>
+        <stop offset="1" stop-color="#e24bd8" stop-opacity="0"/>
       </linearGradient></defs>
       ${grid}${ylab}${xlab}
       <path d="${area}" fill="url(#ag)"/>
-      <path d="${path(inArr)}" fill="none" stroke="#3b74ff" stroke-width="2.4"/>
+      <path d="${path(inArr)}" fill="none" stroke="#e24bd8" stroke-width="2.4"/>
       <path d="${path(outArr)}" fill="none" stroke="#ef4757" stroke-width="2" stroke-dasharray="2 3" opacity=".9"/>
       <path d="${path(saveArr)}" fill="none" stroke="#f5a623" stroke-width="1.8" opacity=".8"/>
       ${dots}
@@ -1040,7 +1064,7 @@ function renderReportes(){
     tip.style.left=(xs(idx)/W*r.width)+"px";
     tip.style.top=(ys(Math.max(x.in,x.out))/H*r.height)+"px";
     tip.innerHTML=`<div class="tt-d">${x.d.toLocaleDateString("es-CO",{month:"long",year:"numeric"})}</div>
-      <div><b style="color:#3b74ff">Ingresos</b> ${money(x.in)}</div>
+      <div><b style="color:#e24bd8">Ingresos</b> ${money(x.in)}</div>
       <div><b style="color:#ef4757">Gastos</b> ${money(x.out)}</div>
       <div><b style="color:#f5a623">Ahorro</b> ${money(x.save)}</div>`;
   };

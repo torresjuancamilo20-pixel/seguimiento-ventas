@@ -245,7 +245,8 @@
   .ob-step .primary{width:100%;margin-top:14px}
   .ob-nav{display:flex;gap:10px;align-items:center;margin-top:14px}
   .ob-nav .primary{flex:1;margin-top:0}
-  .fijo-add{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin:16px 0 6px}
+  .fijo-add{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;margin:16px 0 6px}
+  @media(max-width:520px){.fijo-add{grid-template-columns:1fr 1fr auto}.fijo-add #obFijoCat{grid-column:1/-1}}
   .fijo-add .btn-ghost{padding:0 16px;font-size:1.3rem}
   .fijos-list{display:grid;gap:7px;text-align:left}
   .fijo-item{display:flex;justify-content:space-between;background:var(--tile);border:1px solid var(--line);border-radius:11px;padding:10px 14px;font-size:.9rem}
@@ -282,6 +283,14 @@
   }
   @media(max-width:560px){.mini-grid{grid-template-columns:repeat(2,1fr)}.big{font-size:2rem}
     table.tbl .col-cap,table.tbl .col-vol{display:none}}
+
+  .row3{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:10px}
+  @media(max-width:700px){.row3{grid-template-columns:1fr}}
+  .deuda-actions{display:flex;gap:8px;align-items:center}
+  .deuda-actions .mini-btn{background:var(--brandsoft);border:1px solid rgba(226,75,216,.35);color:#f6b9ef;border-radius:8px;padding:5px 11px;font-size:.78rem;font-weight:600;cursor:pointer}
+  .deuda-actions .mini-btn:hover{filter:brightness(1.1)}
+  .deuda-actions .del-x{background:none;border:0;color:var(--muted);cursor:pointer;font-size:.9rem}
+  .deuda-actions .del-x:hover{color:var(--bad)}
 
   /* Dona de gastos por categoría */
   .cat-grid{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
@@ -348,8 +357,9 @@
       <h2>Tus <span class="grad">gastos fijos</span></h2>
       <p class="muted">Los que pagas todos los meses (arriendo, servicios, internet…). Se registrarán solos cada mes.</p>
       <div class="fijo-add">
+        <select id="obFijoCat"></select>
         <input type="text" id="obFijoNom" placeholder="Nombre (ej. Arriendo)">
-        <input type="number" id="obFijoMonto" placeholder="Monto" min="0" step="1000" inputmode="numeric">
+        <input type="number" id="obFijoMonto" placeholder="Valor" min="0" step="1000" inputmode="numeric">
         <button class="btn-ghost" onclick="obAddFijo()">＋</button>
       </div>
       <div id="obFijosList" class="fijos-list"></div>
@@ -409,6 +419,7 @@
       <a href="#sec-mov" class="nav-item" title="Movimientos"><svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg><span class="ni-label">Movimientos</span></a>
       <a href="#sec-rep" class="nav-item" title="Reportes"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 15l5-5 4 3 6-7"/></svg><span class="ni-label">Reportes</span></a>
       <a href="#sec-metas" class="nav-item" title="Metas y presupuesto"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span class="ni-label">Metas y presupuesto</span></a>
+      <a href="#sec-deudas" class="nav-item" title="Deudas"><svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="13" rx="2.5"/><line x1="2.5" y1="10.5" x2="21.5" y2="10.5"/></svg><span class="ni-label">Deudas</span></a>
       <a href="#sec-rapido" class="nav-item" title="Registro rápido"><svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><line x1="11" y1="18.5" x2="13" y2="18.5"/></svg><span class="ni-label">Registro rápido</span></a>
     </nav>
     <div class="side-foot">
@@ -559,6 +570,21 @@
       </div>
     </section>
 
+    <!-- Deudas -->
+    <section class="panel" id="sec-deudas">
+      <h2>Deudas <span class="card-sub" id="deudaResumen"></span></h2>
+      <p class="card-sub" style="margin:6px 0 14px">Registra lo que debes y ve cuánto llevas pagado. Usa “Abonar” cada vez que pagues una parte.</p>
+      <form class="add" id="deudaForm" style="margin-bottom:16px">
+        <div class="row3">
+          <input type="text" id="deudaNombre" placeholder="Nombre (ej. Tarjeta, Préstamo)" required>
+          <input type="text" id="deudaAcreedor" placeholder="¿A quién? (opcional)">
+          <input type="number" id="deudaTotal" placeholder="Valor total" min="1" step="1000" required>
+        </div>
+        <button class="primary" type="submit">Agregar deuda</button>
+      </form>
+      <div id="deudasList"></div>
+    </section>
+
     <!-- Metas y presupuesto -->
     <section class="two-col" id="sec-metas">
       <div class="panel">
@@ -604,7 +630,7 @@ const CATS = {
 const CAT_COLORS = ["#e24bd8","#7c5cff","#22c55e","#f5a623","#ef4757","#37c9d6","#ff9f43","#c78bff","#8a94ad"];
 
 let state = [];
-let config = {metas:[], presupuestos:{}, perfil:null, fijosAplicados:[]};
+let config = {metas:[], presupuestos:{}, perfil:null, fijosAplicados:[], deudas:[]};
 let cursor = new Date(); cursor.setDate(1);
 let user = null;
 let isRegister = false;
@@ -735,6 +761,7 @@ function startOnboarding(){
   obPaso=0; obFijos=(config.perfil&&config.perfil.fijos)?[...config.perfil.fijos]:[];
   $("obIngreso").value = config.perfil?.ingreso || "";
   $("obAhorro").value = config.perfil?.ahorroMeta || "";
+  if($("obFijoCat")) $("obFijoCat").innerHTML = CATS.gasto.map(c=>`<option>${c}</option>`).join("");
   $("onboard").classList.remove("hidden");
   document.body.classList.add("locked");
   obShow();
@@ -752,8 +779,9 @@ function obNext(){
 function obPrev(){ obPaso=Math.max(0,obPaso-1); obShow(); }
 function obAddFijo(){
   const nom=$("obFijoNom").value.trim(); const monto=parseFloat($("obFijoMonto").value);
-  if(!nom||!(monto>0)){ alert("Escribe el nombre y el monto del gasto fijo."); return; }
-  obFijos.push({nombre:nom, monto, cat:"Vivienda"});
+  const cat=$("obFijoCat")?.value || "Vivienda";
+  if(!nom||!(monto>0)){ alert("Escribe el nombre y el valor del gasto fijo."); return; }
+  obFijos.push({nombre:nom, monto, cat});
   $("obFijoNom").value=""; $("obFijoMonto").value=""; $("obFijoNom").focus();
   obRenderFijos();
 }
@@ -762,7 +790,7 @@ window.obAddFijo=obAddFijo; window.obDelFijo=obDelFijo; window.obNext=obNext; wi
 function obRenderFijos(){
   const t=obFijos.reduce((a,f)=>a+f.monto,0);
   $("obFijosList").innerHTML = obFijos.length? obFijos.map((f,i)=>`
-    <div class="fijo-item"><span>${esc(f.nombre)}</span><span>${money(f.monto)} <b onclick="obDelFijo(${i})">✕</b></span></div>`).join("")
+    <div class="fijo-item"><span>${esc(f.nombre)} <small style="color:var(--muted)">· ${esc(f.cat||'Otro')}</small></span><span>${money(f.monto)} <b onclick="obDelFijo(${i})">✕</b></span></div>`).join("")
     : `<div class="empty" style="padding:14px">Aún no agregas gastos fijos. Puedes seguir sin ninguno.</div>`;
   $("obFijosTotal").innerHTML = obFijos.length? `Total fijos: <b>${money(t)}</b>` : "";
 }
@@ -812,7 +840,7 @@ async function loadAll(){
     sb.from("finanzas_config").select("data").eq("user_id",user.id).maybeSingle()
   ]);
   state = (movs||[]).map(m=>({id:m.id,tipo:m.tipo,desc:m.descripcion,monto:Number(m.monto),cat:m.categoria,fecha:m.fecha}));
-  if(cfg && cfg.data){ config = Object.assign({metas:[],presupuestos:{},perfil:null,fijosAplicados:[]}, cfg.data); }
+  if(cfg && cfg.data){ config = Object.assign({metas:[],presupuestos:{},perfil:null,fijosAplicados:[],deudas:[]}, cfg.data); }
   setSync("✓ Sincronizado");
 }
 async function saveConfig(){
@@ -931,6 +959,54 @@ $("budForm").addEventListener("submit", async e=>{
 async function delBud(cat){ delete config.presupuestos[cat]; await saveConfig(); render(); }
 window.delBud=delBud;
 
+/* ---------------- DEUDAS ---------------- */
+$("deudaForm").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const total=parseFloat($("deudaTotal").value);
+  if(!(total>0)) return;
+  config.deudas=config.deudas||[];
+  config.deudas.push({id:Date.now(), nombre:$("deudaNombre").value.trim(), acreedor:$("deudaAcreedor").value.trim(), total, pagado:0});
+  await saveConfig();
+  $("deudaNombre").value=""; $("deudaAcreedor").value=""; $("deudaTotal").value=""; renderDeudas();
+});
+async function abonarDeuda(id){
+  const d=(config.deudas||[]).find(x=>x.id===id); if(!d) return;
+  const saldo=d.total-d.pagado;
+  const val=prompt(`¿Cuánto abonas a "${d.nombre}"?  (saldo: ${money(saldo)})`);
+  if(val===null) return;
+  const m=parseFloat(String(val).replace(",","."));
+  if(!(m>0)){ alert("Monto no válido."); return; }
+  d.pagado=Math.min(d.total, d.pagado + m);
+  await saveConfig(); renderDeudas();
+}
+async function delDeuda(id){
+  if(!confirm("¿Eliminar esta deuda?")) return;
+  config.deudas=(config.deudas||[]).filter(x=>x.id!==id);
+  await saveConfig(); renderDeudas();
+}
+window.abonarDeuda=abonarDeuda; window.delDeuda=delDeuda;
+function renderDeudas(){
+  const ds=config.deudas||[];
+  const pendiente=ds.reduce((a,d)=>a+Math.max(0,d.total-d.pagado),0);
+  $("deudaResumen").textContent = ds.length ? "· debes "+money(pendiente) : "";
+  $("deudasList").innerHTML = ds.length ? ds.map(d=>{
+    const saldo=Math.max(0,d.total-d.pagado);
+    const pct=d.total>0?Math.min(100,d.pagado/d.total*100):0;
+    const pagada=saldo<=0;
+    return `<div class="goal">
+      <div class="h"><span>${esc(d.nombre)}${d.acreedor?` <small style="color:var(--muted)">· ${esc(d.acreedor)}</small>`:''}</span>
+        <span>${money(d.pagado)} / ${money(d.total)}</span></div>
+      <div class="track"><span style="width:${pct}%;background:${pagada?'var(--ok)':'linear-gradient(90deg,#f06ce0,#a855f7)'}"></span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:.82rem" class="muted">
+        <span>${pagada?'✓ Pagada':'Saldo: '+money(saldo)+' · '+Math.round(pct)+'%'}</span>
+        <span class="deuda-actions">
+          ${pagada?'':`<button class="mini-btn" onclick="abonarDeuda(${d.id})">Abonar</button>`}
+          <button class="del-x" onclick="delDeuda(${d.id})">Eliminar</button>
+        </span></div>
+    </div>`;
+  }).join("") : `<div class="empty">Sin deudas registradas. ¡Que siga así! 💪</div>`;
+}
+
 /* ---------------- RENDER ---------------- */
 const ICON={ingreso:"↑",gasto:"↓",ahorro:"◆"};
 function renderTabla(){
@@ -982,6 +1058,7 @@ function render(){
     <span>${money(c[1])} · ${Math.round(c[1]/total*100)}%</span></div>`).join(""):`<div class="empty">Aún no hay gastos registrados.</div>`;
 
   renderMetas(sav, byCat);
+  renderDeudas();
   renderReportes();
 }
 

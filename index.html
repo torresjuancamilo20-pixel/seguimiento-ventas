@@ -887,8 +887,53 @@ async function irAPagar(){
 function fillCats(){
   const tipo=document.querySelector('input[name=tipo]:checked').value;
   $("cat").innerHTML=CATS[tipo].map(c=>`<option>${c}</option>`).join("");
+  catManual=false;
 }
-document.querySelectorAll('input[name=tipo]').forEach(r=>r.addEventListener("change",fillCats));
+/* ---- Auto-categorización por nombre ---- */
+function normaliza(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,""); }
+const CAT_KEYWORDS={
+  gasto:{
+    "Alimentación":["comida","cena","almuerzo","desayuno","mercado","supermercado","super","restaurante","resto","cafe","tinto","pizza","hamburguesa","burger","domicilio","rappi","didi food","ifood","frutas","verdura","carne","pan","leche","huevos","snack","helado","dulce","sushi","pollo","arroz","galleta","agua","gaseosa","almuerzos"],
+    "Transporte":["uber","taxi","bus","buseta","gasolina","combustible","peaje","pasaje","pasajes","metro","didi","cabify","indrive","parqueadero","parqueo","transmilenio","sitp","soat","llanta","aceite","mecanico","moto","tren","avion","vuelo","tiquete"],
+    "Vivienda":["arriendo","alquiler","renta","hipoteca","administracion","condominio","cuota vivienda","casa","apartamento"],
+    "Servicios":["luz","agua","gas","internet","wifi","telefono","celular","plan","factura","energia","electricidad","netflix","spotify","hbo","disney","prime","youtube","suscripcion","claro","movistar","tigo","etb","servicio"],
+    "Salud":["medico","farmacia","drogueria","medicina","eps","consulta","dentista","odontologo","laboratorio","examen","salud","cita","remedio","pastilla","terapia"],
+    "Educación":["curso","universidad","colegio","matricula","libro","libros","clase","udemy","platzi","coursera","educacion","pension","semestre","util","utiles"],
+    "Ocio":["cine","bar","fiesta","juego","videojuego","concierto","gym","gimnasio","salida","viaje","paseo","hotel","trago","cerveza","licor","rumba","parque","evento","pelicula"],
+    "Ropa":["ropa","zapatos","tenis","camisa","pantalon","vestido","chaqueta","zara","nike","adidas","tienda","calzado","medias","gorra","accesorio"]
+  },
+  ingreso:{
+    "Salario":["salario","sueldo","nomina","quincena","pago","trabajo"],
+    "Ventas":["venta","vendi","cliente","negocio","producto"],
+    "Freelance":["freelance","proyecto","honorario","servicio prestado","diseno","asesoria"],
+    "Intereses":["interes","intereses","rendimiento","dividendo"],
+    "Regalo":["regalo","obsequio","bono","premio","donacion"]
+  },
+  ahorro:{
+    "Fondo emergencia":["emergencia","fondo","reserva","colchon"],
+    "Inversión":["inversion","cdt","accion","acciones","cripto","bitcoin","trading","bolsa"],
+    "Retiro":["retiro","pension","jubilacion"],
+    "Meta de ahorro":["meta","viaje","ahorro","objetivo"]
+  }
+};
+function guessCat(tipo, desc){
+  const d=normaliza(desc); if(!d) return null;
+  const dict=CAT_KEYWORDS[tipo]||{};
+  for(const [cat,words] of Object.entries(dict)){
+    if(words.some(w=>d.includes(w))) return cat;
+  }
+  return null;
+}
+function autoCat(){
+  if(catManual) return;
+  const tipo=document.querySelector('input[name=tipo]:checked').value;
+  const g=guessCat(tipo, $("desc").value);
+  if(g && CATS[tipo].includes(g)) $("cat").value=g;
+}
+let catManual=false;
+$("desc").addEventListener("input",autoCat);
+$("cat").addEventListener("change",()=>{ catManual=true; });
+document.querySelectorAll('input[name=tipo]').forEach(r=>r.addEventListener("change",()=>{fillCats();autoCat();}));
 $("fecha").valueAsDate=new Date();
 
 $("frm").addEventListener("submit", async e=>{
@@ -902,7 +947,7 @@ $("frm").addEventListener("submit", async e=>{
   if(error){ setSync("Error al guardar"); alert("No se pudo guardar: "+error.message); return; }
   state.unshift({id:data.id,tipo,desc:rec.descripcion,monto:m,cat:rec.categoria,fecha:rec.fecha});
   setSync("✓ Sincronizado");
-  $("desc").value=""; $("monto").value="";
+  $("desc").value=""; $("monto").value=""; catManual=false;
   const fd=new Date(rec.fecha+"T00:00:00"); cursor=new Date(fd.getFullYear(),fd.getMonth(),1);
   render(); $("desc").focus();
 });

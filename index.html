@@ -283,6 +283,13 @@
   @media(max-width:560px){.mini-grid{grid-template-columns:repeat(2,1fr)}.big{font-size:2rem}
     table.tbl .col-cap,table.tbl .col-vol{display:none}}
 
+  /* Dona de gastos por categoría */
+  .cat-grid{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+  .donut{flex-shrink:0;filter:drop-shadow(0 6px 18px rgba(226,75,216,.25))}
+  .donut svg{display:block}
+  .donut-empty{width:150px;height:150px;display:grid;place-items:center;color:var(--muted);font-size:.85rem;border:1px dashed var(--line);border-radius:50%}
+  .cat-grid #catList{flex:1;min-width:170px}
+
   /* ===== TEMA MAGENTA / GLASS (override final) ===== */
   .sidebar{background:rgba(18,11,28,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
   .panel,.mini,.pcard,.goal,.fijo-item,.ob-preview,.progress-block,.paycard,.onbcard,.pill-nav,.month-nav,.user-chip,.search,.tabs2 button,.range-pills button,.icon-btn{
@@ -516,8 +523,10 @@
       </div>
       <div class="panel">
         <h2>Gastos por categoría</h2>
-        <div class="bar" id="catBar" style="margin-top:12px"></div>
-        <div id="catList"></div>
+        <div class="cat-grid" style="margin-top:14px">
+          <div class="donut" id="catBar"></div>
+          <div id="catList"></div>
+        </div>
       </div>
     </section>
 
@@ -606,6 +615,21 @@ function money(n){ return "$"+ (n||0).toLocaleString("es-CO",{maximumFractionDig
 function ymKey(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); }
 function monthName(d){ return d.toLocaleDateString("es-CO",{month:"long",year:"numeric"}); }
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function donutSVG(cats,total){
+  const cx=75,cy=75,r=56,sw=20,C=2*Math.PI*r;
+  let off=0, arcs="";
+  cats.forEach((c,i)=>{
+    const len=(c[1]/total)*C, col=CAT_COLORS[i%CAT_COLORS.length];
+    arcs+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${len.toFixed(2)} ${(C-len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"/>`;
+    off+=len;
+  });
+  return `<svg width="150" height="150" viewBox="0 0 150 150">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw}"/>
+    ${arcs}
+    <text x="${cx}" y="${cy-5}" text-anchor="middle" fill="#a99fb8" font-size="10" font-family="Montserrat">Gastos</text>
+    <text x="${cx}" y="${cy+13}" text-anchor="middle" fill="#fff" font-size="15" font-weight="700" font-family="Montserrat">${money(total)}</text>
+  </svg>`;
+}
 
 /* ---------------- AUTH ---------------- */
 function showMsg(t,ok){ const m=$("authMsg"); m.textContent=t; m.className="msg "+(ok?"ok":"err"); m.classList.remove("hidden"); }
@@ -952,7 +976,7 @@ function render(){
   items.filter(x=>x.tipo==='gasto').forEach(x=>byCat[x.cat]=(byCat[x.cat]||0)+x.monto);
   const cats=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
   const total=cats.reduce((a,c)=>a+c[1],0);
-  $("catBar").innerHTML= total?cats.map((c,i)=>`<span style="width:${c[1]/total*100}%;background:${CAT_COLORS[i%CAT_COLORS.length]}"></span>`).join(""):"";
+  $("catBar").innerHTML= total?donutSVG(cats,total):`<div class="donut-empty">Sin gastos</div>`;
   $("catList").innerHTML= total?cats.map((c,i)=>`
     <div class="catrow"><span><span class="dot-cat" style="background:${CAT_COLORS[i%CAT_COLORS.length]}"></span>${esc(c[0])}</span>
     <span>${money(c[1])} · ${Math.round(c[1]/total*100)}%</span></div>`).join(""):`<div class="empty">Aún no hay gastos registrados.</div>`;

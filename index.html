@@ -702,6 +702,8 @@ function toggleMode(){
   $("authMsg").classList.add("hidden");
 }
 $("toggleMode").onclick=toggleMode;
+// Desde la página de aterrizaje (/info/): abrir directo en "Crear cuenta"
+if(new URLSearchParams(location.search).get("registro")==="1") toggleMode();
 
 $("authForm").addEventListener("submit", async e=>{
   e.preventDefault();

@@ -1,0 +1,77 @@
+<!-- Plantilla de correo "Magic Link" de Eva para Supabase.
+     Pegar en: Supabase → Authentication → Emails → pestaña "Magic Link".
+     Variable de Supabase: {{ .ConfirmationURL }} = enlace de acceso. -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0;padding:0;background-color:#0b0712;">
+  <tr>
+    <td align="center" style="padding:32px 16px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background-color:#140c20;border:1px solid #2a2036;border-radius:24px;overflow:hidden;font-family:Helvetica,Arial,sans-serif;">
+        <!-- Encabezado con logo -->
+        <tr>
+          <td align="center" style="padding:40px 32px 8px 32px;">
+            <span style="font-family:Georgia,'Times New Roman',serif;font-size:56px;font-weight:bold;color:#e24bd8;line-height:1;">E</span><span style="font-family:Helvetica,Arial,sans-serif;font-size:30px;font-weight:300;color:#f3eefb;letter-spacing:2px;">va</span>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:0 32px 8px 32px;">
+            <div style="font-size:14px;color:#a99fb8;font-weight:bold;letter-spacing:1px;text-transform:uppercase;">Tus finanzas, bajo control</div>
+          </td>
+        </tr>
+        <!-- Cuerpo -->
+        <tr>
+          <td align="center" style="padding:24px 32px 8px 32px;">
+            <div style="font-size:24px;font-weight:bold;color:#ffffff;line-height:1.3;">Entra a tu cuenta</div>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:8px 36px 24px 36px;">
+            <div style="font-size:16px;color:#cfc4dc;line-height:1.55;">Haz clic en el botón para entrar a Eva al instante. No necesitas contraseña: este enlace te deja adentro.</div>
+          </td>
+        </tr>
+        <!-- Botón -->
+        <tr>
+          <td align="center" style="padding:8px 32px 8px 32px;">
+            <table role="presentation" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" bgcolor="#c026d3" style="border-radius:999px;background-color:#c026d3;background-image:linear-gradient(135deg,#f06ce0,#c026d3 50%,#a855f7);">
+                  <a href="{{ .ConfirmationURL }}" target="_blank" style="display:inline-block;padding:16px 42px;font-family:Helvetica,Arial,sans-serif;font-size:17px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:999px;">Entrar a Eva →</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <!-- Enlace de respaldo -->
+        <tr>
+          <td align="center" style="padding:20px 36px 8px 36px;">
+            <div style="font-size:13px;color:#8a7f9a;line-height:1.5;">Si el botón no funciona, copia y pega este enlace en tu navegador:</div>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:4px 36px 24px 36px;word-break:break-all;">
+            <a href="{{ .ConfirmationURL }}" target="_blank" style="font-size:12px;color:#e24bd8;text-decoration:underline;word-break:break-all;">{{ .ConfirmationURL }}</a>
+          </td>
+        </tr>
+        <!-- Aviso de seguridad -->
+        <tr>
+          <td style="padding:0 36px;">
+            <div style="border-top:1px solid #2a2036;"></div>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:20px 36px 8px 36px;">
+            <div style="font-size:13px;color:#8a7f9a;line-height:1.5;">Si tú no pediste este correo, puedes ignorarlo sin problema. El enlace caduca pronto por seguridad.</div>
+          </td>
+        </tr>
+        <!-- Pie -->
+        <tr>
+          <td align="center" style="padding:16px 36px 36px 36px;">
+            <div style="font-size:12px;color:#6b6377;line-height:1.6;">
+              <span style="font-family:Georgia,serif;color:#e24bd8;font-weight:bold;">E</span><span style="color:#a99fb8;">va</span> · Tus finanzas, bajo control<br>
+              ¿Necesitas ayuda? Escríbenos a <a href="mailto:Soporte_eva@hotmail.com" style="color:#a99fb8;text-decoration:underline;">Soporte_eva@hotmail.com</a><br>
+              © 2026 Eva · Nueva York, EE. UU.
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

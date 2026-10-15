@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eva — Tus finanzas, bajo control</title>
+<meta name="description" content="Registra tus gastos con un WhatsApp, mira a dónde se va tu dinero y sal de tus deudas. Todo en un solo lugar por 9,99 USD al mes.">
+<meta property="og:title" content="Eva — Tus finanzas, bajo control">
+<meta property="og:description" content="Registra tus gastos con un WhatsApp, mira a dónde se va tu dinero y sal de tus deudas.">
+<meta property="og:image" content="/info/poster.jpg">
+<meta name="theme-color" content="#07060c">
+<link rel="icon" href="/logo.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07060c;--card:rgba(32,22,46,.55);--line:rgba(255,255,255,.08);
+  --txt:#f3eefb;--mut:#a99fb8;--mag:#e24bd8;--pur:#a855f7;--grn:#22c55e;--wa:#25d366;
+  --grad:linear-gradient(135deg,#f06ce0,#c026d3 50%,#a855f7);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Montserrat',sans-serif;color:var(--txt);background:var(--bg);line-height:1.55;overflow-x:hidden;
+  background-image:radial-gradient(900px 700px at 0% -10%,rgba(226,75,216,.28),transparent 60%),
+                   radial-gradient(800px 700px at 100% 10%,rgba(168,85,247,.22),transparent 60%);
+  background-repeat:no-repeat}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1140px;margin:0 auto;padding:0 20px}
+.mag{background:linear-gradient(135deg,#f472e6,#e24bd8 45%,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:0;cursor:pointer;font:inherit;font-weight:800;
+  background:var(--grad);color:#fff;padding:16px 30px;border-radius:999px;font-size:1.02rem;box-shadow:0 14px 40px -12px rgba(226,75,216,.85);
+  transition:transform .15s,box-shadow .15s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 18px 50px -12px rgba(226,75,216,1)}
+.btn.ghost{background:rgba(255,255,255,.06);border:1px solid var(--line);box-shadow:none}
+.btn.sm{padding:10px 20px;font-size:.9rem}
+
+/* Nav */
+nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(7,6,12,.7);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:28px;height:68px}
+.logo{display:flex;align-items:baseline;font-weight:500;font-size:1.5rem;letter-spacing:1px}
+.logo b{font-family:'Playfair Display',Georgia,serif;font-size:2.1rem;line-height:1;background:linear-gradient(135deg,#f9a8f0,#e24bd8 50%,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent}
+nav .links{display:flex;gap:24px;font-size:.92rem;color:var(--mut);font-weight:600}
+nav .links a:hover{color:#fff}
+nav .right{margin-left:auto;display:flex;gap:12px;align-items:center}
+nav .login{font-size:.9rem;font-weight:700;color:var(--mut)}
+nav .login:hover{color:#fff}
+
+/* Hero */
+.hero{padding:70px 0 60px}
+.hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:50px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;background:rgba(226,75,216,.12);border:1px solid rgba(226,75,216,.35);
+  color:#f6b9ef;font-size:.82rem;font-weight:700}
+h1{font-size:clamp(2.4rem,5.4vw,4.1rem);line-height:1.04;font-weight:900;letter-spacing:-2px;margin:20px 0 18px}
+.lead{font-size:1.15rem;color:#cfc4dc;max-width:560px}
+.hero .ctas{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+.trust{display:flex;flex-wrap:wrap;gap:18px;margin-top:22px;color:var(--mut);font-size:.88rem;font-weight:600}
+.trust span::before{content:"✓ ";color:var(--grn)}
+.phone{position:relative;width:min(330px,80vw);aspect-ratio:9/16;margin:0 auto;border-radius:44px;border:10px solid #1c1426;overflow:hidden;background:#000;
+  box-shadow:0 40px 90px -30px rgba(0,0,0,.9),0 0 90px -10px rgba(226,75,216,.55)}
+.phone video{width:100%;height:100%;object-fit:cover;display:block}
+.sound{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.2);color:#fff;
+  font:inherit;font-size:.82rem;font-weight:700;padding:8px 16px;border-radius:999px;cursor:pointer;white-space:nowrap}
+
+/* Secciones */
+section{padding:80px 0}
+.kicker{color:var(--mag);font-weight:800;font-size:.85rem;letter-spacing:2px;text-transform:uppercase}
+h2{font-size:clamp(1.9rem,3.6vw,2.7rem);line-height:1.12;font-weight:900;letter-spacing:-1px;margin:10px 0 14px}
+.sub{color:var(--mut);font-size:1.05rem;max-width:640px}
+.center{text-align:center}.center .sub{margin:0 auto}
+
+/* Dolor */
+.pain{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px}
+.pain div{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:26px}
+.pain b{display:block;font-size:1.6rem;margin-bottom:10px}
+.pain p{color:#cfc4dc}
+
+/* Funciones */
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px}
+.f{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px;transition:border-color .2s,transform .2s}
+.f:hover{border-color:rgba(226,75,216,.5);transform:translateY(-3px)}
+.f .ic{width:50px;height:50px;border-radius:14px;display:grid;place-items:center;font-size:1.5rem;background:rgba(226,75,216,.14);margin-bottom:16px}
+.f h3{font-size:1.15rem;margin-bottom:8px}
+.f p{color:var(--mut);font-size:.95rem}
+.f.star{background:linear-gradient(160deg,rgba(37,211,102,.14),rgba(32,22,46,.55) 60%);border-color:rgba(37,211,102,.35)}
+.f.star .ic{background:rgba(37,211,102,.16)}
+.new{display:inline-block;margin-left:8px;font-size:.7rem;font-weight:800;padding:3px 8px;border-radius:999px;background:var(--wa);color:#05210f;vertical-align:middle}
+
+/* WhatsApp */
+.wa-sec .wrap{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.chat{max-width:380px;margin:0 auto;border-radius:30px;overflow:hidden;background:#0b141a;border:1px solid var(--line);box-shadow:0 30px 80px -30px rgba(0,0,0,.9),0 0 70px -20px rgba(37,211,102,.4)}
+.chat-h{background:#1f2c34;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.chat-h .av{width:40px;height:40px;border-radius:50%;background:var(--grad);display:grid;place-items:center;font-family:'Playfair Display';font-weight:700;font-size:1.3rem}
+.chat-h small{display:block;color:#8696a0;font-size:.78rem}
+.chat-b{padding:18px 14px;display:flex;flex-direction:column;gap:10px;font-size:.95rem;min-height:330px}
+.m{max-width:82%;padding:9px 12px;border-radius:12px;line-height:1.4}
+.m.me{align-self:flex-end;background:#005c4b;border-top-right-radius:3px}
+.m.ev{align-self:flex-start;background:#1f2c34;border-top-left-radius:3px}
+.steps-wa{margin-top:26px;display:grid;gap:14px}
+.steps-wa div{display:flex;gap:14px;align-items:flex-start}
+.steps-wa b.n{flex:none;width:34px;height:34px;border-radius:50%;background:rgba(37,211,102,.15);color:var(--wa);display:grid;place-items:center;font-weight:800}
+.ex{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.ex code{font-family:inherit;font-weight:700;font-size:.88rem;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
+
+/* Cómo funciona */
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px;counter-reset:s}
+.how div{position:relative;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:30px 26px 26px}
+.how div::before{counter-increment:s;content:counter(s);position:absolute;top:-18px;left:26px;width:40px;height:40px;border-radius:50%;background:var(--grad);
+  display:grid;place-items:center;font-weight:900;box-shadow:0 10px 30px -8px rgba(226,75,216,.9)}
+.how h3{margin:8px 0 8px;font-size:1.1rem}
+.how p{color:var(--mut);font-size:.95rem}
+
+/* Precio */
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:860px;margin:44px auto 0;align-items:stretch}
+.price-card{border-radius:30px;padding:2px;background:var(--line);position:relative;display:flex}
+.price-card.best{background:var(--grad);box-shadow:0 30px 90px -30px rgba(226,75,216,.8)}
+.price-in{background:#120c1c;border-radius:28px;padding:36px 32px;text-align:center;width:100%;display:flex;flex-direction:column}
+.price-in .plan{font-weight:800;color:#f6b9ef;letter-spacing:1px;text-transform:uppercase;font-size:.85rem}
+.ribbon{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--grad);color:#fff;font-weight:800;font-size:.72rem;
+  letter-spacing:1px;text-transform:uppercase;padding:7px 18px;border-radius:999px;white-space:nowrap;box-shadow:0 10px 26px -8px rgba(226,75,216,.9);z-index:2}
+.was{color:var(--mut);font-weight:700;text-decoration:line-through;font-size:1.1rem;margin-top:12px}
+.amount{font-size:3.8rem;font-weight:900;letter-spacing:-2px;line-height:1;margin:4px 0 4px}
+.amount small{font-size:1rem;color:var(--mut);font-weight:600;letter-spacing:0}
+.per{color:var(--mut);font-weight:600;font-size:.95rem}
+.equiv{display:inline-block;margin-top:10px;font-size:.82rem;font-weight:700;color:#86efac;background:rgba(34,197,94,.14);padding:5px 12px;border-radius:999px}
+.incl{list-style:none;text-align:left;margin:24px 0;display:grid;gap:11px}
+.incl li{display:flex;gap:10px;font-size:.95rem}
+.incl li::before{content:"✓";color:var(--grn);font-weight:900}
+.price-in .btn{width:100%;margin-top:auto}
+.fine{color:var(--mut);font-size:.82rem;margin-top:14px}
+
+/* FAQ */
+.faq{max-width:780px;margin:40px auto 0;display:grid;gap:12px}
+details{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 24px}
+summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--mag);font-size:1.4rem;line-height:1;transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{color:#cfc4dc;margin-top:12px}
+
+/* Final */
+.final{text-align:center;border-radius:34px;padding:60px 26px;margin:0 auto;max-width:980px;
+  background:radial-gradient(600px 300px at 50% 0%,rgba(226,75,216,.35),transparent 70%),var(--card);border:1px solid rgba(226,75,216,.3)}
+footer{border-top:1px solid var(--line);padding:34px 0 50px;color:var(--mut);font-size:.88rem}
+footer .wrap{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between}
+footer .fl{display:flex;flex-wrap:wrap;gap:18px}
+footer a:hover{color:#fff}
+
+/* CTA fija en celular */
+.sticky-cta{display:none}
+
+/* Animación al hacer scroll */
+.rv{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+.rv.on{opacity:1;transform:none}
+
+@media (max-width:900px){
+  nav .links{display:none}
+  .hero{padding:40px 0 40px}
+  .hero .wrap,.wa-sec .wrap{grid-template-columns:1fr;gap:40px}
+  .hero .copy{text-align:center}.lead{margin:0 auto}.hero .ctas,.trust{justify-content:center}
+  .pain,.feat,.how,.plans{grid-template-columns:1fr}
+  .plans{gap:30px}
+  .how{gap:30px}
+  section{padding:56px 0}
+  .sticky-cta{display:flex;position:fixed;left:12px;right:12px;bottom:12px;z-index:60;gap:10px;align-items:center;justify-content:space-between;
+    background:rgba(18,12,28,.92);backdrop-filter:blur(12px);border:1px solid rgba(226,75,216,.4);border-radius:999px;padding:8px 8px 8px 20px;
+    transform:translateY(120%);transition:transform .3s}
+  .sticky-cta.show{transform:none}
+  .sticky-cta span{font-weight:800;font-size:.95rem}
+  .sticky-cta span small{color:var(--mut);font-weight:600}
+  footer{padding-bottom:100px}
+}
+@media (max-width:480px){ nav .login{display:none} }
+@media (prefers-reduced-motion:reduce){ .rv{opacity:1;transform:none;transition:none} html{scroll-behavior:auto} }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a href="#" class="logo" aria-label="Eva"><b>E</b>va</a>
+    <div class="links">
+      <a href="#funciones">Funciones</a>
+      <a href="#whatsapp">WhatsApp</a>
+      <a href="#como">Cómo funciona</a>
+      <a href="#precio">Precio</a>
+      <a href="#preguntas">Preguntas</a>
+    </div>
+    <div class="right">
+      <a href="/" class="login">Iniciar sesión</a>
+      <a href="/?registro=1" class="btn sm">Empieza hoy</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap">
+    <div class="copy">
+      <span class="eyebrow">✦ Nuevo: registra tus gastos por WhatsApp</span>
+      <h1>Tus finanzas,<br><span class="mag">bajo control.</span></h1>
+      <p class="lead">Mira en qué se te va la plata cada mes, registra un gasto con un simple WhatsApp y sal de tus deudas paso a paso. Todo en un solo lugar.</p>
+      <div class="ctas">
+        <a href="/?registro=1" class="btn">Quiero empezar — 9,99 USD/mes</a>
+        <a href="#como" class="btn ghost">Ver cómo funciona</a>
+      </div>
+      <div class="trust"><span>Cancela cuando quieras</span><span>Sin conectar tu banco</span><span>Celular y computador</span></div>
+    </div>
+    <div class="phone rv">
+      <video id="vid" src="/promo/eva-promo-v2-solo.mp4" poster="/info/poster.jpg" autoplay muted loop playsinline preload="metadata"></video>
+      <button class="sound" id="sound">🔊 Activar sonido</button>
+    </div>
+  </div>
+</header>
+
+<!-- DOLOR -->
+<section>
+  <div class="wrap center">
+    <span class="kicker">¿Te suena?</span>
+    <h2>Cobras, gastas… y a fin de mes<br><span class="mag">no sabes qué pasó.</span></h2>
+    <div class="pain">
+      <div class="rv"><b>😩</b><p>La plata “se esfuma” en domicilios, transporte y pequeños gastos que nunca anotas.</p></div>
+      <div class="rv"><b>📒</b><p>Las hojas de cálculo y las libretas se abandonan a la segunda semana.</p></div>
+      <div class="rv"><b>💳</b><p>Las deudas se acumulan y no sabes cuánto te falta ni cuánto vas pagando.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FUNCIONES -->
+<section id="funciones">
+  <div class="wrap center">
+    <span class="kicker">Todo lo que necesitas</span>
+    <h2>Un sistema simple para<br><span class="mag">ordenar tu dinero</span></h2>
+    <p class="sub">Eva hace el trabajo pesado: tú solo anotas lo que gastas y ella organiza todo.</p>
+    <div class="feat" style="text-align:left">
+      <div class="f star rv"><div class="ic">💬</div><h3>Registro por WhatsApp <span class="new">NUEVO</span></h3><p>Escribe “hamburguesas 25000” y listo: queda guardado como gasto, con su categoría.</p></div>
+      <div class="f rv"><div class="ic">📊</div><h3>Tu mes de un vistazo</h3><p>Ingresos, gastos, ahorro y balance del mes, con gráficas claras de los últimos 6 meses.</p></div>
+      <div class="f rv"><div class="ic">🤖</div><h3>Categorías automáticas</h3><p>“Uber” va a Transporte, “mercado” a Alimentación, “Netflix” a Servicios. Sin elegir nada.</p></div>
+      <div class="f rv"><div class="ic">🔁</div><h3>Gastos fijos automáticos</h3><p>Arriendo, servicios, planes… los configuras una vez y se registran solos cada mes.</p></div>
+      <div class="f rv"><div class="ic">💳</div><h3>Control de deudas</h3><p>Registra lo que debes, abona cuando pagues y mira tu avance hasta quedar en cero.</p></div>
+      <div class="f rv"><div class="ic">🎯</div><h3>Metas y presupuesto</h3><p>Ponle límite a cada categoría y ahorra para lo que quieres: un viaje, un carro, tu fondo de emergencia.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHATSAPP -->
+<section id="whatsapp" class="wa-sec">
+  <div class="wrap">
+    <div class="rv">
+      <div class="chat">
+        <div class="chat-h"><div class="av">E</div><div><b>Eva</b><small>en línea</small></div></div>
+        <div class="chat-b">
+          <div class="m me">hamburguesas 25000</div>
+          <div class="m ev">🔴 <b>GASTO</b> guardado<br>Hamburguesas (Alimentación)<br><b>$25.000</b></div>
+          <div class="m me">uber 8500</div>
+          <div class="m ev">🔴 <b>GASTO</b> guardado<br>Uber (Transporte)<br><b>$8.500</b></div>
+          <div class="m me">ingreso salario 5000000</div>
+          <div class="m ev">🟢 <b>INGRESO</b> guardado<br>Salario (Salario)<br><b>$5.000.000</b></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <span class="kicker" style="color:var(--wa)">Así de fácil</span>
+      <h2>Registra un gasto<br>en <span style="color:var(--wa)">5 segundos</span></h2>
+      <p class="sub">No tienes que abrir la app. Le escribes a Eva por WhatsApp, como le escribirías a un amigo, y el gasto aparece en tu panel al instante.</p>
+      <div class="steps-wa">
+        <div><b class="n">1</b><p>Vinculas tu número de WhatsApp una sola vez desde la app.</p></div>
+        <div><b class="n">2</b><p>Escribes qué compraste y cuánto costó.</p></div>
+        <div><b class="n">3</b><p>Eva lo guarda, lo categoriza y te confirma.</p></div>
+      </div>
+      <div class="ex"><code>mercado 180000</code><code>gasolina 60000</code><code>ahorro meta 200000</code></div>
+    </div>
+  </div>
+</section>
+
+<!-- CÓMO FUNCIONA -->
+<section id="como">
+  <div class="wrap center">
+    <span class="kicker">Empieza en 2 minutos</span>
+    <h2>Cómo funciona</h2>
+    <div class="how" style="text-align:left">
+      <div class="rv"><h3>Crea tu cuenta</h3><p>Con tu correo y una contraseña. Sin conectar tu banco ni dar claves bancarias.</p></div>
+      <div class="rv"><h3>Cuéntale a Eva tu mes</h3><p>Tu ingreso, tus gastos fijos y cuánto quieres ahorrar. Eva arma tu panel automáticamente.</p></div>
+      <div class="rv"><h3>Registra y mira tu progreso</h3><p>Anota por WhatsApp o desde el celular, y ve en tiempo real a dónde va cada peso.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRECIO -->
+<section id="precio">
+  <div class="wrap center">
+    <span class="kicker">Precio</span>
+    <h2>Elige tu plan, <span class="mag">todo incluido</span></h2>
+    <p class="sub">Los dos planes traen exactamente las mismas funciones. El anual sale mucho más barato.</p>
+    <div class="plans">
+      <div class="price-card rv">
+        <div class="price-in">
+          <div class="plan">Plan mensual</div>
+          <div class="amount" style="margin-top:14px">$9,99 <small>USD</small></div>
+          <div class="per">al mes · se renueva automáticamente</div>
+          <ul class="incl">
+            <li>Registro de gastos por WhatsApp</li>
+            <li>Dashboard con ingresos, gastos y ahorro</li>
+            <li>Categorías automáticas</li>
+            <li>Gastos fijos que se registran solos</li>
+            <li>Control de deudas y metas de ahorro</li>
+            <li>Acceso desde celular y computador</li>
+            <li>Soporte por correo</li>
+          </ul>
+          <a href="/?registro=1&plan=mensual" class="btn ghost">Empezar mensual</a>
+          <p class="fine">Cancela cuando quieras.</p>
+        </div>
+      </div>
+      <div class="price-card best rv">
+        <span class="ribbon">★ Promo · ahorra 42%</span>
+        <div class="price-in">
+          <div class="plan">Plan anual · 12 meses</div>
+          <div class="was">Antes $119,88 USD</div>
+          <div class="amount">$69 <small>USD</small></div>
+          <div class="per">por los 12 meses · un solo pago</div>
+          <span class="equiv">Te queda en $5,75 USD al mes</span>
+          <ul class="incl">
+            <li>Todo lo del plan mensual</li>
+            <li>12 meses completos de Eva</li>
+            <li>Un solo pago, sin renovaciones sorpresa</li>
+            <li>El mejor precio por mes</li>
+            <li>Soporte prioritario por correo</li>
+          </ul>
+          <a href="/?registro=1&plan=anual" class="btn">Aprovechar la promo</a>
+          <p class="fine">Pago seguro con tarjeta. Consulta la <a href="/legal/reembolsos/" style="text-decoration:underline">política de reembolsos</a>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="preguntas">
+  <div class="wrap center">
+    <span class="kicker">Preguntas frecuentes</span>
+    <h2>Resolvemos tus dudas</h2>
+    <div class="faq" style="text-align:left">
+      <details><summary>¿Tengo que conectar mi cuenta bancaria?</summary><p>No. Eva no se conecta a tu banco ni te pide claves bancarias. Tú registras tus movimientos (por WhatsApp, desde el celular o desde el computador) y Eva los organiza.</p></details>
+      <details><summary>¿Cómo funciona el registro por WhatsApp?</summary><p>Vinculas tu número desde la app con un código de verificación. Luego le escribes a Eva el nombre y el valor, por ejemplo “hamburguesas 25000”, y queda guardado como gasto con su categoría. Para ingresos escribe “ingreso salario 5000000” y para ahorro “ahorro meta 200000”.</p></details>
+      <details><summary>¿Puedo cancelar cuando quiera?</summary><p>Sí. La suscripción es mensual y puedes cancelarla cuando quieras; conservas el acceso hasta el final del periodo que ya pagaste.</p></details>
+      <details><summary>¿Mis datos están seguros?</summary><p>Tus datos se guardan cifrados en la nube y solo tú puedes verlos con tu cuenta. El pago lo procesa un proveedor de pagos certificado; nosotros no guardamos los datos de tu tarjeta. Más detalles en la <a href="/legal/privacidad/" style="text-decoration:underline">política de privacidad</a>.</p></details>
+      <details><summary>¿Funciona en el celular?</summary><p>Sí. Eva funciona en el navegador del celular y del computador, y puedes poner un acceso directo en la pantalla de inicio para registrar en dos toques.</p></details>
+      <details><summary>¿En qué moneda se cobra?</summary><p>El plan cuesta 9,99 USD al mes y se cobra a tu tarjeta en dólares; tu banco hace la conversión a tu moneda local.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL -->
+<section>
+  <div class="wrap">
+    <div class="final rv">
+      <h2>Empieza hoy a saber<br><span class="mag">a dónde va tu dinero.</span></h2>
+      <p class="sub" style="margin:0 auto 28px">Crea tu cuenta en 2 minutos y registra tu primer gasto hoy mismo.</p>
+      <a href="/?registro=1" class="btn">Quiero empezar — 9,99 USD/mes</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <a href="#" class="logo" aria-label="Eva"><b>E</b>va</a>
+    <div class="fl">
+      <a href="/legal/terminos/">Términos</a>
+      <a href="/legal/privacidad/">Privacidad</a>
+      <a href="/legal/reembolsos/">Reembolsos</a>
+      <a href="mailto:Soporte_eva@hotmail.com">Soporte_eva@hotmail.com</a>
+    </div>
+    <span>© 2026 Eva · Nueva York, EE. UU.</span>
+  </div>
+</footer>
+
+<div class="sticky-cta" id="sticky"><span>Eva <small>· 9,99 USD/mes</small></span><a href="/?registro=1" class="btn sm">Empieza hoy</a></div>
+
+<script>
+// Sonido del video
+const v=document.getElementById('vid'), sb=document.getElementById('sound');
+sb.onclick=()=>{ v.muted=!v.muted; if(!v.muted){ v.currentTime=0; v.play(); } sb.textContent=v.muted?'🔊 Activar sonido':'🔇 Silenciar'; };
+// Aparición al hacer scroll
+const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('on'); io.unobserve(e.target); } }),{threshold:.15});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+// Botón fijo en celular después del hero
+const st=document.getElementById('sticky'), hero=document.querySelector('.hero');
+new IntersectionObserver(([e])=>st.classList.toggle('show',!e.isIntersecting)).observe(hero);
+</script>
+</body>
+</html>

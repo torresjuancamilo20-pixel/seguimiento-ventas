@@ -2,29 +2,34 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" href="/logo.svg" type="image/svg+xml">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mis Finanzas — Panel</title>
+<title>Eva — Panel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --page1:#0b1f6b; --page2:#060a1c;
-    --shell:#0a0f1e; --panel:#0e1526; --panel2:#131c30; --tile:#0f1728;
-    --line:rgba(255,255,255,.07); --line2:rgba(255,255,255,.13);
-    --txt:#eaf0fb; --muted:#8b93ab; --muted2:#5f6880;
-    --brand:#3b74ff; --brand2:#2b5cf0; --brandsoft:rgba(59,116,255,.15);
+    --shell:#0b0712; --panel:#15101f; --panel2:#1b1428; --tile:#1b1426;
+    --line:rgba(255,255,255,.07); --line2:rgba(236,110,224,.28);
+    --txt:#f3eefb; --muted:#a99fb8; --muted2:#6e6480;
+    --brand:#e24bd8; --brand2:#a855f7; --brandsoft:rgba(226,75,216,.16);
+    --grad:linear-gradient(135deg,#f06ce0,#c026d3 50%,#a855f7);
     --ok:#22c55e; --bad:#ef4757; --save:#f5a623;
-    --r:18px; --shadow:0 20px 50px -24px rgba(0,0,0,.8);
+    --r:18px; --shadow:0 20px 50px -24px rgba(0,0,0,.85);
+    --glow:0 0 40px -8px rgba(226,75,216,.5);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Montserrat',system-ui,-apple-system,sans-serif;color:var(--txt);
-    background:linear-gradient(140deg,var(--page1),var(--page2) 55%);min-height:100vh;-webkit-font-smoothing:antialiased}
+    background:#070410;min-height:100vh;-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
+  body::before,body::after{content:"";position:fixed;z-index:0;filter:blur(90px);pointer-events:none;border-radius:50%}
+  body::before{width:46vw;height:46vw;top:-14vw;left:-10vw;background:radial-gradient(circle,rgba(226,75,216,.42),transparent 65%)}
+  body::after{width:42vw;height:42vw;top:-8vw;right:-6vw;background:radial-gradient(circle,rgba(168,85,247,.32),transparent 65%)}
   .hidden{display:none!important}
   .muted{color:var(--muted)}
   a{color:var(--brand);text-decoration:none}
   ::-webkit-scrollbar{width:10px;height:10px}
-  ::-webkit-scrollbar-thumb{background:#1e2740;border-radius:20px}
+  ::-webkit-scrollbar-thumb{background:#2a2036;border-radius:20px}
 
   /* ---------- AUTH ---------- */
   #authView{min-height:100vh;display:grid;place-items:center;padding:20px}
@@ -46,8 +51,9 @@
   button.primary:disabled{opacity:.55;cursor:default}
 
   /* ---------- SHELL ---------- */
-  .app-shell{display:flex;max-width:1440px;margin:0 auto;min-height:100vh;background:var(--shell)}
-  @media(min-width:1100px){.app-shell{margin:18px auto;min-height:calc(100vh - 36px);border-radius:26px;border:1px solid var(--line);overflow:hidden;box-shadow:var(--shadow)}}
+  .app-shell{display:flex;max-width:1440px;margin:0 auto;min-height:100vh;position:relative;z-index:1;
+    background:linear-gradient(180deg,rgba(26,16,38,.72),rgba(11,7,18,.92) 40%)}
+  @media(min-width:1100px){.app-shell{margin:18px auto;min-height:calc(100vh - 36px);border-radius:26px;border:1px solid var(--line);overflow:hidden;box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.04)}}
 
   /* Sidebar */
   .sidebar{width:236px;flex-shrink:0;padding:22px 16px;display:flex;flex-direction:column;gap:20px;border-right:1px solid var(--line)}
@@ -93,12 +99,14 @@
   .card-sub{color:var(--muted);font-size:.8rem}
 
   /* Hero row */
-  .hero-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:16px}
+  .hero-grid{display:grid;grid-template-columns:1.1fr 1.4fr;gap:16px}
+  .hero-card{min-width:0}
   .hero-card{background:
-     radial-gradient(120% 140% at 90% 0%, rgba(59,116,255,.18), transparent 55%),
+     radial-gradient(120% 140% at 90% 0%, rgba(226,75,216,.18), transparent 55%),
      var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:22px;position:relative;overflow:hidden}
   .hero-card .lbl{color:var(--muted);font-size:.82rem;font-weight:600}
-  .hero-card .big{font-size:2.6rem;font-weight:800;letter-spacing:-1px;margin:12px 0 8px}
+  .hero-card .big{font-size:clamp(1.3rem,2.3vw,1.9rem);font-weight:800;letter-spacing:-.5px;margin:12px 0 8px;
+    line-height:1.1;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
   .hero-card .ret{display:inline-flex;align-items:center;gap:7px;font-size:.85rem;color:var(--muted)}
   .chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-weight:700;font-size:.78rem}
   .chip.up{background:rgba(34,197,94,.15);color:var(--ok)}
@@ -109,7 +117,8 @@
   .mini .mv{font-size:1.35rem;font-weight:800;letter-spacing:-.5px}
   .dotc{width:9px;height:9px;border-radius:50%}
   .c-in{background:var(--ok)} .c-out{background:var(--bad)} .c-save{background:var(--save)} .c-acc{background:var(--brand)}
-  .mv.in{color:var(--ok)} .mv.out{color:var(--bad)} .mv.save{color:var(--save)}
+  .mv.in,.mv.out,.mv.save{color:var(--txt)}
+  .mini .mv{font-size:clamp(1rem,2.4vw,1.35rem);white-space:nowrap}
 
   /* Chart */
   .range-pills{display:flex;gap:6px}
@@ -130,7 +139,7 @@
   /* Table */
   .tabs2{display:flex;gap:6px}
   .tabs2 button{background:var(--tile);border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:6px 14px;font-size:.76rem;font-weight:600;cursor:pointer}
-  .tabs2 button.on{background:var(--brandsoft);color:#bcd0ff;border-color:rgba(59,116,255,.4)}
+  .tabs2 button.on{background:var(--brandsoft);color:#bcd0ff;border-color:rgba(226,75,216,.4)}
   table.tbl{width:100%;border-collapse:collapse;margin-top:8px}
   table.tbl th{text-align:left;color:var(--muted);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:10px 8px;border-bottom:1px solid var(--line)}
   table.tbl td{padding:12px 8px;border-bottom:1px solid var(--line);font-size:.88rem;vertical-align:middle}
@@ -188,7 +197,31 @@
   .goal{background:var(--tile);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
   .goal .h{display:flex;justify-content:space-between;font-weight:600;margin-bottom:8px;font-size:.9rem}
 
+  /* Logotipo Eva (E grande + va pequeño) */
+  .wm{display:inline-flex;align-items:baseline;line-height:1;gap:0}
+  .wm-e{font-family:'Playfair Display',Georgia,serif;font-size:2.05rem;font-weight:700;
+    background:linear-gradient(135deg,#f06ce0,#e24bd8);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .wm-va{font-family:'Montserrat',sans-serif;font-size:1.1rem;font-weight:500;color:var(--txt);letter-spacing:.5px;margin-left:1px}
+  .auth .brand .wm-e{font-size:2.6rem} .auth .brand .wm-va{font-size:1.4rem}
+
   footer.foot{text-align:center;color:var(--muted2);font-size:.78rem;margin-top:10px}
+  footer.foot a{color:var(--muted);text-decoration:none}
+  footer.foot a:hover{color:var(--txt)}
+  .consent{display:flex;align-items:flex-start;gap:9px;font-size:.82rem;color:var(--muted);text-align:left;line-height:1.4}
+  .consent input{width:auto;margin-top:2px;accent-color:var(--brand)}
+  .consent a{color:var(--brand)}
+  .auth-legal{text-align:center;margin-top:16px;font-size:.78rem}
+  .auth-legal a{color:var(--muted);text-decoration:none}
+  .auth-legal a:hover{color:var(--txt)}
+
+  /* Registro rápido */
+  .rapido-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  .rk{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;margin-bottom:7px}
+  .key-row{display:flex;gap:8px}
+  .key-row input{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.82rem}
+  .steps-list{margin:0 0 14px 18px;display:grid;gap:8px;font-size:.88rem;color:var(--txt)}
+  .steps-list li{line-height:1.45}
+  @media(max-width:1000px){.rapido-grid{grid-template-columns:1fr}}
 
   /* Overlays (onboarding + paywall) */
   .overlay{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:20px;overflow:auto;
@@ -196,7 +229,7 @@
   body.locked{overflow:hidden}
   .paycard{max-width:460px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:30px;box-shadow:var(--shadow);text-align:center}
   .onbcard{max-width:480px}
-  .badge{display:inline-block;background:var(--brandsoft);color:#bcd0ff;border:1px solid rgba(59,116,255,.35);padding:6px 14px;border-radius:999px;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
+  .badge{display:inline-block;background:var(--brandsoft);color:#bcd0ff;border:1px solid rgba(226,75,216,.35);padding:6px 14px;border-radius:999px;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
   .paycard h2{font-size:1.5rem;margin-bottom:10px}
   .grad{color:var(--brand)}
   .price{margin:18px 0 6px;display:flex;align-items:baseline;justify-content:center;gap:8px}
@@ -215,7 +248,8 @@
   .ob-step .primary{width:100%;margin-top:14px}
   .ob-nav{display:flex;gap:10px;align-items:center;margin-top:14px}
   .ob-nav .primary{flex:1;margin-top:0}
-  .fijo-add{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin:16px 0 6px}
+  .fijo-add{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;margin:16px 0 6px}
+  @media(max-width:520px){.fijo-add{grid-template-columns:1fr 1fr auto}.fijo-add #obFijoCat{grid-column:1/-1}}
   .fijo-add .btn-ghost{padding:0 16px;font-size:1.3rem}
   .fijos-list{display:grid;gap:7px;text-align:left}
   .fijo-item{display:flex;justify-content:space-between;background:var(--tile);border:1px solid var(--line);border-radius:11px;padding:10px 14px;font-size:.9rem}
@@ -233,14 +267,59 @@
   }
   @media(max-width:880px){
     .app-shell{flex-direction:column}
-    .sidebar{width:auto;flex-direction:row;flex-wrap:wrap;align-items:center;gap:12px;border-right:0;border-bottom:1px solid var(--line)}
+    .sidebar{width:auto;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:10px;border-right:0;border-bottom:1px solid var(--line);padding:12px 14px}
     .welcome,.side-label{display:none}
-    .side-nav{flex-direction:row;flex-wrap:wrap;flex:1}
-    .side-foot{margin:0;flex-direction:row}
+    .sidebar .brand{flex-shrink:0}
+    .side-nav{flex-direction:row;flex-wrap:nowrap;flex:1;justify-content:flex-end;gap:6px}
+    /* Solo íconos en móvil */
+    .nav-item{padding:10px;justify-content:center;flex:0 0 auto}
+    .nav-item .ni-label{display:none}
+    .nav-item svg{width:20px;height:20px}
+    .side-foot{margin:0;flex-direction:row;gap:8px}
+    .side-foot .btn-ghost{padding:9px 12px;white-space:nowrap}
     .plan-cards{grid-template-columns:repeat(2,1fr)}
+  }
+  @media(max-width:620px){
+    .sidebar{flex-wrap:wrap}
+    .side-nav{justify-content:center}
+    .side-foot{width:100%;justify-content:center}
   }
   @media(max-width:560px){.mini-grid{grid-template-columns:repeat(2,1fr)}.big{font-size:2rem}
     table.tbl .col-cap,table.tbl .col-vol{display:none}}
+
+  .row3{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:10px}
+  @media(max-width:700px){.row3{grid-template-columns:1fr}}
+  .deuda-actions{display:flex;gap:8px;align-items:center}
+  .deuda-actions .mini-btn{background:var(--brandsoft);border:1px solid rgba(226,75,216,.35);color:#f6b9ef;border-radius:8px;padding:5px 11px;font-size:.78rem;font-weight:600;cursor:pointer}
+  .deuda-actions .mini-btn:hover{filter:brightness(1.1)}
+  .deuda-actions .del-x{background:none;border:0;color:var(--muted);cursor:pointer;font-size:.9rem}
+  .deuda-actions .del-x:hover{color:var(--bad)}
+
+  /* Dona de gastos por categoría */
+  .cat-grid{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+  .donut{flex-shrink:0;filter:drop-shadow(0 6px 18px rgba(226,75,216,.25))}
+  .donut svg{display:block}
+  .donut-empty{width:150px;height:150px;display:grid;place-items:center;color:var(--muted);font-size:.85rem;border:1px dashed var(--line);border-radius:50%}
+  .cat-grid #catList{flex:1;min-width:170px}
+
+  /* ===== TEMA MAGENTA / GLASS (override final) ===== */
+  .sidebar{background:rgba(18,11,28,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  .panel,.mini,.pcard,.goal,.fijo-item,.ob-preview,.progress-block,.paycard,.onbcard,.pill-nav,.month-nav,.user-chip,.search,.tabs2 button,.range-pills button,.icon-btn{
+    backdrop-filter:blur(12px) saturate(130%);-webkit-backdrop-filter:blur(12px) saturate(130%)}
+  .panel{background:rgba(32,22,46,.5);border:1px solid var(--line)}
+  .hero-card{background:
+     radial-gradient(130% 150% at 85% -10%, rgba(226,75,216,.30), transparent 55%),
+     rgba(32,22,46,.55);border:1px solid var(--line);box-shadow:var(--shadow),var(--glow)}
+  .mini,.pcard,.tile,.tabs2 button,.range-pills button{background:rgba(255,255,255,.035)}
+  .panel:hover,.card:hover,.mini:hover{border-color:var(--line2)}
+  .nav-item.active{box-shadow:0 8px 30px -6px rgba(226,75,216,.8)}
+  button.primary{box-shadow:0 10px 28px -8px rgba(226,75,216,.75)}
+  .go{box-shadow:0 10px 28px -8px rgba(226,75,216,.75)}
+  .tabs2 button.on,.range-pills button.on{box-shadow:0 6px 20px -8px rgba(226,75,216,.8)}
+  .pill-nav,.month-nav,.user-chip,.search{background:rgba(255,255,255,.04)}
+  .avatar{box-shadow:0 6px 18px -6px rgba(226,75,216,.8)}
+  .c-acc{background:var(--brand)}
+  input:focus,select:focus{box-shadow:0 0 0 3px rgba(226,75,216,.25)}
 </style>
 </head>
 <body>
@@ -248,15 +327,20 @@
 <!-- ============ LOGIN ============ -->
 <div id="authView">
   <div class="auth">
-    <div class="brand"><span class="dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15l5-5 4 4 7-8"/><path d="M17 6h4v4"/></svg></span> Mis Finanzas</div>
+    <div class="brand"><span class="wm"><span class="wm-e">E</span><span class="wm-va">va</span></span></div>
     <p class="sub">Controla tus ingresos, gastos y ahorro desde cualquier dispositivo.</p>
     <form id="authForm">
       <input type="email" id="email" placeholder="Correo electrónico" required autocomplete="email">
       <input type="password" id="pass" placeholder="Contraseña (mín. 6 caracteres)" required minlength="6" autocomplete="current-password">
+      <label id="consentRow" class="consent hidden">
+        <input type="checkbox" id="consent">
+        <span>Acepto los <a href="/legal/terminos/" target="_blank" rel="noopener">Términos</a> y la <a href="/legal/privacidad/" target="_blank" rel="noopener">Política de Privacidad</a>.</span>
+      </label>
       <div id="authMsg" class="msg hidden"></div>
       <button class="primary" id="authBtn" type="submit">Entrar</button>
     </form>
     <div class="switch" id="authSwitch">¿No tienes cuenta? <b id="toggleMode">Regístrate</b></div>
+    <div class="auth-legal"><a href="/legal/terminos/" target="_blank" rel="noopener">Términos</a> · <a href="/legal/privacidad/" target="_blank" rel="noopener">Privacidad</a> · <a href="/legal/reembolsos/" target="_blank" rel="noopener">Reembolsos</a></div>
   </div>
 </div>
 
@@ -276,8 +360,9 @@
       <h2>Tus <span class="grad">gastos fijos</span></h2>
       <p class="muted">Los que pagas todos los meses (arriendo, servicios, internet…). Se registrarán solos cada mes.</p>
       <div class="fijo-add">
+        <select id="obFijoCat"></select>
         <input type="text" id="obFijoNom" placeholder="Nombre (ej. Arriendo)">
-        <input type="number" id="obFijoMonto" placeholder="Monto" min="0" step="1000" inputmode="numeric">
+        <input type="number" id="obFijoMonto" placeholder="Valor" min="0" step="1000" inputmode="numeric">
         <button class="btn-ghost" onclick="obAddFijo()">＋</button>
       </div>
       <div id="obFijosList" class="fijos-list"></div>
@@ -305,18 +390,18 @@
 <div id="paywall" class="overlay hidden">
   <div class="paycard">
     <div class="badge">Acceso Premium</div>
-    <h2>Desbloquea <span class="grad">Mis Finanzas</span></h2>
+    <h2>Desbloquea <span class="grad">Eva</span></h2>
     <p class="muted">Controla ingresos, gastos, ahorro, metas y reportes desde cualquier dispositivo, con tus datos seguros en la nube.</p>
-    <div class="price"><span class="amt">$29</span> <span class="per">USD / 3 meses</span></div>
-    <div class="trial">Empieza con <b>72 horas de prueba</b>. Se cobra automáticamente al terminar si no cancelas.</div>
+    <div class="price"><span class="amt">$9.99</span> <span class="per">USD / mes</span></div>
+    <div class="trial">Suscripción mensual con <b>renovación automática</b>. Cancela cuando quieras.</div>
     <ul class="feat">
       <li>✓ Ingresos, gastos y ahorro ilimitados</li>
       <li>✓ Metas de ahorro y presupuestos con alertas</li>
       <li>✓ Reportes y evolución mensual</li>
       <li>✓ Sincronización segura en la nube</li>
     </ul>
-    <button class="primary" id="payBtn" onclick="irAPagar()">Iniciar prueba de 72 h</button>
-    <p class="mini-txt">Pago seguro con Stripe · Cancela cuando quieras · Necesitas una tarjeta para la prueba.</p>
+    <button class="primary" id="payBtn" onclick="irAPagar()">Suscribirme</button>
+    <p class="mini-txt">Pago seguro con Stripe · Cobro mensual automático · Cancela cuando quieras.<br>Al suscribirte aceptas los <a href="/legal/terminos/" target="_blank" rel="noopener">Términos</a>, la <a href="/legal/privacidad/" target="_blank" rel="noopener">Privacidad</a> y la <a href="/legal/reembolsos/" target="_blank" rel="noopener">Política de Reembolsos</a>.</p>
     <button class="linkout" id="logout2">Cerrar sesión</button>
   </div>
 </div>
@@ -326,18 +411,19 @@
 
   <!-- Sidebar -->
   <aside class="sidebar">
-    <div class="brand"><span class="dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15l5-5 4 4 7-8"/><path d="M17 6h4v4"/></svg></span> Mis Finanzas</div>
+    <div class="brand"><span class="wm"><span class="wm-e">E</span><span class="wm-va">va</span></span></div>
     <div class="welcome">
       <div class="hi">Hola, <b id="welcomeName">—</b></div>
       <div class="sub">Este es tu resumen financiero</div>
     </div>
     <nav class="side-nav">
       <div class="side-label">Menú</div>
-      <a href="#sec-hero" class="nav-item active"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Dashboard</a>
-      <a href="#sec-mov" class="nav-item"><svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg>Movimientos</a>
-      <a href="#sec-plan" class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 12l4-2"/><path d="M12 12v-5"/></svg>Mi Plan</a>
-      <a href="#sec-rep" class="nav-item"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 15l5-5 4 3 6-7"/></svg>Reportes</a>
-      <a href="#sec-metas" class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>Metas y presupuesto</a>
+      <a href="#sec-hero" class="nav-item active" title="Dashboard"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span class="ni-label">Dashboard</span></a>
+      <a href="#sec-mov" class="nav-item" title="Movimientos"><svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="14" y2="17"/></svg><span class="ni-label">Movimientos</span></a>
+      <a href="#sec-rep" class="nav-item" title="Reportes"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 15l5-5 4 3 6-7"/></svg><span class="ni-label">Reportes</span></a>
+      <a href="#sec-metas" class="nav-item" title="Metas y presupuesto"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span class="ni-label">Metas y presupuesto</span></a>
+      <a href="#sec-deudas" class="nav-item" title="Deudas"><svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="13" rx="2.5"/><line x1="2.5" y1="10.5" x2="21.5" y2="10.5"/></svg><span class="ni-label">Deudas</span></a>
+      <a href="#sec-rapido" class="nav-item" title="Registro rápido"><svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><line x1="11" y1="18.5" x2="13" y2="18.5"/></svg><span class="ni-label">Registro rápido</span></a>
     </nav>
     <div class="side-foot">
       <button class="btn-ghost" id="editPlan2">Editar plan</button>
@@ -380,12 +466,12 @@
         <div class="ret" id="heroRet"></div>
       </div>
       <div class="panel">
-        <h2>Mi resumen <span class="card-sub" id="count"></span></h2>
+        <h2>Mi resumen <span class="card-sub" id="resumenMes"></span> <span class="card-sub" id="count"></span></h2>
         <div class="mini-grid" style="margin-top:14px">
           <div class="mini"><div class="mk"><span class="dotc c-in"></span>Ingresos</div><div class="mv in" id="sumIn">$0</div></div>
           <div class="mini"><div class="mk"><span class="dotc c-out"></span>Gastos</div><div class="mv out" id="sumOut">$0</div></div>
           <div class="mini"><div class="mk"><span class="dotc c-save"></span>Ahorro mes</div><div class="mv save" id="sumSave">$0</div></div>
-          <div class="mini"><div class="mk"><span class="dotc c-acc"></span>Ahorro total</div><div class="mv" id="sumAcum" style="color:var(--brand)">$0</div></div>
+          <div class="mini"><div class="mk"><span class="dotc c-acc"></span>Ahorro total</div><div class="mv" id="sumAcum">$0</div></div>
         </div>
         <div style="display:none"><span id="sumBal"></span></div>
       </div>
@@ -409,60 +495,126 @@
     </section>
 
     <!-- Two columns: table + register/categorías -->
-    <section class="two-col">
-      <div class="panel" id="sec-mov">
-        <h2>Movimientos
-          <div class="tabs2" id="movTabs">
-            <button data-f="todos" class="on">Todos</button>
-            <button data-f="ingreso">Ingresos</button>
-            <button data-f="gasto">Gastos</button>
-            <button data-f="ahorro">Ahorro</button>
-          </div>
-        </h2>
-        <div style="overflow-x:auto">
-          <table class="tbl">
-            <thead><tr>
-              <th>Concepto</th><th>Tipo</th><th class="col-cap">Categoría</th><th>Fecha</th><th style="text-align:right">Monto</th><th></th>
-            </tr></thead>
-            <tbody id="list"></tbody>
-          </table>
+    <!-- Movimientos a todo el ancho -->
+    <section class="panel" id="sec-mov">
+      <h2>Movimientos
+        <div class="tabs2" id="movTabs">
+          <button data-f="todos" class="on">Todos</button>
+          <button data-f="ingreso">Ingresos</button>
+          <button data-f="gasto">Gastos</button>
+          <button data-f="ahorro">Ahorro</button>
         </div>
-        <div style="margin-top:14px"><button class="btn-ghost" id="export">Exportar CSV</button></div>
+      </h2>
+      <div style="overflow-x:auto">
+        <table class="tbl">
+          <thead><tr>
+            <th>Concepto</th><th>Tipo</th><th class="col-cap">Categoría</th><th>Fecha</th><th style="text-align:right">Monto</th><th></th>
+          </tr></thead>
+          <tbody id="list"></tbody>
+        </table>
       </div>
+      <div style="margin-top:14px"><button class="btn-ghost" id="export">Exportar CSV</button></div>
+    </section>
 
-      <div style="display:grid;gap:16px">
-        <div class="panel">
-          <h2>Registrar movimiento</h2>
-          <form class="add" id="frm" style="margin-top:12px">
-            <div class="seg">
-              <label><input type="radio" name="tipo" value="ingreso"><span>Ingreso</span></label>
-              <label><input type="radio" name="tipo" value="gasto" checked><span>Gasto</span></label>
-              <label><input type="radio" name="tipo" value="ahorro"><span>Ahorro</span></label>
-            </div>
-            <input type="text" id="desc" placeholder="Descripción (ej. Salario, Mercado)" required>
-            <div class="row2">
-              <input type="number" id="monto" placeholder="Monto" min="0" step="0.01" required>
-              <select id="cat"></select>
-            </div>
-            <input type="date" id="fecha">
-            <button class="primary" type="submit">Agregar</button>
-          </form>
-        </div>
-        <div class="panel">
-          <h2>Gastos por categoría</h2>
-          <div class="bar" id="catBar" style="margin-top:12px"></div>
+    <!-- Registrar + Gastos por categoría -->
+    <section class="two-col">
+      <div class="panel">
+        <h2>Registrar movimiento</h2>
+        <form class="add" id="frm" style="margin-top:12px">
+          <div class="seg">
+            <label><input type="radio" name="tipo" value="ingreso"><span>Ingreso</span></label>
+            <label><input type="radio" name="tipo" value="gasto" checked><span>Gasto</span></label>
+            <label><input type="radio" name="tipo" value="ahorro"><span>Ahorro</span></label>
+          </div>
+          <input type="text" id="desc" placeholder="Descripción (ej. Salario, Mercado)" required>
+          <div class="row2">
+            <input type="number" id="monto" placeholder="Monto" min="0" step="0.01" required>
+            <select id="cat"></select>
+          </div>
+          <input type="date" id="fecha">
+          <button class="primary" type="submit">Agregar</button>
+        </form>
+      </div>
+      <div class="panel">
+        <h2>Gastos por categoría</h2>
+        <div class="cat-grid" style="margin-top:14px">
+          <div class="donut" id="catBar"></div>
           <div id="catList"></div>
         </div>
       </div>
     </section>
 
-    <!-- Mi Plan -->
-    <section class="panel" id="sec-plan">
-      <h2>Tu plan de este mes <button class="btn-ghost" id="editPlan">Editar plan</button></h2>
-      <div class="alloc-bar" id="allocBar"></div>
-      <div class="alloc-legend" id="allocLegend"></div>
-      <div class="plan-cards" id="planCards"></div>
-      <div class="plan-status" id="planStatus"></div>
+    <!-- Registro rápido (acceso en pantalla de inicio) -->
+    <section class="panel" id="sec-rapido">
+      <h2>Registro rápido desde tu celular <span class="badge" style="margin:0">Nuevo</span></h2>
+      <p class="card-sub" style="margin:6px 0 16px">Pon un <b>ícono en tu pantalla de inicio</b> y registra un gasto o ingreso en 2 toques, sin abrir toda la app. Te pregunta <b>“¿Qué es?”</b> y <b>“¿Cuánto?”</b>, y aparece aquí al instante.</p>
+
+      <div class="rapido-grid">
+        <div>
+          <div class="rk">1 · Tu enlace personal de registro</div>
+          <div class="key-row">
+            <input type="text" id="linkView" readonly placeholder="Genera tu clave…">
+            <button class="btn-ghost" id="copyLink">Copiar</button>
+          </div>
+          <a id="openRapido" href="#" target="_blank" rel="noopener" style="display:inline-block;margin-top:10px;font-weight:700">Abrir mi registro rápido →</a>
+          <p class="card-sub" style="margin-top:12px">⚠ No compartas este enlace: quien lo tenga puede registrar en tu cuenta. Si se filtra, pulsa <b>Regenerar clave</b>.</p>
+          <button class="btn-ghost" id="genToken" style="margin-top:6px">Regenerar clave</button>
+          <input type="hidden" id="tokenView">
+        </div>
+        <div>
+          <div class="rk">2 · Ponlo en tu pantalla de inicio</div>
+          <ol class="steps-list">
+            <li><b>iPhone (Safari):</b> abre tu enlace → toca <b>Compartir</b> (el cuadro con la flecha) → <b>Añadir a pantalla de inicio</b>.</li>
+            <li><b>Android (Chrome):</b> abre tu enlace → menú <b>⋮</b> → <b>Añadir a pantalla de inicio</b>.</li>
+            <li>Aparecerá un <b>ícono</b>. Al tocarlo se abre directo el registro: escribes qué y cuánto, <b>Guardar</b>, y listo.</li>
+          </ol>
+          <p class="card-sub">Tip: puedes registrar varios seguidos; cada uno aparece al instante en tu panel.</p>
+        </div>
+      </div>
+
+      <!-- WhatsApp -->
+      <div style="margin-top:28px;border-top:1px solid rgba(255,255,255,.06);padding-top:24px">
+        <h3 style="margin:0 0 6px;font-size:.95rem;font-weight:700">📱 Registrar por WhatsApp <span class="badge" style="margin:0">Nuevo</span></h3>
+        <p class="card-sub" style="margin:0 0 14px">Envía un mensaje a Eva por WhatsApp con el nombre y el monto, y se guarda como gasto automáticamente. Ej: <b>"hamburguesas 25000"</b></p>
+        <div id="waStatus"></div>
+        <div id="waSetup" style="display:none">
+          <label style="font-size:.82rem;color:#a99fb8;font-weight:600">Tu número de WhatsApp (con código de país, ej: 573001234567)</label>
+          <div class="key-row" style="margin-top:6px">
+            <input type="tel" id="waPhone" placeholder="573001234567" style="flex:1;background:#1b1426;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 14px;color:#f3eefb;font-size:.9rem">
+            <button class="btn-ghost" id="waLink">Vincular</button>
+          </div>
+        </div>
+        <div id="waVerify" style="display:none;margin-top:12px">
+          <p class="card-sub" style="margin:0 0 8px">Enviamos un código de 6 dígitos a tu WhatsApp. Ingrésalo aquí:</p>
+          <div class="key-row">
+            <input type="text" id="waCode" placeholder="123456" maxlength="6" style="width:120px;background:#1b1426;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 14px;color:#f3eefb;font-size:1.1rem;text-align:center;letter-spacing:4px">
+            <button class="btn-ghost" id="waConfirm">Verificar</button>
+          </div>
+        </div>
+        <div id="waLinked" style="display:none;margin-top:12px">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="color:#22c55e;font-weight:700">✓ WhatsApp vinculado</span>
+            <span id="waLinkedPhone" style="color:#a99fb8"></span>
+            <button class="btn-ghost" id="waUnlink" style="margin-left:auto;font-size:.78rem;color:#ef4757">Desvincular</button>
+          </div>
+          <p class="card-sub" style="margin:8px 0 0">Envía mensajes al número de Eva con formato: <b>hamburguesas 25000</b><br>Para ingresos: <b>ingreso salario 5000000</b> · Para ahorro: <b>ahorro meta 200000</b></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Deudas -->
+    <section class="panel" id="sec-deudas">
+      <h2>Deudas <span class="card-sub" id="deudaResumen"></span></h2>
+      <p class="card-sub" style="margin:6px 0 14px">Registra lo que debes y ve cuánto llevas pagado. Usa “Abonar” cada vez que pagues una parte.</p>
+      <form class="add" id="deudaForm" style="margin-bottom:16px">
+        <div class="row3">
+          <input type="text" id="deudaNombre" placeholder="Nombre (ej. Tarjeta, Préstamo)" required>
+          <input type="text" id="deudaAcreedor" placeholder="¿A quién? (opcional)">
+          <input type="number" id="deudaTotal" placeholder="Valor total" min="1" step="1000" required>
+        </div>
+        <button class="primary" type="submit">Agregar deuda</button>
+      </form>
+      <div id="deudasList"></div>
     </section>
 
     <!-- Metas y presupuesto -->
@@ -490,7 +642,9 @@
       </div>
     </section>
 
-    <footer class="foot">Tus datos se guardan en la nube de forma privada y segura. · Mis Finanzas</footer>
+    <footer class="foot">Tus datos se guardan en la nube de forma privada y segura. · Eva
+      <br><a href="/legal/terminos/" target="_blank" rel="noopener">Términos</a> · <a href="/legal/privacidad/" target="_blank" rel="noopener">Privacidad</a> · <a href="/legal/reembolsos/" target="_blank" rel="noopener">Reembolsos</a>
+    </footer>
   </main>
 </div>
 
@@ -505,10 +659,10 @@ const CATS = {
   gasto:["Alimentación","Transporte","Vivienda","Servicios","Salud","Educación","Ocio","Ropa","Otro"],
   ahorro:["Fondo emergencia","Meta de ahorro","Inversión","Retiro","Otro"]
 };
-const CAT_COLORS = ["#3b74ff","#7c5cff","#22c55e","#f5a623","#ef4757","#37c9d6","#ff9f43","#c78bff","#8a94ad"];
+const CAT_COLORS = ["#e24bd8","#7c5cff","#22c55e","#f5a623","#ef4757","#37c9d6","#ff9f43","#c78bff","#8a94ad"];
 
 let state = [];
-let config = {metas:[], presupuestos:{}, perfil:null, fijosAplicados:[]};
+let config = {metas:[], presupuestos:{}, perfil:null, fijosAplicados:[], deudas:[]};
 let cursor = new Date(); cursor.setDate(1);
 let user = null;
 let isRegister = false;
@@ -519,6 +673,21 @@ function money(n){ return "$"+ (n||0).toLocaleString("es-CO",{maximumFractionDig
 function ymKey(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); }
 function monthName(d){ return d.toLocaleDateString("es-CO",{month:"long",year:"numeric"}); }
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function donutSVG(cats,total){
+  const cx=75,cy=75,r=56,sw=20,C=2*Math.PI*r;
+  let off=0, arcs="";
+  cats.forEach((c,i)=>{
+    const len=(c[1]/total)*C, col=CAT_COLORS[i%CAT_COLORS.length];
+    arcs+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${len.toFixed(2)} ${(C-len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"/>`;
+    off+=len;
+  });
+  return `<svg width="150" height="150" viewBox="0 0 150 150">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${sw}"/>
+    ${arcs}
+    <text x="${cx}" y="${cy-5}" text-anchor="middle" fill="#a99fb8" font-size="10" font-family="Montserrat">Gastos</text>
+    <text x="${cx}" y="${cy+13}" text-anchor="middle" fill="#fff" font-size="15" font-weight="700" font-family="Montserrat">${money(total)}</text>
+  </svg>`;
+}
 
 /* ---------------- AUTH ---------------- */
 function showMsg(t,ok){ const m=$("authMsg"); m.textContent=t; m.className="msg "+(ok?"ok":"err"); m.classList.remove("hidden"); }
@@ -529,12 +698,16 @@ function toggleMode(){
     ? '¿Ya tienes cuenta? <b id="toggleMode">Inicia sesión</b>'
     : '¿No tienes cuenta? <b id="toggleMode">Regístrate</b>';
   $("toggleMode").onclick=toggleMode;
+  $("consentRow").classList.toggle("hidden", !isRegister);
   $("authMsg").classList.add("hidden");
 }
 $("toggleMode").onclick=toggleMode;
+// Desde la página de aterrizaje (/info/): abrir directo en "Crear cuenta"
+if(new URLSearchParams(location.search).get("registro")==="1") toggleMode();
 
 $("authForm").addEventListener("submit", async e=>{
   e.preventDefault();
+  if(isRegister && !$("consent").checked){ showMsg("Debes aceptar los Términos y la Política de Privacidad para crear tu cuenta.", false); return; }
   $("authBtn").disabled=true;
   const email=$("email").value.trim(), password=$("pass").value;
   try{
@@ -580,8 +753,73 @@ async function enterApp(){
   if(!config.perfil || !config.perfil.onboarded){ startOnboarding(); }
   else { await aplicarFijosMesActual(); }
   render();
+  await loadToken();
+  await loadWA();
   await checkAccess();
 }
+
+/* ---------------- REGISTRO RÁPIDO (atajo iPhone) ---------------- */
+function linkRapido(token){ return token ? (location.origin + "/rapido/?token=" + encodeURIComponent(token)) : ""; }
+function renderRapido(token){
+  $("tokenView").value = token || "";
+  const link = linkRapido(token);
+  $("linkView").value = link;
+  const a=$("openRapido");
+  if(link){ a.href=link; a.style.display="inline-block"; } else { a.style.display="none"; }
+}
+async function loadToken(){
+  let {data} = await sb.from("finanzas_tokens").select("token").eq("user_id",user.id).maybeSingle();
+  if(!data?.token){ await genToken(true); return; }   // crea la clave automáticamente la primera vez
+  renderRapido(data.token);
+}
+async function genToken(silent){
+  if(!silent && $("tokenView").value && !confirm("Al regenerar, el ícono actual dejará de funcionar hasta que lo vuelvas a agregar con el nuevo enlace. ¿Continuar?")) return;
+  const rnd = (crypto.randomUUID?.() || (Date.now()+Math.random().toString(36))).replace(/-/g,"");
+  const token = "mf_"+rnd;
+  setSync("Guardando…");
+  const {error}=await sb.from("finanzas_tokens").upsert({user_id:user.id, token});
+  if(error){ setSync("Error"); if(!silent) alert("No se pudo generar la clave: "+error.message); return; }
+  setSync("✓ Sincronizado");
+  renderRapido(token);
+}
+function copiar(text,btn){
+  if(!text) return alert("Aún no hay enlace.");
+  navigator.clipboard?.writeText(text).then(()=>{ const o=btn.textContent; btn.textContent="¡Copiado!"; setTimeout(()=>btn.textContent=o,1200); })
+    .catch(()=>alert("Copia manual:\n\n"+text));
+}
+$("genToken").onclick=()=>genToken(false);
+$("copyLink").onclick=e=>copiar($("linkView").value,e.target);
+
+/* ---------------- WHATSAPP LINKING ---------------- */
+async function loadWA(){
+  const {data}=await sb.from("finanzas_whatsapp").select("telefono,verificado").eq("user_id",user.id).maybeSingle();
+  $("waSetup").style.display="none"; $("waVerify").style.display="none"; $("waLinked").style.display="none";
+  if(!data){ $("waSetup").style.display="block"; $("waStatus").innerHTML=""; return; }
+  if(!data.verificado){ $("waVerify").style.display="block"; $("waStatus").innerHTML='<span style="color:#f5a623;font-size:.85rem">⏳ Pendiente de verificación — revisa tu WhatsApp</span>'; return; }
+  $("waLinked").style.display="block"; $("waLinkedPhone").textContent=data.telefono; $("waStatus").innerHTML="";
+}
+$("waLink").onclick=async()=>{
+  const phone=$("waPhone").value.replace(/[^0-9]/g,"");
+  if(phone.length<10){ alert("Ingresa un número válido con código de país."); return; }
+  const codigo=String(Math.floor(100000+Math.random()*900000));
+  const {error}=await sb.from("finanzas_whatsapp").upsert({user_id:user.id, telefono:phone, codigo, verificado:false});
+  if(error){ alert("Error: "+error.message); return; }
+  alert("Código de verificación: "+codigo+"\n\nEnvía este código al número de Eva por WhatsApp para verificar tu cuenta.\n\n(Cuando Meta esté configurado, el código te llegará automáticamente por WhatsApp.)");
+  loadWA();
+};
+$("waConfirm").onclick=async()=>{
+  const code=$("waCode").value.trim();
+  if(code.length!==6){ alert("El código debe tener 6 dígitos."); return; }
+  const {data}=await sb.from("finanzas_whatsapp").select("codigo").eq("user_id",user.id).maybeSingle();
+  if(!data||data.codigo!==code){ alert("Código incorrecto. Intenta de nuevo."); return; }
+  await sb.from("finanzas_whatsapp").update({verificado:true}).eq("user_id",user.id);
+  loadWA();
+};
+$("waUnlink").onclick=async()=>{
+  if(!confirm("¿Desvincular tu WhatsApp? Ya no podrás registrar gastos por mensaje.")) return;
+  await sb.from("finanzas_whatsapp").delete().eq("user_id",user.id);
+  loadWA();
+};
 
 /* ---------------- ONBOARDING ---------------- */
 let obPaso=0; let obFijos=[];
@@ -589,6 +827,7 @@ function startOnboarding(){
   obPaso=0; obFijos=(config.perfil&&config.perfil.fijos)?[...config.perfil.fijos]:[];
   $("obIngreso").value = config.perfil?.ingreso || "";
   $("obAhorro").value = config.perfil?.ahorroMeta || "";
+  if($("obFijoCat")) $("obFijoCat").innerHTML = CATS.gasto.map(c=>`<option>${c}</option>`).join("");
   $("onboard").classList.remove("hidden");
   document.body.classList.add("locked");
   obShow();
@@ -606,8 +845,9 @@ function obNext(){
 function obPrev(){ obPaso=Math.max(0,obPaso-1); obShow(); }
 function obAddFijo(){
   const nom=$("obFijoNom").value.trim(); const monto=parseFloat($("obFijoMonto").value);
-  if(!nom||!(monto>0)){ alert("Escribe el nombre y el monto del gasto fijo."); return; }
-  obFijos.push({nombre:nom, monto, cat:"Vivienda"});
+  const cat=$("obFijoCat")?.value || "Vivienda";
+  if(!nom||!(monto>0)){ alert("Escribe el nombre y el valor del gasto fijo."); return; }
+  obFijos.push({nombre:nom, monto, cat});
   $("obFijoNom").value=""; $("obFijoMonto").value=""; $("obFijoNom").focus();
   obRenderFijos();
 }
@@ -616,7 +856,7 @@ window.obAddFijo=obAddFijo; window.obDelFijo=obDelFijo; window.obNext=obNext; wi
 function obRenderFijos(){
   const t=obFijos.reduce((a,f)=>a+f.monto,0);
   $("obFijosList").innerHTML = obFijos.length? obFijos.map((f,i)=>`
-    <div class="fijo-item"><span>${esc(f.nombre)}</span><span>${money(f.monto)} <b onclick="obDelFijo(${i})">✕</b></span></div>`).join("")
+    <div class="fijo-item"><span>${esc(f.nombre)} <small style="color:var(--muted)">· ${esc(f.cat||'Otro')}</small></span><span>${money(f.monto)} <b onclick="obDelFijo(${i})">✕</b></span></div>`).join("")
     : `<div class="empty" style="padding:14px">Aún no agregas gastos fijos. Puedes seguir sin ninguno.</div>`;
   $("obFijosTotal").innerHTML = obFijos.length? `Total fijos: <b>${money(t)}</b>` : "";
 }
@@ -666,7 +906,7 @@ async function loadAll(){
     sb.from("finanzas_config").select("data").eq("user_id",user.id).maybeSingle()
   ]);
   state = (movs||[]).map(m=>({id:m.id,tipo:m.tipo,desc:m.descripcion,monto:Number(m.monto),cat:m.categoria,fecha:m.fecha}));
-  if(cfg && cfg.data){ config = Object.assign({metas:[],presupuestos:{},perfil:null,fijosAplicados:[]}, cfg.data); }
+  if(cfg && cfg.data){ config = Object.assign({metas:[],presupuestos:{},perfil:null,fijosAplicados:[],deudas:[]}, cfg.data); }
   setSync("✓ Sincronizado");
 }
 async function saveConfig(){
@@ -705,7 +945,7 @@ async function irAPagar(){
     throw new Error(data?.error||"No se pudo iniciar el pago");
   }catch(e){
     alert("No se pudo abrir el pago: "+(e.message||e)+"\n\n(Esto funcionará cuando conectemos las claves de Stripe.)");
-    btn.disabled=false; btn.textContent="Iniciar prueba de 72 h";
+    btn.disabled=false; btn.textContent="Suscribirme";
   }
 }
 
@@ -713,8 +953,53 @@ async function irAPagar(){
 function fillCats(){
   const tipo=document.querySelector('input[name=tipo]:checked').value;
   $("cat").innerHTML=CATS[tipo].map(c=>`<option>${c}</option>`).join("");
+  catManual=false;
 }
-document.querySelectorAll('input[name=tipo]').forEach(r=>r.addEventListener("change",fillCats));
+/* ---- Auto-categorización por nombre ---- */
+function normaliza(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,""); }
+const CAT_KEYWORDS={
+  gasto:{
+    "Alimentación":["comida","cena","almuerzo","desayuno","mercado","supermercado","super","restaurante","resto","cafe","tinto","pizza","hamburguesa","burger","domicilio","rappi","didi food","ifood","frutas","verdura","carne","pan","leche","huevos","snack","helado","dulce","sushi","pollo","arroz","galleta","agua","gaseosa","almuerzos"],
+    "Transporte":["uber","taxi","bus","buseta","gasolina","combustible","peaje","pasaje","pasajes","metro","didi","cabify","indrive","parqueadero","parqueo","transmilenio","sitp","soat","llanta","aceite","mecanico","moto","tren","avion","vuelo","tiquete"],
+    "Vivienda":["arriendo","alquiler","renta","hipoteca","administracion","condominio","cuota vivienda","casa","apartamento"],
+    "Servicios":["luz","agua","gas","internet","wifi","telefono","celular","plan","factura","energia","electricidad","netflix","spotify","hbo","disney","prime","youtube","suscripcion","claro","movistar","tigo","etb","servicio"],
+    "Salud":["medico","farmacia","drogueria","medicina","eps","consulta","dentista","odontologo","laboratorio","examen","salud","cita","remedio","pastilla","terapia"],
+    "Educación":["curso","universidad","colegio","matricula","libro","libros","clase","udemy","platzi","coursera","educacion","pension","semestre","util","utiles"],
+    "Ocio":["cine","bar","fiesta","juego","videojuego","concierto","gym","gimnasio","salida","viaje","paseo","hotel","trago","cerveza","licor","rumba","parque","evento","pelicula"],
+    "Ropa":["ropa","zapatos","tenis","camisa","pantalon","vestido","chaqueta","zara","nike","adidas","tienda","calzado","medias","gorra","accesorio"]
+  },
+  ingreso:{
+    "Salario":["salario","sueldo","nomina","quincena","pago","trabajo"],
+    "Ventas":["venta","vendi","cliente","negocio","producto"],
+    "Freelance":["freelance","proyecto","honorario","servicio prestado","diseno","asesoria"],
+    "Intereses":["interes","intereses","rendimiento","dividendo"],
+    "Regalo":["regalo","obsequio","bono","premio","donacion"]
+  },
+  ahorro:{
+    "Fondo emergencia":["emergencia","fondo","reserva","colchon"],
+    "Inversión":["inversion","cdt","accion","acciones","cripto","bitcoin","trading","bolsa"],
+    "Retiro":["retiro","pension","jubilacion"],
+    "Meta de ahorro":["meta","viaje","ahorro","objetivo"]
+  }
+};
+function guessCat(tipo, desc){
+  const d=normaliza(desc); if(!d) return null;
+  const dict=CAT_KEYWORDS[tipo]||{};
+  for(const [cat,words] of Object.entries(dict)){
+    if(words.some(w=>d.includes(w))) return cat;
+  }
+  return null;
+}
+function autoCat(){
+  if(catManual) return;
+  const tipo=document.querySelector('input[name=tipo]:checked').value;
+  const g=guessCat(tipo, $("desc").value);
+  if(g && CATS[tipo].includes(g)) $("cat").value=g;
+}
+let catManual=false;
+$("desc").addEventListener("input",autoCat);
+$("cat").addEventListener("change",()=>{ catManual=true; });
+document.querySelectorAll('input[name=tipo]').forEach(r=>r.addEventListener("change",()=>{fillCats();autoCat();}));
 $("fecha").valueAsDate=new Date();
 
 $("frm").addEventListener("submit", async e=>{
@@ -728,7 +1013,7 @@ $("frm").addEventListener("submit", async e=>{
   if(error){ setSync("Error al guardar"); alert("No se pudo guardar: "+error.message); return; }
   state.unshift({id:data.id,tipo,desc:rec.descripcion,monto:m,cat:rec.categoria,fecha:rec.fecha});
   setSync("✓ Sincronizado");
-  $("desc").value=""; $("monto").value="";
+  $("desc").value=""; $("monto").value=""; catManual=false;
   const fd=new Date(rec.fecha+"T00:00:00"); cursor=new Date(fd.getFullYear(),fd.getMonth(),1);
   render(); $("desc").focus();
 });
@@ -785,6 +1070,54 @@ $("budForm").addEventListener("submit", async e=>{
 async function delBud(cat){ delete config.presupuestos[cat]; await saveConfig(); render(); }
 window.delBud=delBud;
 
+/* ---------------- DEUDAS ---------------- */
+$("deudaForm").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const total=parseFloat($("deudaTotal").value);
+  if(!(total>0)) return;
+  config.deudas=config.deudas||[];
+  config.deudas.push({id:Date.now(), nombre:$("deudaNombre").value.trim(), acreedor:$("deudaAcreedor").value.trim(), total, pagado:0});
+  await saveConfig();
+  $("deudaNombre").value=""; $("deudaAcreedor").value=""; $("deudaTotal").value=""; renderDeudas();
+});
+async function abonarDeuda(id){
+  const d=(config.deudas||[]).find(x=>x.id===id); if(!d) return;
+  const saldo=d.total-d.pagado;
+  const val=prompt(`¿Cuánto abonas a "${d.nombre}"?  (saldo: ${money(saldo)})`);
+  if(val===null) return;
+  const m=parseFloat(String(val).replace(",","."));
+  if(!(m>0)){ alert("Monto no válido."); return; }
+  d.pagado=Math.min(d.total, d.pagado + m);
+  await saveConfig(); renderDeudas();
+}
+async function delDeuda(id){
+  if(!confirm("¿Eliminar esta deuda?")) return;
+  config.deudas=(config.deudas||[]).filter(x=>x.id!==id);
+  await saveConfig(); renderDeudas();
+}
+window.abonarDeuda=abonarDeuda; window.delDeuda=delDeuda;
+function renderDeudas(){
+  const ds=config.deudas||[];
+  const pendiente=ds.reduce((a,d)=>a+Math.max(0,d.total-d.pagado),0);
+  $("deudaResumen").textContent = ds.length ? "· debes "+money(pendiente) : "";
+  $("deudasList").innerHTML = ds.length ? ds.map(d=>{
+    const saldo=Math.max(0,d.total-d.pagado);
+    const pct=d.total>0?Math.min(100,d.pagado/d.total*100):0;
+    const pagada=saldo<=0;
+    return `<div class="goal">
+      <div class="h"><span>${esc(d.nombre)}${d.acreedor?` <small style="color:var(--muted)">· ${esc(d.acreedor)}</small>`:''}</span>
+        <span>${money(d.pagado)} / ${money(d.total)}</span></div>
+      <div class="track"><span style="width:${pct}%;background:${pagada?'var(--ok)':'linear-gradient(90deg,#f06ce0,#a855f7)'}"></span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:.82rem" class="muted">
+        <span>${pagada?'✓ Pagada':'Saldo: '+money(saldo)+' · '+Math.round(pct)+'%'}</span>
+        <span class="deuda-actions">
+          ${pagada?'':`<button class="mini-btn" onclick="abonarDeuda(${d.id})">Abonar</button>`}
+          <button class="del-x" onclick="delDeuda(${d.id})">Eliminar</button>
+        </span></div>
+    </div>`;
+  }).join("") : `<div class="empty">Sin deudas registradas. ¡Que siga así! 💪</div>`;
+}
+
 /* ---------------- RENDER ---------------- */
 const ICON={ingreso:"↑",gasto:"↓",ahorro:"◆"};
 function renderTabla(){
@@ -807,6 +1140,7 @@ function renderTabla(){
 
 function render(){
   $("monthLbl").textContent=monthName(cursor);
+  { const mn=monthName(cursor); $("resumenMes").textContent='“'+mn.charAt(0).toUpperCase()+mn.slice(1)+'”'; }
   const items=currentItems();
   const sum=t=>items.filter(x=>x.tipo===t).reduce((a,x)=>a+x.monto,0);
   const inc=sum("ingreso"), out=sum("gasto"), sav=sum("ahorro");
@@ -830,52 +1164,16 @@ function render(){
   items.filter(x=>x.tipo==='gasto').forEach(x=>byCat[x.cat]=(byCat[x.cat]||0)+x.monto);
   const cats=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
   const total=cats.reduce((a,c)=>a+c[1],0);
-  $("catBar").innerHTML= total?cats.map((c,i)=>`<span style="width:${c[1]/total*100}%;background:${CAT_COLORS[i%CAT_COLORS.length]}"></span>`).join(""):"";
+  $("catBar").innerHTML= total?donutSVG(cats,total):`<div class="donut-empty">Sin gastos</div>`;
   $("catList").innerHTML= total?cats.map((c,i)=>`
     <div class="catrow"><span><span class="dot-cat" style="background:${CAT_COLORS[i%CAT_COLORS.length]}"></span>${esc(c[0])}</span>
     <span>${money(c[1])} · ${Math.round(c[1]/total*100)}%</span></div>`).join(""):`<div class="empty">Aún no hay gastos registrados.</div>`;
 
   renderMetas(sav, byCat);
+  renderDeudas();
   renderReportes();
-  renderPlan(inc, out, sav);
 }
 
-/* ---------------- MI PLAN ---------------- */
-function renderPlan(incMes, gastoMes, ahorroMes){
-  const p=config.perfil;
-  if(!p){ $("planCards").innerHTML=`<div class="empty">Configura tu plan para ver el desglose.</div>`; $("allocBar").innerHTML=""; $("allocLegend").innerHTML=""; $("planStatus").innerHTML=""; return; }
-  const ingreso=p.ingreso||0;
-  const fijos=(p.fijos||[]).reduce((a,f)=>a+f.monto,0);
-  const ahorroMeta=p.ahorroMeta||0;
-  const disponible=ingreso-fijos-ahorroMeta;
-  const segs=[["Gastos fijos",fijos,"var(--bad)"],["Ahorro",ahorroMeta,"var(--save)"],["Disponible",Math.max(0,disponible),"var(--ok)"]];
-  const base=ingreso>0?ingreso:(fijos+ahorroMeta+Math.max(0,disponible))||1;
-  $("allocBar").innerHTML=segs.map(s=>`<span style="width:${s[1]/base*100}%;background:${s[2]}"></span>`).join("");
-  $("allocLegend").innerHTML=segs.map(s=>`<span><i style="background:${s[2]}"></i>${s[0]} · ${money(s[1])} (${base?Math.round(s[1]/base*100):0}%)</span>`).join("");
-  $("planCards").innerHTML=`
-    <div class="pcard"><div class="pk">Ingreso mensual</div><div class="pv in">${money(ingreso)}</div></div>
-    <div class="pcard"><div class="pk">Gastos fijos</div><div class="pv out">${money(fijos)}</div><div class="ps">${(p.fijos||[]).length} conceptos, automáticos</div></div>
-    <div class="pcard"><div class="pk">Meta de ahorro</div><div class="pv save">${money(ahorroMeta)}</div></div>
-    <div class="pcard"><div class="pk">Disponible para gastar</div><div class="pv" style="color:${disponible>=0?'var(--ok)':'var(--bad)'}">${money(disponible)}</div></div>`;
-  const gastoVariable=Math.max(0, gastoMes - fijos);
-  const pctGasto=disponible>0?gastoVariable/disponible*100:(gastoVariable>0?100:0);
-  const restante=disponible-gastoVariable;
-  const colG=pctGasto>=100?"var(--bad)":pctGasto>=80?"var(--save)":"var(--ok)";
-  const pctAhorro=ahorroMeta>0?Math.min(100,ahorroMes/ahorroMeta*100):0;
-  $("planStatus").innerHTML=`
-    <h2 style="margin:20px 0 12px;font-size:.95rem">Cómo vas este mes</h2>
-    <div class="progress-block">
-      <div class="pb-head"><span>Gasto variable</span><span class="${pctGasto>=100?'over':''}">${money(gastoVariable)} / ${money(Math.max(0,disponible))}</span></div>
-      <div class="track"><span style="width:${Math.min(100,pctGasto)}%;background:${colG}"></span></div>
-      <div class="pb-foot ${restante<0?'over':''}">${restante>=0?'Te quedan '+money(restante)+' para gastar':'Te pasaste por '+money(-restante)}</div>
-    </div>
-    <div class="progress-block">
-      <div class="pb-head"><span>Ahorro del mes</span><span>${money(ahorroMes)} / ${money(ahorroMeta)}</span></div>
-      <div class="track"><span style="width:${pctAhorro}%;background:linear-gradient(90deg,var(--save),#ffd479)"></span></div>
-      <div class="pb-foot">${ahorroMeta>0?(pctAhorro>=100?'✓ ¡Meta de ahorro cumplida!':Math.round(pctAhorro)+'% de tu meta de ahorro'):'Sin meta de ahorro definida'}</div>
-    </div>`;
-}
-$("editPlan").onclick=()=>startOnboarding();
 $("editPlan2").onclick=()=>startOnboarding();
 
 /* ---------------- MENÚ ACTIVO ---------------- */
@@ -949,17 +1247,17 @@ function renderReportes(){
   let xlab="", dots="";
   chartData.forEach((x,i)=>{
     xlab+=`<text x="${xs(i).toFixed(1)}" y="${H-10}" fill="#8b93ab" font-size="10" text-anchor="middle">${x.d.toLocaleDateString("es-CO",{month:"short"})}</text>`;
-    dots+=`<circle cx="${xs(i).toFixed(1)}" cy="${ys(x.in).toFixed(1)}" r="3.2" fill="#3b74ff"/>`;
+    dots+=`<circle cx="${xs(i).toFixed(1)}" cy="${ys(x.in).toFixed(1)}" r="3.2" fill="#e24bd8"/>`;
   });
   $("chart").innerHTML=`
     <svg viewBox="0 0 ${W} ${H}" id="chsvg" preserveAspectRatio="none">
       <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#3b74ff" stop-opacity=".38"/>
-        <stop offset="1" stop-color="#3b74ff" stop-opacity="0"/>
+        <stop offset="0" stop-color="#e24bd8" stop-opacity=".38"/>
+        <stop offset="1" stop-color="#e24bd8" stop-opacity="0"/>
       </linearGradient></defs>
       ${grid}${ylab}${xlab}
       <path d="${area}" fill="url(#ag)"/>
-      <path d="${path(inArr)}" fill="none" stroke="#3b74ff" stroke-width="2.4"/>
+      <path d="${path(inArr)}" fill="none" stroke="#e24bd8" stroke-width="2.4"/>
       <path d="${path(outArr)}" fill="none" stroke="#ef4757" stroke-width="2" stroke-dasharray="2 3" opacity=".9"/>
       <path d="${path(saveArr)}" fill="none" stroke="#f5a623" stroke-width="1.8" opacity=".8"/>
       ${dots}
@@ -979,21 +1277,22 @@ function renderReportes(){
     tip.style.left=(xs(idx)/W*r.width)+"px";
     tip.style.top=(ys(Math.max(x.in,x.out))/H*r.height)+"px";
     tip.innerHTML=`<div class="tt-d">${x.d.toLocaleDateString("es-CO",{month:"long",year:"numeric"})}</div>
-      <div><b style="color:#3b74ff">Ingresos</b> ${money(x.in)}</div>
+      <div><b style="color:#e24bd8">Ingresos</b> ${money(x.in)}</div>
       <div><b style="color:#ef4757">Gastos</b> ${money(x.out)}</div>
       <div><b style="color:#f5a623">Ahorro</b> ${money(x.save)}</div>`;
   };
   svg.onmouseleave=()=>{ tip.style.opacity="0"; line.setAttribute("opacity","0"); };
 
-  const avg=k=>Math.round(chartData.reduce((a,x)=>a+x[k],0)/chartData.length);
-  const ultimo=chartData[chartData.length-1], prev=chartData[chartData.length-2]||{out:0};
-  const diff = prev.out? Math.round((ultimo.out-prev.out)/prev.out*100):0;
-  $("stats").innerHTML=`
-    <div class="catrow"><span>Ingreso promedio (6m)</span><b class="mv in" style="font-size:.95rem">${money(avg("in"))}</b></div>
-    <div class="catrow"><span>Gasto promedio (6m)</span><b class="mv out" style="font-size:.95rem">${money(avg("out"))}</b></div>
-    <div class="catrow"><span>Ahorro promedio (6m)</span><b class="mv save" style="font-size:.95rem">${money(avg("save"))}</b></div>
-    <div class="catrow"><span>Tendencia de gasto vs. mes anterior</span>
-      <b style="font-size:.95rem;color:${diff>0?'var(--bad)':'var(--ok)'}">${diff>0?'▲ +':'▼ '}${diff}%</b></div>`;
+  // Promedio mensual de gasto de las 3 categorías en las que más gastas (6 meses)
+  const kset=new Set(chartData.map(x=>ymKey(x.d)));
+  const catTot={};
+  state.filter(t=>t.tipo==='gasto' && t.fecha && kset.has(t.fecha.slice(0,7)))
+       .forEach(t=>catTot[t.cat]=(catTot[t.cat]||0)+t.monto);
+  const top=Object.entries(catTot).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  $("stats").innerHTML = top.length
+    ? `<div class="catrow" style="border:0;color:var(--muted);font-size:.8rem">Tus 3 categorías con más gasto · promedio mensual (6m)</div>`
+      + top.map(([cat,tot],i)=>`<div class="catrow"><span><span class="dot-cat" style="background:${CAT_COLORS[i%CAT_COLORS.length]}"></span>${esc(cat)}</span><b class="mv" style="font-size:.95rem">${money(Math.round(tot/6))}</b></div>`).join("")
+    : `<div class="empty">Aún no hay gastos para promediar.</div>`;
 }
 function niceMax(v){ const p=Math.pow(10,Math.floor(Math.log10(v))); const f=v/p; const nf=f<=1?1:f<=2?2:f<=5?5:10; return nf*p; }
 function kfmt(v){ if(v>=1e6) return (v/1e6).toFixed(v%1e6?1:0)+"M"; if(v>=1e3) return Math.round(v/1e3)+"k"; return String(Math.round(v)); }

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Eva — Video promo v2</title>
+<style>
+@font-face{font-family:'Montserrat';font-weight:400;src:url(fonts/montserrat-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:500;src:url(fonts/montserrat-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:600;src:url(fonts/montserrat-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:700;src:url(fonts/montserrat-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:800;src:url(fonts/montserrat-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:900;src:url(fonts/montserrat-latin-900-normal.woff2) format('woff2')}
+@font-face{font-family:'Playfair Display';font-weight:700;src:url(fonts/playfair-display-latin-700-normal.woff2) format('woff2')}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#0b0806;font-family:'Montserrat',sans-serif;color:#f3eefb}
+
+/* ===== Cuarto + cámara en mano ===== */
+.room{position:absolute;inset:0;overflow:hidden;
+  background:
+    radial-gradient(700px 520px at 50% 34%,rgba(226,75,216,.20),transparent 70%),
+    radial-gradient(900px 700px at 70% 8%,#7d6b58 0%,#4a3d31 45%,#211912 80%),
+    #140e0a}
+.room::after{content:"";position:absolute;inset:0;background:radial-gradient(1200px 1500px at 50% 45%,transparent 55%,rgba(0,0,0,.75));pointer-events:none}
+.desk{position:absolute;left:-100px;right:-100px;top:1080px;bottom:-100px;background:linear-gradient(180deg,#2a1d14,#120b07 60%)}
+.wall-edge{position:absolute;left:770px;top:0;width:6px;height:1100px;background:linear-gradient(90deg,rgba(0,0,0,.35),rgba(255,255,255,.05));filter:blur(2px)}
+.cam{position:absolute;inset:0;animation:shake 7s ease-in-out infinite, push 38s linear both;transform-origin:50% 45%}
+@keyframes shake{0%{translate:0 0;rotate:0deg}20%{translate:5px -4px;rotate:.25deg}45%{translate:-4px 3px;rotate:-.2deg}70%{translate:3px 5px;rotate:.15deg}100%{translate:0 0;rotate:0deg}}
+@keyframes push{from{scale:1}to{scale:1.07}}
+
+/* ===== Laptop ===== */
+.lid{position:absolute;left:44px;top:470px;width:992px;height:640px;border-radius:30px 30px 8px 8px;
+  background:#050407;border:3px solid #a9acb2;padding:16px 16px 22px;
+  transform:perspective(2200px) rotateX(5deg) rotateY(-5deg) rotateZ(-2.2deg);
+  box-shadow:0 0 140px 10px rgba(226,75,216,.22),0 40px 80px rgba(0,0,0,.6)}
+.display{position:relative;width:954px;height:596px;overflow:hidden;border-radius:12px;background:#07060c}
+.notch{position:absolute;top:0;left:50%;width:150px;height:22px;transform:translateX(-50%);background:#050407;border-radius:0 0 12px 12px;z-index:50}
+.scr{position:absolute;left:0;top:0;width:1440px;height:900px;transform:scale(.6625);transform-origin:0 0;overflow:hidden;
+  background:radial-gradient(800px 600px at 15% 0%,rgba(226,75,216,.22),transparent 60%),
+             radial-gradient(800px 600px at 100% 100%,rgba(168,85,247,.18),transparent 60%),#07060c}
+.glare{position:absolute;inset:0;z-index:60;pointer-events:none;
+  background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.07) 42%,transparent 52%),
+             radial-gradient(60px 50px at 86% 6%,rgba(255,255,255,.95),rgba(255,240,220,.35) 40%,transparent 75%)}
+.deck::after{content:'';position:absolute;inset:0;border-radius:26px;background:radial-gradient(700px 400px at 50% 0%,rgba(226,75,216,.18),transparent 70%)}
+.deck{position:absolute;left:-60px;top:1112px;width:1200px;height:900px;transform-origin:50% 0;
+  transform:perspective(1300px) rotateX(58deg) rotateZ(-2.2deg);
+  background:linear-gradient(180deg,#8f8a94,#5e5a60 45%,#2e2a2c);border-radius:26px;padding:60px 70px}
+.hinge{position:absolute;left:30px;top:1100px;width:1020px;height:22px;background:linear-gradient(180deg,#3a3b3f,#9fa1a6);border-radius:6px;transform:rotateZ(-2.2deg)}
+.keys{display:grid;grid-template-columns:repeat(14,1fr);gap:9px}
+.keys i{display:block;height:54px;border-radius:8px;background:#141416;box-shadow:inset 0 -3px 0 #000,0 1px 0 rgba(255,255,255,.4)}
+.keys i.w2{grid-column:span 2}.keys i.w6{grid-column:span 6}
+.pad{margin:34px auto 0;width:520px;height:330px;border-radius:18px;background:linear-gradient(180deg,#77727a,#4a464a);box-shadow:inset 0 0 0 2px rgba(0,0,0,.15)}
+.spill{position:absolute;left:140px;top:1060px;width:800px;height:260px;border-radius:50%;filter:blur(60px);background:rgba(226,75,216,.22);mix-blend-mode:screen}
+
+/* ===== Overlays fuera de la pantalla ===== */
+.pill{position:absolute;left:50%;top:270px;transform:translateX(-50%);background:rgba(20,18,22,.88);border-radius:999px;padding:20px 40px;
+  font-size:38px;font-weight:500;color:#e9e6ee;white-space:nowrap;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.pill b{font-weight:800;color:#fff}
+.grain{position:absolute;inset:-50px;opacity:.10;mix-blend-mode:overlay;pointer-events:none;animation:grain .5s steps(4) infinite;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-20px,10px)}50%{transform:translate(15px,-15px)}75%{transform:translate(-10px,-20px)}100%{transform:translate(0,0)}}
+.fadeout{position:absolute;inset:0;background:#000;opacity:0;animation:fo 1s ease-in 37s both;pointer-events:none}
+@keyframes fo{to{opacity:.85}}
+
+/* ===== macOS ===== */
+.menubar{position:absolute;top:0;left:0;right:0;height:30px;background:rgba(20,16,28,.6);display:flex;align-items:center;gap:26px;padding:0 22px;font-size:15px;color:#ddd;z-index:40}
+.menubar b{font-weight:800}.menubar .r{margin-left:auto;display:flex;gap:22px}
+.dock{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:12px;padding:10px 14px;border-radius:22px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);z-index:40}
+.dock i{width:52px;height:52px;border-radius:13px;display:block}
+
+/* ===== Escenas ===== */
+.scene{position:absolute;inset:30px 0 80px;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;
+  animation:show var(--d) linear var(--s) both}
+@keyframes show{0%{opacity:0}6%{opacity:1}92%{opacity:1}100%{opacity:0}}
+.last{animation-name:showlast}@keyframes showlast{0%{opacity:0}6%{opacity:1}100%{opacity:1}}
+.t{font-size:52px;font-weight:800;text-align:center;line-height:1.2;letter-spacing:-1px}
+.t .w{display:inline-block;opacity:0;animation:wIn .5s ease-out both;margin-right:.26em}
+@keyframes wIn{from{opacity:0;filter:blur(10px);transform:translateY(12px)}to{opacity:1;filter:none;transform:none}}
+.red{color:#ff4d5e}
+.mag{background:linear-gradient(135deg,#f472e6,#e24bd8 45%,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent}
+.grn{color:#25d366}
+.in{opacity:0;animation:inUp .6s ease-out both}
+@keyframes inUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+.pop{opacity:0;animation:pop .55s cubic-bezier(.2,1.5,.4,1) both}
+@keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+
+/* Teléfono */
+.phone{width:300px;height:600px;border-radius:46px;border:9px solid #2a2530;background:#0d0b12;position:relative;overflow:hidden;
+  box-shadow:0 30px 70px rgba(0,0,0,.7),0 0 60px rgba(226,75,216,.25)}
+.phone .isl{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:90px;height:24px;border-radius:14px;background:#000;z-index:5}
+.notif{margin:10px 12px 0;background:rgba(255,255,255,.08);border-radius:16px;padding:12px 14px;font-size:15px;display:flex;justify-content:space-between;align-items:center}
+.notif small{display:block;color:#9a92a8;font-size:12px;margin-top:3px}
+.notif b{color:#ff6b78;font-size:16px}
+.bal{padding:54px 16px 6px;text-align:center}
+.bal .k{font-size:13px;color:#9a92a8}
+.bal .v{font-size:34px;font-weight:800;position:relative;height:44px}
+.bal .v span{position:absolute;left:0;right:0;opacity:0}
+.dot{position:absolute;width:26px;height:26px;border-radius:50%;background:#ff3d4f;box-shadow:0 0 30px 8px rgba(255,61,79,.6);animation:float 4s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-30px)}}
+
+/* Logo */
+.wm{display:flex;align-items:baseline;justify-content:center}
+.wm-e{font-family:'Playfair Display',Georgia,serif;font-weight:700;line-height:1;font-size:240px;
+  background:linear-gradient(135deg,#f9a8f0,#e24bd8 50%,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 40px rgba(226,75,216,.9)) drop-shadow(0 0 90px rgba(226,75,216,.6))}
+.wm-va{font-size:110px;font-weight:500;letter-spacing:3px;margin-left:4px;opacity:0;animation:vaIn .8s ease-out both}
+@keyframes vaIn{from{opacity:0;transform:translateX(-30px);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+.halo{position:absolute;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(226,75,216,.45),transparent 65%);filter:blur(20px);opacity:0;animation:halo 2.4s ease-out both}
+@keyframes halo{0%{opacity:0;transform:scale(.5)}40%{opacity:1;transform:scale(1.1)}100%{opacity:.7;transform:scale(1)}}
+
+/* Dashboard */
+.win{width:1180px;height:600px;border-radius:22px;background:rgba(22,16,32,.92);border:1px solid rgba(255,255,255,.08);display:flex;overflow:hidden;
+  box-shadow:0 40px 90px rgba(0,0,0,.6),0 0 80px rgba(226,75,216,.18);margin-top:30px}
+.side{width:86px;background:rgba(255,255,255,.03);display:flex;flex-direction:column;align-items:center;gap:22px;padding-top:28px}
+.side i{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.07);display:block}
+.side i.on{background:linear-gradient(135deg,#f06ce0,#a855f7)}
+.main{flex:1;padding:30px;display:grid;grid-template-columns:1fr 1.25fr;gap:24px}
+.card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:24px}
+.lbl{color:#a99fb8;font-size:17px;font-weight:600}
+.big{font-size:56px;font-weight:900;letter-spacing:-1.5px;margin:6px 0 10px}
+.chip{display:inline-block;padding:6px 14px;border-radius:999px;font-size:15px;font-weight:700;background:rgba(34,197,94,.16);color:#22c55e}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.tile{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:16px}
+.tile .k{font-size:14px;color:#a99fb8;font-weight:600;display:flex;align-items:center;gap:8px}
+.tile .k em{width:10px;height:10px;border-radius:50%;display:inline-block}
+.tile .v{font-size:26px;font-weight:800;margin-top:6px}
+.chart path.l{stroke-dasharray:1400;stroke-dashoffset:1400;animation:draw 2s ease-out both}
+@keyframes draw{to{stroke-dashoffset:0}}
+.chart path.a{opacity:0;animation:fadeA 1s ease-out both}
+@keyframes fadeA{to{opacity:1}}
+.bars{display:flex;gap:16px;margin-top:16px}
+.bars div{flex:1;font-size:14px;color:#a99fb8}
+.bars div b{display:block;color:#fff;font-size:20px;margin-top:4px}
+
+/* WhatsApp */
+.wa-row{display:flex;gap:60px;align-items:center;margin-top:24px}
+.wa{width:330px;height:640px;background:#0b141a}
+.wa-h{background:#1f2c34;padding:44px 14px 12px;display:flex;align-items:center;gap:10px}
+.wa-h .av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#f06ce0,#a855f7);display:grid;place-items:center;font-family:'Playfair Display';font-weight:700;font-size:22px}
+.wa-h b{font-size:17px}.wa-h small{display:block;font-size:12px;color:#8696a0}
+.wa-b{padding:14px 10px;display:flex;flex-direction:column;gap:10px;font-size:16px}
+.msg{max-width:85%;padding:9px 12px 18px;border-radius:12px;position:relative;line-height:1.35;opacity:0;animation:msgIn .4s ease-out both}
+@keyframes msgIn{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+.msg.me{align-self:flex-end;background:#005c4b;border-top-right-radius:3px}
+.msg.eva{align-self:flex-start;background:#1f2c34;border-top-left-radius:3px}
+.msg time{position:absolute;right:8px;bottom:3px;font-size:10px;color:#9fb3ae}
+.typing3{align-self:flex-start;background:#1f2c34;border-radius:12px;padding:12px 14px;display:flex;gap:5px;opacity:0}
+.typing3 i{width:8px;height:8px;border-radius:50%;background:#8696a0;animation:bl 1s infinite}
+.typing3 i:nth-child(2){animation-delay:.2s}.typing3 i:nth-child(3){animation-delay:.4s}
+@keyframes bl{0%,100%{opacity:.3}50%{opacity:1}}
+.wa-in{position:absolute;left:10px;right:10px;bottom:14px;background:#1f2c34;border-radius:22px;padding:11px 16px;font-size:16px;color:#e9edef;height:44px;overflow:hidden;white-space:nowrap}
+.typ{display:inline-block;overflow:hidden;white-space:nowrap;width:0;border-right:2px solid #25d366;vertical-align:bottom}
+.mov{width:560px}
+.mov h4{font-size:24px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.mov h4 span{font-size:14px;color:#a99fb8;font-weight:600}
+.mrow{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);margin-bottom:12px;font-size:19px}
+.mrow .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:22px}
+.mrow .tag{font-size:13px;padding:4px 10px;border-radius:999px;margin-left:8px}
+.mrow .amt{margin-left:auto;font-weight:800;color:#fff}
+.mrow.new{opacity:0;overflow:hidden;animation:newRow .6s ease-out both}
+@keyframes newRow{0%{opacity:0;max-height:0;padding-top:0;padding-bottom:0;margin-bottom:0;transform:translateX(40px);box-shadow:0 0 0 rgba(226,75,216,0)}30%{max-height:80px;padding-top:16px;padding-bottom:16px;margin-bottom:12px}60%{opacity:1;transform:none;box-shadow:0 0 40px rgba(226,75,216,.5);border-color:rgba(226,75,216,.7)}100%{opacity:1;box-shadow:none}}
+.wa-badge{display:inline-flex;align-items:center;gap:10px;font-size:18px;color:#25d366;font-weight:700;margin-top:16px}
+
+/* Deudas */
+.debts{width:900px;margin-top:40px;display:grid;gap:22px}
+.debt .h{display:flex;justify-content:space-between;font-size:26px;font-weight:700;margin-bottom:12px}
+.track{height:24px;border-radius:14px;background:rgba(255,255,255,.08);overflow:hidden}
+.track span{display:block;height:100%;width:0;border-radius:14px;background:linear-gradient(90deg,#f06ce0,#a855f7);animation:fill 1.8s ease-out both}
+@keyframes fill{to{width:var(--w)}}
+.debt .f{font-size:18px;color:#a99fb8;margin-top:10px}
+
+/* Cierre */
+.tag2{font-size:40px;color:#d8cfe4;margin-top:6px;font-weight:600}
+.cta{margin-top:34px;display:flex;align-items:center;gap:26px}
+.btn{background:linear-gradient(135deg,#f06ce0,#c026d3 50%,#a855f7);padding:20px 46px;border-radius:999px;font-size:28px;font-weight:800;box-shadow:0 0 50px rgba(226,75,216,.7)}
+.price{font-size:26px;color:#c9bdd6;font-weight:600}
+.price b{color:#fff;font-size:34px}
+</style>
+</head>
+<body>
+<div class="room">
+  <div class="wall-edge"></div>
+  <div class="desk"></div>
+  <div class="cam">
+    <div class="spill"></div>
+    <div class="deck">
+      <div class="keys" id="keys"></div>
+      <div class="pad"></div>
+    </div>
+    <div class="hinge"></div>
+    <div class="lid">
+      <div class="display">
+        <div class="notch"></div>
+        <div class="scr">
+          <div class="menubar"><b>Eva</b><span>Archivo</span><span>Edición</span><span>Ver</span><span>Ventana</span><div class="r"><span>🔋 100%</span><span>mié 15 oct</span><span>9:41 p. m.</span></div></div>
+
+          <!-- 1. Problema 0–6 -->
+          <section class="scene" style="--s:0s;--d:6s">
+            <div class="t" data-w="0.2">Cada mes, lo mismo:</div>
+            <div class="t" data-w="1.6" style="font-size:44px;margin-top:6px">cobras, gastas… y la plata <span class="red">se esfuma.</span></div>
+            <div class="phone in" style="margin-top:34px;animation-delay:.6s">
+              <div class="isl"></div>
+              <div class="bal"><div class="k">Saldo disponible</div>
+                <div class="v">
+                  <span style="animation:sw 0s 0s both,swOut 0s 1.6s both">$1.240.000</span>
+                  <span style="animation:sw 0s 1.6s both,swOut 0s 2.2s both">$1.155.000</span>
+                  <span style="animation:sw 0s 2.2s both,swOut 0s 2.8s both">$1.142.600</span>
+                  <span style="animation:sw 0s 2.8s both,swOut 0s 3.4s both">$1.103.700</span>
+                  <span style="animation:sw 0s 3.4s both,swOut 0s 4.0s both">$1.058.800</span>
+                  <span class="red" style="animation:sw 0s 4.0s both">$86.000</span>
+                </div>
+              </div>
+              <div class="notif in" style="animation-delay:1.6s"><div>Compra Éxito<small>hace 1 min</small></div><b>-$85.000</b></div>
+              <div class="notif in" style="animation-delay:2.2s"><div>Uber<small>hace 3 min</small></div><b>-$12.400</b></div>
+              <div class="notif in" style="animation-delay:2.8s"><div>Domicilio<small>ayer</small></div><b>-$38.900</b></div>
+              <div class="notif in" style="animation-delay:3.4s"><div>Netflix<small>ayer</small></div><b>-$44.900</b></div>
+              <div class="notif in" style="animation-delay:4.0s"><div>Arriendo<small>1 oct</small></div><b>-$972.800</b></div>
+            </div>
+            <div class="dot" style="left:470px;top:560px;animation-delay:-1s"></div>
+            <div class="dot" style="left:920px;top:470px;width:18px;height:18px"></div>
+            <div class="dot" style="left:990px;top:650px;width:34px;height:34px;animation-delay:-2s"></div>
+          </section>
+
+          <!-- 2. Solución + logo 6–11 -->
+          <section class="scene" style="--s:6s;--d:5s">
+            <div class="t" data-w="6.4" style="font-size:58px">Ya llegó la <span class="mag">solución.</span></div>
+            <div style="position:relative;display:grid;place-items:center;margin-top:30px">
+              <div class="halo" style="animation-delay:7.9s"></div>
+              <div class="wm pop" style="animation-delay:8.0s;position:relative"><span class="wm-e">E</span><span class="wm-va" style="animation-delay:8.7s">va</span></div>
+            </div>
+          </section>
+
+          <!-- 3. Dashboard 11–17 -->
+          <section class="scene" style="--s:11s;--d:6s">
+            <div class="t" data-w="11.2" style="font-size:46px">Todo tu dinero, <span class="mag">en un solo lugar.</span></div>
+            <div class="win in" style="animation-delay:11.6s">
+              <div class="side"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div>
+              <div class="main">
+                <div>
+                  <div class="card in" style="animation-delay:12s">
+                    <div class="lbl">Mi resumen “Octubre”</div>
+                    <div class="big">$6.000.000</div>
+                    <span class="chip">▲ $8.000.000 este mes</span>
+                  </div>
+                  <div class="tiles">
+                    <div class="tile pop" style="animation-delay:12.5s"><div class="k"><em style="background:#22c55e"></em>Ingresos</div><div class="v">$10.000.000</div></div>
+                    <div class="tile pop" style="animation-delay:12.7s"><div class="k"><em style="background:#ef4757"></em>Gastos</div><div class="v">$2.000.000</div></div>
+                    <div class="tile pop" style="animation-delay:12.9s"><div class="k"><em style="background:#f5a623"></em>Ahorro</div><div class="v">$2.000.000</div></div>
+                    <div class="tile pop" style="animation-delay:13.1s"><div class="k"><em style="background:#e24bd8"></em>Deudas</div><div class="v">$700.000</div></div>
+                  </div>
+                </div>
+                <div class="card in" style="animation-delay:12.3s">
+                  <div class="lbl">Ingresos vs gastos · 6 meses</div>
+                  <svg class="chart" viewBox="0 0 600 300" style="width:100%;height:300px;margin-top:10px">
+                    <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e24bd8" stop-opacity=".55"/><stop offset="1" stop-color="#e24bd8" stop-opacity="0"/></linearGradient></defs>
+                    <g stroke="rgba(255,255,255,.06)"><line x1="0" y1="60" x2="600" y2="60"/><line x1="0" y1="140" x2="600" y2="140"/><line x1="0" y1="220" x2="600" y2="220"/></g>
+                    <path class="a" style="animation-delay:13.6s" d="M0,230 C60,210 100,190 150,200 S250,140 300,150 S400,90 450,100 S550,40 600,50 L600,300 L0,300Z" fill="url(#g1)"/>
+                    <path class="l" style="animation-delay:12.8s" d="M0,230 C60,210 100,190 150,200 S250,140 300,150 S400,90 450,100 S550,40 600,50" fill="none" stroke="#f06ce0" stroke-width="5" stroke-linecap="round"/>
+                    <path class="l" style="animation-delay:13.1s" d="M0,260 C80,250 120,240 170,248 S260,230 310,236 S420,220 470,226 S560,214 600,218" fill="none" stroke="#a855f7" stroke-width="4" stroke-dasharray="8 8" stroke-linecap="round"/>
+                  </svg>
+                  <div class="bars in" style="animation-delay:14s">
+                    <div>Alimentación<b>$620.000</b></div><div>Transporte<b>$310.000</b></div><div>Servicios<b>$240.000</b></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 4. WhatsApp 17–25.5 -->
+          <section class="scene" style="--s:17s;--d:8.5s">
+            <div class="t" data-w="17.2" style="font-size:46px">Solo escríbele por <span class="grn">WhatsApp.</span></div>
+            <div class="wa-row">
+              <div class="phone wa in" style="animation-delay:17.5s">
+                <div class="isl"></div>
+                <div class="wa-h"><div class="av">E</div><div><b>Eva</b><small>en línea</small></div></div>
+                <div class="wa-b">
+                  <div class="msg me" style="animation-delay:19.4s">hamburguesas 25000<time>9:41 ✓✓</time></div>
+                  <div class="typing3" style="animation:msgIn .3s ease-out 19.8s both,hide 0s 20.5s forwards"><i></i><i></i><i></i></div>
+                  <div class="msg eva" style="animation-delay:20.5s">🔴 <b>GASTO</b> guardado<br>Hamburguesas (Alimentación)<br><b>$25.000</b><time>9:41</time></div>
+                  <div class="msg me" style="animation-delay:22.4s">uber 8500<time>9:42 ✓✓</time></div>
+                  <div class="msg eva" style="animation-delay:23.1s">🔴 <b>GASTO</b> guardado<br>Uber (Transporte)<br><b>$8.500</b><time>9:42</time></div>
+                </div>
+                <div class="wa-in">
+                  <span class="typ" style="--n:18;animation:typ 1s steps(18) 18.2s both,hide 0s 19.4s forwards">hamburguesas 25000</span>
+                  <span class="typ" style="--n:9;animation:typ .6s steps(9) 21.6s both,hide 0s 22.4s forwards">uber 8500</span>
+                </div>
+              </div>
+              <div class="mov in" style="animation-delay:17.9s">
+                <h4>Movimientos <span>Octubre</span></h4>
+                <div class="mrow new" style="animation-delay:23.4s"><div class="ic" style="background:rgba(124,92,255,.2)">🚕</div><div>Uber<span class="tag" style="background:rgba(124,92,255,.2);color:#b9a6ff">Transporte</span></div><div class="amt">-$8.500</div></div>
+                <div class="mrow new" style="animation-delay:20.8s"><div class="ic" style="background:rgba(34,197,94,.18)">🍔</div><div>Hamburguesas<span class="tag" style="background:rgba(34,197,94,.18);color:#86efac">Alimentación</span></div><div class="amt">-$25.000</div></div>
+                <div class="mrow"><div class="ic" style="background:rgba(245,166,35,.2)">💡</div><div>Luz<span class="tag" style="background:rgba(245,166,35,.2);color:#ffd27a">Servicios</span></div><div class="amt">-$96.000</div></div>
+                <div class="mrow"><div class="ic" style="background:rgba(34,197,94,.18)">💼</div><div>Salario<span class="tag" style="background:rgba(34,197,94,.18);color:#86efac">Ingreso</span></div><div class="amt" style="color:#22c55e">+$5.000.000</div></div>
+                <div class="wa-badge in" style="animation-delay:21s">✓ Se categoriza solo · al instante</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 5. Deudas 25.5–30.5 -->
+          <section class="scene" style="--s:25.5s;--d:5s">
+            <div class="t" data-w="25.7" style="font-size:52px">Sal de tus <span class="mag">deudas,</span> paso a paso.</div>
+            <div class="debts card in" style="animation-delay:26.1s;padding:36px">
+              <div class="debt"><div class="h"><span>💳 Tarjeta de crédito</span><span>65%</span></div><div class="track"><span style="--w:65%;animation-delay:26.6s"></span></div><div class="f">Saldo: $700.000 · abonando cada mes</div></div>
+              <div class="debt"><div class="h"><span>🏍️ Préstamo moto</span><span>40%</span></div><div class="track"><span style="--w:40%;animation-delay:27s"></span></div><div class="f">Saldo: $3.600.000</div></div>
+              <div class="debt"><div class="h"><span>🎯 Meta: viaje a Cartagena</span><span>80%</span></div><div class="track"><span style="--w:80%;animation-delay:27.4s;background:linear-gradient(90deg,#22c55e,#86efac)"></span></div><div class="f">Ahorrado: $2.400.000 de $3.000.000</div></div>
+            </div>
+          </section>
+
+          <!-- 6. Cierre 30.5–38 -->
+          <section class="scene last" style="--s:30.5s;--d:7.5s">
+            <div style="position:relative;display:grid;place-items:center">
+              <div class="halo" style="animation-delay:30.6s"></div>
+              <div class="wm pop" style="animation-delay:30.7s;position:relative"><span class="wm-e">E</span><span class="wm-va" style="animation-delay:31.2s">va</span></div>
+            </div>
+            <div class="tag2 in" style="animation-delay:31.8s">Tus finanzas, <span class="mag">bajo control.</span></div>
+            <div class="cta in" style="animation-delay:33.4s">
+              <div class="btn">Empieza hoy</div>
+              <div class="price"><b>$9.99</b> USD / mes</div>
+            </div>
+          </section>
+
+          <div class="dock">
+            <i style="background:linear-gradient(135deg,#3b82f6,#1e40af)"></i><i style="background:linear-gradient(135deg,#f06ce0,#a855f7)"></i>
+            <i style="background:linear-gradient(135deg,#22c55e,#15803d)"></i><i style="background:linear-gradient(135deg,#f59e0b,#ea580c)"></i>
+            <i style="background:linear-gradient(135deg,#e5e7eb,#9ca3af)"></i><i style="background:linear-gradient(135deg,#ef4444,#b91c1c)"></i>
+            <i style="background:linear-gradient(135deg,#06b6d4,#0e7490)"></i><i style="background:linear-gradient(135deg,#a3e635,#4d7c0f)"></i>
+            <i style="background:linear-gradient(135deg,#111,#444)"></i><i style="background:linear-gradient(135deg,#fb7185,#e11d48)"></i>
+          </div>
+        </div>
+        <div class="glare"></div>
+      </div>
+    </div>
+  </div>
+  <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 62%,rgba(0,0,0,.6) 100%)"></div>
+  <div class="pill">Tus finanzas con <b>Eva</b> ✦</div>
+  <div class="grain"></div>
+  <div class="fadeout"></div>
+</div>
+<style>
+@keyframes sw{to{opacity:1}} @keyframes swOut{to{opacity:0}}
+@keyframes typ{to{width:calc(var(--n) * 1ch + 2px)}}
+@keyframes hide{to{opacity:0;display:none;height:0;padding:0;margin:0}}
+</style>
+<script>
+// teclado
+const k=document.getElementById('keys');
+const row=(n,ex)=>{for(let i=0;i<n;i++){const e=document.createElement('i');k.appendChild(e)} };
+row(14);row(14);row(14);row(14);
+['w2','','','','','','','','','','','','w2'].forEach(c=>{const e=document.createElement('i');if(c)e.className=c;k.appendChild(e)});
+['','','','w6','','','',''].forEach(c=>{const e=document.createElement('i');if(c)e.className=c;k.appendChild(e)});
+// palabras que aparecen una a una (como en la referencia)
+document.querySelectorAll('[data-w]').forEach(el=>{
+  const t0=parseFloat(el.dataset.w); let i=0;
+  const walk=n=>{ [...n.childNodes].forEach(c=>{
+    if(c.nodeType===3){ const frag=document.createDocumentFragment();
+      c.textContent.split(/(\s+)/).forEach(p=>{ if(!p.trim()) return; const s=document.createElement('span'); s.className='w'+(n!==el&&n.className?' '+n.className:''); s.textContent=p; s.style.animationDelay=(t0+i++*0.14)+'s'; frag.appendChild(s); });
+      c.replaceWith(frag);
+    } else if(c.nodeType===1){ walk(c); if(c.className) c.className=''; }
+  }); };
+  walk(el);
+});
+</script>
+</body>
+</html>

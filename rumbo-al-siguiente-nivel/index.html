@@ -140,7 +140,7 @@ $('enviar').onclick=async()=>{
  if(waNum(celular).length<7){$('err').textContent='Escribe un número de celular válido.';return;}
  $('err').textContent='';$('enviar').disabled=true;$('enviar').textContent='Enviando…';
  try{
-  const r=await fetch(REST,{method:'POST',headers:HDRS,body:JSON.stringify({nombre,celular,agente:agente||null})});
+  const r=await fetch(REST,{method:'POST',headers:HDRS,body:JSON.stringify({nombre,celular,agente:agente||null,evento:'Rumbo al Siguiente Nivel 15-oct'})});
   if(!r.ok)throw new Error(await r.text());
   // Si el registrado ya existe en la plataforma (match por celular), marcar "Present. membresía"
   try{
@@ -203,9 +203,13 @@ $('verLink').onclick=async()=>{
 };
 $('admClose').onclick=()=>{clearInterval(liveTmr);$('admCard').classList.add('hide');$('formCard').classList.remove('hide');};
 $('admRefresh').onclick=loadReg;
+function desdeHoyUTC(){ // inicio del día de hoy en hora Colombia (UTC-5), en ISO UTC
+  const dBog=new Date().toLocaleDateString('en-CA',{timeZone:'America/Bogota'});
+  return dBog+'T05:00:00.000Z';
+}
 async function loadReg(){
  try{
-  const r=await fetch(REST+'?select=*&order=creado.desc',{headers:HDRS});
+  const r=await fetch(REST+'?select=*&creado=gte.'+desdeHoyUTC()+'&order=creado.desc',{headers:HDRS});
   REG=await r.json();
   REG.forEach(d=>d._canon=canonical(d.agente));
   $('admCount').textContent=REG.length;$('admBig').textContent=REG.length;

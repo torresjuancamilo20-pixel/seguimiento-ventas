@@ -571,6 +571,35 @@
           <p class="card-sub">Tip: puedes registrar varios seguidos; cada uno aparece al instante en tu panel.</p>
         </div>
       </div>
+
+      <!-- WhatsApp -->
+      <div style="margin-top:28px;border-top:1px solid rgba(255,255,255,.06);padding-top:24px">
+        <h3 style="margin:0 0 6px;font-size:.95rem;font-weight:700">📱 Registrar por WhatsApp <span class="badge" style="margin:0">Nuevo</span></h3>
+        <p class="card-sub" style="margin:0 0 14px">Envía un mensaje a Eva por WhatsApp con el nombre y el monto, y se guarda como gasto automáticamente. Ej: <b>"hamburguesas 25000"</b></p>
+        <div id="waStatus"></div>
+        <div id="waSetup" style="display:none">
+          <label style="font-size:.82rem;color:#a99fb8;font-weight:600">Tu número de WhatsApp (con código de país, ej: 573001234567)</label>
+          <div class="key-row" style="margin-top:6px">
+            <input type="tel" id="waPhone" placeholder="573001234567" style="flex:1;background:#1b1426;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 14px;color:#f3eefb;font-size:.9rem">
+            <button class="btn-ghost" id="waLink">Vincular</button>
+          </div>
+        </div>
+        <div id="waVerify" style="display:none;margin-top:12px">
+          <p class="card-sub" style="margin:0 0 8px">Enviamos un código de 6 dígitos a tu WhatsApp. Ingrésalo aquí:</p>
+          <div class="key-row">
+            <input type="text" id="waCode" placeholder="123456" maxlength="6" style="width:120px;background:#1b1426;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 14px;color:#f3eefb;font-size:1.1rem;text-align:center;letter-spacing:4px">
+            <button class="btn-ghost" id="waConfirm">Verificar</button>
+          </div>
+        </div>
+        <div id="waLinked" style="display:none;margin-top:12px">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="color:#22c55e;font-weight:700">✓ WhatsApp vinculado</span>
+            <span id="waLinkedPhone" style="color:#a99fb8"></span>
+            <button class="btn-ghost" id="waUnlink" style="margin-left:auto;font-size:.78rem;color:#ef4757">Desvincular</button>
+          </div>
+          <p class="card-sub" style="margin:8px 0 0">Envía mensajes al número de Eva con formato: <b>hamburguesas 25000</b><br>Para ingresos: <b>ingreso salario 5000000</b> · Para ahorro: <b>ahorro meta 200000</b></p>
+        </div>
+      </div>
     </section>
 
     <!-- Deudas -->
@@ -723,6 +752,7 @@ async function enterApp(){
   else { await aplicarFijosMesActual(); }
   render();
   await loadToken();
+  await loadWA();
   await checkAccess();
 }
 
@@ -757,6 +787,37 @@ function copiar(text,btn){
 }
 $("genToken").onclick=()=>genToken(false);
 $("copyLink").onclick=e=>copiar($("linkView").value,e.target);
+
+/* ---------------- WHATSAPP LINKING ---------------- */
+async function loadWA(){
+  const {data}=await sb.from("finanzas_whatsapp").select("telefono,verificado").eq("user_id",user.id).maybeSingle();
+  $("waSetup").style.display="none"; $("waVerify").style.display="none"; $("waLinked").style.display="none";
+  if(!data){ $("waSetup").style.display="block"; $("waStatus").innerHTML=""; return; }
+  if(!data.verificado){ $("waVerify").style.display="block"; $("waStatus").innerHTML='<span style="color:#f5a623;font-size:.85rem">⏳ Pendiente de verificación — revisa tu WhatsApp</span>'; return; }
+  $("waLinked").style.display="block"; $("waLinkedPhone").textContent=data.telefono; $("waStatus").innerHTML="";
+}
+$("waLink").onclick=async()=>{
+  const phone=$("waPhone").value.replace(/[^0-9]/g,"");
+  if(phone.length<10){ alert("Ingresa un número válido con código de país."); return; }
+  const codigo=String(Math.floor(100000+Math.random()*900000));
+  const {error}=await sb.from("finanzas_whatsapp").upsert({user_id:user.id, telefono:phone, codigo, verificado:false});
+  if(error){ alert("Error: "+error.message); return; }
+  alert("Código de verificación: "+codigo+"\n\nEnvía este código al número de Eva por WhatsApp para verificar tu cuenta.\n\n(Cuando Meta esté configurado, el código te llegará automáticamente por WhatsApp.)");
+  loadWA();
+};
+$("waConfirm").onclick=async()=>{
+  const code=$("waCode").value.trim();
+  if(code.length!==6){ alert("El código debe tener 6 dígitos."); return; }
+  const {data}=await sb.from("finanzas_whatsapp").select("codigo").eq("user_id",user.id).maybeSingle();
+  if(!data||data.codigo!==code){ alert("Código incorrecto. Intenta de nuevo."); return; }
+  await sb.from("finanzas_whatsapp").update({verificado:true}).eq("user_id",user.id);
+  loadWA();
+};
+$("waUnlink").onclick=async()=>{
+  if(!confirm("¿Desvincular tu WhatsApp? Ya no podrás registrar gastos por mensaje.")) return;
+  await sb.from("finanzas_whatsapp").delete().eq("user_id",user.id);
+  loadWA();
+};
 
 /* ---------------- ONBOARDING ---------------- */
 let obPaso=0; let obFijos=[];

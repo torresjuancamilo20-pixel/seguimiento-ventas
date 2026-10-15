@@ -3,12 +3,12 @@
 <title>Rumbo al Siguiente Nivel · Registro</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
-:root{--gold:#f5c518;--gold2:#e0a800;--goldd:#b8860b;--ink:#0a0a0a;--card:#141414;--line:#2a2a2a;--mut:#9aa0a6}
+:root{--gold:#1e9bf0;--gold2:#0a84ff;--goldd:#0a6fc2;--ink:#0a0a0a;--card:#141414;--line:#2a2a2a;--mut:#9aa0a6}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#050505;color:#fff;font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
 .bg{position:fixed;inset:0;z-index:0;background:
- radial-gradient(900px 500px at 85% 8%,rgba(245,197,24,.20),transparent 60%),
- radial-gradient(700px 500px at 10% 90%,rgba(245,197,24,.10),transparent 60%),
+ radial-gradient(900px 500px at 85% 8%,rgba(30,155,240,.20),transparent 60%),
+ radial-gradient(700px 500px at 10% 90%,rgba(30,155,240,.10),transparent 60%),
  linear-gradient(180deg,#0b0b0b,#000)}
 .bg::after{content:"";position:absolute;inset:0;opacity:.06;background-image:
  linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),
@@ -21,9 +21,9 @@ body{background:#050505;color:#fff;font-family:'Inter',sans-serif;-webkit-font-s
 .hero .l1{font-family:'Space Grotesk';font-weight:700;font-size:clamp(26px,7vw,40px);letter-spacing:.18em;color:#fff}
 .hero .l2{font-family:'Space Grotesk';font-weight:700;font-size:clamp(40px,12vw,72px);line-height:.95;letter-spacing:.02em;color:#fff;text-shadow:0 2px 20px rgba(255,255,255,.15)}
 .hero .l3{font-family:'Space Grotesk';font-weight:700;font-size:clamp(40px,12vw,72px);line-height:.95;letter-spacing:.02em;
- background:linear-gradient(180deg,#fde68a,#f5c518 45%,#b8860b);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 12px rgba(245,197,24,.35))}
+ background:linear-gradient(180deg,#8fd2ff,#1e9bf0 45%,#0a6fc2);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 12px rgba(30,155,240,.35))}
 .rocket{font-size:34px;margin:6px 0 2px}
-.live{display:inline-flex;align-items:center;gap:9px;margin:16px 0 26px;padding:11px 22px;border-radius:30px;background:linear-gradient(180deg,#fde68a,#f5c518);color:#1a1a00;font-family:'Space Grotesk';font-weight:700;font-size:17px;letter-spacing:.03em;box-shadow:0 8px 26px rgba(245,197,24,.30)}
+.live{display:inline-flex;align-items:center;gap:9px;margin:16px 0 26px;padding:11px 22px;border-radius:30px;background:linear-gradient(180deg,#8fd2ff,#1e9bf0);color:#04121e;font-family:'Space Grotesk';font-weight:700;font-size:17px;letter-spacing:.03em;box-shadow:0 8px 26px rgba(30,155,240,.30)}
 .live .dot{display:inline-flex;align-items:center;gap:6px;background:#c0140f;color:#fff;font-size:10px;font-weight:800;letter-spacing:.08em;padding:3px 8px;border-radius:20px;text-transform:uppercase}
 .live .dot i{width:7px;height:7px;border-radius:50%;background:#fff;display:inline-block;animation:blink 1.1s infinite}
 @keyframes blink{50%{opacity:.25}}
@@ -33,10 +33,10 @@ body{background:#050505;color:#fff;font-family:'Inter',sans-serif;-webkit-font-s
 label{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);font-weight:700;margin:16px 0 7px}
 .inp{width:100%;padding:13px 15px;border:1.5px solid var(--line);border-radius:12px;background:#0d0d0d;color:#fff;font-family:'Inter';font-size:15px;transition:.15s}
 .inp::placeholder{color:#6b6b6b}
-.inp:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,197,24,.15)}
+.inp:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(30,155,240,.15)}
 select.inp{cursor:pointer}
 select.inp option{background:#0d0d0d}
-.btn{width:100%;margin-top:24px;padding:15px;border:none;border-radius:12px;background:linear-gradient(180deg,#fde68a,#f5c518);color:#1a1a00;font-family:'Space Grotesk';font-size:16px;font-weight:700;letter-spacing:.03em;cursor:pointer;transition:.15s}
+.btn{width:100%;margin-top:24px;padding:15px;border:none;border-radius:12px;background:linear-gradient(180deg,#8fd2ff,#1e9bf0);color:#04121e;font-family:'Space Grotesk';font-size:16px;font-weight:700;letter-spacing:.03em;cursor:pointer;transition:.15s}
 .btn:hover{filter:brightness(1.06)}.btn:disabled{opacity:.6;cursor:default}
 .err{color:#ff6b6b;font-size:13px;margin-top:12px;font-weight:600;min-height:16px;text-align:center}
 .ok{text-align:center;padding:14px 6px}
@@ -65,7 +65,7 @@ select.inp option{background:#0d0d0d}
 .resumen .row b{color:var(--gold)}
 #admFiltro{max-width:180px}
 .bigcount{text-align:center;margin:2px 0 18px}
-.bignum{font-family:'Space Grotesk';font-weight:700;font-size:66px;line-height:1;background:linear-gradient(180deg,#fde68a,#f5c518 55%,#b8860b);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 12px rgba(245,197,24,.3))}
+.bignum{font-family:'Space Grotesk';font-weight:700;font-size:66px;line-height:1;background:linear-gradient(180deg,#8fd2ff,#1e9bf0 55%,#0a6fc2);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 12px rgba(30,155,240,.3))}
 .biglbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);font-weight:700;margin-top:6px}
 </style></head><body>
 <div class="bg"></div>
@@ -74,8 +74,8 @@ select.inp option{background:#0d0d0d}
 
  <div class="hero">
   <div class="l1">RUMBO AL</div>
-  <div class="l2">SIGUIENTE</div>
-  <div class="l3">NIVEL</div>
+  <div class="l3">SIGUIENTE</div>
+  <div class="l2">NIVEL</div>
   <div class="rocket">🚀</div>
  </div>
  <div style="text-align:center">

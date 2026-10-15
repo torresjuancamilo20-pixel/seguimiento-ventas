@@ -174,6 +174,31 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:#0b0806;font-fam
 .btn{background:linear-gradient(135deg,#f06ce0,#c026d3 50%,#a855f7);padding:20px 46px;border-radius:999px;font-size:28px;font-weight:800;box-shadow:0 0 50px rgba(226,75,216,.7)}
 .price{font-size:26px;color:#c9bdd6;font-weight:600}
 .price b{color:#fff;font-size:34px}
+
+/* ===== Modo "solo video" (?solo=1): sin laptop, pantalla completa vertical ===== */
+.solo .wall-edge,.solo .desk,.solo .deck,.solo .hinge,.solo .spill,.solo .pill,.solo .notch,.solo .glare,.solo .menubar,.solo .dock,.solo .room>div[style*="linear-gradient(180deg,transparent"]{display:none}
+.solo .room{background:#07060c}.solo .room::after{display:none}
+.solo .cam{animation:none}
+.solo .lid{left:0;top:0;width:1080px;height:1920px;transform:none;border:0;padding:0;border-radius:0;box-shadow:none;background:none}
+.solo .display{width:1080px;height:1920px;border-radius:0}
+.solo .scr{width:1080px;height:1920px;transform:none;
+  background:radial-gradient(900px 800px at 10% -5%,rgba(226,75,216,.35),transparent 60%),
+             radial-gradient(800px 800px at 105% 20%,rgba(168,85,247,.25),transparent 60%),
+             radial-gradient(900px 900px at 50% 110%,rgba(226,75,216,.22),transparent 60%),#07060c}
+.solo .scene{inset:0;padding:0 60px}
+.solo .t{font-size:70px!important;line-height:1.15}
+.solo .t+.t{font-size:52px!important}
+.solo .phone{zoom:1.45}
+.solo .win{zoom:1.45;width:660px;height:auto;margin-top:40px}
+.solo .main{grid-template-columns:1fr;padding:22px;gap:18px}
+.solo .chart{height:220px!important}
+.solo .wa-row{flex-direction:column;gap:30px;margin-top:40px}
+.solo .wa-row .phone{zoom:1.25}
+.solo .mov{zoom:1.5;min-height:430px}
+.solo .debts{width:640px;zoom:1.5;margin-top:60px}
+.solo .wm{zoom:1.5}.solo .halo{zoom:1.6}
+.solo .tag2,.solo .cta{zoom:1.35}
+.solo .dot{zoom:1.6}
 </style>
 </head>
 <body>
@@ -341,6 +366,7 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:#0b0806;font-fam
 @keyframes hide{to{opacity:0;display:none;height:0;padding:0;margin:0}}
 </style>
 <script>
+if(/solo/.test(location.search)) document.body.classList.add('solo');
 // teclado
 const k=document.getElementById('keys');
 const row=(n,ex)=>{for(let i=0;i<n;i++){const e=document.createElement('i');k.appendChild(e)} };

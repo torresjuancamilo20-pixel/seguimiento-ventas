@@ -969,9 +969,9 @@ async function descartarPV(id){
 function exportarPV(){
  const si=b=>b?'Sí':'No';
  const prodById={}; PRODUCTOS_DB.forEach(pd=>prodById[pd.id]=pd);
- const CAB=['Agente','Nombre','Celular','Membresía','Facturación','Ganancia','Producto','Fecha posible de pago','Observación','Inv. clase','Inv. operativa','Inv. presentación','1 a 1'];
+ const CAB=['Agente','Nombre','Celular','Membresía','Facturación','Ganancia','Compró','Producto','Fecha posible de pago','Observación','Inv. clase','Inv. operativa','Inv. presentación','1 a 1'];
  const base=PVENTAS.filter(p=> PV_FILTRO==='todos' ? true : !!p[PV_FILTRO]);
- const filas=base.map(p=>{const pd=prodById[p.membresia_id];return [p.agente||'',p.nombre||'',p.celular||'',pd?pd.nombre:'',pd?(+pd.precio||0):'',pd?(+pd.comision||0):'',p.producto||'',p.fecha_pago||'',p.observacion||'',si(p.inv_clase),si(p.inv_operativa),si(p.inv_presentacion),si(p.uno_a_uno)];});
+ const filas=base.map(p=>{const pd=prodById[p.membresia_id];return [p.agente||'',p.nombre||'',p.celular||'',pd?pd.nombre:'',pd?(+pd.precio||0):'',pd?(+pd.comision||0):'',si(p.comprado),p.producto||'',p.fecha_pago||'',p.observacion||'',si(p.inv_clase),si(p.inv_operativa),si(p.inv_presentacion),si(p.uno_a_uno)];});
  const quien=ROLE==='director'?'equipo':(ME||'agente').replace(/\s+/g,'_');
  descargarCSV([CAB,...filas],'posibles_ventas_'+quien+'_'+hoyISO()+'.csv');
 }
@@ -1671,9 +1671,18 @@ function renderPV(){
  const fact=PVENTAS.reduce((s,p)=>{const pd=prodById[p.membresia_id];return s+(pd?(+pd.precio||0):0);},0);
  const gan=PVENTAS.reduce((s,p)=>{const pd=prodById[p.membresia_id];return s+(pd?(+pd.comision||0):0);},0);
  const nSel=PVENTAS.filter(p=>prodById[p.membresia_id]).length;
- const projCard=`<div class="mgrid">
-   <div class="mcard" style="text-align:center;background:linear-gradient(135deg,rgba(233,199,102,.14),transparent)"><div class="ftdday-lb">💵 Facturación proyectada</div><div style="font-family:'Space Grotesk';font-weight:800;font-size:46px;line-height:1;color:#e9c766">${money(fact)}</div><div class="hint" style="margin-top:6px">${nSel} ${nSel===1?'venta':'ventas'} con membresía</div></div>
-   <div class="mcard" style="text-align:center;background:linear-gradient(135deg,rgba(47,209,141,.14),transparent)"><div class="ftdday-lb">🤑 Ganancia proyectada</div><div style="font-family:'Space Grotesk';font-weight:800;font-size:46px;line-height:1;color:#2fd18d">${money(gan)}</div><div class="hint" style="margin-top:6px">Comisión estimada</div></div>
+ // Realizado: solo los que ya COMPRARON (con membresía elegida)
+ const compr=PVENTAS.filter(p=>p.comprado && prodById[p.membresia_id]);
+ const factReal=compr.reduce((s,p)=>s+(+prodById[p.membresia_id].precio||0),0);
+ const ganReal=compr.reduce((s,p)=>s+(+prodById[p.membresia_id].comision||0),0);
+ const projCard=`<div class="mcard" style="text-align:center;background:linear-gradient(135deg,rgba(47,209,141,.22),rgba(47,209,141,.04) 70%);border-color:rgba(47,209,141,.35)">
+   <div class="ftdday-lb">✅ Total ganado</div>
+   <div style="font-family:'Space Grotesk';font-weight:800;font-size:60px;line-height:1;color:#2fd18d">${money(ganReal)}</div>
+   <div class="hint" style="margin-top:6px">${compr.length} ${compr.length===1?'compra':'compras'} · facturado <b style="color:var(--ink)">${money(factReal)}</b></div>
+  </div>
+  <div class="mgrid">
+   <div class="mcard" style="text-align:center;background:linear-gradient(135deg,rgba(233,199,102,.14),transparent)"><div class="ftdday-lb">💵 Facturación proyectada</div><div style="font-family:'Space Grotesk';font-weight:800;font-size:42px;line-height:1;color:#e9c766">${money(fact)}</div><div class="hint" style="margin-top:6px">${nSel} ${nSel===1?'venta':'ventas'} con membresía</div></div>
+   <div class="mcard" style="text-align:center;background:linear-gradient(135deg,rgba(139,92,246,.14),transparent)"><div class="ftdday-lb">🤑 Ganancia proyectada</div><div style="font-family:'Space Grotesk';font-weight:800;font-size:42px;line-height:1;color:#a78bfa">${money(gan)}</div><div class="hint" style="margin-top:6px">Comisión estimada</div></div>
   </div>`;
  const btns=p=> dir
    ? `<div class="pvbtns">${PV_BTNS.map(([k,l])=>`<span class="pvchip ${p[k]?'on':''}">${p[k]?'✔ ':''}${l}</span>`).join('')}</div>`
@@ -1693,6 +1702,9 @@ function renderPV(){
        </div>
        ${memInfo(p)}
        <input class="pvobs" data-id="${p.id}" value="${esc(p.observacion||'')}" placeholder="Observación del cliente…">`}
+   ${dir
+     ? (p.comprado?`<div class="posfro" style="color:#2fd18d;font-weight:700">✅ Compró${prodById[p.membresia_id]?(' · +'+money(prodById[p.membresia_id].comision)):''}</div>`:'')
+     : `<div class="pvbtns" style="margin-top:8px"><button class="pvbtn pvcompro ${p.comprado?'on':''}" data-id="${p.id}" data-on="${p.comprado?1:0}">${p.comprado?'✅ Compró':'Marcar COMPRÓ'}</button></div>`}
    ${acc(p)}
    ${btns(p)}
   </div>`;
@@ -1723,6 +1735,7 @@ function renderPV(){
  el.innerHTML = projCard + addCard + filtroCard + lista;
  const pa=$('pvAdd'); if(pa) pa.onclick=agregarPV;
  el.querySelectorAll('.pvmemb').forEach(s=>s.onchange=()=>{pvCampo(s.dataset.id,'membresia_id',s.value||null);renderPV();});
+ el.querySelectorAll('.pvcompro').forEach(b=>b.onclick=()=>pvToggle(b.dataset.id,'comprado',!(b.dataset.on==='1')));
  const pn=$('pvNombre'); if(pn) pn.onkeydown=(e)=>{if(e.key==='Enter')agregarPV();};
  el.querySelectorAll('.pvfil').forEach(c=>c.onclick=()=>{PV_FILTRO=c.dataset.f;renderPV();});
  const pcsv=$('pvCsv'); if(pcsv) pcsv.onclick=exportarPV;

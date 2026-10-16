@@ -1704,7 +1704,7 @@ function renderPV(){
        <input class="pvobs" data-id="${p.id}" value="${esc(p.observacion||'')}" placeholder="Observación del cliente…">`}
    ${dir
      ? (p.comprado?`<div class="posfro" style="color:#2fd18d;font-weight:700">✅ Compró${prodById[p.membresia_id]?(' · +'+money(prodById[p.membresia_id].comision)):''}</div>`:'')
-     : `<div class="pvbtns" style="margin-top:8px"><button class="pvbtn pvcompro ${p.comprado?'on':''}" data-id="${p.id}" data-on="${p.comprado?1:0}">${p.comprado?'✅ Compró':'Marcar COMPRÓ'}</button></div>`}
+     : `<div class="pvbtns" style="margin-top:8px"><button class="pvbtn pvcompro ${p.comprado?'on':''}" data-id="${p.id}" data-campo="comprado" data-on="${p.comprado?1:0}">${p.comprado?'✅ Compró':'Marcar COMPRÓ'}</button></div>`}
    ${acc(p)}
    ${btns(p)}
   </div>`;

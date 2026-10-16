@@ -968,9 +968,10 @@ async function descartarPV(id){
 }
 function exportarPV(){
  const si=b=>b?'Sí':'No';
- const CAB=['Agente','Nombre','Celular','Producto','Fecha posible de pago','Observación','Inv. clase','Inv. operativa','Inv. presentación','1 a 1'];
+ const prodById={}; PRODUCTOS_DB.forEach(pd=>prodById[pd.id]=pd);
+ const CAB=['Agente','Nombre','Celular','Membresía','Facturación','Ganancia','Producto','Fecha posible de pago','Observación','Inv. clase','Inv. operativa','Inv. presentación','1 a 1'];
  const base=PVENTAS.filter(p=> PV_FILTRO==='todos' ? true : !!p[PV_FILTRO]);
- const filas=base.map(p=>[p.agente||'',p.nombre||'',p.celular||'',p.producto||'',p.fecha_pago||'',p.observacion||'',si(p.inv_clase),si(p.inv_operativa),si(p.inv_presentacion),si(p.uno_a_uno)]);
+ const filas=base.map(p=>{const pd=prodById[p.membresia_id];return [p.agente||'',p.nombre||'',p.celular||'',pd?pd.nombre:'',pd?(+pd.precio||0):'',pd?(+pd.comision||0):'',p.producto||'',p.fecha_pago||'',p.observacion||'',si(p.inv_clase),si(p.inv_operativa),si(p.inv_presentacion),si(p.uno_a_uno)];});
  const quien=ROLE==='director'?'equipo':(ME||'agente').replace(/\s+/g,'_');
  descargarCSV([CAB,...filas],'posibles_ventas_'+quien+'_'+hoyISO()+'.csv');
 }
@@ -1310,7 +1311,7 @@ function showView(v){
    $('eyebrow').textContent='Prospectos';
    $('viewTitle').textContent='Posibles ventas';
    $('viewSub').textContent='Clientes que escriben y las invitaciones que les has hecho.';
-   loadPV().then(renderPV); renderPV();
+   Promise.all([loadPV(),(PRODUCTOS_DB.length?Promise.resolve():loadProductos())]).then(renderPV); renderPV();
  }else if(ftd){
    $('eyebrow').textContent='Depósitos';
    $('viewTitle').textContent="Mis FTD's";
@@ -1662,6 +1663,18 @@ const PV_BTNS=[['inv_clase','Invitación a clase'],['inv_operativa','Invitación
 function renderPV(){
  const el=$('viewPV'); if(!el) return;
  const dir=ROLE==='director';
+ const prodById={}; PRODUCTOS_DB.forEach(pd=>prodById[pd.id]=pd);
+ const money=v=>'$'+Math.round(+v||0).toLocaleString('en-US');
+ const memOptsHTML=(sel)=>`<option value="">— Membresía a vender / pactada —</option>`+PRODUCTOS_DB.filter(pd=>pd.activo).sort((a,b)=>(a.orden||0)-(b.orden||0)).map(pd=>`<option value="${pd.id}" ${sel===pd.id?'selected':''}>${esc(pd.nombre)} · ${money(pd.precio)}${(+pd.comision>0)?(' · gana '+money(pd.comision)):''}</option>`).join('');
+ const memInfo=(p)=>{const pd=prodById[p.membresia_id]; if(!pd) return ''; return `<div class="posfro">💳 <b>${esc(pd.nombre)}</b> · factura ${money(pd.precio)} · ganancia ${money(pd.comision)}</div>`;};
+ // Proyección: suma de precios (facturación) y comisiones (ganancia) de las membresías elegidas
+ const fact=PVENTAS.reduce((s,p)=>{const pd=prodById[p.membresia_id];return s+(pd?(+pd.precio||0):0);},0);
+ const gan=PVENTAS.reduce((s,p)=>{const pd=prodById[p.membresia_id];return s+(pd?(+pd.comision||0):0);},0);
+ const nSel=PVENTAS.filter(p=>prodById[p.membresia_id]).length;
+ const projCard=`<div class="mgrid">
+   <div class="mcard" style="text-align:center;background:linear-gradient(135deg,rgba(233,199,102,.14),transparent)"><div class="ftdday-lb">💵 Facturación proyectada</div><div style="font-family:'Space Grotesk';font-weight:800;font-size:46px;line-height:1;color:#e9c766">${money(fact)}</div><div class="hint" style="margin-top:6px">${nSel} ${nSel===1?'venta':'ventas'} con membresía</div></div>
+   <div class="mcard" style="text-align:center;background:linear-gradient(135deg,rgba(47,209,141,.14),transparent)"><div class="ftdday-lb">🤑 Ganancia proyectada</div><div style="font-family:'Space Grotesk';font-weight:800;font-size:46px;line-height:1;color:#2fd18d">${money(gan)}</div><div class="hint" style="margin-top:6px">Comisión estimada</div></div>
+  </div>`;
  const btns=p=> dir
    ? `<div class="pvbtns">${PV_BTNS.map(([k,l])=>`<span class="pvchip ${p[k]?'on':''}">${p[k]?'✔ ':''}${l}</span>`).join('')}</div>`
    : `<div class="pvbtns">${PV_BTNS.map(([k,l])=>`<button class="pvbtn ${p[k]?'on':''}" data-id="${p.id}" data-campo="${k}" data-on="${p[k]?1:0}">${p[k]?'✔ ':''}${l}</button>`).join('')}</div>`;
@@ -1673,11 +1686,12 @@ function renderPV(){
      ${dir?'':`<button class="pvdel" data-id="${p.id}" title="Quitar">✕</button>`}
    </div>
    ${dir
-     ? `${p.producto?`<div class="posfro">🎯 Producto: <b>${esc(p.producto)}</b></div>`:''}${p.fecha_pago?`<div class="posfro">📆 Pago posible: <b>${fpfmt(p.fecha_pago)}</b></div>`:''}${p.observacion?`<div class="obsro">📝 ${esc(p.observacion)}</div>`:''}`
+     ? `${memInfo(p)}${p.producto?`<div class="posfro">🎯 Producto: <b>${esc(p.producto)}</b></div>`:''}${p.fecha_pago?`<div class="posfro">📆 Pago posible: <b>${fpfmt(p.fecha_pago)}</b></div>`:''}${p.observacion?`<div class="obsro">📝 ${esc(p.observacion)}</div>`:''}`
      : `<div class="pvfields">
-         <div class="posf nota"><label>Producto de interés</label><input class="pvprod" data-id="${p.id}" value="${esc(p.producto||'')}" placeholder="Producto…"></div>
+         <div class="posf nota"><label>Membresía a vender / pactada</label><select class="minp pvmemb" data-id="${p.id}">${memOptsHTML(p.membresia_id)}</select></div>
          <div class="posf"><label>Fecha posible de pago</label><input type="date" class="pvpago" data-id="${p.id}" value="${esc(p.fecha_pago||'')}"></div>
        </div>
+       ${memInfo(p)}
        <input class="pvobs" data-id="${p.id}" value="${esc(p.observacion||'')}" placeholder="Observación del cliente…">`}
    ${acc(p)}
    ${btns(p)}
@@ -1706,8 +1720,9 @@ function renderPV(){
    const fl=PVENTAS.filter(pasa);
    lista = `<div class="mcard"><h3>🛒 Mis posibles ventas (${fl.length}${fl.length!==PVENTAS.length?' de '+PVENTAS.length:''})</h3>${fl.length? fl.map(tarjeta).join('') : '<div class="hint">Ningún posible venta coincide con el filtro.</div>'}</div>`;
  }
- el.innerHTML = addCard + filtroCard + lista;
+ el.innerHTML = projCard + addCard + filtroCard + lista;
  const pa=$('pvAdd'); if(pa) pa.onclick=agregarPV;
+ el.querySelectorAll('.pvmemb').forEach(s=>s.onchange=()=>{pvCampo(s.dataset.id,'membresia_id',s.value||null);renderPV();});
  const pn=$('pvNombre'); if(pn) pn.onkeydown=(e)=>{if(e.key==='Enter')agregarPV();};
  el.querySelectorAll('.pvfil').forEach(c=>c.onclick=()=>{PV_FILTRO=c.dataset.f;renderPV();});
  const pcsv=$('pvCsv'); if(pcsv) pcsv.onclick=exportarPV;

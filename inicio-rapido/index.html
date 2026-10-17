@@ -49,11 +49,30 @@ video{display:block;width:100%;background:#000;aspect-ratio:8/5}
 .tgbtn{display:flex;align-items:center;justify-content:center;gap:11px;width:100%;background:linear-gradient(90deg,#2aa8ff,#0b5cc0);color:#fff;font-weight:700;font-size:17px;padding:16px 24px;border-radius:14px;text-decoration:none;box-shadow:0 14px 40px rgba(42,168,255,.35);margin-bottom:26px;transition:transform .15s}
 .tgbtn:active{transform:scale(.98)}
 .tgbtn svg{width:22px;height:22px;flex:none}
+.tgcard{position:relative;overflow:hidden;background:linear-gradient(160deg,rgba(42,168,255,.16),rgba(11,92,192,.06));border:1px solid var(--line2);border-radius:20px;padding:24px 22px;margin-bottom:22px}
+.tgcard::before{content:"";position:absolute;top:-60px;right:-50px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(42,168,255,.35),transparent 70%)}
+.tgcard .tgt{display:flex;align-items:center;gap:10px;font-family:'Space Grotesk';font-weight:700;font-size:19px;margin-bottom:10px;position:relative}
+.tgcard .tgt svg{width:24px;height:24px;flex:none;fill:var(--sigd)}
+.tgcard p{color:var(--ink2);font-size:15.5px;line-height:1.55;position:relative;margin-bottom:14px}
+.tgcard ul{list-style:none;position:relative;display:flex;flex-direction:column;gap:11px}
+.tgcard li{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:13px;padding:13px 15px;font-size:15.5px;font-weight:600}
+.tgcard li .em{font-size:22px;flex:none}
 @media(max-width:520px){h1{font-size:30px}.wrap{padding:24px 16px 60px}}
 </style></head>
 <body>
 <div class="wrap">
  <div class="brand"><div class="mk">N</div><div class="tx">NEXUS</div></div>
+
+ <div class="tgcard">
+  <div class="tgt"><svg viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>Únete al canal de Telegram</div>
+  <p>Es <strong>indispensable</strong> que ingreses al canal: allí encontrarás <strong>todos los servicios</strong> incluidos en tu acceso a Nexus 👇</p>
+  <ul>
+   <li><span class="em">📊</span>Los listados de señales diarias</li>
+   <li><span class="em">📈</span>Las operativas en vivo</li>
+   <li><span class="em">🎓</span>Las clases y sesiones educativas diarias</li>
+   <li><span class="em">🚀</span>Y mucho más para que avances cada día</li>
+  </ul>
+ </div>
 
  <a class="tgbtn" href="https://t.me/+zwIkJP-sPo45OWQx" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="#fff"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>Accede al canal de Telegram</a>
 

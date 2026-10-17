@@ -45,6 +45,14 @@ video{display:block;width:100%;background:#000;aspect-ratio:8/5}
 .cta{margin-top:34px;text-align:center}
 .btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(90deg,#2aa8ff,#0b5cc0);color:#fff;font-weight:700;font-size:17px;padding:17px 34px;border-radius:14px;text-decoration:none;box-shadow:0 14px 40px rgba(42,168,255,.35);transition:transform .15s}
 .btn:active{transform:scale(.97)}
+.liveclass{position:relative;overflow:hidden;margin-top:40px;text-align:center;background:linear-gradient(160deg,rgba(42,168,255,.16),rgba(11,92,192,.06));border:1px solid var(--line2);border-radius:20px;padding:28px 22px}
+.liveclass::before{content:"";position:absolute;top:-60px;left:-50px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(42,168,255,.32),transparent 70%)}
+.lc-badge{position:relative;display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.12em;color:#fff;background:#ff2d46;padding:7px 14px;border-radius:999px;margin-bottom:14px}
+.lc-dot{width:8px;height:8px;border-radius:50%;background:#fff;animation:lcpulse 1.2s infinite}
+@keyframes lcpulse{0%,100%{opacity:1}50%{opacity:.25}}
+.lc-t{position:relative;font-family:'Space Grotesk';font-weight:700;font-size:22px;margin-bottom:8px}
+.lc-sub{position:relative;color:var(--ink2);font-size:15.5px;line-height:1.55;max-width:480px;margin:0 auto 16px}
+.lc-hour{position:relative;display:inline-block;font-family:'Space Grotesk';font-weight:700;font-size:28px;color:var(--sigd);background:rgba(42,168,255,.1);border:1px solid var(--line2);padding:12px 26px;border-radius:14px}
 .foot{margin-top:40px;text-align:center;color:var(--mut);font-size:13px}
 .tgbtn{display:flex;align-items:center;justify-content:center;gap:11px;width:100%;background:linear-gradient(90deg,#2aa8ff,#0b5cc0);color:#fff;font-weight:700;font-size:17px;padding:16px 24px;border-radius:14px;text-decoration:none;box-shadow:0 14px 40px rgba(42,168,255,.35);margin-bottom:26px;transition:transform .15s}
 .tgbtn:active{transform:scale(.98)}
@@ -105,6 +113,13 @@ video{display:block;width:100%;background:#000;aspect-ratio:8/5}
   <div class="ytwrap">
    <iframe src="https://www.youtube.com/embed/izSHomazWXY" title="Cómo copiar y pegar señales desde el celular" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
   </div>
+ </div>
+
+ <div class="liveclass">
+  <span class="lc-badge"><span class="lc-dot"></span>EN VIVO</span>
+  <div class="lc-t">Clase en vivo del uso del broker</div>
+  <div class="lc-sub">Recuerda que <strong>todos los días, de lunes a viernes</strong>, tenemos clase en vivo del uso del broker.</div>
+  <div class="lc-hour">🕖 7:00 PM</div>
  </div>
 
  <div class="foot">NEXUS · Inicio Rápido</div>

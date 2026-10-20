@@ -1,0 +1,332 @@
+<title>Ruleta Bíblica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Fredoka:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --night:#191238;
+    --night-2:#221a4a;
+    --panel:#2a2154;
+    --gold:#e7b24c;
+    --gold-soft:#f0cd82;
+    --cream:#f6eedd;
+    --cream-dim:#cdc2b0;
+    --wine:#8a3346;
+    --teal:#3e8c7e;
+    --violet:#6d4aa8;
+    --line:rgba(231,178,76,.28);
+    --shadow:rgba(8,4,24,.55);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:
+      radial-gradient(1200px 700px at 50% -10%, #2a2059 0%, transparent 60%),
+      radial-gradient(900px 900px at 90% 110%, #241b4d 0%, transparent 55%),
+      var(--night);
+    color:var(--cream);
+    font-family:"Fredoka",system-ui,sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:28px 18px 60px;
+    overflow-x:hidden;
+  }
+
+  /* starry sprinkle */
+  .stars{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.7}
+  .stars b{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--gold-soft);box-shadow:0 0 6px var(--gold-soft);animation:tw 4s ease-in-out infinite}
+  @keyframes tw{0%,100%{opacity:.15}50%{opacity:.9}}
+
+  header{text-align:center;z-index:1;margin-bottom:6px}
+  .eyebrow{
+    font-family:"Cinzel",serif;letter-spacing:.32em;text-transform:uppercase;
+    font-size:.72rem;color:var(--gold);margin:0 0 8px;
+  }
+  h1{
+    font-family:"Cinzel",serif;font-weight:700;
+    font-size:clamp(2rem,6vw,3.4rem);line-height:1.02;margin:0;
+    text-wrap:balance;
+    color:var(--cream);
+    text-shadow:0 2px 0 rgba(0,0,0,.25);
+  }
+  h1 span{color:var(--gold)}
+  .sub{color:var(--cream-dim);font-size:1rem;margin:12px auto 0;max-width:46ch;text-wrap:balance}
+
+  .stage{
+    z-index:1;position:relative;margin-top:22px;
+    width:min(88vw,540px);aspect-ratio:1;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .pointer{
+    position:absolute;top:-6px;left:50%;transform:translateX(-50%);
+    width:0;height:0;border-left:20px solid transparent;border-right:20px solid transparent;
+    border-top:34px solid var(--gold);z-index:6;
+    filter:drop-shadow(0 4px 6px var(--shadow));
+  }
+  .pointer::after{
+    content:"";position:absolute;top:-40px;left:-10px;width:20px;height:20px;border-radius:50%;
+    background:var(--gold);box-shadow:0 0 0 4px var(--night-2), 0 3px 8px var(--shadow);
+  }
+  canvas{
+    width:100%;height:100%;border-radius:50%;
+    box-shadow:0 0 0 10px var(--night-2), 0 0 0 13px var(--gold),
+               0 26px 50px -12px var(--shadow), inset 0 0 60px rgba(0,0,0,.35);
+    transition:transform 5.4s cubic-bezier(.15,.72,.16,1);
+    cursor:pointer;
+  }
+  .hub{
+    position:absolute;width:19%;aspect-ratio:1;border-radius:50%;z-index:5;
+    background:radial-gradient(circle at 38% 32%, #fff7e6 0%, var(--gold) 42%, #b7842d 100%);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 0 5px var(--night-2), 0 8px 20px var(--shadow);
+    color:var(--night);font-size:1.5rem;
+  }
+
+  .controls{z-index:1;margin-top:30px;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .spin{
+    font-family:"Cinzel",serif;font-weight:700;letter-spacing:.06em;
+    font-size:1.15rem;color:var(--night);
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    border:none;border-radius:999px;padding:16px 44px;cursor:pointer;
+    box-shadow:0 8px 0 -1px #a9762a, 0 14px 26px -8px var(--shadow);
+    transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .spin:hover{transform:translateY(-2px)}
+  .spin:active{transform:translateY(5px);box-shadow:0 3px 0 -1px #a9762a,0 8px 18px -8px var(--shadow)}
+  .spin:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:0 8px 0 -1px #a9762a}
+  .hint{color:var(--cream-dim);font-size:.9rem}
+
+  /* reveal card */
+  .card{
+    z-index:2;margin-top:26px;width:min(92vw,560px);
+    background:linear-gradient(180deg,var(--panel),var(--night-2));
+    border:1px solid var(--line);border-radius:22px;
+    padding:26px 26px 30px;text-align:center;
+    box-shadow:0 20px 50px -18px var(--shadow);
+    opacity:0;transform:translateY(14px) scale(.98);
+    transition:opacity .4s ease, transform .4s ease;
+    pointer-events:none;
+  }
+  .card.show{opacity:1;transform:none;pointer-events:auto}
+  .card .label{
+    font-family:"Cinzel",serif;text-transform:uppercase;letter-spacing:.22em;
+    font-size:.7rem;color:var(--gold);margin-bottom:14px;
+  }
+  .clue{font-size:clamp(2.6rem,12vw,4.4rem);line-height:1.15;letter-spacing:.06em;margin:6px 0 4px;filter:drop-shadow(0 4px 8px var(--shadow))}
+  .ask{color:var(--cream);font-size:1.1rem;font-weight:500;margin:12px 0 20px}
+  .reveal-btn{
+    font-family:"Fredoka",sans-serif;font-weight:600;font-size:1rem;
+    color:var(--cream);background:transparent;border:1.5px solid var(--gold);
+    border-radius:999px;padding:11px 26px;cursor:pointer;transition:background .15s,color .15s;
+  }
+  .reveal-btn:hover{background:var(--gold);color:var(--night)}
+  .answer{display:none;margin-top:6px;animation:pop .45s ease}
+  .answer.show{display:block}
+  @keyframes pop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+  .name{font-family:"Cinzel",serif;font-weight:700;font-size:clamp(1.6rem,6vw,2.3rem);color:var(--gold);margin:4px 0 10px}
+  .deed{color:var(--cream);font-size:1.08rem;line-height:1.5;max-width:44ch;margin:0 auto 6px}
+  .verse{color:var(--cream-dim);font-size:.85rem;font-style:italic;margin-top:10px}
+  .prize{
+    margin-top:18px;padding-top:16px;border-top:1px dashed var(--line);
+    color:var(--gold-soft);font-weight:600;font-size:1rem;
+  }
+  .prize span{font-size:1.3rem}
+
+  footer{z-index:1;margin-top:38px;color:var(--cream-dim);font-size:.82rem;text-align:center;max-width:40ch}
+  .count{color:var(--gold)}
+
+  @media (prefers-reduced-motion: reduce){
+    canvas{transition:transform 1.2s ease-out}
+    .stars b{animation:none}
+  }
+</style>
+
+<div class="stars" id="stars" aria-hidden="true"></div>
+
+<header>
+  <p class="eyebrow">Juego para la iglesia</p>
+  <h1>Ruleta <span>Bíblica</span></h1>
+  <p class="sub">Gira la ruleta, adivina el personaje por sus emojis y cuenta qué hizo en la Biblia. ¡El que acierte come de la mesa de pasabocas!</p>
+</header>
+
+<div class="stage">
+  <div class="pointer" aria-hidden="true"></div>
+  <canvas id="wheel" width="1000" height="1000" role="img" aria-label="Ruleta de personajes bíblicos"></canvas>
+  <div class="hub" aria-hidden="true">✨</div>
+</div>
+
+<div class="controls">
+  <button class="spin" id="spinBtn">¡Girar!</button>
+  <p class="hint" id="hint">Toca la ruleta o el botón para girar</p>
+</div>
+
+<div class="card" id="card" aria-live="polite">
+  <p class="label">Adivina quién es</p>
+  <div class="clue" id="clue">❔</div>
+  <p class="ask">¿Qué personaje es y qué hizo en la Biblia?</p>
+  <button class="reveal-btn" id="revealBtn">Revelar respuesta</button>
+  <div class="answer" id="answer">
+    <p class="name" id="name"></p>
+    <p class="deed" id="deed"></p>
+    <p class="verse" id="verse"></p>
+    <p class="prize">🍿 <span>¡Acertó!</span> Puede pasar a la mesa de pasabocas.</p>
+  </div>
+</div>
+
+<footer>
+  <span class="count" id="count"></span> personajes en la ruleta · Ideal para grupos de 30 chicos
+</footer>
+
+<script>
+const characters = [
+  {emoji:"🌊🚢🌈", name:"Noé", deed:"Construyó el arca por obediencia a Dios y salvó a su familia y a los animales del gran diluvio.", verse:"Génesis 6-9"},
+  {emoji:"👶🧺🌊✋", name:"Moisés", deed:"Sacó al pueblo de Israel de la esclavitud en Egipto y abrió el Mar Rojo con la ayuda de Dios.", verse:"Éxodo 14"},
+  {emoji:"🎯🪨👑", name:"David", deed:"Venció al gigante Goliat con una honda y una piedra, y llegó a ser rey de Israel.", verse:"1 Samuel 17"},
+  {emoji:"🐋🌊🙏", name:"Jonás", deed:"Huyó de Dios y fue tragado por un gran pez; luego obedeció y predicó en Nínive.", verse:"Jonás 1-3"},
+  {emoji:"🦁🕳️🙏", name:"Daniel", deed:"Fue arrojado al foso de los leones por orar a Dios, y Él cerró la boca de los leones.", verse:"Daniel 6"},
+  {emoji:"🍎🐍🌳", name:"Adán y Eva", deed:"Los primeros seres humanos; vivieron en el jardín del Edén y comieron del fruto prohibido.", verse:"Génesis 2-3"},
+  {emoji:"⭐👴🐑", name:"Abraham", deed:"El padre de la fe; obedeció a Dios y recibió la promesa de una descendencia como las estrellas.", verse:"Génesis 12-22"},
+  {emoji:"🌈🧥👑", name:"José", deed:"Vendido por sus hermanos, con la ayuda de Dios llegó a ser gobernador de Egipto y los perdonó.", verse:"Génesis 37-45"},
+  {emoji:"💪🦁✂️", name:"Sansón", deed:"Un hombre muy fuerte cuya fuerza estaba en su cabello; sirvió a Dios como juez de Israel.", verse:"Jueces 13-16"},
+  {emoji:"👑💍🙏", name:"Ester", deed:"Una joven que llegó a ser reina y, con valentía, salvó a su pueblo de ser destruido.", verse:"Ester 4-8"},
+  {emoji:"🌾❤️👵", name:"Rut", deed:"Fue fiel a su suegra Noemí y llegó a ser bisabuela del rey David.", verse:"Rut 1-4"},
+  {emoji:"👑📜💎", name:"Salomón", deed:"Hijo de David; pidió sabiduría a Dios y fue el rey más sabio, y construyó el templo.", verse:"1 Reyes 3"},
+  {emoji:"🔥☁️🐦", name:"Elías", deed:"Profeta valiente que hizo bajar fuego del cielo y fue alimentado por cuervos.", verse:"1 Reyes 17-18"},
+  {emoji:"💧🐫🍯", name:"Juan el Bautista", deed:"Preparó el camino del Señor y bautizó a Jesús en el río Jordán.", verse:"Mateo 3"},
+  {emoji:"✝️🐟🍞", name:"Jesús", deed:"El Hijo de Dios; hizo milagros, enseñó del amor de Dios y dio su vida por todos.", verse:"Los Evangelios"},
+  {emoji:"👶👩🌟", name:"María", deed:"La madre de Jesús; con humildad aceptó ser parte del plan de Dios.", verse:"Lucas 1-2"},
+  {emoji:"🎣🔑🐓", name:"Pedro", deed:"Pescador y discípulo de Jesús; negó a Jesús tres veces pero fue perdonado y guió a la iglesia.", verse:"Mateo 16, Juan 21"},
+  {emoji:"✉️⛓️✝️", name:"Pablo", deed:"Perseguía a los cristianos hasta que Jesús lo transformó; escribió muchas cartas del Nuevo Testamento.", verse:"Hechos 9"},
+  {emoji:"🌳💰📏", name:"Zaqueo", deed:"El cobrador de impuestos bajito que subió a un árbol para ver a Jesús y cambió su vida.", verse:"Lucas 19"},
+  {emoji:"🎺🧱🛡️", name:"Josué", deed:"Sucesor de Moisés; con fe rodeó Jericó y sus murallas cayeron.", verse:"Josué 6"},
+  {emoji:"⚔️🕯️🐑", name:"Gedeón", deed:"Con solo 300 hombres y confiando en Dios, venció a un enorme ejército.", verse:"Jueces 6-7"},
+  {emoji:"😷🙏💰", name:"Job", deed:"Lo perdió todo y sufrió mucho, pero nunca dejó de confiar en Dios; al final fue bendecido.", verse:"Job 1-42"},
+  {emoji:"👶🔥⛰️", name:"Isaac", deed:"Hijo prometido de Abraham; Dios proveyó un cordero en su lugar en el monte.", verse:"Génesis 22"},
+  {emoji:"🪜👼🐑", name:"Jacob", deed:"Soñó con una escalera al cielo y llegó a ser padre de las doce tribus de Israel.", verse:"Génesis 28"},
+  {emoji:"🥁🎶🌊", name:"Miriam", deed:"Hermana de Moisés; cantó y danzó con panderos tras cruzar el Mar Rojo.", verse:"Éxodo 15"},
+  {emoji:"🐴🗣️😲", name:"Balaam", deed:"Un profeta a quien su burra le habló para detenerlo de hacer el mal.", verse:"Números 22"},
+  {emoji:"⚰️😴✨", name:"Lázaro", deed:"Amigo de Jesús que murió, y Jesús lo resucitó después de cuatro días.", verse:"Juan 11"},
+  {emoji:"💰📖✝️", name:"Mateo", deed:"Cobrador de impuestos que dejó todo para seguir a Jesús y escribió un evangelio.", verse:"Mateo 9"},
+  {emoji:"👑⭐🎁", name:"Los reyes magos", deed:"Siguieron una estrella y llevaron oro, incienso y mirra al niño Jesús.", verse:"Mateo 2"},
+  {emoji:"🌊👣🐟", name:"Andrés", deed:"Hermano de Pedro y discípulo de Jesús; llevó al niño de los panes y peces ante Jesús.", verse:"Juan 6"},
+];
+
+// ---- draw wheel ----
+const canvas = document.getElementById("wheel");
+const ctx = canvas.getContext("2d");
+const N = characters.length;
+const seg = (Math.PI*2)/N;
+const R = canvas.width/2;
+const segColors = ["#8a3346","#3e8c7e","#6d4aa8","#c07a2b"];
+
+function drawWheel(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  for(let i=0;i<N;i++){
+    const a0 = i*seg - Math.PI/2 - seg/2;
+    const a1 = a0 + seg;
+    ctx.beginPath();
+    ctx.moveTo(R,R);
+    ctx.arc(R,R,R,a0,a1);
+    ctx.closePath();
+    ctx.fillStyle = segColors[i % segColors.length];
+    // avoid two same-colored neighbors at the seam
+    if(i===N-1 && segColors[0]===ctx.fillStyle){ctx.fillStyle=segColors[1];}
+    ctx.fill();
+    ctx.strokeStyle="rgba(231,178,76,.55)";
+    ctx.lineWidth=3;
+    ctx.stroke();
+
+    // number label
+    ctx.save();
+    ctx.translate(R,R);
+    ctx.rotate(a0+seg/2);
+    ctx.textAlign="right";
+    ctx.textBaseline="middle";
+    ctx.fillStyle="#f6eedd";
+    ctx.font="600 40px Fredoka, sans-serif";
+    ctx.fillText(String(i+1), R-34, 0);
+    ctx.restore();
+  }
+  // outer ring dots
+  for(let i=0;i<N;i++){
+    const a = i*seg - Math.PI/2 - seg/2;
+    ctx.beginPath();
+    ctx.arc(R+Math.cos(a)*(R-6), R+Math.sin(a)*(R-6), 4, 0, Math.PI*2);
+    ctx.fillStyle="#e7b24c";
+    ctx.fill();
+  }
+}
+drawWheel();
+
+// ---- spin logic ----
+const spinBtn=document.getElementById("spinBtn");
+const card=document.getElementById("card");
+const clue=document.getElementById("clue");
+const answer=document.getElementById("answer");
+const nameEl=document.getElementById("name");
+const deedEl=document.getElementById("deed");
+const verseEl=document.getElementById("verse");
+const revealBtn=document.getElementById("revealBtn");
+const hint=document.getElementById("hint");
+
+let rotation=0;
+let spinning=false;
+
+function spin(){
+  if(spinning) return;
+  spinning=true;
+  spinBtn.disabled=true;
+  answer.classList.remove("show");
+  card.classList.remove("show");
+
+  const idx = Math.floor(Math.random()*N);
+  // target: segment idx center must land under the top pointer (0 = -90deg baseline)
+  const turns = 5 + Math.floor(Math.random()*3);
+  const targetWithin = (N - idx) % N; // rotate so idx reaches top
+  const finalDeg = turns*360 + targetWithin*(360/N);
+  rotation += finalDeg;
+  canvas.style.transform = `rotate(${rotation}deg)`;
+
+  const reveal = ()=>{
+    canvas.removeEventListener("transitionend", reveal);
+    showCard(idx);
+    spinning=false;
+    spinBtn.disabled=false;
+    spinBtn.textContent="Girar de nuevo";
+    hint.textContent="Deja que un chico adivine, luego revela la respuesta";
+  };
+  canvas.addEventListener("transitionend", reveal);
+  // fallback in case transitionend doesn't fire
+  setTimeout(()=>{ if(spinning){ reveal(); } }, 6000);
+}
+
+function showCard(idx){
+  const c=characters[idx];
+  clue.textContent=c.emoji;
+  nameEl.textContent=c.name;
+  deedEl.textContent=c.deed;
+  verseEl.textContent="📖 "+c.verse;
+  answer.classList.remove("show");
+  card.classList.add("show");
+  card.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+revealBtn.addEventListener("click",()=>answer.classList.add("show"));
+spinBtn.addEventListener("click",spin);
+canvas.addEventListener("click",spin);
+
+document.getElementById("count").textContent=N;
+
+// stars
+const starBox=document.getElementById("stars");
+for(let i=0;i<40;i++){
+  const b=document.createElement("b");
+  b.style.left=Math.random()*100+"%";
+  b.style.top=Math.random()*100+"%";
+  b.style.animationDelay=(Math.random()*4)+"s";
+  b.style.transform=`scale(${.5+Math.random()*1.4})`;
+  starBox.appendChild(b);
+}
+</script>

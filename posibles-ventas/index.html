@@ -112,17 +112,33 @@ const HDRS={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Conten
 const $=id=>document.getElementById(id);
 const esc=s=>(s||'').replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
 
+// Agentes activos (los que reciben leads a diario). value = nombre exacto en el sistema.
+const AGENTES=[
+ ["Andrés Felipe Calle Gonzalez","Andrés Felipe Calle González"],
+ ["Carlos Silva","Carlos Silva"],
+ ["Daniel Laverde","Daniel Laverde"],
+ ["Evelin Gómez","Evelin Gómez"],
+ ["Juan Pablo Castro","Juan Pablo Castro"],
+ ["JUAN PABLO ROJAS FIGUEROA","Juan Pablo Rojas Figueroa"],
+ ["Juliana Facundo","Juliana Facundo"],
+ ["Keiner Santiago Suárez","Keiner Santiago Suárez"],
+ ["Liseth Lemus","Liseth Lemus"],
+ ["Maria Jose Rivera","Maria Jose Rivera"],
+ ["Mateo Tabares","Mateo Tabares"],
+ ["Santiago Antonio Guerrero Parra","Santiago Guerrero"],
+ ["Santiago Lemus","Santiago Lemus"],
+ ["Santiago Rojas","Santiago Rojas"],
+ ["Santiago Viveros","Santiago Viveros"]
+];
+
 async function cargar(){
+ $('f_ag').innerHTML='<option value="">— Selecciona tu nombre —</option>'+
+   AGENTES.map(a=>`<option value="${esc(a[0])}">${esc(a[1])}</option>`).join('');
  try{
-  const [pr,ag]=await Promise.all([
-   fetch(SUPABASE_URL+'/rest/v1/productos?select=id,nombre,precio&activo=eq.true&order=orden.asc',{headers:HDRS}).then(r=>r.json()),
-   fetch(SUPABASE_URL+'/rest/v1/agentes?select=nombre&order=nombre.asc',{headers:HDRS}).then(r=>r.json())
-  ]);
-  const ps=$('f_prod'); ps.innerHTML='<option value="">— Selecciona un producto —</option>'+
+  const pr=await fetch(SUPABASE_URL+'/rest/v1/productos?select=id,nombre,precio&activo=eq.true&order=orden.asc',{headers:HDRS}).then(r=>r.json());
+  $('f_prod').innerHTML='<option value="">— Selecciona un producto —</option>'+
     (pr||[]).map(p=>`<option value="${p.id}" data-n="${esc(p.nombre)}">${esc(p.nombre)}${p.precio?(' · $'+Math.round(+p.precio).toLocaleString('en-US')):''}</option>`).join('');
-  const as=$('f_ag'); as.innerHTML='<option value="">— Selecciona tu nombre —</option>'+
-    (ag||[]).map(a=>`<option value="${esc(a.nombre)}">${esc(a.nombre)}</option>`).join('');
- }catch(e){ $('msg').className='msg bad'; $('msg').textContent='No se pudieron cargar los productos/agentes. Recarga la página.'; }
+ }catch(e){ $('msg').className='msg bad'; $('msg').textContent='No se pudieron cargar los productos. Recarga la página.'; }
 }
 cargar();
 

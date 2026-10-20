@@ -1,0 +1,165 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registrar posible venta · Nexus</title>
+<link rel="icon" href="../reportes/favicon.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+:root{
+ --ink:#e9eff8;--ink2:#aab6c8;--mut:#6b7688;--line:#1b2534;
+ --paper:#05080f;--card:#0b111c;
+ --sig:#2aa8ff;--sigd:#60c3ff;--sigdk:#0b5cc0;
+ --good:#22d38a;--line2:rgba(42,168,255,.18);--err:#ff4d5e;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:hidden}
+body{background:
+ radial-gradient(900px 520px at 18% -8%,rgba(42,168,255,.10),transparent 60%),
+ radial-gradient(760px 520px at 92% 108%,rgba(11,92,192,.12),transparent 60%),
+ var(--paper);
+ color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;color-scheme:dark}
+.wrap{width:100%;max-width:560px;margin:0 auto;padding:30px 18px 70px}
+.brand{display:inline-flex;align-items:center;gap:11px;margin-bottom:22px}
+.brand .mk{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#2aa8ff,#0b4a8f);color:#fff;display:grid;place-items:center;font-family:'Space Grotesk';font-weight:700;font-size:18px;box-shadow:0 0 22px rgba(42,168,255,.45)}
+.brand .tx{font-family:'Space Grotesk';font-weight:700;letter-spacing:.2em;font-size:15px}
+.kick{display:inline-block;font-family:'Space Grotesk';font-weight:600;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--sigd);background:rgba(42,168,255,.1);border:1px solid var(--line2);padding:7px 14px;border-radius:999px;margin-bottom:14px}
+h1{font-family:'Space Grotesk';font-weight:700;font-size:30px;line-height:1.1;margin-bottom:8px}
+.sub{color:var(--ink2);font-size:15px;line-height:1.5;margin-bottom:24px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.field{margin-bottom:18px}
+label.lb{display:block;font-size:14px;font-weight:700;margin-bottom:8px}
+label.lb .req{color:var(--sigd)}
+input[type=text],textarea,select{width:100%;background:#0f1726;border:1px solid var(--line);border-radius:12px;color:var(--ink);font-family:inherit;font-size:16px;padding:14px 14px}
+input[type=text]:focus,textarea:focus,select:focus{outline:none;border-color:var(--sig);box-shadow:0 0 0 3px rgba(42,168,255,.18)}
+textarea{min-height:86px;resize:vertical}
+select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='none' stroke='%2360c3ff' stroke-width='2'><path d='M4 7l5 5 5-5'/></svg>");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px}
+.checks{display:flex;flex-direction:column;gap:10px}
+.chk{display:flex;align-items:center;gap:13px;background:#0f1726;border:1px solid var(--line);border-radius:12px;padding:14px 15px;cursor:pointer;transition:.15s}
+.chk:hover{border-color:var(--line2)}
+.chk input{display:none}
+.chk .box{flex:none;width:26px;height:26px;border-radius:8px;border:2px solid #39506e;display:grid;place-items:center;transition:.15s}
+.chk .box svg{width:16px;height:16px;opacity:0;transition:.15s}
+.chk input:checked ~ .box{background:linear-gradient(135deg,#2aa8ff,#0b5cc0);border-color:transparent}
+.chk input:checked ~ .box svg{opacity:1}
+.chk .t{font-size:15.5px;font-weight:600}
+.chk input:checked ~ .t{color:#fff}
+.btn{width:100%;background:linear-gradient(90deg,#2aa8ff,#0b5cc0);color:#fff;font-weight:700;font-size:17px;padding:17px;border:0;border-radius:14px;cursor:pointer;box-shadow:0 14px 40px rgba(42,168,255,.3);transition:transform .15s;margin-top:6px}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.6;cursor:default}
+.msg{margin-top:14px;font-size:14.5px;font-weight:600;text-align:center;min-height:20px}
+.msg.ok{color:var(--good)}.msg.bad{color:var(--err)}
+.ok-screen{display:none;text-align:center;padding:36px 10px}
+.ok-screen .ic{width:84px;height:84px;margin:0 auto 18px;border-radius:50%;background:rgba(34,211,138,.14);border:2px solid var(--good);display:grid;place-items:center;font-size:42px}
+.ok-screen h2{font-family:'Space Grotesk';font-size:26px;margin-bottom:8px}
+.ok-screen p{color:var(--ink2);font-size:15px;margin-bottom:22px}
+.foot{margin-top:30px;text-align:center;color:var(--mut);font-size:13px}
+@media(max-width:520px){h1{font-size:26px}}
+</style></head>
+<body>
+<div class="wrap">
+ <div class="brand"><div class="mk">N</div><div class="tx">NEXUS</div></div>
+ <div class="kick">Posibles ventas</div>
+ <h1>Registra tu posible venta</h1>
+ <p class="sub">Completa los datos del cliente que podría comprar. Queda guardado al instante en el panel de posibles ventas.</p>
+
+ <div class="card" id="formCard">
+  <div class="field">
+   <label class="lb" for="f_nombre">Nombre del cliente <span class="req">*</span></label>
+   <input type="text" id="f_nombre" placeholder="Ej: Juan Pérez" autocomplete="off">
+  </div>
+
+  <div class="field">
+   <label class="lb" for="f_prod">Producto de interés <span class="req">*</span></label>
+   <select id="f_prod"><option value="">Cargando productos…</option></select>
+  </div>
+
+  <div class="field">
+   <label class="lb" for="f_obs">Observación del cliente</label>
+   <textarea id="f_obs" placeholder="Notas, contexto, en qué quedaron…"></textarea>
+  </div>
+
+  <div class="field">
+   <label class="lb">Avance del cliente</label>
+   <div class="checks">
+    <label class="chk"><input type="checkbox" id="f_pres"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="t">Ingresó a presentación</span></label>
+    <label class="chk"><input type="checkbox" id="f_1a1"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="t">Ingresó a 1 a 1</span></label>
+    <label class="chk"><input type="checkbox" id="f_clase"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="t">Ya ingresó a clase avanzada</span></label>
+   </div>
+  </div>
+
+  <div class="field">
+   <label class="lb" for="f_ag">Nombre de agente <span class="req">*</span></label>
+   <select id="f_ag"><option value="">Cargando agentes…</option></select>
+  </div>
+
+  <button class="btn" id="btnSave">Registrar posible venta</button>
+  <div class="msg" id="msg"></div>
+ </div>
+
+ <div class="ok-screen" id="okScreen">
+  <div class="ic">✅</div>
+  <h2>¡Registrado!</h2>
+  <p>Tu posible venta quedó guardada correctamente.</p>
+  <button class="btn" id="btnOtro" style="max-width:280px;margin:0 auto">Registrar otra</button>
+ </div>
+
+ <div class="foot">NEXUS · Posibles ventas</div>
+</div>
+
+<script>
+const SUPABASE_URL="https://fhixjvxztmuifrioevze.supabase.co";
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoaXhqdnh6dG11aWZyaW9ldnplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjgxNTUsImV4cCI6MjA5OTM0NDE1NX0.sTBxjWYr5m90-usvIJQyvTXon3TkD9Nk0V9z6IDQtmo";
+const HDRS={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
+const $=id=>document.getElementById(id);
+const esc=s=>(s||'').replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+
+async function cargar(){
+ try{
+  const [pr,ag]=await Promise.all([
+   fetch(SUPABASE_URL+'/rest/v1/productos?select=id,nombre,precio&activo=eq.true&order=orden.asc',{headers:HDRS}).then(r=>r.json()),
+   fetch(SUPABASE_URL+'/rest/v1/agentes?select=nombre&order=nombre.asc',{headers:HDRS}).then(r=>r.json())
+  ]);
+  const ps=$('f_prod'); ps.innerHTML='<option value="">— Selecciona un producto —</option>'+
+    (pr||[]).map(p=>`<option value="${p.id}" data-n="${esc(p.nombre)}">${esc(p.nombre)}${p.precio?(' · $'+Math.round(+p.precio).toLocaleString('en-US')):''}</option>`).join('');
+  const as=$('f_ag'); as.innerHTML='<option value="">— Selecciona tu nombre —</option>'+
+    (ag||[]).map(a=>`<option value="${esc(a.nombre)}">${esc(a.nombre)}</option>`).join('');
+ }catch(e){ $('msg').className='msg bad'; $('msg').textContent='No se pudieron cargar los productos/agentes. Recarga la página.'; }
+}
+cargar();
+
+function hoyBog(){ return new Date(Date.now()-5*3600*1000).toISOString().slice(0,10); }
+
+$('btnSave').onclick=async()=>{
+ const nombre=$('f_nombre').value.trim();
+ const psel=$('f_prod'); const membresia_id=psel.value;
+ const producto=membresia_id?psel.options[psel.selectedIndex].getAttribute('data-n'):'';
+ const agente=$('f_ag').value;
+ const m=$('msg');
+ if(!nombre){ m.className='msg bad'; m.textContent='Escribe el nombre del cliente.'; return; }
+ if(!membresia_id){ m.className='msg bad'; m.textContent='Selecciona el producto de interés.'; return; }
+ if(!agente){ m.className='msg bad'; m.textContent='Selecciona tu nombre de agente.'; return; }
+ m.className='msg'; m.textContent='Guardando…'; $('btnSave').disabled=true;
+ const body={
+  agente, nombre, producto, membresia_id,
+  observacion:$('f_obs').value.trim()||null,
+  inv_presentacion:$('f_pres').checked,
+  uno_a_uno:$('f_1a1').checked,
+  inv_clase:$('f_clase').checked,
+  creado_fecha:hoyBog()
+ };
+ try{
+  const r=await fetch(SUPABASE_URL+'/rest/v1/posibles_ventas',{method:'POST',headers:{...HDRS,'Prefer':'return=minimal'},body:JSON.stringify(body)});
+  if(!r.ok) throw new Error('status '+r.status);
+  $('formCard').style.display='none'; $('okScreen').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+ }catch(e){ m.className='msg bad'; m.textContent='No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.'; }
+ $('btnSave').disabled=false;
+};
+
+$('btnOtro').onclick=()=>{
+ ['f_nombre','f_obs'].forEach(id=>$(id).value='');
+ $('f_prod').value=''; $('f_ag').value='';
+ ['f_pres','f_1a1','f_clase'].forEach(id=>$(id).checked=false);
+ $('msg').textContent=''; $('okScreen').style.display='none'; $('formCard').style.display='block';
+};
+</script>
+</body></html>

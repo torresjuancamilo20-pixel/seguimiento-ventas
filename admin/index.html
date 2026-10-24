@@ -56,6 +56,14 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .muted{color:var(--mut)}
 .empty{text-align:center;padding:40px;color:var(--mut)}
 @media(max-width:640px){.c .v{font-size:1.5rem}}
+.money{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:14px}
+.mc{background:linear-gradient(160deg,rgba(226,75,216,.14),rgba(168,85,247,.06));border:1px solid rgba(226,75,216,.3);border-radius:18px;padding:20px 22px}
+.mc .k{font-size:.82rem;color:#d9c7e8;font-weight:700;display:flex;align-items:center;gap:8px}
+.mc .v{font-size:2.3rem;font-weight:900;margin-top:8px;letter-spacing:-1px;color:#fff}
+.mc .v small{font-size:1rem;font-weight:700;color:var(--mut)}
+.mc .sub{font-size:.76rem;color:var(--mut);margin-top:4px;font-weight:500}
+.pago-y{color:#86efac;font-weight:800}
+@media(max-width:640px){.mc .v{font-size:1.8rem}}
 </style>
 </head>
 <body>
@@ -81,6 +89,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <button class="btn ghost sm" id="logout">Salir</button>
     </div>
   </div>
+  <div class="money" id="money"></div>
   <div class="cards" id="cards"></div>
   <div class="filters" id="filters">
     <span class="chip on" data-f="todos">Todos</span>
@@ -95,7 +104,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
   <div class="tablewrap">
     <table>
       <thead><tr>
-        <th>Correo</th><th>Suscripción</th><th>Movs.</th><th>Último mov.</th>
+        <th>Correo</th><th>Suscripción</th><th>Paga</th><th>Movs.</th><th>Último mov.</th>
         <th>Último acceso</th><th>Inactivo</th><th>WhatsApp</th><th>Registrado</th>
       </tr></thead>
       <tbody id="tbody"></tbody>
@@ -151,9 +160,15 @@ $("filters").addEventListener("click",e=>{
 });
 
 function card(k,v,color){ return `<div class="c"><div class="k"><span class="dot" style="background:${color}"></span>${k}</div><div class="v">${v}</div></div>`; }
+function usd(n){ return "$"+Number(n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function mcard(k,v,sub){ return `<div class="mc"><div class="k">${k}</div><div class="v">${v}</div><div class="sub">${sub||""}</div></div>`; }
 function render(){
   if(!DATA) return;
   const R=DATA.resumen;
+  $("money").innerHTML=
+    mcard("💰 Recaudado este mes", usd(R.recaudado_mes_usd)+" <small>USD</small>", (R.pagos_mes||0)+" pago(s) este mes")+
+    mcard("🔁 Ingreso mensual (MRR)", usd(R.mrr_usd)+" <small>USD/mes</small>", "Lo que entra cada mes de forma recurrente")+
+    mcard("📅 Proyección anual", usd(Math.round((R.mrr_usd||0)*12*100)/100)+" <small>USD/año</small>", "Si se mantienen las suscripciones actuales");
   $("cards").innerHTML=
     card("Usuarios totales",R.total,"#e24bd8")+card("Suscritos",R.activos,"#22c55e")+
     card("Sin pagar",R.sin_pago,"#f5a623")+card("Problemas de pago",R.problemas_pago,"#ef4757")+
@@ -175,7 +190,10 @@ function render(){
     const inact=u.dias_inactivo;
     const inactTxt = inact===null?'<span class="muted">nunca entró</span>' : (inact>=14?`<span class="inact">${inact} días</span>`:`${inact} días`);
     const wa = u.whatsapp==="verificado"?'<span class="badge b-wa">Sí</span>' : u.whatsapp==="pendiente"?'<span class="badge b-none">Pendiente</span>':'<span class="muted">—</span>';
-    return `<tr><td>${u.email||"—"}</td><td>${subBadge(u.sub_status)}</td><td>${u.movimientos}</td>`+
+    const paga = u.pago_usd!=null
+      ? `<span class="pago-y">${usd(u.pago_usd)}</span><span class="muted"> /${u.pago_periodo||""}</span>`
+      : '<span class="muted">—</span>';
+    return `<tr><td>${u.email||"—"}</td><td>${subBadge(u.sub_status)}</td><td>${paga}</td><td>${u.movimientos}</td>`+
       `<td class="muted">${fmtFecha(u.ultimo_movimiento)}</td><td class="muted">${fmtFecha(u.ultimo_acceso)}</td>`+
       `<td>${inactTxt}</td><td>${wa}</td><td class="muted">${fmtFecha(u.creado)}</td></tr>`;
   }).join("");

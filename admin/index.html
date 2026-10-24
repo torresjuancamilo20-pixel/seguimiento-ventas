@@ -8,7 +8,7 @@
 <link rel="icon" href="/logo.svg" type="image/svg+xml">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#07060c;--card:rgba(32,22,46,.55);--line:rgba(255,255,255,.08);--txt:#f3eefb;--mut:#a99fb8;--mag:#e24bd8;--grn:#22c55e;--red:#ef4757;--amb:#f5a623;--grad:linear-gradient(135deg,#f06ce0,#c026d3 50%,#a855f7)}
+:root{--bg:#07060c;--card:rgba(32,22,46,.55);--line:rgba(255,255,255,.08);--txt:#f3eefb;--mut:#a99fb8;--mag:#e24bd8;--grn:#22c55e;--red:#ef4757;--grad:linear-gradient(135deg,#f06ce0,#c026d3 50%,#a855f7)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Montserrat',sans-serif;color:var(--txt);background:var(--bg);line-height:1.5;min-height:100vh;
   background-image:radial-gradient(900px 600px at 0% -10%,rgba(226,75,216,.22),transparent 60%),radial-gradient(800px 600px at 100% 0%,rgba(168,85,247,.18),transparent 60%);background-repeat:no-repeat}
@@ -19,32 +19,27 @@ body{font-family:'Montserrat',sans-serif;color:var(--txt);background:var(--bg);l
 .btn{border:0;cursor:pointer;font:inherit;font-weight:800;background:var(--grad);color:#fff;padding:12px 24px;border-radius:999px;font-size:.95rem;box-shadow:0 10px 30px -12px rgba(226,75,216,.8)}
 .btn.sm{padding:7px 14px;font-size:.82rem}
 .btn.ghost{background:rgba(255,255,255,.06);border:1px solid var(--line);box-shadow:none;font-weight:700}
+.btn:disabled{opacity:.6;cursor:default}
 input{font:inherit;background:#1b1426;border:1px solid var(--line);border-radius:10px;padding:11px 14px;color:var(--txt);font-size:.95rem;width:100%}
-/* Login */
 #login{max-width:380px;margin:8vh auto 0;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:34px}
 #login h1{font-size:1.3rem;margin:14px 0 4px}
-#login p{color:var(--mut);font-size:.9rem;margin-bottom:20px}
+#login p.sub{color:var(--mut);font-size:.9rem;margin-bottom:20px}
 #login input{margin-bottom:12px}
 #login .btn{width:100%}
+.hint{color:var(--mut);font-size:.78rem;margin-top:14px;text-align:center;line-height:1.5}
 .msg{margin-top:12px;font-size:.88rem;padding:10px 14px;border-radius:10px;display:none}
 .msg.err{display:block;background:rgba(239,71,87,.14);color:#ff9aa6}
-.msg.ok{display:block;background:rgba(34,197,94,.14);color:#86efac}
-/* Topbar */
 .top{display:flex;align-items:center;gap:14px;margin-bottom:22px;flex-wrap:wrap}
 .top .sp{margin-left:auto;display:flex;gap:10px;align-items:center}
-.top .who{color:var(--mut);font-size:.85rem}
-/* Cards */
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px}
 .c{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
 .c .k{font-size:.8rem;color:var(--mut);font-weight:600;display:flex;align-items:center;gap:7px}
 .c .v{font-size:2rem;font-weight:900;margin-top:6px;letter-spacing:-1px}
 .c .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
-/* Filtros */
 .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 .chip{cursor:pointer;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:.85rem;font-weight:700;color:var(--mut)}
 .chip.on{background:var(--grad);color:#fff;border-color:transparent}
 .search{max-width:320px;margin-bottom:14px}
-/* Tabla */
 .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:18px;background:var(--card)}
 table{border-collapse:collapse;width:100%;min-width:900px;font-size:.88rem}
 th,td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap}
@@ -69,15 +64,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
 <div id="login">
   <div class="logo"><b>E</b>va</div>
   <h1>Panel de <span class="mag">administración</span></h1>
-  <p>Acceso solo para el administrador.</p>
-  <input type="email" id="email" placeholder="Correo de administrador" autocomplete="username">
-  <button class="btn" id="magicBtn">Enviarme un enlace de acceso</button>
-  <div style="text-align:center;margin-top:12px"><a id="togglePass" style="color:var(--mut);font-size:.82rem;cursor:pointer;text-decoration:underline">o entrar con contraseña</a></div>
-  <div id="passBox" style="display:none;margin-top:12px">
-    <input type="password" id="pass" placeholder="Contraseña" autocomplete="current-password" style="margin-bottom:10px">
-    <button class="btn ghost" id="loginBtn" style="width:100%">Entrar con contraseña</button>
-  </div>
+  <p class="sub">Acceso protegido con Google Authenticator.</p>
+  <input type="email" id="email" placeholder="Correo de administrador" autocomplete="username" value="torresjuancamilo20@gmail.com">
+  <input type="text" id="codigo" placeholder="Código de 6 dígitos" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="text-align:center;letter-spacing:5px;font-size:1.15rem">
+  <button class="btn" id="loginBtn">Entrar</button>
   <div class="msg" id="loginMsg"></div>
+  <p class="hint">Abre <b>Google Authenticator</b> en tu celular y escribe el código de 6 dígitos de <b>“Eva Admin”</b>.</p>
 </div>
 
 <!-- PANEL -->
@@ -85,14 +77,11 @@ tr:hover td{background:rgba(255,255,255,.02)}
   <div class="top">
     <div class="logo"><b>E</b>va <span style="font-size:.9rem;color:var(--mut);margin-left:8px">· Admin</span></div>
     <div class="sp">
-      <span class="who" id="who"></span>
       <button class="btn ghost sm" id="refresh">↻ Actualizar</button>
       <button class="btn ghost sm" id="logout">Salir</button>
     </div>
   </div>
-
   <div class="cards" id="cards"></div>
-
   <div class="filters" id="filters">
     <span class="chip on" data-f="todos">Todos</span>
     <span class="chip" data-f="activos">Suscritos</span>
@@ -103,7 +92,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <span class="chip" data-f="whatsapp">WhatsApp</span>
   </div>
   <input class="search" id="search" placeholder="🔎 Buscar por correo…">
-
   <div class="tablewrap">
     <table>
       <thead><tr>
@@ -116,49 +104,61 @@ tr:hover td{background:rgba(255,255,255,.02)}
   <div class="empty" id="empty" style="display:none">No hay usuarios en este filtro.</div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js"></script>
 <script>
 const SUPABASE_URL="https://fhixjvxztmuifrioevze.supabase.co";
 const SUPABASE_KEY="sb_publishable_FchHwJHM1BNH-2z-2KXTgg_nZv4CP7d";
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const API=SUPABASE_URL+"/functions/v1/admin-datos";
 const $=id=>document.getElementById(id);
-let DATA=null, filtro="todos", q="";
+let DATA=null, filtro="todos", q="", adminEmail="";
 
 function fmtFecha(s){ if(!s) return "—"; const d=new Date(s); return d.toLocaleDateString("es-CO",{day:"2-digit",month:"short",year:"2-digit"}); }
-function diasDesde(s){ if(!s) return null; return Math.floor((Date.now()-new Date(s).getTime())/86400000); }
 function subBadge(st){
   const map={active:["Activa","b-active"],trialing:["Prueba","b-trial"],past_due:["Mora","b-bad"],unpaid:["Sin pago","b-bad"],canceled:["Cancelada","b-bad"],sin_suscripcion:["Sin suscripción","b-none"]};
   const [t,c]=map[st]||[st,"b-none"]; return `<span class="badge ${c}">${t}</span>`;
 }
-
-async function cargar(){
-  const {data:{session}}=await sb.auth.getSession();
-  if(!session){ mostrarLogin(); return; }
-  $("who").textContent=session.user.email;
-  try{
-    const r=await fetch(`${SUPABASE_URL}/functions/v1/admin-datos`,{
-      method:"POST",
-      headers:{ "apikey":SUPABASE_KEY, "Authorization":"Bearer "+session.access_token, "Content-Type":"application/json" },
-    });
-    const j=await r.json();
-    if(r.status===403){ alert("Esta cuenta no es administradora."); await sb.auth.signOut(); mostrarLogin(); return; }
-    if(!r.ok){ alert("Error: "+(j.error||r.status)); return; }
-    DATA=j; render();
-  }catch(e){ alert("Error de conexión: "+e.message); }
+async function pedir(email,codigo){
+  const r=await fetch(API,{method:"POST",headers:{"apikey":SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({email,codigo})});
+  let j={}; try{ j=await r.json(); }catch(e){}
+  return {status:r.status,j};
 }
+function err(t){ $("loginMsg").className="msg err"; $("loginMsg").textContent=t; }
+function mostrarLogin(){ $("login").style.display="block"; $("panel").style.display="none"; }
+function mostrarPanel(){ $("login").style.display="none"; $("panel").style.display="block"; }
 
+$("loginBtn").onclick=async()=>{
+  const email=$("email").value.trim(), codigo=$("codigo").value.trim();
+  if(!email || !/^[0-9]{6}$/.test(codigo)){ err("Escribe tu correo y el código de 6 dígitos."); return; }
+  $("loginBtn").disabled=true; $("loginMsg").className="msg";
+  const {status,j}=await pedir(email,codigo);
+  $("loginBtn").disabled=false;
+  if(status!==200){ err(j.error||("Error "+status)); $("codigo").value=""; return; }
+  adminEmail=email; DATA=j; mostrarPanel(); render();
+};
+$("codigo").addEventListener("keydown",e=>{ if(e.key==="Enter") $("loginBtn").click(); });
+$("refresh").onclick=async()=>{
+  const codigo=(prompt("Código actual de Google Authenticator (6 dígitos):")||"").trim();
+  if(!/^[0-9]{6}$/.test(codigo)) return;
+  const {status,j}=await pedir(adminEmail,codigo);
+  if(status!==200){ alert(j.error||("Error "+status)); return; }
+  DATA=j; render();
+};
+$("logout").onclick=()=>{ adminEmail=""; DATA=null; $("codigo").value=""; mostrarLogin(); };
+$("search").addEventListener("input",e=>{ q=e.target.value.toLowerCase().trim(); render(); });
+$("filters").addEventListener("click",e=>{
+  const c=e.target.closest(".chip"); if(!c) return;
+  document.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));
+  c.classList.add("on"); filtro=c.dataset.f; render();
+});
+
+function card(k,v,color){ return `<div class="c"><div class="k"><span class="dot" style="background:${color}"></span>${k}</div><div class="v">${v}</div></div>`; }
 function render(){
   if(!DATA) return;
   const R=DATA.resumen;
-  $("cards").innerHTML=`
-    ${card("Usuarios totales",R.total,"#e24bd8")}
-    ${card("Suscritos",R.activos,"#22c55e")}
-    ${card("Sin pagar",R.sin_pago,"#f5a623")}
-    ${card("Problemas de pago",R.problemas_pago,"#ef4757")}
-    ${card("Inactivos (14d+)",R.inactivos_14d,"#ef4757")}
-    ${card("Sin registrar nada",R.nunca_registraron,"#a99fb8")}
-    ${card("WhatsApp activo",R.whatsapp_activo,"#25d366")}
-    ${card("Nuevos (7d)",R.nuevos_7d,"#a855f7")}`;
+  $("cards").innerHTML=
+    card("Usuarios totales",R.total,"#e24bd8")+card("Suscritos",R.activos,"#22c55e")+
+    card("Sin pagar",R.sin_pago,"#f5a623")+card("Problemas de pago",R.problemas_pago,"#ef4757")+
+    card("Inactivos (14d+)",R.inactivos_14d,"#ef4757")+card("Sin registrar nada",R.nunca_registraron,"#a99fb8")+
+    card("WhatsApp activo",R.whatsapp_activo,"#25d366")+card("Nuevos (7d)",R.nuevos_7d,"#a855f7");
   const rows=DATA.usuarios.filter(u=>{
     if(q && !(u.email||"").toLowerCase().includes(q)) return false;
     const act=["active","trialing"].includes(u.sub_status);
@@ -175,52 +175,12 @@ function render(){
     const inact=u.dias_inactivo;
     const inactTxt = inact===null?'<span class="muted">nunca entró</span>' : (inact>=14?`<span class="inact">${inact} días</span>`:`${inact} días`);
     const wa = u.whatsapp==="verificado"?'<span class="badge b-wa">Sí</span>' : u.whatsapp==="pendiente"?'<span class="badge b-none">Pendiente</span>':'<span class="muted">—</span>';
-    return `<tr>
-      <td>${u.email||"—"}</td>
-      <td>${subBadge(u.sub_status)}</td>
-      <td>${u.movimientos}</td>
-      <td class="muted">${fmtFecha(u.ultimo_movimiento)}</td>
-      <td class="muted">${fmtFecha(u.ultimo_acceso)}</td>
-      <td>${inactTxt}</td>
-      <td>${wa}</td>
-      <td class="muted">${fmtFecha(u.creado)}</td>
-    </tr>`;
+    return `<tr><td>${u.email||"—"}</td><td>${subBadge(u.sub_status)}</td><td>${u.movimientos}</td>`+
+      `<td class="muted">${fmtFecha(u.ultimo_movimiento)}</td><td class="muted">${fmtFecha(u.ultimo_acceso)}</td>`+
+      `<td>${inactTxt}</td><td>${wa}</td><td class="muted">${fmtFecha(u.creado)}</td></tr>`;
   }).join("");
 }
-function card(k,v,color){ return `<div class="c"><div class="k"><span class="dot" style="background:${color}"></span>${k}</div><div class="v">${v}</div></div>`; }
-
-function mostrarLogin(){ $("login").style.display="block"; $("panel").style.display="none"; }
-function mostrarPanel(){ $("login").style.display="none"; $("panel").style.display="block"; }
-
-$("magicBtn").onclick=async()=>{
-  const email=$("email").value.trim();
-  if(!email){ $("loginMsg").className="msg err"; $("loginMsg").textContent="Escribe tu correo de administrador."; return; }
-  $("magicBtn").disabled=true; $("loginMsg").className="msg";
-  const {error}=await sb.auth.signInWithOtp({email, options:{ shouldCreateUser:false, emailRedirectTo: location.origin+"/admin/" }});
-  $("magicBtn").disabled=false;
-  if(error){ $("loginMsg").className="msg err"; $("loginMsg").textContent="No se pudo enviar: "+error.message; return; }
-  $("loginMsg").className="msg ok"; $("loginMsg").innerHTML="✓ Te enviamos un enlace a <b>"+email+"</b>.<br>Revisa tu correo y haz clic para entrar.";
-};
-$("togglePass").onclick=()=>{ $("passBox").style.display = $("passBox").style.display==="none" ? "block":"none"; };
-$("loginBtn").onclick=async()=>{
-  $("loginMsg").className="msg"; $("loginBtn").disabled=true;
-  const {error}=await sb.auth.signInWithPassword({email:$("email").value.trim(),password:$("pass").value});
-  $("loginBtn").disabled=false;
-  if(error){ $("loginMsg").className="msg err"; $("loginMsg").textContent="Correo o contraseña incorrectos."; return; }
-  mostrarPanel(); cargar();
-};
-$("pass").addEventListener("keydown",e=>{ if(e.key==="Enter") $("loginBtn").click(); });
-$("logout").onclick=async()=>{ await sb.auth.signOut(); mostrarLogin(); };
-$("refresh").onclick=cargar;
-$("search").addEventListener("input",e=>{ q=e.target.value.toLowerCase().trim(); render(); });
-$("filters").addEventListener("click",e=>{
-  const c=e.target.closest(".chip"); if(!c) return;
-  document.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));
-  c.classList.add("on"); filtro=c.dataset.f; render();
-});
-
-// Al cargar: si ya hay sesión, mostrar panel
-(async()=>{ const {data:{session}}=await sb.auth.getSession(); if(session){ mostrarPanel(); cargar(); } else { mostrarLogin(); } })();
+mostrarLogin();
 </script>
 </body>
 </html>

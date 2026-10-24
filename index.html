@@ -948,7 +948,7 @@ function setSync(t){ $("syncState").textContent=t; }
 
 /* ---------------- SUSCRIPCIÓN / MURO DE PAGO ---------------- */
 const ACTIVE_STATES = ["trialing","active"];
-const PAYWALL_ON = false;
+const PAYWALL_ON = true;
 async function checkAccess(){
   if(!PAYWALL_ON){ $("paywall").classList.add("hidden"); document.body.classList.remove("locked"); return; }
   const params = new URLSearchParams(location.search);

@@ -1,7 +1,7 @@
 {
   // Configuración de despliegue de Eva (app de finanzas), en su propio worker
-  // "eva-app", separado del sistema de ventas ("nexus") que vive en la rama main.
-  "name": "eva-app",
+  // "eva", separado del sistema de ventas ("nexus") que vive en la rama main.
+  "name": "eva",
   "compatibility_date": "2025-01-01",
   "assets": {
     "directory": "./"

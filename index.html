@@ -605,6 +605,10 @@
       <div style="margin-top:28px;border-top:1px solid rgba(255,255,255,.06);padding-top:24px">
         <h3 style="margin:0 0 6px;font-size:.95rem;font-weight:700">📱 Registrar por WhatsApp <span class="badge" style="margin:0">Nuevo</span></h3>
         <p class="card-sub" style="margin:0 0 14px">Envía un mensaje a Eva por WhatsApp con el nombre y el monto, y se guarda como gasto automáticamente. Ej: <b>"hamburguesas 25000"</b></p>
+        <div id="waAviso" style="display:none;background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.3);border-radius:12px;padding:14px 16px;margin-bottom:4px">
+          <div style="font-weight:700;color:#f5a623;font-size:.9rem;margin-bottom:4px">🔧 Función en activación</div>
+          <div class="card-sub" style="margin:0">El registro por WhatsApp está <b>temporalmente desactivado</b>. Lo activamos a partir del <b>31 de octubre</b>. Mientras tanto, registra tus movimientos directamente aquí en la app. 💜</div>
+        </div>
         <div id="waStatus"></div>
         <div id="waSetup" style="display:none">
           <label style="font-size:.82rem;color:#a99fb8;font-weight:600">Tu número de WhatsApp (con código de país, ej: 573001234567)</label>
@@ -821,9 +825,12 @@ $("genToken").onclick=()=>genToken(false);
 $("copyLink").onclick=e=>copiar($("linkView").value,e.target);
 
 /* ---------------- WHATSAPP LINKING ---------------- */
+const WA_ENABLED = false; // Se activa el 31 de octubre
 async function loadWA(){
-  const {data}=await sb.from("finanzas_whatsapp").select("telefono,verificado").eq("user_id",user.id).maybeSingle();
   $("waSetup").style.display="none"; $("waVerify").style.display="none"; $("waLinked").style.display="none";
+  if(!WA_ENABLED){ $("waAviso").style.display="block"; $("waStatus").innerHTML=""; return; }
+  $("waAviso").style.display="none";
+  const {data}=await sb.from("finanzas_whatsapp").select("telefono,verificado").eq("user_id",user.id).maybeSingle();
   if(!data){ $("waSetup").style.display="block"; $("waStatus").innerHTML=""; return; }
   if(!data.verificado){ $("waVerify").style.display="block"; $("waStatus").innerHTML='<span style="color:#f5a623;font-size:.85rem">⏳ Pendiente de verificación — revisa tu WhatsApp</span>'; return; }
   $("waLinked").style.display="block"; $("waLinkedPhone").textContent=data.telefono; $("waStatus").innerHTML="";

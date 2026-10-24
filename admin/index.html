@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eva — Panel de administración</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/logo.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07060c;--card:rgba(32,22,46,.55);--line:rgba(255,255,255,.08);--txt:#f3eefb;--mut:#a99fb8;--mag:#e24bd8;--grn:#22c55e;--red:#ef4757;--amb:#f5a623;--grad:linear-gradient(135deg,#f06ce0,#c026d3 50%,#a855f7)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Montserrat',sans-serif;color:var(--txt);background:var(--bg);line-height:1.5;min-height:100vh;
+  background-image:radial-gradient(900px 600px at 0% -10%,rgba(226,75,216,.22),transparent 60%),radial-gradient(800px 600px at 100% 0%,rgba(168,85,247,.18),transparent 60%);background-repeat:no-repeat}
+.wrap{max-width:1200px;margin:0 auto;padding:20px}
+.logo{display:flex;align-items:baseline;font-weight:500;font-size:1.4rem;letter-spacing:1px}
+.logo b{font-family:'Playfair Display',serif;font-size:2rem;line-height:1;background:linear-gradient(135deg,#f9a8f0,#e24bd8 50%,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent}
+.mag{background:linear-gradient(135deg,#f472e6,#e24bd8 45%,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent}
+.btn{border:0;cursor:pointer;font:inherit;font-weight:800;background:var(--grad);color:#fff;padding:12px 24px;border-radius:999px;font-size:.95rem;box-shadow:0 10px 30px -12px rgba(226,75,216,.8)}
+.btn.sm{padding:7px 14px;font-size:.82rem}
+.btn.ghost{background:rgba(255,255,255,.06);border:1px solid var(--line);box-shadow:none;font-weight:700}
+input{font:inherit;background:#1b1426;border:1px solid var(--line);border-radius:10px;padding:11px 14px;color:var(--txt);font-size:.95rem;width:100%}
+/* Login */
+#login{max-width:380px;margin:8vh auto 0;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:34px}
+#login h1{font-size:1.3rem;margin:14px 0 4px}
+#login p{color:var(--mut);font-size:.9rem;margin-bottom:20px}
+#login input{margin-bottom:12px}
+#login .btn{width:100%}
+.msg{margin-top:12px;font-size:.88rem;padding:10px 14px;border-radius:10px;display:none}
+.msg.err{display:block;background:rgba(239,71,87,.14);color:#ff9aa6}
+/* Topbar */
+.top{display:flex;align-items:center;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+.top .sp{margin-left:auto;display:flex;gap:10px;align-items:center}
+.top .who{color:var(--mut);font-size:.85rem}
+/* Cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px}
+.c{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
+.c .k{font-size:.8rem;color:var(--mut);font-weight:600;display:flex;align-items:center;gap:7px}
+.c .v{font-size:2rem;font-weight:900;margin-top:6px;letter-spacing:-1px}
+.c .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+/* Filtros */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{cursor:pointer;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:.85rem;font-weight:700;color:var(--mut)}
+.chip.on{background:var(--grad);color:#fff;border-color:transparent}
+.search{max-width:320px;margin-bottom:14px}
+/* Tabla */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:18px;background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:900px;font-size:.88rem}
+th,td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:.76rem;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);font-weight:700;position:sticky;top:0;background:#160f24}
+tr:last-child td{border-bottom:0}
+tr:hover td{background:rgba(255,255,255,.02)}
+.badge{padding:3px 10px;border-radius:999px;font-size:.74rem;font-weight:800}
+.b-active{background:rgba(34,197,94,.16);color:#86efac}
+.b-trial{background:rgba(124,92,255,.18);color:#b9a6ff}
+.b-none{background:rgba(255,255,255,.07);color:var(--mut)}
+.b-bad{background:rgba(239,71,87,.16);color:#ff9aa6}
+.b-wa{background:rgba(37,211,102,.16);color:#8ff0b5}
+.inact{color:var(--red);font-weight:700}
+.muted{color:var(--mut)}
+.empty{text-align:center;padding:40px;color:var(--mut)}
+@media(max-width:640px){.c .v{font-size:1.5rem}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="logo"><b>E</b>va</div>
+  <h1>Panel de <span class="mag">administración</span></h1>
+  <p>Acceso solo para el administrador.</p>
+  <input type="email" id="email" placeholder="Correo de administrador" autocomplete="username">
+  <input type="password" id="pass" placeholder="Contraseña" autocomplete="current-password">
+  <button class="btn" id="loginBtn">Entrar</button>
+  <div class="msg" id="loginMsg"></div>
+</div>
+
+<!-- PANEL -->
+<div class="wrap" id="panel" style="display:none">
+  <div class="top">
+    <div class="logo"><b>E</b>va <span style="font-size:.9rem;color:var(--mut);margin-left:8px">· Admin</span></div>
+    <div class="sp">
+      <span class="who" id="who"></span>
+      <button class="btn ghost sm" id="refresh">↻ Actualizar</button>
+      <button class="btn ghost sm" id="logout">Salir</button>
+    </div>
+  </div>
+
+  <div class="cards" id="cards"></div>
+
+  <div class="filters" id="filters">
+    <span class="chip on" data-f="todos">Todos</span>
+    <span class="chip" data-f="activos">Suscritos</span>
+    <span class="chip" data-f="sin_pago">Sin pagar</span>
+    <span class="chip" data-f="problemas">Problemas de pago</span>
+    <span class="chip" data-f="inactivos">Inactivos (14d+)</span>
+    <span class="chip" data-f="sin_actividad">Sin registrar nada</span>
+    <span class="chip" data-f="whatsapp">WhatsApp</span>
+  </div>
+  <input class="search" id="search" placeholder="🔎 Buscar por correo…">
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr>
+        <th>Correo</th><th>Suscripción</th><th>Movs.</th><th>Último mov.</th>
+        <th>Último acceso</th><th>Inactivo</th><th>WhatsApp</th><th>Registrado</th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div class="empty" id="empty" style="display:none">No hay usuarios en este filtro.</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL="https://fhixjvxztmuifrioevze.supabase.co";
+const SUPABASE_KEY="sb_publishable_FchHwJHM1BNH-2z-2KXTgg_nZv4CP7d";
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+let DATA=null, filtro="todos", q="";
+
+function fmtFecha(s){ if(!s) return "—"; const d=new Date(s); return d.toLocaleDateString("es-CO",{day:"2-digit",month:"short",year:"2-digit"}); }
+function diasDesde(s){ if(!s) return null; return Math.floor((Date.now()-new Date(s).getTime())/86400000); }
+function subBadge(st){
+  const map={active:["Activa","b-active"],trialing:["Prueba","b-trial"],past_due:["Mora","b-bad"],unpaid:["Sin pago","b-bad"],canceled:["Cancelada","b-bad"],sin_suscripcion:["Sin suscripción","b-none"]};
+  const [t,c]=map[st]||[st,"b-none"]; return `<span class="badge ${c}">${t}</span>`;
+}
+
+async function cargar(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){ mostrarLogin(); return; }
+  $("who").textContent=session.user.email;
+  try{
+    const r=await fetch(`${SUPABASE_URL}/functions/v1/admin-datos`,{
+      method:"POST",
+      headers:{ "apikey":SUPABASE_KEY, "Authorization":"Bearer "+session.access_token, "Content-Type":"application/json" },
+    });
+    const j=await r.json();
+    if(r.status===403){ alert("Esta cuenta no es administradora."); await sb.auth.signOut(); mostrarLogin(); return; }
+    if(!r.ok){ alert("Error: "+(j.error||r.status)); return; }
+    DATA=j; render();
+  }catch(e){ alert("Error de conexión: "+e.message); }
+}
+
+function render(){
+  if(!DATA) return;
+  const R=DATA.resumen;
+  $("cards").innerHTML=`
+    ${card("Usuarios totales",R.total,"#e24bd8")}
+    ${card("Suscritos",R.activos,"#22c55e")}
+    ${card("Sin pagar",R.sin_pago,"#f5a623")}
+    ${card("Problemas de pago",R.problemas_pago,"#ef4757")}
+    ${card("Inactivos (14d+)",R.inactivos_14d,"#ef4757")}
+    ${card("Sin registrar nada",R.nunca_registraron,"#a99fb8")}
+    ${card("WhatsApp activo",R.whatsapp_activo,"#25d366")}
+    ${card("Nuevos (7d)",R.nuevos_7d,"#a855f7")}`;
+  const rows=DATA.usuarios.filter(u=>{
+    if(q && !(u.email||"").toLowerCase().includes(q)) return false;
+    const act=["active","trialing"].includes(u.sub_status);
+    if(filtro==="activos") return act;
+    if(filtro==="sin_pago") return !act;
+    if(filtro==="problemas") return ["past_due","unpaid","canceled"].includes(u.sub_status);
+    if(filtro==="inactivos") return u.dias_inactivo!==null && u.dias_inactivo>=14;
+    if(filtro==="sin_actividad") return u.movimientos===0;
+    if(filtro==="whatsapp") return u.whatsapp==="verificado";
+    return true;
+  });
+  $("empty").style.display=rows.length?"none":"block";
+  $("tbody").innerHTML=rows.map(u=>{
+    const inact=u.dias_inactivo;
+    const inactTxt = inact===null?'<span class="muted">nunca entró</span>' : (inact>=14?`<span class="inact">${inact} días</span>`:`${inact} días`);
+    const wa = u.whatsapp==="verificado"?'<span class="badge b-wa">Sí</span>' : u.whatsapp==="pendiente"?'<span class="badge b-none">Pendiente</span>':'<span class="muted">—</span>';
+    return `<tr>
+      <td>${u.email||"—"}</td>
+      <td>${subBadge(u.sub_status)}</td>
+      <td>${u.movimientos}</td>
+      <td class="muted">${fmtFecha(u.ultimo_movimiento)}</td>
+      <td class="muted">${fmtFecha(u.ultimo_acceso)}</td>
+      <td>${inactTxt}</td>
+      <td>${wa}</td>
+      <td class="muted">${fmtFecha(u.creado)}</td>
+    </tr>`;
+  }).join("");
+}
+function card(k,v,color){ return `<div class="c"><div class="k"><span class="dot" style="background:${color}"></span>${k}</div><div class="v">${v}</div></div>`; }
+
+function mostrarLogin(){ $("login").style.display="block"; $("panel").style.display="none"; }
+function mostrarPanel(){ $("login").style.display="none"; $("panel").style.display="block"; }
+
+$("loginBtn").onclick=async()=>{
+  $("loginMsg").className="msg"; $("loginBtn").disabled=true;
+  const {error}=await sb.auth.signInWithPassword({email:$("email").value.trim(),password:$("pass").value});
+  $("loginBtn").disabled=false;
+  if(error){ $("loginMsg").className="msg err"; $("loginMsg").textContent="Correo o contraseña incorrectos."; return; }
+  mostrarPanel(); cargar();
+};
+$("pass").addEventListener("keydown",e=>{ if(e.key==="Enter") $("loginBtn").click(); });
+$("logout").onclick=async()=>{ await sb.auth.signOut(); mostrarLogin(); };
+$("refresh").onclick=cargar;
+$("search").addEventListener("input",e=>{ q=e.target.value.toLowerCase().trim(); render(); });
+$("filters").addEventListener("click",e=>{
+  const c=e.target.closest(".chip"); if(!c) return;
+  document.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));
+  c.classList.add("on"); filtro=c.dataset.f; render();
+});
+
+// Al cargar: si ya hay sesión, mostrar panel
+(async()=>{ const {data:{session}}=await sb.auth.getSession(); if(session){ mostrarPanel(); cargar(); } else { mostrarLogin(); } })();
+</script>
+</body>
+</html>

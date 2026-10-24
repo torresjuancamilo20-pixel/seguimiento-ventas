@@ -28,6 +28,7 @@ input{font:inherit;background:#1b1426;border:1px solid var(--line);border-radius
 #login .btn{width:100%}
 .msg{margin-top:12px;font-size:.88rem;padding:10px 14px;border-radius:10px;display:none}
 .msg.err{display:block;background:rgba(239,71,87,.14);color:#ff9aa6}
+.msg.ok{display:block;background:rgba(34,197,94,.14);color:#86efac}
 /* Topbar */
 .top{display:flex;align-items:center;gap:14px;margin-bottom:22px;flex-wrap:wrap}
 .top .sp{margin-left:auto;display:flex;gap:10px;align-items:center}
@@ -70,8 +71,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
   <h1>Panel de <span class="mag">administración</span></h1>
   <p>Acceso solo para el administrador.</p>
   <input type="email" id="email" placeholder="Correo de administrador" autocomplete="username">
-  <input type="password" id="pass" placeholder="Contraseña" autocomplete="current-password">
-  <button class="btn" id="loginBtn">Entrar</button>
+  <button class="btn" id="magicBtn">Enviarme un enlace de acceso</button>
+  <div style="text-align:center;margin-top:12px"><a id="togglePass" style="color:var(--mut);font-size:.82rem;cursor:pointer;text-decoration:underline">o entrar con contraseña</a></div>
+  <div id="passBox" style="display:none;margin-top:12px">
+    <input type="password" id="pass" placeholder="Contraseña" autocomplete="current-password" style="margin-bottom:10px">
+    <button class="btn ghost" id="loginBtn" style="width:100%">Entrar con contraseña</button>
+  </div>
   <div class="msg" id="loginMsg"></div>
 </div>
 
@@ -187,6 +192,16 @@ function card(k,v,color){ return `<div class="c"><div class="k"><span class="dot
 function mostrarLogin(){ $("login").style.display="block"; $("panel").style.display="none"; }
 function mostrarPanel(){ $("login").style.display="none"; $("panel").style.display="block"; }
 
+$("magicBtn").onclick=async()=>{
+  const email=$("email").value.trim();
+  if(!email){ $("loginMsg").className="msg err"; $("loginMsg").textContent="Escribe tu correo de administrador."; return; }
+  $("magicBtn").disabled=true; $("loginMsg").className="msg";
+  const {error}=await sb.auth.signInWithOtp({email, options:{ shouldCreateUser:false, emailRedirectTo: location.origin+"/admin/" }});
+  $("magicBtn").disabled=false;
+  if(error){ $("loginMsg").className="msg err"; $("loginMsg").textContent="No se pudo enviar: "+error.message; return; }
+  $("loginMsg").className="msg ok"; $("loginMsg").innerHTML="✓ Te enviamos un enlace a <b>"+email+"</b>.<br>Revisa tu correo y haz clic para entrar.";
+};
+$("togglePass").onclick=()=>{ $("passBox").style.display = $("passBox").style.display==="none" ? "block":"none"; };
 $("loginBtn").onclick=async()=>{
   $("loginMsg").className="msg"; $("loginBtn").disabled=true;
   const {error}=await sb.auth.signInWithPassword({email:$("email").value.trim(),password:$("pass").value});

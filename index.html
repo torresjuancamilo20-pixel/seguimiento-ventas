@@ -236,6 +236,20 @@
   .price .amt{font-size:2.6rem;font-weight:800;color:var(--txt)}
   .price .per{color:var(--muted);font-weight:600}
   .trial{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#a7f0c4;border-radius:12px;padding:12px 14px;font-size:.85rem;margin:14px 0 18px}
+  /* Selector de plan en el paywall */
+  .plan-opts{display:grid;gap:10px;margin:18px 0 6px}
+  .plan-opt{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;
+    background:var(--tile);border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;cursor:pointer;transition:border-color .15s,background .15s}
+  .plan-opt:hover{border-color:rgba(226,75,216,.4)}
+  .plan-opt.sel{border-color:var(--brand);background:var(--brandsoft)}
+  .plan-opt .po-name{font-weight:700;font-size:.95rem}
+  .plan-opt .po-sub{font-size:.76rem;color:var(--muted);margin-top:2px}
+  .plan-opt .po-price{text-align:right;white-space:nowrap}
+  .plan-opt .po-amt{font-weight:800;font-size:1.15rem}
+  .plan-opt .po-per{font-size:.72rem;color:var(--muted)}
+  .plan-opt .po-tag{position:absolute;top:-9px;right:14px;background:var(--brand);color:#fff;font-size:.62rem;font-weight:700;
+    letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:999px}
+  .plan-opt .po-old{font-size:.72rem;color:var(--muted);text-decoration:line-through;margin-right:5px}
   .feat{list-style:none;text-align:left;display:grid;gap:9px;margin:0 0 22px;font-size:.9rem}
   .paycard .primary{width:100%;padding:14px}
   .mini-txt{font-size:.74rem;margin-top:12px;color:var(--muted)}
@@ -392,16 +406,31 @@
     <div class="badge">Acceso Premium</div>
     <h2>Desbloquea <span class="grad">Eva</span></h2>
     <p class="muted">Controla ingresos, gastos, ahorro, metas y reportes desde cualquier dispositivo, con tus datos seguros en la nube.</p>
-    <div class="price"><span class="amt">$9.99</span> <span class="per">USD / mes</span></div>
-    <div class="trial">Suscripción mensual con <b>renovación automática</b>. Cancela cuando quieras.</div>
     <ul class="feat">
       <li>✓ Ingresos, gastos y ahorro ilimitados</li>
       <li>✓ Metas de ahorro y presupuestos con alertas</li>
-      <li>✓ Reportes y evolución mensual</li>
+      <li>✓ Registro por WhatsApp y reportes mensuales</li>
       <li>✓ Sincronización segura en la nube</li>
     </ul>
+    <div class="plan-opts">
+      <div class="plan-opt" id="opt-mensual" data-plan="mensual" onclick="selPlan('mensual')">
+        <div>
+          <div class="po-name">Plan mensual</div>
+          <div class="po-sub">Renovación automática · cancela cuando quieras</div>
+        </div>
+        <div class="po-price"><span class="po-amt">$9.99</span><br><span class="po-per">USD / mes</span></div>
+      </div>
+      <div class="plan-opt sel" id="opt-anual" data-plan="anual" onclick="selPlan('anual')">
+        <div class="po-tag">Ahorra 42%</div>
+        <div>
+          <div class="po-name">Plan anual</div>
+          <div class="po-sub">Renovación automática · cancela cuando quieras</div>
+        </div>
+        <div class="po-price"><span class="po-old">$119.88</span><span class="po-amt">$69</span><br><span class="po-per">USD / año</span></div>
+      </div>
+    </div>
     <button class="primary" id="payBtn" onclick="irAPagar()">Suscribirme</button>
-    <p class="mini-txt">Pago seguro con Stripe · Cobro mensual automático · Cancela cuando quieras.<br>Al suscribirte aceptas los <a href="/legal/terminos/" target="_blank" rel="noopener">Términos</a>, la <a href="/legal/privacidad/" target="_blank" rel="noopener">Privacidad</a> y la <a href="/legal/reembolsos/" target="_blank" rel="noopener">Política de Reembolsos</a>.</p>
+    <p class="mini-txt">Pago seguro con Stripe · Renovación automática · Cancela cuando quieras.<br>Al suscribirte aceptas los <a href="/legal/terminos/" target="_blank" rel="noopener">Términos</a>, la <a href="/legal/privacidad/" target="_blank" rel="noopener">Privacidad</a> y la <a href="/legal/reembolsos/" target="_blank" rel="noopener">Política de Reembolsos</a>.</p>
     <button class="linkout" id="logout2">Cerrar sesión</button>
   </div>
 </div>
@@ -755,6 +784,7 @@ async function enterApp(){
   render();
   await loadToken();
   await loadWA();
+  initPlanDesdeURL();
   await checkAccess();
 }
 
@@ -936,10 +966,21 @@ async function checkAccess(){
   } else { $("subInfo").textContent=""; }
   if(params.get("pago")){ history.replaceState({}, "", location.pathname); }
 }
+let planSel = "anual"; // plan elegido en el paywall (anual por defecto)
+function selPlan(p){
+  planSel = p;
+  const m=$("opt-mensual"), a=$("opt-anual");
+  if(m) m.classList.toggle("sel", p==="mensual");
+  if(a) a.classList.toggle("sel", p==="anual");
+}
+function initPlanDesdeURL(){
+  const p = new URLSearchParams(location.search).get("plan");
+  if(p==="mensual"||p==="anual") selPlan(p);
+}
 async function irAPagar(){
   const btn=$("payBtn"); btn.disabled=true; btn.textContent="Abriendo pago seguro…";
   try{
-    const {data,error} = await sb.functions.invoke("crear-checkout",{ body:{} });
+    const {data,error} = await sb.functions.invoke("crear-checkout",{ body:{ plan: planSel } });
     if(error) throw error;
     if(data?.url){ location.href=data.url; return; }
     throw new Error(data?.error||"No se pudo iniciar el pago");

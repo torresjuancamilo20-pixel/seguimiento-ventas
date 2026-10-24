@@ -352,7 +352,7 @@
       <div class="badge">Paso 1 de 3</div>
       <h2>¿Cuánto <span class="grad">ingresas</span> al mes?</h2>
       <p class="muted">Tu ingreso mensual aproximado (salario, ventas, etc.). Con esto calculamos tu plan.</p>
-      <input type="number" id="obIngreso" placeholder="Ej. 2000000" min="0" step="1000" inputmode="numeric">
+      <input type="number" id="obIngreso" placeholder="Ej. 2000000" min="0" step="any" inputmode="numeric">
       <button class="primary" onclick="obNext()">Continuar</button>
     </div>
     <div class="ob-step hidden" data-step="1">
@@ -362,7 +362,7 @@
       <div class="fijo-add">
         <select id="obFijoCat"></select>
         <input type="text" id="obFijoNom" placeholder="Nombre (ej. Arriendo)">
-        <input type="number" id="obFijoMonto" placeholder="Valor" min="0" step="1000" inputmode="numeric">
+        <input type="number" id="obFijoMonto" placeholder="Valor" min="0" step="any" inputmode="numeric">
         <button class="btn-ghost" onclick="obAddFijo()">＋</button>
       </div>
       <div id="obFijosList" class="fijos-list"></div>
@@ -376,7 +376,7 @@
       <div class="badge">Paso 3 de 3</div>
       <h2>Tu <span class="grad">meta de ahorro</span> mensual</h2>
       <p class="muted">¿Cuánto quieres apartar cada mes? Puede ser un monto o dejarlo en 0 por ahora.</p>
-      <input type="number" id="obAhorro" placeholder="Ej. 300000" min="0" step="1000" inputmode="numeric">
+      <input type="number" id="obAhorro" placeholder="Ej. 300000" min="0" step="any" inputmode="numeric">
       <div class="ob-preview" id="obPreview"></div>
       <div class="ob-nav">
         <button class="linkout" onclick="obPrev()">Atrás</button>
@@ -610,7 +610,7 @@
         <div class="row3">
           <input type="text" id="deudaNombre" placeholder="Nombre (ej. Tarjeta, Préstamo)" required>
           <input type="text" id="deudaAcreedor" placeholder="¿A quién? (opcional)">
-          <input type="number" id="deudaTotal" placeholder="Valor total" min="1" step="1000" required>
+          <input type="number" id="deudaTotal" placeholder="Valor total" min="1" step="any" inputmode="numeric" required>
         </div>
         <button class="primary" type="submit">Agregar deuda</button>
       </form>

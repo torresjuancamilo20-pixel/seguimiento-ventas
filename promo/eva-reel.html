@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Eva — Reel llamativo (22 s, vertical)</title>
+<style>
+@font-face{font-family:'Montserrat';font-weight:500;src:url(fonts/montserrat-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:600;src:url(fonts/montserrat-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:700;src:url(fonts/montserrat-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:800;src:url(fonts/montserrat-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:900;src:url(fonts/montserrat-latin-900-normal.woff2) format('woff2')}
+@font-face{font-family:'Playfair Display';font-weight:700;src:url(fonts/playfair-display-latin-700-normal.woff2) format('woff2')}
+@property --num{syntax:'<integer>';initial-value:0;inherits:false}
+:root{--bg:#0B0712;--panel:#15101F;--brand:#E24BD8;--brand2:#A855F7;--rosa:#F06CE0;--magenta:#C026D3;--txt:#F3EEFB;--muted:#A99FB8;--ok:#22C55E;--bad:#EF4757;--save:#F5A623}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--bg);font-family:'Montserrat',sans-serif;color:#fff}
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;opacity:0;overflow:hidden}
+.mag{background:radial-gradient(1000px 800px at 85% 0%,var(--rosa),transparent 60%),radial-gradient(1100px 1100px at 0% 100%,#7c1fb0,transparent 65%),linear-gradient(160deg,var(--brand),var(--magenta) 45%,#6d1aa8)}
+.dark{background:radial-gradient(900px 900px at 50% 45%,#2a0f33,var(--bg) 70%)}
+.grad{background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--brand2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+@keyframes vis{0%{opacity:1}100%{opacity:1}}
+.punch{display:block;opacity:0;animation:punch .45s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes punch{0%{opacity:0;transform:scale(1.9);filter:blur(12px)}60%{opacity:1;filter:none}100%{opacity:1;transform:scale(1)}}
+.shake{animation:shk .35s ease-out both}
+@keyframes shk{0%{transform:translate(0,0)}20%{transform:translate(-14px,8px) rotate(-.6deg)}45%{transform:translate(12px,-6px) rotate(.5deg)}70%{transform:translate(-6px,4px)}100%{transform:none}}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:50;animation:fl .3s ease-out both}
+@keyframes fl{0%{opacity:.85}100%{opacity:0}}
+.grain{position:absolute;inset:-200px;z-index:90;pointer-events:none;opacity:.07;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation:grain .5s steps(4) infinite}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-40px,20px)}50%{transform:translate(30px,-30px)}75%{transform:translate(-20px,-40px)}100%{transform:translate(0,0)}}
+.ring{position:absolute;border-radius:50%;border:3px solid rgba(255,255,255,.14)}
+
+/* ===== 1: Gancho (0–2.5) ===== */
+.s1{animation:vis 2.5s linear 0s forwards}
+.s1 .big{font-size:178px;font-weight:900;letter-spacing:-6px;line-height:.92;text-shadow:0 14px 50px rgba(60,0,70,.35)}
+.s1 .big .d{color:var(--bg)}
+
+/* ===== 2: No sabes (2.5–5.0) ===== */
+.s2{animation:vis 2.5s linear 2.5s forwards}
+.s2 .t{font-size:150px;font-weight:900;letter-spacing:-5px;line-height:1}
+.s2 .emo{font-size:180px;margin-top:40px}
+.s2 .sm{font-size:52px;font-weight:600;color:var(--muted);margin-top:46px;opacity:0;animation:up .5s ease-out 3.7s both}
+@keyframes up{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+
+/* ===== 3: Hasta ahora (5.0–6.3) ===== */
+.s3{animation:vis 1.3s linear 5s forwards}
+.s3 .t{font-size:170px;font-weight:900;letter-spacing:-6px;line-height:.95;opacity:0;animation:zoomOut .7s cubic-bezier(.2,.8,.2,1) 5.05s both}
+@keyframes zoomOut{from{opacity:0;transform:scale(2.6);filter:blur(16px)}to{opacity:1;transform:none;filter:none}}
+
+/* ===== 4: Teléfono + notificaciones (6.3–13) ===== */
+.s4{animation:vis 6.7s linear 6.3s forwards;justify-content:flex-start}
+.s4 .hd{margin-top:150px;font-size:96px;font-weight:900;letter-spacing:-3px;opacity:0;animation:punch .45s cubic-bezier(.2,1.6,.4,1) 6.4s both}
+.s4 .hd span{color:var(--bg)}
+.phone{position:relative;margin-top:60px;width:700px;height:1360px;border-radius:96px;background:#05030a;padding:22px;
+  box-shadow:0 60px 120px rgba(40,0,50,.55),0 0 0 4px rgba(255,255,255,.18);opacity:0;animation:phoneIn .8s cubic-bezier(.2,.9,.2,1) 6.5s both}
+@keyframes phoneIn{from{opacity:0;transform:translateY(500px) rotate(-6deg)}to{opacity:1;transform:none}}
+.scr{position:relative;width:100%;height:100%;border-radius:76px;overflow:hidden;
+  background:radial-gradient(500px 500px at 80% 10%,rgba(226,75,216,.45),transparent 60%),radial-gradient(600px 600px at 0% 100%,rgba(168,85,247,.35),transparent 60%),#120a1e}
+.isl{position:absolute;top:24px;left:50%;width:200px;height:56px;border-radius:30px;background:#000;transform:translateX(-50%)}
+.clock{margin-top:100px;font-size:140px;font-weight:600;letter-spacing:-4px;color:#fff}
+.date{font-size:34px;font-weight:600;color:rgba(255,255,255,.75);margin-top:-6px}
+.notis{position:absolute;left:26px;right:26px;top:370px;display:grid;gap:14px}
+.n{display:flex;gap:18px;align-items:center;text-align:left;background:rgba(30,20,44,.86);border:1px solid rgba(255,255,255,.1);
+  border-radius:34px;padding:18px 20px;opacity:0;animation:nIn .5s cubic-bezier(.2,1.4,.4,1) both;box-shadow:0 20px 40px rgba(0,0,0,.35)}
+@keyframes nIn{from{opacity:0;transform:translateY(-60px) scale(.9)}to{opacity:1;transform:none}}
+.ic{flex:0 0 auto;width:78px;height:78px;border-radius:20px;background:linear-gradient(160deg,#F6A8EF,var(--brand) 50%,var(--brand2));
+  display:flex;align-items:center;justify-content:center;font-family:'Playfair Display';font-weight:700;font-size:56px;line-height:1}
+.nb{flex:1}
+.nh{display:flex;justify-content:space-between;font-size:22px;color:var(--muted);font-weight:600}.nh b{color:#fff;font-weight:800}
+.nt{font-size:27px;font-weight:600;color:var(--txt);margin-top:4px;line-height:1.28}
+.g{color:var(--ok);font-weight:800}.o{color:var(--save);font-weight:800}.r{color:var(--bad);font-weight:800}
+.wid{position:absolute;left:26px;right:26px;bottom:36px;border-radius:40px;padding:24px 32px;text-align:left;
+  background:linear-gradient(150deg,rgba(226,75,216,.35),rgba(168,85,247,.2));border:1px solid rgba(226,75,216,.5);opacity:0;animation:nIn .5s cubic-bezier(.2,1.4,.4,1) 11.3s both}
+.wid .k{font-size:26px;font-weight:700;color:#f6d6f3}
+.wid .v{font-size:82px;font-weight:900;letter-spacing:-3px;margin-top:4px;color:#fff;--num:0;counter-reset:n var(--num);animation:count 1.4s cubic-bezier(.2,.7,.2,1) 11.5s both}
+.wid .v::before{content:"$" counter(n) ".000"}
+@keyframes count{from{--num:0}to{--num:420}}
+.wid .s{font-size:24px;color:#f6d6f3;font-weight:600;margin-top:2px}
+
+/* ===== 5: Slams (13–17) ===== */
+.sl{font-size:200px;font-weight:900;letter-spacing:-7px}
+.s5a{animation:vis .9s linear 13.0s forwards}.s5b{animation:vis .9s linear 13.9s forwards}.s5c{animation:vis .9s linear 14.8s forwards}.s5d{animation:vis 1.4s linear 15.7s forwards}
+.s5 .lb{font-size:44px;font-weight:700;color:var(--muted);letter-spacing:6px;text-transform:uppercase;margin-bottom:26px}
+
+/* ===== 6: CTA (17.1–22) ===== */
+.s6{animation:vis 4.9s linear 17.1s forwards}
+.s6 .logo{display:flex;align-items:baseline;opacity:0;animation:punch .5s cubic-bezier(.2,1.6,.4,1) 17.2s both}
+.s6 .E{font-family:'Playfair Display';font-weight:700;font-size:420px;line-height:.8;color:var(--bg);filter:drop-shadow(0 16px 40px rgba(60,0,70,.35))}
+.s6 .va{font-weight:700;font-size:210px;letter-spacing:-6px;margin-left:-6px}
+.s6 .tag{font-size:66px;font-weight:800;letter-spacing:-1.5px;margin-top:70px;opacity:0;animation:up .5s ease-out 18.0s both}
+.s6 .pill{margin-top:70px;font-size:56px;font-weight:800;background:var(--bg);color:#fff;padding:34px 64px;border-radius:999px;
+  box-shadow:0 24px 60px rgba(40,0,50,.45);opacity:0;animation:pillIn .55s cubic-bezier(.2,1.6,.4,1) 18.8s both, pulse 1.2s ease-in-out 19.6s infinite}
+.s6 .pill span{color:var(--rosa)}
+@keyframes pillIn{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.s6 .price{font-size:44px;font-weight:700;margin-top:50px;color:#fff;opacity:0;animation:up .5s ease-out 19.5s both}
+.s6 .price b{background:rgba(11,7,18,.85);padding:6px 18px;border-radius:14px;color:var(--save)}
+</style>
+</head>
+<body>
+
+<!-- 1 · Gancho -->
+<div class="scene s1 mag">
+  <div class="ring" style="width:1300px;height:1300px;right:-600px;top:-500px"></div>
+  <div class="shake" style="animation-delay:.15s"><div class="shake" style="animation-delay:.85s"><div class="shake" style="animation-delay:1.55s">
+    <div class="big">
+      <span class="punch" style="animation-delay:.15s">¿CUÁNTO</span>
+      <span class="punch d" style="animation-delay:.85s">GASTASTE</span>
+      <span class="punch" style="animation-delay:1.55s">AYER?</span>
+    </div>
+  </div></div></div>
+  <div class="flash" style="animation-delay:.15s"></div>
+</div>
+
+<!-- 2 · No sabes -->
+<div class="scene s2 dark">
+  <div class="t"><span class="punch" style="animation-delay:2.6s">No sabes.</span></div>
+  <div class="emo"><span class="punch" style="animation-delay:2.95s">😅</span></div>
+  <div class="sm">Tranquilo, casi nadie sabe.</div>
+</div>
+
+<!-- 3 · Hasta ahora -->
+<div class="scene s3 mag">
+  <div class="t">Hasta<br>ahora.</div>
+  <div class="flash" style="animation-delay:5s"></div>
+</div>
+
+<!-- 4 · Teléfono -->
+<div class="scene s4 mag">
+  <div class="ring" style="width:1100px;height:1100px;left:-500px;bottom:-400px"></div>
+  <div class="hd">Eva te <span>avisa.</span></div>
+  <div class="phone"><div class="scr">
+    <div class="isl"></div>
+    <div class="clock">9:41</div>
+    <div class="date">lunes, 26 de octubre</div>
+    <div class="notis">
+      <div class="n" style="animation-delay:7.4s"><div class="ic">E</div><div class="nb"><div class="nh"><b>Eva</b><span>ahora</span></div>
+        <div class="nt">Registré <span class="g">$25.000</span> en Comida 🍔</div></div></div>
+      <div class="n" style="animation-delay:8.5s"><div class="ic">E</div><div class="nb"><div class="nh"><b>Eva</b><span>ahora</span></div>
+        <div class="nt">Ojo: vas al <span class="r">90%</span> de tu presupuesto de salidas 👀</div></div></div>
+      <div class="n" style="animation-delay:9.6s"><div class="ic">E</div><div class="nb"><div class="nh"><b>Eva</b><span>ahora</span></div>
+        <div class="nt">Este mes gastaste <span class="g">18% menos</span> 🎉</div></div></div>
+      <div class="n" style="animation-delay:10.5s"><div class="ic">E</div><div class="nb"><div class="nh"><b>Eva</b><span>ahora</span></div>
+        <div class="nt">Tu meta de ahorro va al <span class="o">70%</span> 💰</div></div></div>
+    </div>
+    <div class="wid"><div class="k">Ahorrado este mes</div><div class="v"></div><div class="s">↑ más que el mes pasado</div></div>
+  </div></div>
+</div>
+
+<!-- 5 · Slams -->
+<div class="scene s5 s5a dark"><div class="lb">Controla tus</div><div class="sl"><span class="punch" style="animation-delay:13.0s;color:var(--ok)">Ingresos.</span></div><div class="flash" style="animation-delay:13s;opacity:0"></div></div>
+<div class="scene s5 s5b dark"><div class="lb">Controla tus</div><div class="sl"><span class="punch" style="animation-delay:13.9s;color:var(--bad)">Gastos.</span></div></div>
+<div class="scene s5 s5c dark"><div class="lb">Haz crecer tu</div><div class="sl"><span class="punch" style="animation-delay:14.8s;color:var(--save)">Ahorro.</span></div></div>
+<div class="scene s5 s5d dark"><div class="lb">Y sal de tus</div><div class="sl"><span class="punch grad" style="animation-delay:15.7s">Deudas.</span></div></div>
+
+<!-- 6 · CTA -->
+<div class="scene s6 mag">
+  <div class="ring" style="width:1300px;height:1300px;right:-600px;top:-500px"></div>
+  <div class="ring" style="width:900px;height:900px;left:-450px;bottom:-350px"></div>
+  <div class="logo"><span class="E">E</span><span class="va">va</span></div>
+  <div class="tag">Tus finanzas, bajo control.</div>
+  <div class="pill">evafinanzas<span>.us</span></div>
+  <div class="price">Desde <b>$5,75 USD al mes</b> · plan anual</div>
+  <div class="flash" style="animation-delay:17.1s"></div>
+</div>
+
+<div class="grain"></div>
+</body>
+</html>

@@ -895,23 +895,24 @@ async function loadLeadsDetalle(){
  }catch(e){ LEADS_DET=[]; }
 }
 async function loadSeguimiento(){
- // PostgREST corta cada respuesta en 1000 filas, así que paginamos con Range
- // hasta traer TODAS las filas; si no, las de los leads más recientes no cargan
- // y las marcas parecen "borrarse" al recargar.
+ // PostgREST corta cada respuesta en 1000 filas, así que paginamos con
+ // limit/offset hasta traer TODAS las filas; si no, las de los leads más
+ // recientes no cargan y las marcas parecen "borrarse" al recargar.
  const SEL='select=contact_id,llamada1,llamada2,whatsapp,registrado,ftd,seg_dia1,seg_dia2,seg_dia3,observacion,registro_id';
  const CH=1000;
- SEGU_MAP={};
+ const nuevo={};
  try{
   let desde=0;
-  for(;;){
-   const r=await fetch(SUPABASE_URL+'/rest/v1/lead_seguimiento?'+SEL+'&order=contact_id.asc',
-     {headers:{...HDRS,'Range-Unit':'items','Range':desde+'-'+(desde+CH-1)}});
-   const b=await r.json()||[];
-   if(Array.isArray(b)) b.forEach(x=>{SEGU_MAP[x.contact_id]=x;});
-   if(!Array.isArray(b) || b.length<CH) break;   // última página
+  for(let guardia=0; guardia<100; guardia++){
+   const r=await fetch(SUPABASE_URL+'/rest/v1/lead_seguimiento?'+SEL+'&order=contact_id.asc&limit='+CH+'&offset='+desde,{headers:HDRS});
+   const b=await r.json();
+   if(!Array.isArray(b)) throw new Error('respuesta no es lista');
+   b.forEach(x=>{nuevo[x.contact_id]=x;});
+   if(b.length<CH) break;   // última página
    desde+=CH;
   }
- }catch(e){ /* mantenemos lo que se haya cargado */ }
+  SEGU_MAP=nuevo;   // solo reemplazamos si la carga fue completa y correcta
+ }catch(e){ /* si algo falla, conservamos SEGU_MAP anterior en vez de vaciarlo */ }
 }
 function seguBody(cur){return {contact_id:cur.contact_id,agente:metaAgente(),llamada1:!!cur.llamada1,llamada2:!!cur.llamada2,whatsapp:!!cur.whatsapp,registrado:!!cur.registrado,ftd:!!cur.ftd,seg_dia1:!!cur.seg_dia1,seg_dia2:!!cur.seg_dia2,seg_dia3:!!cur.seg_dia3,observacion:cur.observacion||null,registro_id:cur.registro_id||null,updated_at:new Date().toISOString()};}
 async function toggleSegu(cid,campo,val){

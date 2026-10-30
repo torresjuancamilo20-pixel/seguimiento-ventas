@@ -1,0 +1,105 @@
+<title>Respuestas de la Ruleta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Fredoka:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --night:#191238; --panel:#241b4d; --panel-2:#2c2258;
+    --gold:#e7b24c; --gold-soft:#f0cd82; --cream:#f6eedd; --cream-dim:#c7bca9;
+    --line:rgba(231,178,76,.22);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;padding:26px 16px 60px;
+    background:radial-gradient(1000px 600px at 50% -10%, #2a2059 0%, transparent 60%), var(--night);
+    color:var(--cream);font-family:"Fredoka",system-ui,sans-serif;
+  }
+  header{text-align:center;max-width:900px;margin:0 auto 22px}
+  .eyebrow{font-family:"Cinzel",serif;letter-spacing:.3em;text-transform:uppercase;font-size:.7rem;color:var(--gold);margin:0 0 8px}
+  h1{font-family:"Cinzel",serif;font-weight:700;font-size:clamp(1.8rem,5vw,2.8rem);margin:0}
+  h1 span{color:var(--gold)}
+  .sub{color:var(--cream-dim);margin:10px auto 0;max-width:52ch;font-size:.95rem}
+  .grid{
+    max-width:1000px;margin:0 auto;
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;
+  }
+  .item{
+    background:linear-gradient(180deg,var(--panel-2),var(--panel));
+    border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+    display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;
+  }
+  .num{
+    font-family:"Cinzel",serif;font-weight:700;font-size:1.15rem;color:var(--night);
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 3px 0 -1px #a9762a;
+  }
+  .body .emoji{font-size:1.5rem;letter-spacing:.05em;line-height:1.2}
+  .body .name{font-family:"Cinzel",serif;font-weight:600;color:var(--gold-soft);font-size:1.05rem;margin:4px 0 2px}
+  .body .deed{color:var(--cream);font-size:.88rem;line-height:1.4}
+  .body .verse{color:var(--cream-dim);font-size:.78rem;font-style:italic;margin-top:5px}
+  footer{text-align:center;color:var(--cream-dim);font-size:.82rem;margin-top:26px}
+  @media print{
+    body{background:#fff;color:#222}
+    .item{background:#fff;border:1px solid #ccc;break-inside:avoid}
+    .body .name{color:#8a5a10}.body .deed{color:#222}.body .verse{color:#666}
+    h1,.eyebrow{color:#8a5a10}.num{box-shadow:none;background:#e7b24c}
+  }
+</style>
+
+<header>
+  <p class="eyebrow">Guía del líder · Hoja de respuestas</p>
+  <h1>Ruleta <span>Bíblica</span></h1>
+  <p class="sub">Cada número de la ruleta con sus emojis, el personaje y qué hizo en la Biblia. Puedes imprimir esta hoja (Ctrl/Cmd + P) o guardarla como imagen.</p>
+</header>
+
+<div class="grid" id="grid"></div>
+
+<footer>30 personajes · Ruleta Bíblica para la iglesia</footer>
+
+<script>
+const characters = [
+  {emoji:"🌊🚢🌈", name:"Noé", deed:"Construyó el arca y salvó a su familia y a los animales del diluvio.", verse:"Génesis 6-9"},
+  {emoji:"👶🧺🌊✋", name:"Moisés", deed:"Sacó a Israel de Egipto y abrió el Mar Rojo.", verse:"Éxodo 14"},
+  {emoji:"🎯🪨👑", name:"David", deed:"Venció a Goliat con una honda y fue rey de Israel.", verse:"1 Samuel 17"},
+  {emoji:"🐋🌊🙏", name:"Jonás", deed:"Fue tragado por un gran pez y luego predicó en Nínive.", verse:"Jonás 1-3"},
+  {emoji:"🦁🕳️🙏", name:"Daniel", deed:"Sobrevivió en el foso de los leones por orar a Dios.", verse:"Daniel 6"},
+  {emoji:"🍎🐍🌳", name:"Adán y Eva", deed:"Los primeros humanos; comieron del fruto prohibido en el Edén.", verse:"Génesis 2-3"},
+  {emoji:"⭐👴🐑", name:"Abraham", deed:"El padre de la fe; obedeció a Dios y recibió su promesa.", verse:"Génesis 12-22"},
+  {emoji:"🌈🧥👑", name:"José", deed:"Vendido por sus hermanos, llegó a gobernar Egipto y los perdonó.", verse:"Génesis 37-45"},
+  {emoji:"💪🦁✂️", name:"Sansón", deed:"Hombre muy fuerte cuya fuerza estaba en su cabello.", verse:"Jueces 13-16"},
+  {emoji:"👑💍🙏", name:"Ester", deed:"Reina que con valentía salvó a su pueblo.", verse:"Ester 4-8"},
+  {emoji:"🌾❤️👵", name:"Rut", deed:"Fiel a su suegra Noemí; bisabuela del rey David.", verse:"Rut 1-4"},
+  {emoji:"👑📜💎", name:"Salomón", deed:"El rey más sabio; pidió sabiduría y construyó el templo.", verse:"1 Reyes 3"},
+  {emoji:"🔥☁️🐦", name:"Elías", deed:"Profeta que hizo bajar fuego del cielo.", verse:"1 Reyes 17-18"},
+  {emoji:"💧🐫🍯", name:"Juan el Bautista", deed:"Bautizó a Jesús en el río Jordán.", verse:"Mateo 3"},
+  {emoji:"✝️🐟🍞", name:"Jesús", deed:"El Hijo de Dios; dio su vida por todos.", verse:"Los Evangelios"},
+  {emoji:"👶👩🌟", name:"María", deed:"La madre de Jesús.", verse:"Lucas 1-2"},
+  {emoji:"🎣🔑🐓", name:"Pedro", deed:"Pescador y discípulo; negó a Jesús y fue perdonado.", verse:"Mateo 16, Juan 21"},
+  {emoji:"✉️⛓️✝️", name:"Pablo", deed:"Transformado por Jesús; escribió muchas cartas.", verse:"Hechos 9"},
+  {emoji:"🌳💰📏", name:"Zaqueo", deed:"El cobrador bajito que subió a un árbol para ver a Jesús.", verse:"Lucas 19"},
+  {emoji:"🎺🧱🛡️", name:"Josué", deed:"Rodeó Jericó y sus murallas cayeron.", verse:"Josué 6"},
+  {emoji:"⚔️🕯️🐑", name:"Gedeón", deed:"Con solo 300 hombres venció a un gran ejército.", verse:"Jueces 6-7"},
+  {emoji:"😷🙏💰", name:"Job", deed:"Sufrió mucho pero nunca dejó de confiar en Dios.", verse:"Job 1-42"},
+  {emoji:"👶🔥⛰️", name:"Isaac", deed:"Hijo de Abraham; Dios proveyó un cordero en su lugar.", verse:"Génesis 22"},
+  {emoji:"🪜👼🐑", name:"Jacob", deed:"Soñó con una escalera al cielo; padre de las 12 tribus.", verse:"Génesis 28"},
+  {emoji:"🥁🎶🌊", name:"Miriam", deed:"Hermana de Moisés; cantó tras cruzar el Mar Rojo.", verse:"Éxodo 15"},
+  {emoji:"🐴🗣️😲", name:"Balaam", deed:"Profeta a quien su burra le habló.", verse:"Números 22"},
+  {emoji:"⚰️😴✨", name:"Lázaro", deed:"Amigo de Jesús a quien resucitó después de cuatro días.", verse:"Juan 11"},
+  {emoji:"💰📖✝️", name:"Mateo", deed:"Cobrador de impuestos que siguió a Jesús y escribió un evangelio.", verse:"Mateo 9"},
+  {emoji:"👑⭐🎁", name:"Los reyes magos", deed:"Siguieron una estrella y llevaron regalos al niño Jesús.", verse:"Mateo 2"},
+  {emoji:"🌊👣🐟", name:"Andrés", deed:"Hermano de Pedro; llevó al niño de los panes y peces ante Jesús.", verse:"Juan 6"},
+];
+const grid=document.getElementById("grid");
+characters.forEach((c,i)=>{
+  const d=document.createElement("div");d.className="item";
+  d.innerHTML=`<div class="num">${i+1}</div>
+    <div class="body">
+      <div class="emoji">${c.emoji}</div>
+      <div class="name">${c.name}</div>
+      <div class="deed">${c.deed}</div>
+      <div class="verse">📖 ${c.verse}</div>
+    </div>`;
+  grid.appendChild(d);
+});
+</script>

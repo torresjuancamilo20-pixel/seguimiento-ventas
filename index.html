@@ -641,7 +641,7 @@
         <p class="card-sub" style="margin:0 0 14px">Envía un mensaje a Eva por WhatsApp con el nombre y el monto, y se guarda como gasto automáticamente. Ej: <b>"hamburguesas 25000"</b></p>
         <div id="waAviso" style="display:none;background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.3);border-radius:12px;padding:14px 16px;margin-bottom:4px">
           <div style="font-weight:700;color:#f5a623;font-size:.9rem;margin-bottom:4px">🔧 Función en activación</div>
-          <div class="card-sub" style="margin:0">El registro por WhatsApp está <b>temporalmente desactivado</b>. Lo activamos a partir del <b>31 de octubre</b>. Mientras tanto, registra tus movimientos directamente aquí en la app. 💜</div>
+          <div class="card-sub" style="margin:0">El registro por WhatsApp está <b>temporalmente desactivado</b>. <b>Muy pronto</b> lo activamos y te avisaremos. Mientras tanto, registra tus movimientos aquí en la app, con el ícono de registro rápido o pagando con Apple Pay / Google Pay. 💜</div>
         </div>
         <div id="waStatus"></div>
         <div id="waSetup" style="display:none">
@@ -862,7 +862,7 @@ $("copyApi").onclick=e=>copiar(RAPIDO_API,e.target);
 $("copyToken").onclick=e=>copiar($("tokenView").value,e.target);
 
 /* ---------------- WHATSAPP LINKING ---------------- */
-const WA_ENABLED = false; // Se activa el 31 de octubre
+const WA_ENABLED = false; // Se activa cuando el número de WhatsApp quede verificado en Meta
 async function loadWA(){
   $("waSetup").style.display="none"; $("waVerify").style.display="none"; $("waLinked").style.display="none";
   if(!WA_ENABLED){ $("waAviso").style.display="block"; $("waStatus").innerHTML=""; return; }

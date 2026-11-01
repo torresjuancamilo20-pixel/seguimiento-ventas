@@ -601,6 +601,40 @@
         </div>
       </div>
 
+      <!-- Registro automático con Apple Pay / Google Pay -->
+      <div style="margin-top:28px;border-top:1px solid rgba(255,255,255,.06);padding-top:24px">
+        <h3 style="margin:0 0 6px;font-size:.95rem;font-weight:700">💳 Registro automático con Apple Pay y Google Pay <span class="badge" style="margin:0">Nuevo</span></h3>
+        <p class="card-sub" style="margin:0 0 14px">Cada vez que pagues con el celular, el gasto se anota solo en Eva con el comercio y el monto. Lo configuras una vez y listo.</p>
+        <div class="key-row" style="flex-wrap:wrap;gap:8px">
+          <button class="btn-ghost" id="copyApi">Copiar dirección</button>
+          <button class="btn-ghost" id="copyToken">Copiar mi clave</button>
+        </div>
+        <div class="rapido-grid" style="margin-top:14px">
+          <div>
+            <div class="rk">iPhone · Apple Pay</div>
+            <ol class="steps-list">
+              <li>Abre la app <b>Atajos</b> → pestaña <b>Automatización</b> → <b>+</b> → <b>Transacción</b>.</li>
+              <li>Elige tus tarjetas, marca <b>Ejecutar inmediatamente</b> y toca <b>Siguiente</b> → <b>Nueva automatización en blanco</b>.</li>
+              <li>Agrega la acción <b>Obtener contenido de URL</b>. En URL pega la <b>dirección</b> (botón de arriba).</li>
+              <li>Toca la flecha → <b>Método: POST</b> → <b>Cuerpo: JSON</b> y agrega 4 campos de texto:<br>
+                <b>token</b> = tu clave · <b>monto</b> = variable <i>Importe</i> · <b>desc</b> = variable <i>Comercio</i> · <b>origen</b> = Apple Pay</li>
+              <li>Guarda. La próxima vez que pagues con Apple Pay, aparece aquí. ✅</li>
+            </ol>
+          </div>
+          <div>
+            <div class="rk">Android · Google Pay</div>
+            <ol class="steps-list">
+              <li>Instala gratis <b>MacroDroid</b> desde Play Store y dale permiso de leer notificaciones.</li>
+              <li>Nueva macro → Disparador: <b>Notificación recibida</b> → app <b>Google Wallet</b>.</li>
+              <li>Acción: <b>Solicitud HTTP</b> → <b>POST</b> a la <b>dirección</b> (botón de arriba), cuerpo <b>JSON</b>:<br>
+                <code style="font-size:.78rem;word-break:break-all">{"token":"TU_CLAVE","texto":"[notification_title] [notification]","origen":"Google Pay"}</code></li>
+              <li>Cambia <b>TU_CLAVE</b> por tu clave y guarda. Eva lee el monto y el comercio de la notificación. ✅</li>
+            </ol>
+          </div>
+        </div>
+        <p class="card-sub" style="margin-top:10px">⚠ Tu clave es personal: no la compartas. Si la regeneras, actualiza también el atajo o la macro.</p>
+      </div>
+
       <!-- WhatsApp -->
       <div style="margin-top:28px;border-top:1px solid rgba(255,255,255,.06);padding-top:24px">
         <h3 style="margin:0 0 6px;font-size:.95rem;font-weight:700">📱 Registrar por WhatsApp <span class="badge" style="margin:0">Nuevo</span></h3>
@@ -823,6 +857,9 @@ function copiar(text,btn){
 }
 $("genToken").onclick=()=>genToken(false);
 $("copyLink").onclick=e=>copiar($("linkView").value,e.target);
+const RAPIDO_API = SUPABASE_URL + "/functions/v1/registro-rapido";
+$("copyApi").onclick=e=>copiar(RAPIDO_API,e.target);
+$("copyToken").onclick=e=>copiar($("tokenView").value,e.target);
 
 /* ---------------- WHATSAPP LINKING ---------------- */
 const WA_ENABLED = false; // Se activa el 31 de octubre

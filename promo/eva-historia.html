@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Eva — Video historia "Sé del 23%" (37,5 s, vertical, solo música)</title>
+<!-- Dato: Banco Mundial, Encuesta Nacional de Capacidades Financieras de Colombia (2013):
+     94% dice planificar su presupuesto; solo 23% sabe exactamente cuánto gastó la semana anterior. -->
+<style>
+@font-face{font-family:'Montserrat';font-weight:500;src:url(fonts/montserrat-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:600;src:url(fonts/montserrat-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:700;src:url(fonts/montserrat-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:800;src:url(fonts/montserrat-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:900;src:url(fonts/montserrat-latin-900-normal.woff2) format('woff2')}
+@font-face{font-family:'Playfair Display';font-weight:700;src:url(fonts/playfair-display-latin-700-normal.woff2) format('woff2')}
+:root{--bg:#0B0712;--panel:#15101F;--panel2:#1B1428;--brand:#E24BD8;--brand2:#A855F7;--rosa:#F06CE0;--magenta:#C026D3;--txt:#F3EEFB;--muted:#A99FB8;--muted2:#6E6480;--ok:#22C55E;--bad:#EF4757;--save:#F5A623;--line:rgba(255,255,255,.08)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--bg);font-family:'Montserrat',sans-serif;color:var(--txt)}
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 80px;opacity:0;overflow:hidden;background:var(--bg)}
+.scene.dk::before{content:"";position:absolute;width:1300px;height:1300px;border-radius:50%;top:-420px;right:-460px;
+  background:radial-gradient(circle,rgba(194,38,211,.28),rgba(168,85,247,.07) 52%,transparent 70%)}
+.scene.gr{background:radial-gradient(900px 900px at 50% 45%,#1d1a24,#0c0b10 70%)}
+.mag{background:radial-gradient(1000px 800px at 85% 0%,var(--rosa),transparent 60%),radial-gradient(1100px 1100px at 0% 100%,#7c1fb0,transparent 65%),linear-gradient(160deg,var(--brand),var(--magenta) 45%,#6d1aa8)}
+.in{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center}
+@keyframes vis{0%{opacity:1}100%{opacity:1}}
+.pop{display:inline-block;opacity:0;animation:pop .45s cubic-bezier(.2,1.5,.4,1) both}
+@keyframes pop{0%{opacity:0;transform:scale(1.6);filter:blur(10px)}60%{opacity:1;filter:none}100%{opacity:1;transform:none}}
+.up{opacity:0;animation:up .45s cubic-bezier(.2,.9,.2,1) both}
+@keyframes up{from{opacity:0;transform:translateY(50px)}to{opacity:1;transform:none}}
+.grain{position:absolute;inset:-200px;z-index:90;pointer-events:none;opacity:.07;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation:grain .5s steps(4) infinite}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-40px,20px)}50%{transform:translate(30px,-30px)}75%{transform:translate(-20px,-40px)}100%{transform:translate(0,0)}}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:50;animation:fl .3s ease-out both}
+@keyframes fl{0%{opacity:.75}100%{opacity:0}}
+
+/* subtítulos estilo tendencia: texto grande con palabra resaltada */
+.cap{font-size:92px;font-weight:900;letter-spacing:-2.5px;line-height:1.08}
+.cap.sm{font-size:74px}
+.hl{display:inline-block;background:var(--brand);color:#fff;padding:0 18px;border-radius:14px;transform:rotate(-1.5deg)}
+.hl.w{background:#fff;color:var(--bg)}
+.hl.r{background:var(--bad)}
+.hl.g{background:var(--ok);color:var(--bg)}
+.mut{color:var(--muted)}
+.src{position:absolute;bottom:120px;left:80px;right:80px;font-size:26px;font-weight:600;color:var(--muted2);text-align:center;z-index:3}
+
+/* Camila */
+.card{margin-top:60px;width:820px;border-radius:44px;background:var(--panel);border:1px solid var(--line);padding:44px;display:flex;gap:36px;align-items:center;text-align:left}
+.ava{width:200px;height:200px;border-radius:50%;flex:0 0 auto;background:linear-gradient(160deg,#ffd0b0,#f3a37a);position:relative;overflow:hidden;border:6px solid var(--panel2)}
+.ava .hair{position:absolute;left:-10px;right:-10px;top:-30px;height:120px;border-radius:50% 50% 40% 40%;background:#3b1e14}
+.ava .face{position:absolute;left:50px;top:70px;width:100px;height:110px;border-radius:50%;background:#f6b893}
+.ava .e1,.ava .e2{position:absolute;top:118px;width:12px;height:12px;border-radius:50%;background:#2a1712}
+.ava .e1{left:78px}.ava .e2{left:110px}
+.ava .m{position:absolute;left:88px;top:148px;width:26px;height:12px;border-radius:0 0 14px 14px;background:#c2564a}
+.ava .body{position:absolute;left:30px;right:30px;bottom:-40px;height:70px;border-radius:50% 50% 0 0;background:var(--brand)}
+.card .n{font-size:64px;font-weight:900;letter-spacing:-1.5px}
+.card .d{font-size:32px;color:var(--muted);font-weight:600;margin-top:8px;line-height:1.4}
+.card .d b{color:var(--txt)}
+.ilus{margin-top:26px;font-size:24px;color:var(--muted2);font-weight:600}
+.checks{margin-top:56px;display:grid;gap:18px;width:760px}
+.ck{display:flex;align-items:center;gap:22px;text-align:left;font-size:42px;font-weight:800;background:var(--panel);border:1px solid var(--line);border-radius:28px;padding:24px 30px}
+.ck i{width:56px;height:56px;border-radius:50%;background:rgba(34,197,94,.18);color:var(--ok);display:flex;align-items:center;justify-content:center;font-style:normal;font-weight:900;flex:0 0 auto}
+
+/* día 20 */
+.cal{margin-top:40px;width:420px;border-radius:36px;background:var(--panel);border:1px solid var(--line);overflow:hidden}
+.cal .t{background:var(--bad);font-size:34px;font-weight:900;letter-spacing:3px;padding:16px;text-transform:uppercase}
+.cal .d{font-size:190px;font-weight:900;line-height:1.1;letter-spacing:-6px}
+.bal{position:relative;margin-top:40px;height:150px;width:900px}
+.bal span{position:absolute;inset:0;font-size:130px;font-weight:900;letter-spacing:-5px;opacity:0;animation:step .22s linear}
+.bal span.last{animation:stepLast .3s cubic-bezier(.2,1.6,.4,1) forwards;color:var(--bad)}
+@keyframes step{0%,100%{opacity:1}}
+@keyframes stepLast{0%{opacity:0;transform:scale(1.5)}100%{opacity:1;transform:none}}
+.fly{position:absolute;font-size:40px;font-weight:800;color:var(--bad);background:rgba(239,71,87,.12);border:1px solid rgba(239,71,87,.35);padding:12px 22px;border-radius:999px;opacity:0;animation:fly 1.4s ease-out both;white-space:nowrap}
+@keyframes fly{0%{opacity:0;transform:translateY(60px) scale(.8)}15%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-200px)}}
+.qs{display:flex;gap:40px;margin-top:40px}
+.qs span{font-size:200px;font-weight:900;color:var(--muted2);opacity:0;animation:pop .45s cubic-bezier(.2,1.5,.4,1) both}
+
+/* estadística */
+.big{font-size:330px;font-weight:900;letter-spacing:-14px;line-height:.9}
+.grid{display:grid;grid-template-columns:repeat(10,64px);gap:16px;margin-top:50px}
+.grid i{width:64px;height:64px;border-radius:50%;background:#2a2533;display:block;position:relative}
+.grid i::after{content:"";position:absolute;inset:0;border-radius:50%;background:linear-gradient(160deg,var(--rosa),var(--brand) 55%,var(--brand2));box-shadow:0 0 22px rgba(226,75,216,.7);opacity:0;transform:scale(.3);animation:lit .3s cubic-bezier(.2,1.6,.4,1) both;animation-delay:inherit}
+@keyframes lit{to{opacity:1;transform:none}}
+.legend{display:flex;gap:40px;margin-top:40px;font-size:32px;font-weight:700}
+.legend span{display:flex;align-items:center;gap:14px}
+.legend i{width:30px;height:30px;border-radius:50%;display:block}
+
+/* Eva */
+.logo{display:flex;align-items:baseline}
+.logo .E{font-family:'Playfair Display';font-weight:700;font-size:300px;line-height:.8;background:linear-gradient(160deg,#F6A8EF,var(--brand) 45%,var(--magenta));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 20px 60px rgba(194,38,211,.6))}
+.logo .va{font-weight:600;font-size:150px;letter-spacing:-4px;margin-left:-6px}
+.cats{margin-top:50px;width:900px;display:grid;gap:20px;text-align:left}
+.cat{border-radius:28px;background:var(--panel);border:1px solid var(--line);padding:24px 30px;position:relative}
+.cat.hot{border:3px solid var(--brand);box-shadow:0 0 60px rgba(226,75,216,.45)}
+.cat .r{display:flex;justify-content:space-between;font-size:38px;font-weight:800}
+.cat .r span{color:var(--muted);font-weight:700}
+.cat .b{height:22px;border-radius:999px;background:var(--panel2);margin-top:14px;overflow:hidden}
+.cat .b i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--rosa),var(--brand) 60%,var(--brand2));animation:fillw .9s cubic-bezier(.2,.8,.2,1) both}
+@keyframes fillw{to{width:var(--w)}}
+.cat .tag{position:absolute;right:24px;top:-26px;font-size:28px;font-weight:900;background:var(--save);color:var(--bg);padding:8px 18px;border-radius:999px;transform:rotate(3deg)}
+.save{margin-top:44px;font-size:150px;font-weight:900;letter-spacing:-5px;color:var(--ok)}
+.pill{display:inline-block;margin-top:60px;font-size:56px;font-weight:800;background:var(--bg);color:#fff;padding:34px 64px;border-radius:999px;box-shadow:0 24px 60px rgba(40,0,50,.45)}
+.pill span{color:var(--rosa)}
+
+/* tiempos (96 BPM: 1 compás = 2,5 s) */
+.s1{animation:vis 2.5s linear 0s forwards}
+.s2{animation:vis 2.5s linear 2.5s forwards}
+.s3{animation:vis 2.5s linear 5s forwards}
+.s4{animation:vis 5s linear 7.5s forwards}
+.s5{animation:vis 2.5s linear 12.5s forwards}
+.s6{animation:vis 2.5s linear 15s forwards}
+.s7{animation:vis 2.5s linear 17.5s forwards}
+.s8{animation:vis 5s linear 20s forwards}
+.s9{animation:vis 2.5s linear 25s forwards}
+.s10{animation:vis 5s linear 27.5s forwards}
+.s11{animation:vis 5s linear 32.5s forwards}
+</style>
+</head>
+<body>
+
+<!-- 1 · Gancho -->
+<div class="scene s1 dk"><div class="in">
+  <div class="cap"><span class="up" style="animation-delay:.1s;display:block">¿Sabes cuánto</span><span class="pop" style="animation-delay:.7s"><span class="hl">gastaste</span></span><span class="up" style="animation-delay:1.2s;display:block">la semana pasada?</span></div>
+</div></div>
+
+<!-- 2 · Camila -->
+<div class="scene s2 dk"><div class="in">
+  <div class="cap pop" style="animation-delay:2.55s">Esta es <span class="hl">Camila.</span></div>
+  <div class="card up" style="animation-delay:2.9s">
+    <div class="ava"><div class="hair"></div><div class="body"></div><div class="face"></div><div class="e1"></div><div class="e2"></div><div class="m"></div></div>
+    <div><div class="n">Camila, 28</div><div class="d">Medellín<br>Gana <b>$2.800.000</b> al mes</div></div>
+  </div>
+  <div class="ilus up" style="animation-delay:3.3s">Personaje ilustrativo</div>
+</div></div>
+
+<!-- 3 · Dice que hace presupuesto -->
+<div class="scene s3 dk"><div class="in">
+  <div class="cap sm up" style="animation-delay:5.05s">Camila dice que <span class="hl w">sí hace presupuesto.</span></div>
+  <div class="checks">
+    <div class="ck up" style="animation-delay:5.5s"><i>✓</i>Sabe cuánto gana</div>
+    <div class="ck up" style="animation-delay:5.8s"><i>✓</i>Paga el arriendo</div>
+    <div class="ck up" style="animation-delay:6.1s"><i>✓</i>"Lo demás lo tengo en la cabeza"</div>
+  </div>
+</div></div>
+
+<!-- 4 · Día 20 -->
+<div class="scene s4 gr"><div class="in">
+  <div class="cap sm up" style="animation-delay:7.55s">Pero llega el <span class="hl r">día 20…</span></div>
+  <div class="cal up" style="animation-delay:7.9s"><div class="t">Noviembre</div><div class="d">20</div></div>
+  <div class="bal">
+    <span style="animation-delay:9.0s">$2.800.000</span><span style="animation-delay:9.22s">$2.410.000</span><span style="animation-delay:9.44s">$1.960.000</span>
+    <span style="animation-delay:9.66s">$1.380.000</span><span style="animation-delay:9.88s">$870.000</span><span style="animation-delay:10.1s">$420.000</span>
+    <span style="animation-delay:10.32s">$95.000</span><span class="last" style="animation-delay:10.54s">$0</span>
+  </div>
+  <div class="cap sm up" style="animation-delay:11.0s;margin-top:20px">…y ya no tiene plata.</div>
+</div>
+  <div class="fly" style="left:90px;top:300px;animation-delay:8.9s">Domicilio -$38.000</div>
+  <div class="fly" style="right:90px;top:420px;animation-delay:9.2s">Café -$9.000</div>
+  <div class="fly" style="left:120px;top:1560px;animation-delay:9.5s">Taxi -$22.000</div>
+  <div class="fly" style="right:80px;top:1660px;animation-delay:9.8s">Ropa -$180.000</div>
+  <div class="fly" style="left:70px;top:1440px;animation-delay:10.1s">Salida -$120.000</div>
+  <div class="fly" style="right:110px;top:250px;animation-delay:10.3s">Apps -$45.000</div>
+</div>
+
+<!-- 5 · ¿En qué se le fue? -->
+<div class="scene s5 gr"><div class="in">
+  <div class="cap up" style="animation-delay:12.55s">¿En qué se le fue?</div>
+  <div class="qs"><span style="animation-delay:13.0s">?</span><span style="animation-delay:13.2s">?</span><span style="animation-delay:13.4s">?</span></div>
+  <div class="cap pop" style="animation-delay:13.8s"><span class="hl w">Ni idea.</span></div>
+</div></div>
+
+<!-- 6 · No es la única -->
+<div class="scene s6 dk"><div class="in">
+  <div class="cap"><span class="up" style="animation-delay:15.05s;display:block">Y Camila</span><span class="pop" style="animation-delay:15.6s"><span class="hl">no es la única.</span></span></div>
+</div></div>
+
+<!-- 7 · 94% -->
+<div class="scene s7 dk"><div class="in">
+  <div class="big pop" style="animation-delay:17.55s;color:#fff">94%</div>
+  <div class="cap sm up" style="animation-delay:18.0s;margin-top:20px">de los colombianos dice que <span class="hl w">hace presupuesto…</span></div>
+</div>
+  <div class="src">Fuente: Banco Mundial · Encuesta de Capacidades Financieras de Colombia (2013)</div>
+</div>
+
+<!-- 8 · solo 23% -->
+<div class="scene s8 dk"><div class="in">
+  <div class="cap sm up" style="animation-delay:20.05s">…pero solo</div>
+  <div class="big pop grad-big" style="animation-delay:20.4s;background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--brand2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">23%</div>
+  <div class="cap sm up" style="animation-delay:20.9s;font-size:58px">sabe exactamente cuánto gastó la semana anterior.</div>
+  <div class="grid" id="grid"></div>
+  <div class="legend up" style="animation-delay:23.6s"><span><i style="background:var(--brand)"></i>Sabe cuánto gastó · 23</span><span><i style="background:#2a2533"></i>No sabe · 77</span></div>
+</div>
+  <div class="src">Fuente: Banco Mundial · Encuesta de Capacidades Financieras de Colombia (2013)</div>
+</div>
+
+<!-- 9 · Camila probó Eva -->
+<div class="scene s9 dk"><div class="in">
+  <div class="cap sm up" style="animation-delay:25.05s">Entonces Camila probó</div>
+  <div class="logo pop" style="animation-delay:25.5s;margin-top:40px"><span class="E">E</span><span class="va">va</span></div>
+</div><div class="flash" style="animation-delay:25.45s"></div></div>
+
+<!-- 10 · Descubre en qué se le iba -->
+<div class="scene s10 dk"><div class="in">
+  <div class="cap sm up" style="animation-delay:27.55s">Y por fin vio <span class="hl">en qué se le iba.</span></div>
+  <div class="cats">
+    <div class="cat up" style="animation-delay:27.9s"><div class="r">Arriendo <span>$900.000</span></div><div class="b"><i style="--w:90%;animation-delay:28.0s"></i></div></div>
+    <div class="cat up" style="animation-delay:28.1s"><div class="r">Mercado <span>$610.000</span></div><div class="b"><i style="--w:61%;animation-delay:28.2s"></i></div></div>
+    <div class="cat hot up" style="animation-delay:28.3s"><div class="tag pop" style="animation-delay:29.0s">¡Aquí estaba!</div><div class="r">Domicilios <span>$420.000</span></div><div class="b"><i style="--w:42%;animation-delay:28.4s"></i></div></div>
+  </div>
+  <div class="cap sm up" style="animation-delay:30.2s;margin-top:50px">Fin de mes:</div>
+  <div class="save pop" style="animation-delay:30.6s">+$350.000</div>
+</div></div>
+
+<!-- 11 · CTA -->
+<div class="scene s11 mag"><div class="in">
+  <div class="cap" style="font-size:140px;letter-spacing:-5px"><span class="pop" style="animation-delay:32.6s;color:var(--bg)">Sé del</span> <span class="pop" style="animation-delay:33.0s">23%.</span></div>
+  <div class="up" style="animation-delay:33.6s;font-size:50px;font-weight:800;margin-top:40px;color:#fff">Con Eva sabes en qué se va cada peso.</div>
+  <div class="pill pop" style="animation-delay:34.2s">evafinanzas<span>.us</span></div>
+  <div class="up" style="animation-delay:34.8s;font-size:44px;font-weight:800;margin-top:44px;color:#fff">Prueba <b style="background:rgba(11,7,18,.85);padding:6px 18px;border-radius:14px;color:var(--save)">7 días gratis</b></div>
+</div><div class="flash" style="animation-delay:32.5s"></div></div>
+
+<div class="grain"></div>
+<script>
+// 100 personas: se encienden 23 (sabe cuánto gastó), una por una
+(function(){
+  const g=document.getElementById("grid");
+  // posiciones repartidas de forma fija (mismo resultado en cada render)
+  const lit=new Set([3,8,12,17,21,26,30,34,39,43,47,52,56,61,64,68,73,77,81,86,90,94,98]);
+  let k=0;
+  for(let i=0;i<100;i++){
+    const d=document.createElement("i");
+    if(lit.has(i)){ d.style.animationDelay=(21.5+k*0.08)+"s"; d.className="on"; k++; }
+    g.appendChild(d);
+  }
+  const st=document.createElement("style");
+  st.textContent=".grid i:not(.on)::after{animation:none}";
+  document.head.appendChild(st);
+})();
+</script>
+</body>
+</html>

@@ -412,6 +412,7 @@
       <li>✓ Registro por WhatsApp y reportes mensuales</li>
       <li>✓ Sincronización segura en la nube</li>
     </ul>
+    <div class="trial" id="trialBox"><b>7 días gratis.</b> Hoy no se cobra nada: pones tu tarjeta y, si sigues, al día 7 se cobra el plan que elijas. Cancela antes desde la app y no pagas.</div>
     <div class="plan-opts">
       <div class="plan-opt" id="opt-mensual" data-plan="mensual" onclick="selPlan('mensual')">
         <div>
@@ -429,8 +430,8 @@
         <div class="po-price"><span class="po-old">$119.88</span><span class="po-amt">$69</span><br><span class="po-per">USD / año</span></div>
       </div>
     </div>
-    <button class="primary" id="payBtn" onclick="irAPagar()">Suscribirme</button>
-    <p class="mini-txt">Pago seguro con Stripe · Renovación automática · Cancela cuando quieras.<br>Al suscribirte aceptas los <a href="/legal/terminos/" target="_blank" rel="noopener">Términos</a>, la <a href="/legal/privacidad/" target="_blank" rel="noopener">Privacidad</a> y la <a href="/legal/reembolsos/" target="_blank" rel="noopener">Política de Reembolsos</a>.</p>
+    <button class="primary" id="payBtn" onclick="irAPagar()">Empezar 7 días gratis</button>
+    <p class="mini-txt" id="payNote">Pago seguro con Stripe · Se cobra al terminar la prueba si no cancelas · Renovación automática.<br>Al suscribirte aceptas los <a href="/legal/terminos/" target="_blank" rel="noopener">Términos</a>, la <a href="/legal/privacidad/" target="_blank" rel="noopener">Privacidad</a> y la <a href="/legal/reembolsos/" target="_blank" rel="noopener">Política de Reembolsos</a>.</p>
     <button class="linkout" id="logout2">Cerrar sesión</button>
   </div>
 </div>
@@ -456,6 +457,7 @@
     </nav>
     <div class="side-foot">
       <button class="btn-ghost" id="editPlan2">Editar plan</button>
+      <button class="btn-ghost" id="manageSub">Mi suscripción</button>
       <button class="btn-ghost" id="logout">Cerrar sesión</button>
     </div>
   </aside>
@@ -997,19 +999,35 @@ async function checkAccess(){
   if(!PAYWALL_ON){ $("paywall").classList.add("hidden"); document.body.classList.remove("locked"); return; }
   const params = new URLSearchParams(location.search);
   if(params.get("pago")==="ok"){ setSync("Confirmando pago…"); await new Promise(r=>setTimeout(r,2500)); }
-  const {data} = await sb.from("finanzas_suscripciones").select("status,current_period_end,trial_end").eq("user_id",user.id).maybeSingle();
+  const {data} = await sb.from("finanzas_suscripciones").select("status,current_period_end,trial_end,stripe_subscription_id").eq("user_id",user.id).maybeSingle();
   const status = data?.status || "none";
   const ok = ACTIVE_STATES.includes(status);
+  // La prueba gratis es una sola vez: si ya tuvo suscripción o prueba, se ofrece el pago directo
+  const yaTuvo = !!(data && (data.trial_end || data.stripe_subscription_id));
+  $("trialBox").style.display = yaTuvo ? "none" : "";
+  $("payBtn").textContent = yaTuvo ? "Suscribirme" : "Empezar 7 días gratis";
+  $("payNote").firstChild.textContent = yaTuvo ? "Pago seguro con Stripe · Renovación automática · Cancela cuando quieras." : "Pago seguro con Stripe · Se cobra al terminar la prueba si no cancelas · Renovación automática.";
   $("paywall").classList.toggle("hidden", ok);
   document.body.classList.toggle("locked", !ok);
   if(ok && data){
     const fin = data.status==="trialing" ? data.trial_end : data.current_period_end;
     $("subInfo").textContent = data.status==="trialing"
-      ? "Prueba activa · se cobra el "+(fin?new Date(fin).toLocaleDateString("es-CO"):"")
+      ? "Prueba gratis · se cobra el "+(fin?new Date(fin).toLocaleDateString("es-CO"):"")
       : "Suscripción activa · renueva el "+(fin?new Date(fin).toLocaleDateString("es-CO"):"");
   } else { $("subInfo").textContent=""; }
   if(params.get("pago")){ history.replaceState({}, "", location.pathname); }
 }
+// Portal de Stripe: cancelar la suscripción, cambiar la tarjeta o ver facturas
+$("manageSub").onclick=async()=>{
+  const btn=$("manageSub"), txt=btn.textContent; btn.disabled=true; btn.textContent="Abriendo…";
+  try{
+    const {data,error} = await sb.functions.invoke("portal-cliente",{ body:{} });
+    if(error) throw error;
+    if(data?.url){ location.href=data.url; return; }
+    throw new Error(data?.error||"No se pudo abrir");
+  }catch(e){ alert("No se pudo abrir tu suscripción: "+(e.message||e)+"\n\nSi el problema sigue, escríbenos a soporte@evafinanzas.us"); }
+  btn.disabled=false; btn.textContent=txt;
+};
 let planSel = "anual"; // plan elegido en el paywall (anual por defecto)
 function selPlan(p){
   planSel = p;
@@ -1029,8 +1047,8 @@ async function irAPagar(){
     if(data?.url){ location.href=data.url; return; }
     throw new Error(data?.error||"No se pudo iniciar el pago");
   }catch(e){
-    alert("No se pudo abrir el pago: "+(e.message||e)+"\n\n(Esto funcionará cuando conectemos las claves de Stripe.)");
-    btn.disabled=false; btn.textContent="Suscribirme";
+    alert("No se pudo abrir el pago: "+(e.message||e)+"\n\nIntenta de nuevo o escríbenos a soporte@evafinanzas.us");
+    btn.disabled=false; btn.textContent=$("trialBox").style.display==="none" ? "Suscribirme" : "Empezar 7 días gratis";
   }
 }
 

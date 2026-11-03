@@ -1221,8 +1221,15 @@ async function patchProducto(id,p){await fetch(SUPABASE_URL+'/rest/v1/productos?
 async function delProducto(id){if(!confirm('¿Eliminar este producto del catálogo?'))return;await fetch(SUPABASE_URL+'/rest/v1/productos?id=eq.'+id,{method:'DELETE',headers:HDRS});await loadProductos();renderConfig();}
 async function patchLead(id,p){await fetch(SUPABASE_URL+'/rest/v1/clientes_lead?contact_id=eq.'+id,{method:'PATCH',headers:WHDR,body:JSON.stringify(p)});await loadClientes();renderClientes();}
 async function loadClientes(){
- const r=await fetch(SUPABASE_URL+'/rest/v1/clientes_lead?select=*&order=llegada_at.desc',{headers:HDRS});
- CLIENTES=await r.json();
+ // Paginado: el servidor limita las filas por respuesta (~1000) y ya hay
+ // miles de clientes, así que recorremos todo para no cortar la lista.
+ let all=[], off=0; const page=1000;
+ for(let i=0;i<60;i++){
+  const r=await fetch(SUPABASE_URL+'/rest/v1/clientes_lead?select=*&order=llegada_at.desc&limit='+page+'&offset='+off,{headers:HDRS});
+  const b=await r.json(); if(!Array.isArray(b)||!b.length) break;
+  all=all.concat(b); if(b.length<page) break; off+=page;
+ }
+ CLIENTES=all;
 }
 async function loadPagos(){
  const r=await fetch(SUPABASE_URL+'/rest/v1/pagos_agendados?select=*&order=fecha.asc,creado.desc',{headers:HDRS});

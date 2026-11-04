@@ -1766,8 +1766,8 @@ function renderPV(){
  const dir=ROLE==='director';
  const prodById={}; PRODUCTOS_DB.forEach(pd=>prodById[pd.id]=pd);
  const money=v=>'$'+Math.round(+v||0).toLocaleString('en-US');
- const memOptsHTML=(sel)=>`<option value="">— Membresía a vender / pactada —</option>`+PRODUCTOS_DB.filter(pd=>pd.activo).sort((a,b)=>(a.orden||0)-(b.orden||0)).map(pd=>`<option value="${pd.id}" ${sel===pd.id?'selected':''}>${esc(pd.nombre)} · ${money(pd.precio)}${(+pd.comision>0)?(' · gana '+money(pd.comision)):''}</option>`).join('');
- const memInfo=(p)=>{const pd=prodById[p.membresia_id]; if(!pd) return ''; return `<div class="posfro">💳 <b>${esc(pd.nombre)}</b> · factura ${money(pd.precio)} · ganancia ${money(pd.comision)}</div>`;};
+ const memOptsHTML=(sel)=>`<option value="">— Membresía a vender / pactada —</option>`+PRODUCTOS_DB.filter(pd=>pd.activo).sort((a,b)=>(a.orden||0)-(b.orden||0)).map(pd=>`<option value="${pd.id}" ${sel===pd.id?'selected':''}>${esc(pd.nombre)} · ${money(pd.precio)}</option>`).join('');
+ const memInfo=(p)=>{const pd=prodById[p.membresia_id]; if(!pd) return ''; return `<div class="posfro">💳 <b>${esc(pd.nombre)}</b> · ${money(pd.precio)}</div>`;};
  // Proyección: suma de precios (facturación) y comisiones (ganancia) de las membresías elegidas
  const fact=PVENTAS.reduce((s,p)=>{const pd=prodById[p.membresia_id];return s+(pd?(+pd.precio||0):0);},0);
  const gan=PVENTAS.reduce((s,p)=>{const pd=prodById[p.membresia_id];return s+(pd?(+pd.comision||0):0);},0);
@@ -1804,7 +1804,7 @@ function renderPV(){
        ${memInfo(p)}
        <input class="pvobs" data-id="${p.id}" value="${esc(p.observacion||'')}" placeholder="Observación del cliente…">`}
    ${dir
-     ? (p.comprado?`<div class="posfro" style="color:#2fd18d;font-weight:700">✅ Compró${prodById[p.membresia_id]?(' · +'+money(prodById[p.membresia_id].comision)):''}</div>`:'')
+     ? (p.comprado?`<div class="posfro" style="color:#2fd18d;font-weight:700">✅ Compró${prodById[p.membresia_id]?(' · '+money(prodById[p.membresia_id].precio)):''}</div>`:'')
      : `<div class="pvbtns" style="margin-top:8px"><button class="pvbtn pvcompro ${p.comprado?'on':''}" data-id="${p.id}" data-campo="comprado" data-on="${p.comprado?1:0}">${p.comprado?'✅ Compró':'Marcar COMPRÓ'}</button></div>`}
    ${acc(p)}
    ${btns(p)}

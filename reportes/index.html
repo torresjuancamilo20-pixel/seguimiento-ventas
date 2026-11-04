@@ -402,6 +402,29 @@ input[type=date].minp::-webkit-calendar-picker-indicator{filter:invert(.8);curso
 .pill.reg{background:rgba(139,92,246,.16);color:#a78bfa}
 .pill.new{background:rgba(255,255,255,.06);color:var(--mut)}
 @media(max-width:760px){.mgrid,.mgrid3{grid-template-columns:1fr}}
+/* ---- Banner META LEGENDARY + vista META 24K ---- */
+.metabanner{margin:0 0 18px}
+.mlbanner{background:linear-gradient(120deg,rgba(245,197,24,.16),rgba(139,92,246,.12) 60%,rgba(47,209,141,.10));border:1px solid rgba(245,197,24,.35);border-radius:18px;padding:16px 20px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.mlb-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.mlb-ttl{font-family:'Space Grotesk',sans-serif;font-weight:800;letter-spacing:.04em;font-size:16px;color:#f7d14a;display:flex;align-items:center;gap:9px}
+.mlb-ttl .crown{font-size:17px}
+.mlb-goal{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:15px;color:#eceaf6}
+.mlb-bar{height:18px;border-radius:11px;background:rgba(0,0,0,.35);border:1px solid var(--glassbd);overflow:hidden;position:relative}
+.mlb-fill{height:100%;border-radius:11px;background:linear-gradient(90deg,#f5c518,#2fd18d);box-shadow:0 0 16px rgba(245,197,24,.5);transition:width .6s ease}
+.mlb-sub{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px;font-size:12.5px;color:var(--mut);flex-wrap:wrap}
+.mlb-sub b{color:#eceaf6}
+.mlb-pct{font-family:'Space Grotesk',sans-serif;font-weight:800;color:#2fd18d}
+.m24-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.m24-row:last-child{border-bottom:0}
+.m24-rank{width:24px;text-align:center;font-family:'Space Grotesk',sans-serif;font-weight:800;color:var(--mut)}
+.m24-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#5b2ea8);display:grid;place-items:center;font-weight:800;font-size:12px;color:#fff;flex:none}
+.m24-info{flex:1;min-width:0}
+.m24-nm{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m24-mini{height:7px;border-radius:5px;background:rgba(0,0,0,.3);overflow:hidden;margin-top:5px}
+.m24-mini>div{height:100%;background:linear-gradient(90deg,#8b5cf6,#2fd18d);border-radius:5px}
+.m24-val{text-align:right;flex:none}
+.m24-val .v{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:15px;color:#f7d14a}
+.m24-val .s{font-size:11px;color:var(--mut)}
 </style></head><body>
 
 <!-- LOGIN -->
@@ -482,6 +505,7 @@ input[type=date].minp::-webkit-calendar-picker-indicator{filter:invert(.8);curso
    <div class="nav-item active" data-view="meta"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.3"/></svg></span> Mi Meta</div>
    <div class="nav-item" data-view="pventas"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h2l.4 2M7 13h10l3-7H6.4M7 13 5.4 5M7 13l-2 4h12"/><circle cx="9" cy="20" r="1.2"/><circle cx="17" cy="20" r="1.2"/></svg></span> Posibles ventas</div>
    <div class="nav-item" data-view="misftd"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span> Mis FTD's</div>
+   <div class="nav-item" data-view="meta24k"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></span> META 24K</div>
   </nav>
   <div class="side-foot"><button class="side-btn" id="logoutBtn">↩ Cerrar sesión</button></div>
  </aside>
@@ -498,9 +522,11 @@ input[type=date].minp::-webkit-calendar-picker-indicator{filter:invert(.8);curso
     <button class="logout-top" id="logoutTop">Salir</button>
    </div>
   </div>
+  <div id="metaBanner" class="metabanner"></div>
   <div id="viewMeta"></div>
   <div id="viewPV" class="hide"></div>
   <div id="viewFTD" class="hide"></div>
+  <div id="viewMeta24k" class="hide"></div>
  </main>
 </div>
 
@@ -1288,9 +1314,11 @@ async function startApp(){
  await loadMetasMes().catch(()=>{});
  Promise.all([loadMeta().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{}),loadPosibles().catch(()=>{}),loadPanel().catch(()=>{})]).then(()=>{renderMeta();procesarPendientesVencidos().catch(()=>{});});
  await loadMetricas().catch(()=>{METRICAS=[];});renderMeta();
+ loadMeta24k().then(()=>{renderMetaBanner();if(PAGE==='meta24k')renderMeta24k();}).catch(()=>{});
  showAvisoDiario().catch(()=>{});
  // refresco de Mi Meta cada 60s: leads nuevos + aportes + facturación del Sheet (sin pisar lo que se esté escribiendo)
- setInterval(async()=>{if(PAGE==='meta'){const ae=document.activeElement;const editing=ae&&(['mMetaFtd','mMetaDia','mMetaFact','posNombre','lbusca'].includes(ae.id)||(ae.classList&&(ae.classList.contains('obsin')||ae.classList.contains('regidin')||ae.classList.contains('posnota')||ae.classList.contains('posregid')||ae.classList.contains('posftdhora'))));if(editing)return;await Promise.all([loadMetricas().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{}),loadMetasMes().catch(()=>{}),loadPosibles().catch(()=>{}),loadPanel().catch(()=>{})]);renderMeta();procesarPendientesVencidos().catch(()=>{});}},60000);
+ setInterval(async()=>{if(PAGE==='meta'){const ae=document.activeElement;const editing=ae&&(['mMetaFtd','mMetaDia','mMetaFact','posNombre','lbusca'].includes(ae.id)||(ae.classList&&(ae.classList.contains('obsin')||ae.classList.contains('regidin')||ae.classList.contains('posnota')||ae.classList.contains('posregid')||ae.classList.contains('posftdhora'))));if(editing)return;await Promise.all([loadMetricas().catch(()=>{}),loadAportes().catch(()=>{}),loadLeadsDetalle().catch(()=>{}),loadVentas().catch(()=>{}),loadMetasMes().catch(()=>{}),loadPosibles().catch(()=>{}),loadPanel().catch(()=>{})]);renderMeta();procesarPendientesVencidos().catch(()=>{});}
+  await loadMeta24k().catch(()=>{}); renderMetaBanner(); if(PAGE==='meta24k') renderMeta24k();},60000);
 }
 async function showAvisoDiario(){
  if(!ME) return;
@@ -1320,14 +1348,69 @@ async function showAvisoDiario(){
  ov.onclick=(e)=>{ if(e.target===ov) close(); };
  document.getElementById('appScreen').appendChild(ov);
 }
+/* ---------- META LEGENDARY (24K) ---------- */
+const META_LEGENDARY=24000;   // meta de facturación del equipo (USD)
+let EQUIPO_FACT={};           // agente -> facturación USD del mes actual
+async function loadMeta24k(){
+ const desde=mesActual()+'-01';
+ try{
+  const r=await fetch(SUPABASE_URL+'/rest/v1/aporte_diario?fecha=gte.'+desde+'&select=agente,fact_usd&limit=20000',{headers:HDRS});
+  const b=await r.json()||[]; EQUIPO_FACT={};
+  if(Array.isArray(b)) b.forEach(x=>{EQUIPO_FACT[x.agente]=(EQUIPO_FACT[x.agente]||0)+(+x.fact_usd||0);});
+ }catch(e){ EQUIPO_FACT={}; }
+}
+function metaTotales(){
+ let total=0; Object.values(EQUIPO_FACT).forEach(v=>total+=(+v||0));
+ const pct=META_LEGENDARY>0?(total/META_LEGENDARY*100):0;
+ return {total,pct:Math.max(0,Math.min(100,pct)),meta:META_LEGENDARY,falta:Math.max(0,META_LEGENDARY-total)};
+}
+function renderMetaBanner(){
+ const el=$('metaBanner'); if(!el) return;
+ const t=metaTotales();
+ el.innerHTML=`<div class="mlbanner">
+   <div class="mlb-top">
+     <div class="mlb-ttl"><span class="crown">👑</span> META LEGENDARY</div>
+     <div class="mlb-goal">${money(t.total)||'$0'} / ${money(t.meta)}</div>
+   </div>
+   <div class="mlb-bar"><div class="mlb-fill" style="width:${t.pct}%"></div></div>
+   <div class="mlb-sub"><span>Facturación del equipo este mes</span><span class="mlb-pct">${t.pct.toFixed(1)}%</span></div>
+ </div>`;
+}
+function renderMeta24k(){
+ const el=$('viewMeta24k'); if(!el) return;
+ const t=metaTotales();
+ const ags=Object.keys(EQUIPO_FACT).map(a=>({a,v:+EQUIPO_FACT[a]||0})).filter(x=>x.v>0).sort((x,y)=>y.v-x.v);
+ const maxv=ags.length?ags[0].v:1;
+ const filas=ags.length? ags.map((g,i)=>`<div class="m24-row">
+     <div class="m24-rank">${i+1}</div>
+     <div class="m24-av">${esc(initials(g.a))}</div>
+     <div class="m24-info"><div class="m24-nm">${esc(g.a)}</div><div class="m24-mini"><div style="width:${Math.round(g.v/maxv*100)}%"></div></div></div>
+     <div class="m24-val"><div class="v">${money(g.v)}</div><div class="s">${(g.v/t.meta*100).toFixed(1)}% de la meta</div></div>
+   </div>`).join('') : '<div class="hint" style="padding:18px 6px">Aún no hay facturación registrada este mes. La barra se irá llenando a medida que los agentes registren sus ventas en «Mi Meta».</div>';
+ el.innerHTML=`<div class="mcard">
+   <div class="mlbanner" style="margin-bottom:16px">
+     <div class="mlb-top"><div class="mlb-ttl"><span class="crown">👑</span> META LEGENDARY · ${money(t.meta)}</div><div class="mlb-goal">${money(t.total)||'$0'}</div></div>
+     <div class="mlb-bar"><div class="mlb-fill" style="width:${t.pct}%"></div></div>
+     <div class="mlb-sub"><span>Nos faltan <b>${money(t.falta)||'$0'}</b> para la meta</span><span class="mlb-pct">${t.pct.toFixed(1)}%</span></div>
+   </div>
+   <h3>Cómo va cada uno</h3>
+   ${filas}
+ </div>`;
+}
 function showView(v){
  PAGE=v;
  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view===v));
- const pv=v==='pventas', ftd=v==='misftd';
- $('viewMeta').classList.toggle('hide',pv||ftd);
+ const pv=v==='pventas', ftd=v==='misftd', m24=v==='meta24k';
+ $('viewMeta').classList.toggle('hide',pv||ftd||m24);
  $('viewPV').classList.toggle('hide',!pv);
  $('viewFTD').classList.toggle('hide',!ftd);
- if(pv){
+ $('viewMeta24k').classList.toggle('hide',!m24);
+ if(m24){
+   $('eyebrow').textContent='Equipo';
+   $('viewTitle').textContent='Meta Legendary · 24K';
+   $('viewSub').textContent='Cuánto lleva cada agente y cómo vamos hacia los $24,000 del mes.';
+   loadMeta24k().then(()=>{renderMeta24k();renderMetaBanner();}); renderMeta24k();
+ }else if(pv){
    $('eyebrow').textContent='Prospectos';
    $('viewTitle').textContent='Posibles ventas';
    $('viewSub').textContent='Clientes que escriben y las invitaciones que les has hecho.';

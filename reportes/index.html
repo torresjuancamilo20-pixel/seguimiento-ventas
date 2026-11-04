@@ -425,6 +425,17 @@ input[type=date].minp::-webkit-calendar-picker-indicator{filter:invert(.8);curso
 .m24-val{text-align:right;flex:none}
 .m24-val .v{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:15px;color:#f7d14a}
 .m24-val .s{font-size:11px;color:var(--mut)}
+/* ---- Mini línea de tiempo del embudo en cada posible venta ---- */
+.pvline{display:flex;align-items:flex-start;margin:12px 0 6px;overflow-x:auto;padding:4px 2px 2px}
+.pvstep{display:flex;flex-direction:column;align-items:center;gap:5px;flex:0 0 auto;width:60px;text-align:center}
+.pvdot{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:14px;background:rgba(255,255,255,.05);border:1.5px solid var(--line);color:var(--mut);transition:all .2s}
+.pvstep.done .pvdot{background:linear-gradient(135deg,#2fd18d,#1b9e68);border-color:#2fd18d;color:#042014}
+.pvstep.cur .pvdot{box-shadow:0 0 0 4px rgba(47,209,141,.22);transform:scale(1.1)}
+.pvlbl{font-size:10px;font-weight:700;color:var(--mut);line-height:1.1}
+.pvstep.done .pvlbl{color:#bfe9d6}
+.pvstep.cur .pvlbl{color:#2fd18d}
+.pvconn{flex:1 1 12px;min-width:12px;height:2px;background:var(--line);margin-top:14px;border-radius:2px}
+.pvconn.done{background:#2fd18d}
 </style></head><body>
 
 <!-- LOGIN -->
@@ -1761,6 +1772,18 @@ function renderPosibles(ag){
  return addCard + avisoCard + hoyCard + pendCard;
 }
 const PV_BTNS=[['inv_clase','Invitación a clase'],['inv_operativa','Invitación a operativa'],['inv_presentacion','Invitación a presentación'],['uno_a_uno','1 a 1']];
+// Embudo en orden para la mini línea de tiempo: [campo, etiqueta corta, emoji]
+const PV_FUNNEL=[['inv_presentacion','Presentación','🎤'],['inv_clase','Clase','🎓'],['inv_operativa','Operativa','📊'],['uno_a_uno','1 a 1','🤝'],['comprado','Compró','✅']];
+function pvTimeline(p){
+ let last=-1; PV_FUNNEL.forEach((s,i)=>{ if(p[s[0]]) last=i; });
+ let html='';
+ PV_FUNNEL.forEach((s,i)=>{
+   const done=!!p[s[0]], cur=(i===last);
+   if(i>0) html+=`<div class="pvconn ${last>=i?'done':''}"></div>`;
+   html+=`<div class="pvstep ${done?'done':''} ${cur?'cur':''}"><div class="pvdot">${done?s[2]:(i+1)}</div><div class="pvlbl">${s[1]}</div></div>`;
+ });
+ return `<div class="pvline">${html}</div>`;
+}
 function renderPV(){
  const el=$('viewPV'); if(!el) return;
  const dir=ROLE==='director';
@@ -1795,6 +1818,7 @@ function renderPV(){
      <div class="pvwho"><div class="nm">${esc(p.nombre||'(sin nombre)')}</div><div class="cel">${p.celular?('📱 '+esc(p.celular)):'<span class="mut">sin número</span>'}</div></div>
      ${dir?'':`<button class="pvdel" data-id="${p.id}" title="Quitar">✕</button>`}
    </div>
+   ${pvTimeline(p)}
    ${dir
      ? `${memInfo(p)}${p.producto?`<div class="posfro">🎯 Producto: <b>${esc(p.producto)}</b></div>`:''}${p.fecha_pago?`<div class="posfro">📆 Pago posible: <b>${fpfmt(p.fecha_pago)}</b></div>`:''}${p.observacion?`<div class="obsro">📝 ${esc(p.observacion)}</div>`:''}`
      : `<div class="pvfields">

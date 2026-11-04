@@ -1349,18 +1349,16 @@ async function showAvisoDiario(){
  document.getElementById('appScreen').appendChild(ov);
 }
 /* ---------- META LEGENDARY (24K) ---------- */
+// La meta se conecta con el Google Sheet de facturación (variable VENTAS),
+// la misma fuente que usa "Mi Meta": v.total es la facturación del mes de
+// cada agente. Se excluyen las filas de oficina/extensión (excluido()).
 const META_LEGENDARY=24000;   // meta de facturación del equipo (USD)
-let EQUIPO_FACT={};           // agente -> facturación USD del mes actual
-async function loadMeta24k(){
- const desde=mesActual()+'-01';
- try{
-  const r=await fetch(SUPABASE_URL+'/rest/v1/aporte_diario?fecha=gte.'+desde+'&select=agente,fact_usd&limit=20000',{headers:HDRS});
-  const b=await r.json()||[]; EQUIPO_FACT={};
-  if(Array.isArray(b)) b.forEach(x=>{EQUIPO_FACT[x.agente]=(EQUIPO_FACT[x.agente]||0)+(+x.fact_usd||0);});
- }catch(e){ EQUIPO_FACT={}; }
+async function loadMeta24k(){ try{ await loadVentas(); }catch(e){} }
+function metaVentasList(){
+ return (Array.isArray(VENTAS)?VENTAS:[]).filter(v=>!excluido(v.name)).map(v=>({a:v.name,v:+v.total||0}));
 }
 function metaTotales(){
- let total=0; Object.values(EQUIPO_FACT).forEach(v=>total+=(+v||0));
+ let total=0; metaVentasList().forEach(x=>total+=x.v);
  const pct=META_LEGENDARY>0?(total/META_LEGENDARY*100):0;
  return {total,pct:Math.max(0,Math.min(100,pct)),meta:META_LEGENDARY,falta:Math.max(0,META_LEGENDARY-total)};
 }
@@ -1379,14 +1377,14 @@ function renderMetaBanner(){
 function renderMeta24k(){
  const el=$('viewMeta24k'); if(!el) return;
  const t=metaTotales();
- const ags=Object.keys(EQUIPO_FACT).map(a=>({a,v:+EQUIPO_FACT[a]||0})).filter(x=>x.v>0).sort((x,y)=>y.v-x.v);
+ const ags=metaVentasList().filter(x=>x.v>0).sort((x,y)=>y.v-x.v);
  const maxv=ags.length?ags[0].v:1;
  const filas=ags.length? ags.map((g,i)=>`<div class="m24-row">
      <div class="m24-rank">${i+1}</div>
      <div class="m24-av">${esc(initials(g.a))}</div>
      <div class="m24-info"><div class="m24-nm">${esc(g.a)}</div><div class="m24-mini"><div style="width:${Math.round(g.v/maxv*100)}%"></div></div></div>
      <div class="m24-val"><div class="v">${money(g.v)}</div><div class="s">${(g.v/t.meta*100).toFixed(1)}% de la meta</div></div>
-   </div>`).join('') : '<div class="hint" style="padding:18px 6px">Aún no hay facturación registrada este mes. La barra se irá llenando a medida que los agentes registren sus ventas en «Mi Meta».</div>';
+   </div>`).join('') : '<div class="hint" style="padding:18px 6px">Aún no hay facturación este mes en el Google Sheet. La barra se irá llenando a medida que se registren ventas en la hoja.</div>';
  el.innerHTML=`<div class="mcard">
    <div class="mlbanner" style="margin-bottom:16px">
      <div class="mlb-top"><div class="mlb-ttl"><span class="crown">👑</span> META LEGENDARY · ${money(t.meta)}</div><div class="mlb-goal">${money(t.total)||'$0'}</div></div>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Eva — Video "Tu plata habla" (32,5 s, vertical)</title>
+<style>
+@font-face{font-family:'Montserrat';font-weight:600;src:url(fonts/montserrat-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:700;src:url(fonts/montserrat-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:800;src:url(fonts/montserrat-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:900;src:url(fonts/montserrat-latin-900-normal.woff2) format('woff2')}
+@font-face{font-family:'Playfair Display';font-weight:700;src:url(fonts/playfair-display-latin-700-normal.woff2) format('woff2')}
+:root{--bg:#0B0712;--panel:#15101F;--panel2:#1B1428;--brand:#E24BD8;--brand2:#A855F7;--rosa:#F06CE0;--magenta:#C026D3;--txt:#F3EEFB;--muted:#A99FB8;--muted2:#6E6480;--ok:#22C55E;--bad:#EF4757;--save:#F5A623;--line:rgba(255,255,255,.08)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--bg);font-family:'Montserrat',sans-serif;color:var(--txt)}
+.scene{position:absolute;inset:0;opacity:0;overflow:hidden;background:radial-gradient(1000px 900px at 50% 38%,#2a0f33,var(--bg) 70%)}
+.full{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 80px}
+.mag{background:radial-gradient(1000px 800px at 85% 0%,var(--rosa),transparent 60%),radial-gradient(1100px 1100px at 0% 100%,#7c1fb0,transparent 65%),linear-gradient(160deg,var(--brand),var(--magenta) 45%,#6d1aa8)}
+@keyframes vis{0%{opacity:1}100%{opacity:1}}
+.pop{display:inline-block;opacity:0;animation:pop .45s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes pop{0%{opacity:0;transform:scale(1.8);filter:blur(10px)}60%{opacity:1;filter:none}100%{opacity:1;transform:none}}
+.up{opacity:0;animation:up .4s cubic-bezier(.2,.9,.2,1) both}
+@keyframes up{from{opacity:0;transform:translateY(50px)}to{opacity:1;transform:none}}
+.grad{background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--brand2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.grain{position:absolute;inset:-200px;z-index:90;pointer-events:none;opacity:.06;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation:grain .5s steps(4) infinite}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-40px,20px)}50%{transform:translate(30px,-30px)}75%{transform:translate(-20px,-40px)}100%{transform:translate(0,0)}}
+.shake{animation:shk .4s ease-out both}
+@keyframes shk{0%{transform:none}20%{transform:translate(-18px,6px) rotate(-1deg)}45%{transform:translate(14px,-6px) rotate(.8deg)}70%{transform:translate(-8px,3px)}100%{transform:none}}
+.wm{position:absolute;right:-380px;bottom:-60px;height:1500px;opacity:.07;z-index:0}
+
+/* ---------- el billete que habla ---------- */
+.billw{display:flex;justify-content:center}
+.bob{animation:bob 1.25s ease-in-out infinite alternate}
+@keyframes bob{from{transform:translateY(-10px) rotate(-2deg)}to{transform:translateY(10px) rotate(2deg)}}
+.bill{position:relative;width:620px;height:320px;border-radius:30px;
+  background:linear-gradient(150deg,#3fd27a,#1f9a55 55%,#167a43);box-shadow:0 30px 70px rgba(0,0,0,.5),inset 0 0 0 14px rgba(255,255,255,.12)}
+.bill::before{content:"";position:absolute;inset:30px;border-radius:18px;border:4px dashed rgba(255,255,255,.28)}
+.bill .c{position:absolute;font-family:'Playfair Display';font-weight:700;font-size:64px;color:rgba(255,255,255,.55);line-height:1}
+.bill .c1{left:48px;top:40px}.bill .c2{right:48px;bottom:40px}
+.bill .face{position:absolute;left:50%;top:50%;width:220px;height:220px;margin:-110px 0 0 -110px;border-radius:50%;background:rgba(255,255,255,.16);border:4px solid rgba(255,255,255,.35)}
+.eye{position:absolute;top:66px;width:46px;height:56px;border-radius:50%;background:#fff;overflow:hidden;animation:blink 3.1s infinite}
+.eye::after{content:"";position:absolute;left:12px;top:16px;width:24px;height:28px;border-radius:50%;background:#0B0712}
+.eye.l{left:52px}.eye.r{right:52px}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.mouth{position:absolute;left:62px;width:96px;height:48px;top:132px;border:9px solid #0B0712;border-top:none;border-radius:0 0 60px 60px}
+.meh .mouth{height:0;border-radius:6px;border-width:9px 0 0 0;border-top:9px solid #0B0712;top:150px;width:80px;left:70px}
+.sad .mouth{border-top:9px solid #0B0712;border-bottom:none;border-radius:60px 60px 0 0;top:150px}
+.sad .eye::after{top:22px}
+.brow{display:none;position:absolute;top:48px;width:52px;height:9px;border-radius:9px;background:#0B0712}
+.sad .brow{display:block}.sad .brow.l{left:48px;transform:rotate(-14deg)}.sad .brow.r{right:48px;transform:rotate(14deg)}
+.tear{display:none;position:absolute;left:66px;top:118px;width:18px;height:26px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:#7cc8ff;animation:tear 1.2s ease-in infinite}
+.sad .tear{display:block}
+@keyframes tear{0%{transform:translateY(0);opacity:0}20%{opacity:1}100%{transform:translateY(70px);opacity:0}}
+
+.day{display:inline-block;font-size:38px;font-weight:900;letter-spacing:2px;color:#fff;background:linear-gradient(135deg,var(--rosa),var(--magenta));padding:12px 28px;border-radius:999px}
+.say{font-size:82px;font-weight:900;letter-spacing:-2.5px;line-height:1.07}
+.sub{font-size:44px;font-weight:700;color:var(--muted);margin-top:18px}
+
+/* escenas de gasto */
+.gasto{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 80px 60px;text-align:center}
+.gasto .say{margin-top:44px;font-size:90px}
+.gasto .billw{margin-top:50px;height:430px;align-items:center}
+.noti{display:flex;align-items:center;gap:26px;width:920px;margin-top:50px;padding:30px 32px;border-radius:34px;background:var(--panel2);border:2px solid rgba(239,71,87,.5);box-shadow:0 20px 50px rgba(0,0,0,.4);text-align:left}
+.noti .ic{width:96px;height:96px;border-radius:26px;background:rgba(239,71,87,.15);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.noti .b{flex:1}.noti .d{font-size:42px;font-weight:800}.noti .k{font-size:30px;color:var(--muted);font-weight:600;margin-top:4px}
+.noti .a{font-size:50px;font-weight:900;color:var(--bad);white-space:nowrap}
+.drop{opacity:0;animation:drop .45s cubic-bezier(.2,1.5,.4,1) both}
+@keyframes drop{0%{opacity:0;transform:translateY(-120px) rotate(-3deg)}100%{opacity:1;transform:none}}
+.saldo{width:920px;margin-top:56px;text-align:left}
+.saldo .r{display:flex;justify-content:space-between;align-items:baseline;font-size:36px;font-weight:800;color:var(--muted)}
+.saldo .r b{font-size:64px;font-weight:900;color:#fff;letter-spacing:-1.5px}
+.saldo .bar{height:30px;border-radius:999px;background:var(--panel2);margin-top:16px;overflow:hidden}
+.saldo .bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#3fd27a,#1f9a55)}
+.shrink{animation:shrink .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes shrink{from{width:var(--w0)}to{width:var(--w1)}}
+
+/* Eva */
+.plan{width:900px;margin-top:56px;border-radius:36px;background:var(--panel);border:3px solid var(--brand);box-shadow:0 0 70px rgba(226,75,216,.4);padding:36px 40px;text-align:left}
+.plan h4{font-size:32px;font-weight:900;letter-spacing:4px;color:var(--rosa);margin-bottom:10px}
+.plan .r{display:flex;justify-content:space-between;align-items:center;font-size:42px;font-weight:800;padding:18px 0;border-bottom:1px solid var(--line)}
+.plan .r:last-child{border:none}
+.plan .r span{color:var(--muted);font-weight:700}
+.plan .r.s span{color:var(--save);font-weight:900}
+.logo{display:flex;align-items:baseline}
+.logo .E{font-family:'Playfair Display';font-weight:700;font-size:250px;line-height:.8;color:var(--bg)}
+.logo .va{font-weight:700;font-size:126px;letter-spacing:-4px;margin-left:-4px;color:#fff}
+.pill{display:inline-block;margin-top:56px;font-size:56px;font-weight:800;background:var(--bg);color:#fff;padding:34px 64px;border-radius:999px;box-shadow:0 24px 60px rgba(40,0,50,.45)}
+.pill span{color:var(--rosa)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <symbol id="casa" viewBox="0 0 24 24"><g fill="none" stroke="#EF4757" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></g></symbol>
+  <symbol id="carro" viewBox="0 0 24 24"><g fill="none" stroke="#EF4757" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.5 11h10L20 8H6.5"/><circle cx="9" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></g></symbol>
+  <symbol id="moto" viewBox="0 0 24 24"><g fill="none" stroke="#EF4757" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17" r="3"/><circle cx="18.5" cy="17" r="3"/><path d="M8.5 17h6l2-6h-5l-3 6M14 7h3l1.5 4"/></g></symbol>
+  <symbol id="tele" viewBox="0 0 24 24"><g fill="none" stroke="#EF4757" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8M10 9.5v4l3.5-2z"/></g></symbol>
+  <symbol id="copa" viewBox="0 0 24 24"><g fill="none" stroke="#EF4757" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h10l-1 7a4 4 0 0 1-8 0z"/><path d="M12 14v6M8 21h8"/></g></symbol>
+  <symbol id="dulce" viewBox="0 0 24 24"><g fill="none" stroke="#EF4757" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.5 12h-11z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></g></symbol>
+</defs></svg>
+
+<div id="root"></div>
+<div class="grain"></div>
+
+<script>
+const B = 2.5; // un compás a 96 BPM
+const bill = (mood = '', escala = 1) => `
+  <div class="billw"><div style="transform:scale(${escala})"><div class="bob"><div class="bill ${mood}">
+    <span class="c c1">$</span><span class="c c2">$</span>
+    <div class="face"><i class="brow l"></i><i class="brow r"></i><i class="eye l"></i><i class="eye r"></i><i class="tear"></i><i class="mouth"></i></div>
+  </div></div></div></div>`;
+const fmt = n => '$' + n.toLocaleString('es-CO').replace(/,/g, '.');
+const TOTAL = 1500000;
+const gastos = [
+  // [día y hora, frase, ícono, concepto, detalle, valor, ánimo]
+  ['Día 15 · 9:00 a. m.', 'Primero, el arriendo.<br><span class="grad">Eso estaba bien.</span>', 'casa', 'Arriendo', 'Lo justo', 700000, ''],
+  ['Día 15 · 4:00 p. m.', 'Un mercadito…<br><span class="grad">que se creció.</span>', 'carro', 'Mercado', 'Iba por huevos', 280000, ''],
+  ['Día 15 · 9:30 p. m.', 'Tres domicilios.<br><span class="grad">En un solo día.</span>', 'moto', 'Domicilios (3)', 'Desayuno, almuerzo y cena', 96000, 'meh'],
+  ['Día 16 · 7:00 a. m.', 'Suscripciones<br><span class="grad">que ni abres.</span>', 'tele', 'Suscripciones', '4 apps, usas 1', 65000, 'meh'],
+  ['Día 16 · 10:00 p. m.', '"Vamos por una,<br><span class="grad">nada más."</span>', 'copa', 'Salida', 'Fueron siete', 210000, 'sad'],
+  ['Día 17 · 3:00 p. m.', 'Y los antojos<br><span class="grad">de la tienda.</span>', 'dulce', 'Antojos', 'Varios, todos los días', 149000, 'sad'],
+];
+let h = '';
+// 0 · Hola
+h += `<div class="scene full mag" style="animation:vis ${B}s linear 0s forwards">
+  <img class="wm" src="marca/eva-silueta-blanca.svg">
+  <div class="up" style="animation-delay:.05s;position:relative">${bill('', 1.05)}</div>
+  <div class="say pop" style="animation-delay:.35s;margin-top:90px;font-size:110px;position:relative">Hola.</div>
+  <div class="say pop" style="animation-delay:.9s;font-size:110px;position:relative">Soy tu <span style="color:var(--bg)">quincena.</span></div>
+</div>`;
+// 1 · Llegué completica
+h += `<div class="scene full" style="animation:vis ${B}s linear ${B}s forwards">
+  <div class="day pop" style="animation-delay:${B + .05}s">Día 15</div>
+  <div class="say up" style="animation-delay:${B + .2}s;margin-top:40px">Llegué <span class="grad">toda completica.</span></div>
+  <div class="up" style="animation-delay:${B + .45}s;margin-top:70px">${bill('', 1.15)}</div>
+  <div class="pop" style="animation-delay:${B + .9}s;margin-top:80px;font-size:120px;font-weight:900;letter-spacing:-4px;color:#3fd27a">${fmt(TOTAL)}</div>
+</div>`;
+// 2..7 · gastos
+let saldo = TOTAL;
+gastos.forEach((g, i) => {
+  const t = (i + 2) * B, antes = saldo; saldo -= g[5];
+  const esc = 0.7 + 0.5 * Math.max(saldo, 150000) / TOTAL;
+  const w0 = (antes / TOTAL * 100).toFixed(1) + '%', w1 = (saldo / TOTAL * 100).toFixed(1) + '%';
+  h += `<div class="scene gasto" style="animation:vis ${B}s linear ${t}s forwards">
+    <div class="day pop" style="animation-delay:${t + .05}s">${g[0]}</div>
+    <div class="say up" style="animation-delay:${t + .15}s">${g[1]}</div>
+    <div class="shake" style="animation-delay:${t + 1.0}s">${bill(g[6], esc)}</div>
+    <div class="shake" style="animation-delay:${t + 1.0}s"><div class="noti drop" style="animation-delay:${t + 1.0}s"><div class="ic"><svg width="56" height="56"><use href="#${g[2]}"/></svg></div><div class="b"><div class="d">${g[3]}</div><div class="k">${g[4]}</div></div><div class="a">-${fmt(g[5])}</div></div></div>
+    <div class="saldo up" style="animation-delay:${t + .3}s"><div class="r">Me quedan <b>${fmt(saldo)}</b></div><div class="bar"><i class="shrink" style="--w0:${w0};--w1:${w1};animation-delay:${t + 1.1}s"></i></div></div>
+  </div>`;
+});
+// 8 · Ya me había ido
+let t = 8 * B;
+h += `<div class="scene full" style="animation:vis ${B}s linear ${t}s forwards;background:radial-gradient(900px 900px at 50% 45%,#1d1a24,#0c0b10 70%)">
+  <div class="day pop" style="animation-delay:${t + .05}s;background:#2a2433;color:var(--muted)">Día 17</div>
+  <div class="say up" style="animation-delay:${t + .2}s;margin-top:40px">Y ya me <span style="color:var(--bad)">había ido.</span></div>
+  <div style="margin-top:80px;width:620px;height:320px;border-radius:30px;border:6px dashed var(--muted2);display:flex;align-items:center;justify-content:center" class="up"><span style="font-size:110px;font-weight:900;color:var(--muted2)">$0</span></div>
+  <div class="up" style="animation-delay:${t + .9}s;margin-top:70px;font-size:50px;font-weight:700;color:var(--muted)">…y faltaban 13 días para la otra.</div>
+</div>`;
+// 9 · Dime a dónde ir
+t = 9 * B;
+h += `<div class="scene full" style="animation:vis ${B}s linear ${t}s forwards">
+  <div class="up" style="animation-delay:${t + .05}s">${bill('meh', 1)}</div>
+  <div class="say up" style="animation-delay:${t + .3}s;margin-top:90px;font-size:96px">La próxima vez,</div>
+  <div class="say pop" style="animation-delay:${t + 1.0}s;font-size:104px;white-space:nowrap"><span class="grad">dime a dónde ir.</span></div>
+</div>`;
+// 10 · Con Eva
+t = 10 * B;
+h += `<div class="scene full" style="animation:vis ${B}s linear ${t}s forwards">
+  <div class="up" style="animation-delay:${t + .05}s">${bill('', .8)}</div>
+  <div class="say up" style="animation-delay:${t + .2}s;margin-top:40px;font-size:76px">Con Eva,<br><span class="grad">yo sé a dónde voy.</span></div>
+  <div class="plan up" style="animation-delay:${t + .5}s"><h4>MI PLAN DE LA QUINCENA</h4>
+    <div class="r">Arriendo <span>$700.000</span></div>
+    <div class="r">Mercado <span>$250.000</span></div>
+    <div class="r">Gustos y salidas <span>$200.000</span></div>
+    <div class="r">Cuentas fijas <span>$200.000</span></div>
+    <div class="r s">Ahorro <span>$150.000</span></div>
+  </div>
+</div>`;
+// 11 · Cierre
+t = 11 * B;
+h += `<div class="scene full mag" style="animation:vis 5s linear ${t}s forwards">
+  <img class="wm" src="marca/eva-silueta-blanca.svg">
+  <div class="up" style="animation-delay:${t + .05}s;font-size:84px;font-weight:900;letter-spacing:-2.5px;position:relative">Dile a tu plata<br><span style="color:var(--bg)">a dónde ir.</span></div>
+  <div class="logo pop" style="animation-delay:${t + .6}s;margin-top:50px;position:relative"><span class="E">E</span><span class="va">va</span></div>
+  <div class="pill pop" style="animation-delay:${t + 1.2}s;position:relative">evafinanzas<span>.us</span></div>
+  <div class="up" style="animation-delay:${t + 1.7}s;font-size:44px;font-weight:800;margin-top:40px;color:#fff;position:relative">Prueba <b style="background:rgba(11,7,18,.85);padding:6px 18px;border-radius:14px;color:var(--save)">7 días gratis</b></div>
+</div>`;
+document.getElementById('root').innerHTML = h;
+</script>
+</body>
+</html>

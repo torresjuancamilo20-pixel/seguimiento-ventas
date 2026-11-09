@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="90 120 620 780" width="620" height="780">
+  <!-- Silueta de Eva (personaje de marca). Las líneas vacías son una máscara: se ve el fondo a través de ellas. -->
+  <defs>
+    <mask id="m" maskUnits="userSpaceOnUse" x="0" y="0" width="800" height="900">
+      <rect x="0" y="0" width="800" height="900" fill="#fff"/>
+      <g fill="none" stroke="#000" stroke-width="13" stroke-linejoin="round">
+        <path d="M110 900 C118 742 196 650 322 614 C356 642 444 642 478 614 C604 650 682 742 690 900 Z"/><path d="M352 515 L448 515 L456 628 C430 650 370 650 344 628 Z"/><ellipse cx="282" cy="395" rx="22" ry="34"/><ellipse cx="518" cy="395" rx="22" ry="34"/>
+      </g>
+      <path d="M290 330 C290 230 340 190 400 190 C460 190 510 230 510 330 C510 450 465 535 400 545 C335 535 290 450 290 330 Z" fill="#fff"/>
+      <g fill="none" stroke="#000" stroke-width="13" stroke-linecap="round">
+        <path d="M290 330 C290 450 335 535 400 545 C465 535 510 450 510 330"/>
+        <path d="M520 360 C505 300 480 262 430 240 C400 290 330 300 300 330 C292 340 286 350 282 360"/>
+      </g>
+    </mask>
+  </defs>
+  <g fill="#0B0712" mask="url(#m)">
+    <path d="M215 330 C190 470 200 600 160 720 C230 760 300 700 330 640 L470 640 C500 700 570 760 640 720 C600 600 610 470 585 330 C560 190 480 140 400 140 C320 140 240 190 215 330 Z"/><path d="M352 515 L448 515 L456 628 C430 650 370 650 344 628 Z"/><path d="M110 900 C118 742 196 650 322 614 C356 642 444 642 478 614 C604 650 682 742 690 900 Z"/><ellipse cx="282" cy="395" rx="22" ry="34"/><ellipse cx="518" cy="395" rx="22" ry="34"/><path d="M290 330 C290 230 340 190 400 190 C460 190 510 230 510 330 C510 450 465 535 400 545 C335 535 290 450 290 330 Z"/><path d="M282 360 C270 240 330 158 410 160 C500 162 545 240 520 360 C505 300 480 262 430 240 C400 290 330 300 300 330 C292 340 286 350 282 360 Z"/>
+  </g>
+</svg>

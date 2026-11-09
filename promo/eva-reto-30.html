@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Eva — Reel "Reto 30 días sin gastos hormiga" (32,5 s, vertical)</title>
+<style>
+@font-face{font-family:'Montserrat';font-weight:600;src:url(fonts/montserrat-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:700;src:url(fonts/montserrat-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:800;src:url(fonts/montserrat-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:900;src:url(fonts/montserrat-latin-900-normal.woff2) format('woff2')}
+@font-face{font-family:'Playfair Display';font-weight:700;src:url(fonts/playfair-display-latin-700-normal.woff2) format('woff2')}
+:root{--bg:#0B0712;--panel:#15101F;--panel2:#1B1428;--brand:#E24BD8;--brand2:#A855F7;--rosa:#F06CE0;--magenta:#C026D3;--txt:#F3EEFB;--muted:#A99FB8;--muted2:#6E6480;--ok:#22C55E;--bad:#EF4757;--save:#F5A623;--line:rgba(255,255,255,.08)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--bg);font-family:'Montserrat',sans-serif;color:var(--txt)}
+.scene{position:absolute;inset:0;opacity:0;overflow:hidden;background:radial-gradient(1000px 900px at 50% 38%,#2a0f33,var(--bg) 70%)}
+.full{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 80px}
+.mag{background:radial-gradient(1000px 800px at 85% 0%,var(--rosa),transparent 60%),radial-gradient(1100px 1100px at 0% 100%,#7c1fb0,transparent 65%),linear-gradient(160deg,var(--brand),var(--magenta) 45%,#6d1aa8)}
+@keyframes vis{0%{opacity:1}100%{opacity:1}}
+.pop{display:inline-block;opacity:0;animation:pop .45s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes pop{0%{opacity:0;transform:scale(1.8);filter:blur(10px)}60%{opacity:1;filter:none}100%{opacity:1;transform:none}}
+.up{opacity:0;animation:up .4s cubic-bezier(.2,.9,.2,1) both}
+@keyframes up{from{opacity:0;transform:translateY(50px)}to{opacity:1;transform:none}}
+.grad{background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--brand2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.grain{position:absolute;inset:-200px;z-index:90;pointer-events:none;opacity:.06;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation:grain .5s steps(4) infinite}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-40px,20px)}50%{transform:translate(30px,-30px)}75%{transform:translate(-20px,-40px)}100%{transform:translate(0,0)}}
+.shake{animation:shk .4s ease-out both}
+@keyframes shk{0%{transform:none}20%{transform:translate(-18px,6px) rotate(-1deg)}45%{transform:translate(14px,-6px) rotate(.8deg)}70%{transform:translate(-8px,3px)}100%{transform:none}}
+.wm{position:absolute;right:-380px;bottom:-60px;height:1500px;opacity:.07;z-index:0}
+
+.say{font-size:96px;font-weight:900;letter-spacing:-3px;line-height:1.05}
+.big{font-size:170px;font-weight:900;letter-spacing:-7px;line-height:.92}
+.lbl{font-size:30px;font-weight:900;letter-spacing:8px;color:var(--rosa)}
+.chip{display:inline-flex;align-items:center;gap:26px;margin-top:26px;padding:30px 44px;border-radius:30px;background:var(--panel2);border:2px solid rgba(239,71,87,.45);font-size:56px;font-weight:800}
+.chip.ok{border-color:rgba(34,197,94,.5)}
+.x{width:70px;height:70px;border-radius:50%;background:rgba(239,71,87,.18);position:relative;flex:0 0 auto}
+.x::before,.x::after{content:"";position:absolute;left:17px;top:32px;width:36px;height:7px;border-radius:4px;background:var(--bad);transform:rotate(45deg)}
+.x::after{transform:rotate(-45deg)}
+.v{width:70px;height:70px;border-radius:50%;background:rgba(34,197,94,.18);position:relative;flex:0 0 auto}
+.v::after{content:"";position:absolute;left:21px;top:14px;width:18px;height:32px;border:solid var(--ok);border-width:0 8px 8px 0;transform:rotate(45deg)}
+.strike{position:relative}
+.strike::after{content:"";position:absolute;left:-6px;right:-6px;top:52%;height:8px;border-radius:4px;background:var(--bad);transform-origin:left;animation:tach .3s ease-out both;animation-delay:inherit}
+@keyframes tach{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+/* calendario */
+.cal{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;width:920px;margin-top:50px}
+.d{height:118px;border-radius:24px;border:3px solid rgba(169,159,184,.3);display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:900;color:var(--muted2);background:rgba(21,16,31,.8);position:relative;overflow:hidden}
+.d i{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-style:normal;background:linear-gradient(135deg,var(--rosa),var(--magenta) 55%,var(--brand2));opacity:0;animation:fill .25s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes fill{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+.cnt{position:relative;height:150px;width:920px;margin-top:20px}
+.cnt span{position:absolute;inset:0;opacity:0;display:flex;align-items:center;justify-content:center}
+.cnt b{font-size:120px;font-weight:900;letter-spacing:-4px;color:var(--save)}
+.dia{position:relative;height:70px;width:600px}
+.dia span{position:absolute;inset:0;opacity:0;display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:900;letter-spacing:4px;color:var(--muted)}
+@keyframes win{0%,100%{opacity:1}}
+.logo{display:flex;align-items:baseline}
+.logo .E{font-family:'Playfair Display';font-weight:700;font-size:250px;line-height:.8;color:var(--bg)}
+.logo .va{font-weight:700;font-size:126px;letter-spacing:-4px;margin-left:-4px;color:#fff}
+.pill{display:inline-block;margin-top:56px;font-size:56px;font-weight:800;background:var(--bg);color:#fff;padding:34px 64px;border-radius:999px;box-shadow:0 24px 60px rgba(40,0,50,.45)}
+.pill span{color:var(--rosa)}
+.phone{width:760px;border-radius:44px;background:var(--panel);border:2px solid var(--line);padding:44px;margin-top:60px;text-align:left;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.phone .t{font-size:32px;font-weight:800;color:var(--muted);letter-spacing:2px}
+.phone .n{font-size:110px;font-weight:900;letter-spacing:-4px;color:var(--save);margin-top:10px}
+.phone .bar{height:34px;border-radius:999px;background:var(--panel2);margin-top:24px;overflow:hidden}
+.phone .bar i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--rosa),var(--brand) 60%,var(--brand2));animation:w60 1s cubic-bezier(.2,.8,.2,1) both}
+@keyframes w60{to{width:60%}}
+.phone .k{display:flex;justify-content:space-between;font-size:32px;font-weight:700;color:var(--muted);margin-top:18px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="grain"></div>
+<script>
+const B = 2.5;
+const fmt = n => '$' + n.toLocaleString('es-CO').replace(/,/g, '.');
+const sc = (i, cls, inner, dur = B, extra = '') => `<div class="scene ${cls}" style="animation:vis ${dur}s linear ${i * B}s forwards;${extra}">${inner}</div>`;
+let h = '';
+// 0 · Te reto
+h += sc(0, 'full mag', `<img class="wm" src="marca/eva-silueta-blanca.svg">
+  <div class="lbl pop" style="animation-delay:.1s;color:#fff;position:relative">RETO EVA</div>
+  <div class="big pop" style="animation-delay:.35s;margin-top:30px;position:relative">Te</div>
+  <div class="big pop" style="animation-delay:.7s;position:relative;color:var(--bg)">reto.</div>`);
+// 1 · 30 días sin gastos hormiga
+h += sc(1, 'full', `<div class="big pop" style="animation-delay:${B + .05}s;font-size:300px;letter-spacing:-12px" ><span class="grad">30</span></div>
+  <div class="say up" style="animation-delay:${B + .35}s;margin-top:10px">días sin<br>gastos hormiga.</div>`);
+// 2 · NO
+const t2 = 2 * B;
+h += sc(2, 'full', `<div class="lbl up" style="animation-delay:${t2 + .05}s;color:var(--bad)">REGLA 1 · NO</div>
+  ${['Domicilios', 'Antojos', 'Compras por impulso'].map((x, k) => `<div class="chip drop" style="animation-delay:${t2 + .3 + k * .45}s"><span class="x"></span><span class="strike" style="animation-delay:${t2 + .55 + k * .45}s">${x}</span></div>`).join('')}`);
+// 3 · GUARDA
+const t3 = 3 * B;
+h += sc(3, 'full', `<div class="lbl up" style="animation-delay:${t3 + .05}s;color:var(--ok)">REGLA 2 · GUARDA</div>
+  <div class="say up" style="animation-delay:${t3 + .2}s;margin-top:30px;font-size:84px">Lo que no gastes,<br><span class="grad">va para el ahorro.</span></div>
+  <div class="chip ok drop" style="animation-delay:${t3 + 1.1}s;margin-top:60px"><span class="v"></span>Ahorro del día <b style="color:var(--save);margin-left:10px">+$15.000</b></div>`);
+// 4-6 · calendario que se llena (10 s a 17.5 s)
+const t4 = 4 * B, paso = 7.0 / 30;
+let celdas = '', cnt = '', dia = '';
+for (let i = 1; i <= 30; i++) {
+  const ti = t4 + .4 + (i - 1) * paso, fin = (i < 30 ? paso : 7.5 - .4 - 29 * paso + 0.01);
+  celdas += `<div class="d">${i}<i style="animation-delay:${ti}s">${i}</i></div>`;
+  cnt += `<span style="animation:win ${fin}s linear ${ti}s"><b>${fmt(i * 15000)}</b></span>`;
+  dia += `<span style="animation:win ${fin}s linear ${ti}s">DÍA ${i} · AHORRADO</span>`;
+}
+h += sc(4, 'full', `<div class="say up" style="animation-delay:${t4 + .05}s;font-size:64px;letter-spacing:-1.5px">$15.000 al día<br>que <span class="grad">no gastas</span></div>
+  <div class="cal">${celdas}</div>
+  <div class="dia" style="margin-top:40px">${dia}</div>
+  <div class="cnt">${cnt}</div>`, 3 * B);
+// 7 · revelación
+const t7 = 7 * B;
+h += sc(7, 'full', `<div class="lbl up" style="animation-delay:${t7 + .05}s;color:var(--save)">EN 30 DÍAS</div>
+  <div class="shake" style="animation-delay:${t7 + .3}s"><div class="big pop" style="animation-delay:${t7 + .3}s;font-size:190px;margin-top:30px;color:var(--save)">$450.000</div></div>`, B, 'background:radial-gradient(900px 900px at 50% 45%,#3a2a0c,var(--bg) 70%)');
+// 8 · sin ganar más
+const t8 = 8 * B;
+h += sc(8, 'full', `<div class="say up" style="animation-delay:${t8 + .05}s;font-size:110px">Sin ganar<br><span class="grad">un peso más.</span></div>`);
+// 9 · comenta YO
+const t9 = 9 * B;
+h += sc(9, 'full mag', `<div class="say up" style="animation-delay:${t9 + .05}s;font-size:80px">Comenta</div>
+  <div class="big pop" style="animation-delay:${t9 + .4}s;font-size:300px;letter-spacing:-12px;color:var(--bg)">YO</div>
+  <div class="say up" style="animation-delay:${t9 + .9}s;font-size:64px;letter-spacing:-1.5px">y lo hacemos juntos.</div>`);
+// 10 · Con Eva
+const t10 = 10 * B;
+h += sc(10, 'full', `<div class="say up" style="animation-delay:${t10 + .05}s;font-size:76px">Con Eva, ves cuánto<br><span class="grad">llevas cada día.</span></div>
+  <div class="phone up" style="animation-delay:${t10 + .4}s"><div class="t">META · RETO 30 DÍAS</div><div class="n">$270.000</div><div class="bar"><i style="animation-delay:${t10 + .8}s"></i></div><div class="k"><span>Día 18 de 30</span><span>Meta $450.000</span></div></div>`);
+// 11 · cierre
+const t11 = 11 * B;
+h += sc(11, 'full mag', `<img class="wm" src="marca/eva-silueta-blanca.svg">
+  <div class="up" style="animation-delay:${t11 + .05}s;font-size:84px;font-weight:900;letter-spacing:-2.5px;position:relative">¿Te le mides?</div>
+  <div class="logo pop" style="animation-delay:${t11 + .6}s;margin-top:50px;position:relative"><span class="E">E</span><span class="va">va</span></div>
+  <div class="pill pop" style="animation-delay:${t11 + 1.2}s;position:relative">evafinanzas<span>.us</span></div>
+  <div class="up" style="animation-delay:${t11 + 1.7}s;font-size:44px;font-weight:800;margin-top:40px;color:#fff;position:relative">Prueba <b style="background:rgba(11,7,18,.85);padding:6px 18px;border-radius:14px;color:var(--save)">7 días gratis</b></div>`, 5);
+document.getElementById('root').innerHTML = h;
+</script>
+</body>
+</html>

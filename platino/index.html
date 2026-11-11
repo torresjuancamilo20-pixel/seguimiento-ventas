@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Membresía Platino · Nexus</title>
+<meta name="description" content="Membresía Platino de Nexus — Licencia 1 año. Sesiones semanales en vivo, Masterclass TraderX, señales en vivo y clases avanzadas privadas.">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
+:root{
+  /* paleta PLATINO / PLATA sobre NEGRO */
+  --plat1:#fdfdfd;--plat2:#dcdfe3;--plat3:#b7bcc4;--plat4:#8b9199;--plat5:#6b7077;
+  --bg:#050607;--bg2:#0b0d10;--card:#121418;--line:#23262c;--mut:#9aa0a8;--txt:#f3f5f7
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;line-height:1.55}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:
+ radial-gradient(1000px 600px at 50% -8%,rgba(220,223,227,.14),transparent 60%),
+ radial-gradient(760px 520px at 12% 96%,rgba(183,188,196,.08),transparent 60%),
+ linear-gradient(180deg,#0b0d10,#000)}
+.bg::after{content:"";position:absolute;inset:0;opacity:.05;background-image:
+ radial-gradient(circle at 50% 50%,rgba(220,223,227,.6) 1px,transparent 1.4px);background-size:30px 30px}
+
+.wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:0 20px}
+section{position:relative;z-index:1}
+
+/* plata metálica reutilizable */
+.silver{background:linear-gradient(135deg,#fff 0%,#dcdfe3 22%,#b7bcc4 44%,#f2f4f6 60%,#9ca2aa 78%,#d7dadf 100%)}
+.silver-txt{background:linear-gradient(180deg,#ffffff,#d3d7dc 48%,#9ca2aa);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* ---------- NAV ---------- */
+header.nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);background:rgba(5,6,7,.72);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:66px}
+.brand{display:flex;align-items:center;gap:11px}
+.brand .mk{font-family:'Montserrat';font-weight:800;font-size:26px;letter-spacing:-.04em;color:#fff;line-height:1}
+.brand .tx{font-family:'Montserrat';font-weight:600;letter-spacing:.34em;font-size:12px;color:var(--plat3)}
+.navright{font-family:'Montserrat';font-weight:700;letter-spacing:.3em;font-size:12.5px;color:var(--plat2)}
+.burger{display:none;background:none;border:1px solid var(--line);border-radius:9px;color:#fff;padding:8px 11px;font-size:18px;cursor:pointer}
+
+/* ---------- HERO ---------- */
+.hero{text-align:center;padding:56px 0 30px}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:7px 15px;border:1px solid rgba(220,223,227,.35);border-radius:30px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--plat2);margin-bottom:24px}
+.hero h1{font-family:'Montserrat';font-weight:900;font-size:clamp(30px,6vw,54px);line-height:1.04;letter-spacing:-.01em;margin-bottom:14px}
+.hero p.lead{max-width:600px;margin:0 auto 6px;color:var(--mut);font-size:clamp(15px,2.4vw,17px)}
+
+/* ---------- TARJETA PLATINO ---------- */
+.cardwrap{display:flex;justify-content:center;margin:34px 0 10px;perspective:1400px}
+.pcard{position:relative;width:min(560px,92vw);aspect-ratio:1.586/1;border-radius:22px;
+  transform:rotate(-7deg) rotateY(6deg);
+  box-shadow:0 40px 80px rgba(0,0,0,.65),0 6px 18px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.7);
+  overflow:hidden;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.pcard:hover{transform:rotate(-2deg) rotateY(0deg) scale(1.02)}
+.pcard .sheen{position:absolute;inset:0;background:
+  linear-gradient(115deg,#ffffff 0%,#e7eaee 16%,#c3c8cf 34%,#f4f6f8 50%,#aab0b8 66%,#e2e5e9 82%,#c9ced4 100%)}
+.pcard .gloss{position:absolute;inset:0;background:
+  linear-gradient(115deg,transparent 30%,rgba(255,255,255,.55) 46%,rgba(255,255,255,0) 58%)}
+.pcard .inner{position:absolute;inset:0;padding:clamp(18px,4.5vw,34px);display:flex;flex-direction:column;justify-content:space-between;color:#15181c}
+.pcard .ctop{display:flex;justify-content:space-between;align-items:flex-start}
+.pcard .clogo{font-family:'Montserrat';font-weight:800;font-size:clamp(20px,5vw,30px);letter-spacing:-.04em}
+.pcard .clogo small{font-weight:600;font-size:.4em;letter-spacing:.34em;vertical-align:super;margin-left:4px}
+.pcard .chip{width:clamp(42px,9vw,58px);height:clamp(32px,6.6vw,42px);border-radius:7px;
+  background:linear-gradient(135deg,#d9c98a,#b89a50 50%,#e8dca6);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+.pcard .chip div{width:100%;height:100%;border-radius:7px;
+  background-image:linear-gradient(90deg,rgba(0,0,0,.22) 1px,transparent 1px),linear-gradient(0deg,rgba(0,0,0,.22) 1px,transparent 1px);
+  background-size:33% 50%}
+.pcard .cbody .mini{font-family:'Montserrat';font-weight:700;letter-spacing:.3em;font-size:clamp(11px,2.6vw,15px);color:#2a2e33}
+.pcard .cbody .big{font-family:'Montserrat';font-weight:900;font-size:clamp(40px,12vw,86px);line-height:.92;letter-spacing:-.02em;color:#101317}
+.pcard .cbody .lic{font-family:'Montserrat';font-weight:700;letter-spacing:.24em;font-size:clamp(11px,2.6vw,15px);color:#3a3f45;margin-top:6px}
+
+/* ---------- BANNER 3 SESIONES ---------- */
+.banner{margin:30px auto 0;max-width:960px;border-radius:20px;padding:22px 28px;display:flex;align-items:center;gap:22px;
+  box-shadow:0 20px 50px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.4) inset;color:#15181c}
+.banner .num{font-family:'Montserrat';font-weight:900;font-size:clamp(50px,12vw,78px);line-height:.8;letter-spacing:-.03em}
+.banner .bt h3{font-family:'Montserrat';font-weight:800;font-size:clamp(18px,4vw,30px);letter-spacing:.01em;text-transform:uppercase}
+.banner .bt p{font-family:'Montserrat';font-weight:700;color:#3a3f45;font-size:clamp(13px,2.6vw,17px)}
+
+/* ---------- GRID BENEFICIOS ---------- */
+.sec{padding:34px 0}
+.feats{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;max-width:960px;margin:0 auto}
+@media(max-width:620px){.feats{grid-template-columns:1fr}}
+.feat{background:linear-gradient(180deg,rgba(26,28,33,.9),rgba(16,18,21,.9));border:1px solid var(--line);border-radius:16px;padding:20px 22px;display:flex;align-items:center;gap:16px;transition:.18s}
+.feat:hover{border-color:rgba(220,223,227,.45);transform:translateY(-2px)}
+.feat .ic{flex:0 0 auto;width:48px;height:48px;border-radius:12px;background:linear-gradient(180deg,#2a2d33,#1a1c20);border:1px solid var(--line);display:grid;place-items:center;color:var(--plat2)}
+.feat .ic svg{width:22px;height:22px}
+.feat h4{font-family:'Montserrat';font-weight:700;font-size:17px;line-height:1.15}
+.feat p{color:var(--mut);font-size:13.5px;margin-top:3px}
+
+/* ---------- CTA ---------- */
+.ctaband{text-align:center;padding:48px 0 20px}
+.btn{display:inline-block;padding:16px 36px;border:none;border-radius:13px;font-family:'Montserrat';font-weight:800;font-size:16px;letter-spacing:.02em;cursor:pointer;transition:.15s;color:#15181c}
+.btn.silver{box-shadow:0 14px 34px rgba(220,223,227,.18),inset 0 1px 0 rgba(255,255,255,.8)}
+.btn.silver:hover{filter:brightness(1.04);transform:translateY(-1px)}
+.ctaband .note{color:var(--mut);font-size:13px;margin-top:16px}
+
+/* ---------- RIESGO ---------- */
+.risk{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:14px;padding:20px 24px;margin:20px auto 0;max-width:860px}
+.risk p{color:var(--plat4);font-size:12.5px}
+.risk b{color:var(--plat2)}
+
+/* ---------- FOOTER ---------- */
+footer{border-top:1px solid var(--line);margin-top:40px;padding:30px 0 50px;text-align:center}
+footer .site{font-family:'Montserrat';font-weight:700;letter-spacing:.26em;font-size:14px;color:var(--plat2)}
+footer .cp{color:#555b62;font-size:12.5px;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="wrap">
+    <div class="brand"><div class="mk">NX<small>NEXUS</small></div></div>
+    <div class="navright">MEMBRESÍA</div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero wrap">
+  <div class="badge">Nivel Platino</div>
+  <h1>Membresía <span class="silver-txt">Platino</span></h1>
+  <p class="lead">El nivel más completo de la comunidad Nexus. Acompañamiento, formación y sesiones en vivo durante un año.</p>
+
+  <!-- TARJETA -->
+  <div class="cardwrap">
+    <div class="pcard">
+      <div class="sheen"></div>
+      <div class="gloss"></div>
+      <div class="inner">
+        <div class="ctop">
+          <div class="clogo">NX<small>NEXUS</small></div>
+          <div class="chip"><div></div></div>
+        </div>
+        <div class="cbody">
+          <div class="mini">MIEMBRO</div>
+          <div class="big">PLATINO</div>
+          <div class="lic">LICENCIA 1 AÑO</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BANNER 3 SESIONES -->
+<section class="wrap">
+  <div class="banner silver">
+    <div class="num">3</div>
+    <div class="bt">
+      <h3>Sesiones semanales en vivo</h3>
+      <p>Con Juan Facundo</p>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFICIOS -->
+<section class="sec wrap">
+  <div class="feats">
+    <div class="feat">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <div><h4>Todos los beneficios VIP</h4><p>Incluidos</p></div>
+    </div>
+    <div class="feat">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="m10 8 4 2-4 2V8Z"/></svg></div>
+      <div><h4>Masterclass TraderX</h4><p>Con Juan Facundo</p></div>
+    </div>
+    <div class="feat">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+      <div><h4>Señales en vivo L–V</h4><p>10:00 AM</p></div>
+    </div>
+    <div class="feat">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg></div>
+      <div><h4>Señales en vivo L–J</h4><p>7:30 PM</p></div>
+    </div>
+    <div class="feat">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H8l-4 3V5Z"/></svg></div>
+      <div><h4>Clases avanzadas privadas</h4><p>Exclusivas</p></div>
+    </div>
+    <div class="feat">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg></div>
+      <div><h4>Mayor % de efectividad</h4><p>En las señales</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="ctaband wrap">
+  <a href="#" class="btn silver" id="ctaPago">Quiero ser Miembro Platino</a>
+  <p class="note">Licencia por 1 año · Cupos limitados por grupo</p>
+
+  <div class="risk">
+    <p><b>Aviso:</b> el trading implica riesgo de pérdida de capital. Este es contenido educativo y de acompañamiento, no asesoría financiera garantizada. Resultados pasados no garantizan resultados futuros.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="site">COMUNIDADNEXUS.COM.CO</div>
+    <div class="cp">© <span id="yr"></span> Nexus. Todos los derechos reservados.</div>
+  </div>
+</footer>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+document.getElementById('ctaPago').addEventListener('click', function(e){
+  e.preventDefault();
+  // Reemplaza por tu enlace real de pago/inscripción:
+  // window.location.href = 'https://TU-LINK-DE-PAGO';
+  alert('Conecta aquí tu enlace de pago o formulario de inscripción.');
+});
+</script>
+</body>
+</html>

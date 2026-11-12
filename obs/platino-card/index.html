@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OBS · Tarjeta Platino (loop, transparente)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap');
+/* Fondo TRANSPARENTE para OBS (Browser Source respeta el alfa) */
+html,body{margin:0;height:100%;background:transparent;overflow:hidden}
+*{box-sizing:border-box}
+
+.stage{position:fixed;inset:0;display:grid;place-items:center;perspective:1600px}
+.float{animation:float 5s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-14px)}}
+
+.spin{transform-style:preserve-3d;animation:spin 7s linear infinite}
+@keyframes spin{to{transform:rotateY(360deg)}}
+
+.pcard{position:relative;width:560px;aspect-ratio:1.586/1;border-radius:26px;
+  transform-style:preserve-3d;
+  box-shadow:0 46px 90px rgba(0,0,0,.55),0 6px 18px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.75);
+  overflow:hidden;backface-visibility:hidden}
+/* cara trasera (para que al girar no se vea hueca) */
+.pback{position:absolute;inset:0;border-radius:26px;transform:rotateY(180deg);backface-visibility:hidden;overflow:hidden;
+  box-shadow:0 46px 90px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.4)}
+
+.sheen{position:absolute;inset:0;background:
+  linear-gradient(115deg,#fff6d5 0%,#f7d774 16%,#e0a800 34%,#fff2c2 50%,#b8860b 66%,#f5d77a 82%,#d9b44a 100%)}
+.pback .sheen{filter:brightness(.92)}
+.shine{position:absolute;top:0;left:-60%;width:48%;height:100%;
+  background:linear-gradient(115deg,transparent,rgba(255,255,255,.7),transparent);
+  transform:skewX(-18deg);animation:sweep 3.4s ease-in-out infinite}
+@keyframes sweep{0%,55%{left:-60%}78%,100%{left:170%}}
+
+.inner{position:absolute;inset:0;padding:34px;display:flex;flex-direction:column;justify-content:space-between;color:#15181c}
+.ctop{display:flex;justify-content:space-between;align-items:flex-start}
+.clogo{font-family:'Montserrat';font-weight:800;font-size:30px;letter-spacing:-.04em}
+.clogo small{font-weight:600;font-size:.4em;letter-spacing:.34em;vertical-align:super;margin-left:4px}
+.chip{width:58px;height:42px;border-radius:7px;background:linear-gradient(135deg,#f3e3a0,#c79b2e 50%,#fbefc0);box-shadow:inset 0 0 0 1px rgba(0,0,0,.22)}
+.chip div{width:100%;height:100%;border-radius:7px;
+  background-image:linear-gradient(90deg,rgba(0,0,0,.22) 1px,transparent 1px),linear-gradient(0deg,rgba(0,0,0,.22) 1px,transparent 1px);background-size:33% 50%}
+.mini{font-family:'Montserrat';font-weight:700;letter-spacing:.3em;font-size:15px;color:#2a2e33}
+.big{font-family:'Montserrat';font-weight:900;font-size:84px;line-height:.92;letter-spacing:-.02em;color:#101317}
+.lic{font-family:'Montserrat';font-weight:700;letter-spacing:.24em;font-size:15px;color:#3a3f45;margin-top:6px}
+
+/* reverso: logo centrado */
+.pback .bk{position:absolute;inset:0;display:grid;place-items:center}
+.pback .bk .lg{font-family:'Montserrat';font-weight:800;font-size:60px;letter-spacing:-.04em;color:#15181c;opacity:.85}
+.pback .bk .lg small{font-weight:600;font-size:.32em;letter-spacing:.34em;vertical-align:super;margin-left:6px}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="float">
+    <div class="spin">
+      <!-- FRENTE -->
+      <div class="pcard">
+        <div class="sheen"></div>
+        <div class="shine"></div>
+        <div class="inner">
+          <div class="ctop">
+            <div class="clogo">NX<small>NEXUS</small></div>
+            <div class="chip"><div></div></div>
+          </div>
+          <div>
+            <div class="mini">MIEMBRO</div>
+            <div class="big">ORO</div>
+            <div class="lic">LICENCIA 1 AÑO</div>
+          </div>
+        </div>
+      </div>
+      <!-- REVERSO -->
+      <div class="pback">
+        <div class="sheen"></div>
+        <div class="bk"><div class="lg">NX<small>NEXUS</small></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

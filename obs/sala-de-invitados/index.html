@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OBS · Sala de Invitados (loop, transparente)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap');
+/* Fondo TRANSPARENTE para OBS */
+html,body{margin:0;height:100%;background:transparent;overflow:hidden;font-family:'Montserrat',sans-serif}
+*{box-sizing:border-box}
+
+.stage{position:fixed;inset:0;display:grid;place-items:center}
+.plate{position:relative;display:flex;flex-direction:column;align-items:center;gap:26px;padding:10px}
+
+/* logo pequeño arriba */
+.logo{font-weight:800;font-size:30px;letter-spacing:-.04em;color:#fff4cf;opacity:.95}
+.logo small{font-weight:600;font-size:.4em;letter-spacing:.34em;vertical-align:super;margin-left:4px;color:#e0a800}
+
+/* línea decorativa */
+.rule{display:flex;align-items:center;gap:14px;opacity:.9}
+.rule .ln{width:120px;height:2px;background:linear-gradient(90deg,transparent,#e0a800);border-radius:2px}
+.rule .ln.r{background:linear-gradient(90deg,#e0a800,transparent)}
+.rule .dot{width:8px;height:8px;border-radius:50%;background:#f5c518;box-shadow:0 0 12px rgba(245,197,24,.9);animation:dot 2.4s ease-in-out infinite}
+@keyframes dot{50%{opacity:.4;transform:scale(.7)}}
+
+/* TITULO con brillo metálico en loop */
+.title{position:relative;font-weight:900;font-size:clamp(48px,9vw,120px);line-height:1;letter-spacing:.02em;text-transform:uppercase;
+  background:linear-gradient(100deg,#b8860b 0%,#fff6d5 20%,#f5c518 38%,#fff2c2 50%,#e0a800 66%,#ffe98a 82%,#b8860b 100%);
+  background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 6px 22px rgba(0,0,0,.55));
+  animation:shimmer 4.5s linear infinite}
+@keyframes shimmer{to{background-position:-200% 0}}
+.title .sub{display:block;font-weight:700;font-size:.3em;letter-spacing:.5em;color:#e0a800;-webkit-text-fill-color:#e0a800;margin-top:14px;text-align:center;padding-left:.5em}
+
+/* respiración sutil del conjunto */
+.breathe{animation:breathe 6s ease-in-out infinite}
+@keyframes breathe{50%{transform:translateY(-8px)}}
+
+@media(prefers-reduced-motion:reduce){.title,.dot,.breathe{animation:none}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="plate breathe">
+    <div class="logo">NX<small>NEXUS</small></div>
+    <div class="rule"><span class="ln"></span><span class="dot"></span><span class="ln r"></span></div>
+    <div class="title">Sala de<br>Invitados</div>
+    <div class="rule"><span class="ln"></span><span class="dot"></span><span class="ln r"></span></div>
+  </div>
+</div>
+</body>
+</html>

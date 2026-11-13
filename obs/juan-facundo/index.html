@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OBS · Juan Facundo (loop, transparente)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap');
+/* Fondo TRANSPARENTE para OBS */
+html,body{margin:0;height:100%;background:transparent;overflow:hidden;font-family:'Montserrat',sans-serif}
+*{box-sizing:border-box}
+
+.stage{position:fixed;inset:0;display:grid;place-items:center}
+.plate{display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;padding:14px}
+.breathe{animation:breathe 6s ease-in-out infinite}
+@keyframes breathe{50%{transform:translateY(-8px)}}
+
+/* trofeo/corona */
+.crown{width:104px;height:104px;display:grid;place-items:center;border-radius:50%;
+  background:radial-gradient(circle at 38% 30%,rgba(245,197,24,.3),rgba(245,197,24,.06) 70%);
+  border:2px solid rgba(245,197,24,.55);box-shadow:0 0 44px rgba(245,197,24,.3);animation:glow 2.6s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 70px rgba(245,197,24,.55)}}
+.crown svg{width:52px;height:52px;color:#f5c518}
+
+.name{font-weight:900;font-size:clamp(44px,8vw,96px);line-height:.95;letter-spacing:.02em;text-transform:uppercase;
+  background:linear-gradient(100deg,#b8860b 0%,#fff6d5 20%,#f5c518 38%,#fff2c2 50%,#e0a800 66%,#ffe98a 82%,#b8860b 100%);
+  background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 6px 24px rgba(0,0,0,.6));animation:shimmer 4.5s linear infinite}
+@keyframes shimmer{to{background-position:-200% 0}}
+
+/* pill TRADER TOP 1 LATAM */
+.pill{display:inline-flex;align-items:center;gap:12px;padding:14px 30px;border-radius:40px;
+  font-weight:800;font-size:clamp(18px,2.8vw,30px);letter-spacing:.14em;text-transform:uppercase;color:#1a1400;
+  background:linear-gradient(180deg,#ffe98a,#f5c518);box-shadow:0 10px 30px rgba(245,197,24,.35),inset 0 1px 0 rgba(255,255,255,.7)}
+.pill .star{font-size:1.1em}
+
+/* línea decorativa */
+.rule{display:flex;align-items:center;gap:14px;opacity:.95}
+.rule .ln{width:120px;height:2px;background:linear-gradient(90deg,transparent,#e0a800);border-radius:2px}
+.rule .ln.r{background:linear-gradient(90deg,#e0a800,transparent)}
+.rule .dot{width:9px;height:9px;border-radius:50%;background:#f5c518;box-shadow:0 0 14px rgba(245,197,24,.9);animation:dot 2.4s ease-in-out infinite}
+@keyframes dot{50%{opacity:.4;transform:scale(.7)}}
+
+/* crédito */
+.credit{font-weight:700;font-size:clamp(13px,1.7vw,18px);letter-spacing:.26em;text-transform:uppercase;color:#cdb978}
+
+@media(prefers-reduced-motion:reduce){.name,.dot,.breathe,.crown{animation:none}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="plate breathe">
+    <div class="crown">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8l4 4 5-7 5 7 4-4-2 11H5L3 8Z"/><path d="M5 19h14"/></svg>
+    </div>
+    <div class="name">Juan Facundo</div>
+    <div class="pill"><span class="star">★</span> Trader Top 1 LATAM</div>
+    <div class="rule"><span class="ln"></span><span class="dot"></span><span class="ln r"></span></div>
+    <div class="credit">Reconocido por IQ Option · 2025</div>
+  </div>
+</div>
+</body>
+</html>

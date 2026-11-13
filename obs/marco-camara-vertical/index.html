@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OBS · Marco de cámara Oro VERTICAL 1080x1920 (loop, transparente)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap');
+/* Fondo TRANSPARENTE para OBS — el centro queda hueco para ver la cámara */
+html,body{margin:0;width:100%;height:100%;background:transparent;overflow:hidden;font-family:'Montserrat',sans-serif}
+*{box-sizing:border-box}
+
+.frame{position:fixed;inset:0}
+
+/* Borde dorado principal (doble línea) */
+.border{position:absolute;inset:18px;border-radius:22px;
+  border:3px solid transparent;
+  background:
+    linear-gradient(#0000,#0000) padding-box,
+    linear-gradient(135deg,#b8860b,#fff2c2 25%,#f5c518 50%,#fff6d5 72%,#b8860b) border-box;
+  box-shadow:0 0 34px rgba(245,197,24,.25),inset 0 0 26px rgba(245,197,24,.12)}
+.border::after{content:"";position:absolute;inset:7px;border-radius:16px;border:1px solid rgba(245,197,24,.45)}
+
+/* Esquinas decorativas */
+.corner{position:absolute;width:74px;height:74px;pointer-events:none}
+.corner::before,.corner::after{content:"";position:absolute;background:linear-gradient(90deg,#fff2c2,#e0a800);border-radius:3px;box-shadow:0 0 10px rgba(245,197,24,.55)}
+.corner::before{width:100%;height:4px}
+.corner::after{width:4px;height:100%}
+.corner.tl{top:8px;left:8px}       .corner.tl::before{top:0;left:0}      .corner.tl::after{top:0;left:0}
+.corner.tr{top:8px;right:8px}      .corner.tr::before{top:0;right:0}     .corner.tr::after{top:0;right:0}
+.corner.bl{bottom:8px;left:8px}    .corner.bl::before{bottom:0;left:0}   .corner.bl::after{bottom:0;left:0}
+.corner.br{bottom:8px;right:8px}   .corner.br::before{bottom:0;right:0}  .corner.br::after{bottom:0;right:0}
+/* diamante en cada esquina */
+.corner i{position:absolute;width:12px;height:12px;background:linear-gradient(135deg,#fff6d5,#f5c518 55%,#b8860b);transform:rotate(45deg);box-shadow:0 0 12px rgba(245,197,24,.8);animation:tw 2.6s ease-in-out infinite}
+.corner.tl i{top:-6px;left:-6px} .corner.tr i{top:-6px;right:-6px} .corner.bl i{bottom:-6px;left:-6px} .corner.br i{bottom:-6px;right:-6px}
+@keyframes tw{50%{opacity:.45;transform:rotate(45deg) scale(.8)}}
+
+/* Brillo que recorre el borde */
+.sheen{position:absolute;inset:18px;border-radius:22px;overflow:hidden;pointer-events:none;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;padding:3px}
+.sheen span{position:absolute;top:-40%;left:-30%;width:40%;height:180%;transform:rotate(18deg);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.85),transparent);
+  animation:run 4.5s ease-in-out infinite}
+@keyframes run{0%{left:-40%}60%,100%{left:130%}}
+
+/* Placa de nombre abajo (opcional) */
+.plate{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);
+  display:flex;align-items:center;gap:12px;padding:9px 24px;border-radius:30px;
+  background:linear-gradient(180deg,#ffe98a,#f5c518);color:#1a1400;
+  font-weight:800;font-size:17px;letter-spacing:.22em;text-transform:uppercase;
+  box-shadow:0 10px 26px rgba(245,197,24,.4),inset 0 1px 0 rgba(255,255,255,.7)}
+.plate .liv{width:9px;height:9px;border-radius:50%;background:#c0392b;box-shadow:0 0 0 0 rgba(192,57,43,.7);animation:pulse 1.6s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 9px rgba(192,57,43,0)}100%{box-shadow:0 0 0 0 rgba(192,57,43,0)}}
+
+@media(prefers-reduced-motion:reduce){.sheen span,.corner i,.plate .liv{animation:none}}
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="border"></div>
+  <div class="sheen"><span></span></div>
+  <div class="corner tl"><i></i></div>
+  <div class="corner tr"><i></i></div>
+  <div class="corner bl"><i></i></div>
+  <div class="corner br"><i></i></div>
+  <div class="plate"><span class="liv"></span> NEXUS</div>
+</div>
+</body>
+</html>

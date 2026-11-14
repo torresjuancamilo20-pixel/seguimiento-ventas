@@ -170,6 +170,17 @@ footer a:hover{color:#fff}
 }
 @media (max-width:480px){ nav .login{display:none} }
 @media (prefers-reduced-motion:reduce){ .rv{opacity:1;transform:none;transition:none} html{scroll-behavior:auto} }
+.paymod{position:fixed;inset:0;z-index:200;background:rgba(5,3,10,.72);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:16px}
+.paymod.on{display:flex}
+.pm-card{position:relative;width:100%;max-width:440px;background:#140e1d;border:1px solid var(--line);border-radius:24px;padding:26px 22px 20px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.pm-x{position:absolute;right:14px;top:10px;background:none;border:0;color:var(--mut);font-size:1.8rem;cursor:pointer;line-height:1}
+.pm-plan{font-size:.8rem;font-weight:800;letter-spacing:.5px;color:#f06ce0;text-transform:uppercase}
+.pm-card h3{font-size:1.35rem;font-weight:900;margin:6px 0 16px}
+.pm-op{display:block;width:100%;text-align:left;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:10px;color:var(--txt);font:inherit;cursor:pointer;text-decoration:none}
+.pm-op:hover{border-color:var(--mag);background:rgba(226,75,216,.08)}
+.pm-op b{display:block;font-size:1rem}
+.pm-op span{display:block;font-size:.8rem;color:var(--mut);margin-top:3px}
+.pm-fine{font-size:.78rem;color:var(--mut);text-align:center;margin-top:8px}
 </style>
 </head>
 <body>
@@ -329,7 +340,7 @@ footer a:hover{color:#fff}
         </div>
       </div>
     </div>
-    <p class="fine" style="text-align:center;margin-top:22px">Pagas primero y, al terminar, creas tu contraseña para entrar. ¿Ya tienes cuenta? <a href="/" style="text-decoration:underline">Inicia sesión</a>.<br>¿No tienes tarjeta? <a href="/?registro=1" style="text-decoration:underline">Crea tu cuenta y paga por transferencia (Bre-B)</a>.</p>
+    <p class="fine" style="text-align:center;margin-top:22px">Paga con tarjeta o por transferencia Bre-B. Primero pagas y después creas tu contraseña para entrar. ¿Ya tienes cuenta? <a href="/" style="text-decoration:underline">Inicia sesión</a>.</p>
   </div>
 </section>
 
@@ -374,6 +385,18 @@ footer a:hover{color:#fff}
   </div>
 </footer>
 
+<!-- Elegir cómo pagar -->
+<div class="paymod" id="paymod" aria-hidden="true">
+  <div class="pm-card" role="dialog" aria-modal="true" aria-labelledby="pmTit">
+    <button class="pm-x" id="pmX" aria-label="Cerrar">×</button>
+    <div class="pm-plan" id="pmPlan"></div>
+    <h3 id="pmTit">¿Cómo quieres pagar?</h3>
+    <button class="pm-op" id="pmTarjeta"><b>Tarjeta de crédito o débito</b><span>Pago seguro con Stripe · tu plan queda activo al instante</span></button>
+    <a class="pm-op" id="pmBreb" href="/pagar/"><b>Transferencia Bre-B</b><span>Desde la app de tu banco o billetera en Colombia · en pesos, con IVA incluido</span></a>
+    <p class="pm-fine">Primero pagas y luego creas tu contraseña para entrar a Eva.</p>
+  </div>
+</div>
+
 <div class="sticky-cta" id="sticky"><span>Eva <small>· 9,99 USD/mes</small></span><a href="#precio" class="btn sm">Empieza ahora</a></div>
 
 <script>
@@ -386,17 +409,29 @@ document.querySelectorAll('.rv').forEach(el=>io.observe(el));
 // Botón fijo en celular después del hero
 const st=document.getElementById('sticky'), hero=document.querySelector('.hero');
 new IntersectionObserver(([e])=>st.classList.toggle('show',!e.isIntersecting)).observe(hero);
-// Pagar sin crear cuenta: va directo a Stripe; la contraseña se crea después del pago
-document.querySelectorAll('[data-pagar]').forEach(a=>a.addEventListener('click',async e=>{
-  e.preventDefault();
-  const t=a.textContent; a.textContent='Abriendo pago seguro…'; a.style.pointerEvents='none';
+// Elegir plan -> elegir cómo pagar (tarjeta o Bre-B). En los dos casos se paga primero y luego se crea la cuenta.
+const pm=document.getElementById('paymod'); let pmPlan='anual';
+function abrirPago(plan){
+  pmPlan=plan;
+  document.getElementById('pmPlan').textContent = plan==='anual' ? 'Plan anual · $69 USD al año' : 'Plan mensual · $9,99 USD al mes';
+  document.getElementById('pmBreb').href='/pagar/?plan='+plan;
+  pm.classList.add('on'); pm.setAttribute('aria-hidden','false');
+}
+function cerrarPago(){ pm.classList.remove('on'); pm.setAttribute('aria-hidden','true'); }
+document.getElementById('pmX').onclick=cerrarPago;
+pm.addEventListener('click',e=>{ if(e.target===pm) cerrarPago(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') cerrarPago(); });
+document.querySelectorAll('[data-pagar]').forEach(a=>a.addEventListener('click',e=>{ e.preventDefault(); abrirPago(a.dataset.pagar); }));
+document.getElementById('pmTarjeta').onclick=async()=>{
+  const b=document.getElementById('pmTarjeta'), t=b.innerHTML;
+  b.innerHTML='<b>Abriendo pago seguro…</b>'; b.disabled=true;
   try{
-    const r=await fetch('https://fhixjvxztmuifrioevze.supabase.co/functions/v1/checkout-publico',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan:a.dataset.pagar})});
+    const r=await fetch('https://fhixjvxztmuifrioevze.supabase.co/functions/v1/checkout-publico',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan:pmPlan})});
     const j=await r.json();
     if(j.url){ location.href=j.url; return; }
     throw new Error(j.error||'error');
-  }catch(err){ location.href=a.getAttribute('href'); } // si falla, flujo normal con cuenta
-}));
+  }catch(err){ location.href='/?registro=1&plan='+pmPlan; } // si falla, flujo normal con cuenta
+};
 </script>
 </body>
 </html>

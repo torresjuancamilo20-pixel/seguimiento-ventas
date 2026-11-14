@@ -196,11 +196,12 @@ $("brebList").addEventListener("click",async e=>{
   const b=e.target.closest("button[data-id]"); if(!b) return;
   const aprobar=b.dataset.a==="aprobar";
   let nota="";
-  if(aprobar){ if(!confirm("¿Confirmas que ya te llegó la plata de este pago? Se activa el plan.")) return; }
+  if(aprobar){ if(!confirm("¿Confirmas que ya te llegó la plata de este pago? Se activa el plan (y si la persona no tiene cuenta, se le crea y le llega un correo para poner su contraseña).")) return; }
   else { nota=prompt("¿Por qué lo rechazas? (opcional, lo verá el cliente)")||""; }
   b.disabled=true;
   const {status,j}=await accion({accion:aprobar?"aprobar":"rechazar",id:b.dataset.id,nota});
   if(status!==200){ alert(j.error||("Error "+status)); b.disabled=false; return; }
+  if(j.correo_clave) alert("Pago aprobado. Se creó la cuenta y le enviamos un correo para que cree su contraseña.");
   $("refresh").click();
 });
 $("search").addEventListener("input",e=>{ q=e.target.value.toLowerCase().trim(); render(); });
@@ -259,7 +260,7 @@ function renderBreb(){
   if(!T.length){ $("brebList").innerHTML='<div class="muted" style="font-size:.85rem">Todavía no hay pagos por transferencia.</div>'; return; }
   const orden=[...T].sort((a,b)=>(a.estado==="pendiente"?0:1)-(b.estado==="pendiente"?0:1));
   $("brebList").innerHTML=orden.map(t=>`<div class="tr">
-    <div class="who"><b>${esc(t.email)}</b><span class="muted" style="font-size:.8rem">Plan ${esc(t.plan)} · ${fmtFecha(t.created_at)} · TRM ${Number(t.trm).toLocaleString("es-CO")}</span>${t.nota?`<div class="muted" style="font-size:.78rem">Nota: ${esc(t.nota)}</div>`:""}</div>
+    <div class="who"><b>${esc(t.email)}</b><span class="muted" style="font-size:.8rem">${t.sin_cuenta?'<b style="color:#f5a623">Sin cuenta todavía</b> · ':""}Plan ${esc(t.plan)} · ${fmtFecha(t.created_at)} · TRM ${Number(t.trm).toLocaleString("es-CO")}</span>${t.nota?`<div class="muted" style="font-size:.78rem">Nota: ${esc(t.nota)}</div>`:""}</div>
     <div class="amt">${cop(t.monto_cop)}</div>
     ${t.comprobante_url?`<a class="cp" href="${esc(t.comprobante_url)}" target="_blank" rel="noopener">Ver comprobante</a>`:'<span class="muted">sin comprobante</span>'}
     <span class="est ${esc(t.estado)}">${esc(t.estado)}</span>

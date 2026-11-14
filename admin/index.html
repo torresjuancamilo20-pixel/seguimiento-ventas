@@ -64,6 +64,17 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .mc .sub{font-size:.76rem;color:var(--mut);margin-top:4px;font-weight:500}
 .pago-y{color:#86efac;font-weight:800}
 @media(max-width:640px){.mc .v{font-size:1.8rem}}
+.breb{background:var(--panel,#15101f);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;margin-bottom:14px}
+.breb h2{font-size:1.05rem;margin:0 0 4px}
+.breb .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.breb input{flex:1;min-width:180px;background:#1b1426;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 12px;color:#f3eefb;font-size:.9rem}
+.tr{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:12px 0;border-top:1px solid rgba(255,255,255,.06)}
+.tr .who{flex:1;min-width:200px}
+.tr .who b{display:block}
+.tr .amt{font-weight:900;font-size:1.1rem;color:#86efac}
+.tr a.cp{color:#f06ce0;font-weight:700;font-size:.85rem}
+.tr .est{font-size:.75rem;font-weight:800;padding:4px 10px;border-radius:999px}
+.est.pendiente{background:rgba(245,166,35,.15);color:#f5a623}.est.aprobado{background:rgba(34,197,94,.15);color:#86efac}.est.rechazado{background:rgba(239,71,87,.15);color:#ef4757}
 </style>
 </head>
 <body>
@@ -90,6 +101,16 @@ tr:hover td{background:rgba(255,255,255,.02)}
     </div>
   </div>
   <div class="money" id="money"></div>
+  <div class="breb" id="brebBox">
+    <h2>Pagos por transferencia (Bre-B)</h2>
+    <div class="muted" style="font-size:.82rem">El precio en pesos se calcula solo: precio en USD × TRM del día + 19% de IVA. Cuando veas la plata en tu cuenta, aprueba el pago y se le activa el plan.</div>
+    <div class="row">
+      <input id="brebLlave" placeholder="Tu llave Bre-B (celular, cédula, correo o llave alfanumérica)">
+      <input id="brebTitular" placeholder="Nombre del titular (opcional)">
+      <button class="btn sm" id="brebSave">Guardar llave</button>
+    </div>
+    <div id="brebList" style="margin-top:14px"></div>
+  </div>
   <div class="cards" id="cards"></div>
   <div class="filters" id="filters">
     <span class="chip on" data-f="todos">Todos</span>
@@ -118,17 +139,30 @@ const SUPABASE_URL="https://fhixjvxztmuifrioevze.supabase.co";
 const SUPABASE_KEY="sb_publishable_FchHwJHM1BNH-2z-2KXTgg_nZv4CP7d";
 const API=SUPABASE_URL+"/functions/v1/admin-datos";
 const $=id=>document.getElementById(id);
-let DATA=null, filtro="todos", q="", adminEmail="";
+let DATA=null, filtro="todos", q="", adminEmail="", SES="";
+function esc(t){ return String(t??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function cop(n){ return "$"+Number(n||0).toLocaleString("es-CO"); }
 
 function fmtFecha(s){ if(!s) return "—"; const d=new Date(s); return d.toLocaleDateString("es-CO",{day:"2-digit",month:"short",year:"2-digit"}); }
 function subBadge(st){
-  const map={active:["Activa","b-active"],trialing:["Prueba","b-trial"],past_due:["Mora","b-bad"],unpaid:["Sin pago","b-bad"],canceled:["Cancelada","b-bad"],sin_suscripcion:["Sin suscripción","b-none"]};
+  const map={active:["Activa","b-active"],trialing:["Prueba","b-trial"],vencida:["Vencida","b-bad"],past_due:["Mora","b-bad"],unpaid:["Sin pago","b-bad"],canceled:["Cancelada","b-bad"],sin_suscripcion:["Sin suscripción","b-none"]};
   const [t,c]=map[st]||[st,"b-none"]; return `<span class="badge ${c}">${t}</span>`;
 }
-async function pedir(email,codigo){
-  const r=await fetch(API,{method:"POST",headers:{"apikey":SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({email,codigo})});
+async function pedir(email,codigo,extra){
+  const r=await fetch(API,{method:"POST",headers:{"apikey":SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({email,codigo,sesion:SES,...(extra||{})})});
   let j={}; try{ j=await r.json(); }catch(e){}
+  if(j.sesion) SES=j.sesion;
   return {status:r.status,j};
+}
+// Acciones con la sesión abierta (2 h); si venció, pide el código otra vez
+async function accion(extra){
+  let {status,j}=await pedir(adminEmail,"",extra);
+  if(status===401 && j.sesion_vencida){
+    const codigo=(prompt("Tu sesión venció. Código de Google Authenticator (6 dígitos):")||"").trim();
+    if(!/^[0-9]{6}$/.test(codigo)) return {status,j};
+    ({status,j}=await pedir(adminEmail,codigo,extra));
+  }
+  return {status,j};
 }
 function err(t){ $("loginMsg").className="msg err"; $("loginMsg").textContent=t; }
 function mostrarLogin(){ $("login").style.display="block"; $("panel").style.display="none"; }
@@ -145,13 +179,30 @@ $("loginBtn").onclick=async()=>{
 };
 $("codigo").addEventListener("keydown",e=>{ if(e.key==="Enter") $("loginBtn").click(); });
 $("refresh").onclick=async()=>{
-  const codigo=(prompt("Código actual de Google Authenticator (6 dígitos):")||"").trim();
-  if(!/^[0-9]{6}$/.test(codigo)) return;
-  const {status,j}=await pedir(adminEmail,codigo);
+  const {status,j}=await accion({});
   if(status!==200){ alert(j.error||("Error "+status)); return; }
   DATA=j; render();
 };
-$("logout").onclick=()=>{ adminEmail=""; DATA=null; $("codigo").value=""; mostrarLogin(); };
+$("logout").onclick=()=>{ adminEmail=""; DATA=null; SES=""; $("codigo").value=""; mostrarLogin(); };
+$("brebSave").onclick=async()=>{
+  const llave=$("brebLlave").value.trim(), titular=$("brebTitular").value.trim();
+  if(!llave && !confirm("Sin llave se oculta la opción de pagar por transferencia. ¿Continuar?")) return;
+  const {status,j}=await accion({accion:"breb_config",llave,titular});
+  if(status!==200){ alert(j.error||("Error "+status)); return; }
+  alert(llave?"Llave guardada. Ya aparece la opción de pagar por transferencia.":"Pago por transferencia desactivado.");
+  $("refresh").click();
+};
+$("brebList").addEventListener("click",async e=>{
+  const b=e.target.closest("button[data-id]"); if(!b) return;
+  const aprobar=b.dataset.a==="aprobar";
+  let nota="";
+  if(aprobar){ if(!confirm("¿Confirmas que ya te llegó la plata de este pago? Se activa el plan.")) return; }
+  else { nota=prompt("¿Por qué lo rechazas? (opcional, lo verá el cliente)")||""; }
+  b.disabled=true;
+  const {status,j}=await accion({accion:aprobar?"aprobar":"rechazar",id:b.dataset.id,nota});
+  if(status!==200){ alert(j.error||("Error "+status)); b.disabled=false; return; }
+  $("refresh").click();
+});
 $("search").addEventListener("input",e=>{ q=e.target.value.toLowerCase().trim(); render(); });
 $("filters").addEventListener("click",e=>{
   const c=e.target.closest(".chip"); if(!c) return;
@@ -168,7 +219,9 @@ function render(){
   $("money").innerHTML=
     mcard("💰 Recaudado este mes", usd(R.recaudado_mes_usd)+" <small>USD</small>", (R.pagos_mes||0)+" pago(s) este mes")+
     mcard("🔁 Ingreso mensual (MRR)", usd(R.mrr_usd)+" <small>USD/mes</small>", "Lo que entra cada mes de forma recurrente")+
-    mcard("📅 Proyección anual", usd(Math.round((R.mrr_usd||0)*12*100)/100)+" <small>USD/año</small>", "Si se mantienen las suscripciones actuales");
+    mcard("📅 Proyección anual", usd(Math.round((R.mrr_usd||0)*12*100)/100)+" <small>USD/año</small>", "Si se mantienen las suscripciones actuales")+
+    mcard("🏦 Transferencias este mes", cop(R.transferencias_mes_cop)+" <small>COP</small>", (R.transferencias_mes||0)+" aprobada(s) · "+(R.transferencias_pendientes||0)+" por revisar");
+  renderBreb();
   $("cards").innerHTML=
     card("Usuarios totales",R.total,"#e24bd8")+card("Suscritos",R.activos,"#22c55e")+
     card("Sin pagar",R.sin_pago,"#f5a623")+card("Problemas de pago",R.problemas_pago,"#ef4757")+
@@ -197,6 +250,21 @@ function render(){
       `<td class="muted">${fmtFecha(u.ultimo_movimiento)}</td><td class="muted">${fmtFecha(u.ultimo_acceso)}</td>`+
       `<td>${inactTxt}</td><td>${wa}</td><td class="muted">${fmtFecha(u.creado)}</td></tr>`;
   }).join("");
+}
+function renderBreb(){
+  const B=DATA.breb||{}; 
+  if(document.activeElement!==$("brebLlave")) $("brebLlave").value=B.llave||"";
+  if(document.activeElement!==$("brebTitular")) $("brebTitular").value=B.titular||"";
+  const T=DATA.transferencias||[];
+  if(!T.length){ $("brebList").innerHTML='<div class="muted" style="font-size:.85rem">Todavía no hay pagos por transferencia.</div>'; return; }
+  const orden=[...T].sort((a,b)=>(a.estado==="pendiente"?0:1)-(b.estado==="pendiente"?0:1));
+  $("brebList").innerHTML=orden.map(t=>`<div class="tr">
+    <div class="who"><b>${esc(t.email)}</b><span class="muted" style="font-size:.8rem">Plan ${esc(t.plan)} · ${fmtFecha(t.created_at)} · TRM ${Number(t.trm).toLocaleString("es-CO")}</span>${t.nota?`<div class="muted" style="font-size:.78rem">Nota: ${esc(t.nota)}</div>`:""}</div>
+    <div class="amt">${cop(t.monto_cop)}</div>
+    ${t.comprobante_url?`<a class="cp" href="${esc(t.comprobante_url)}" target="_blank" rel="noopener">Ver comprobante</a>`:'<span class="muted">sin comprobante</span>'}
+    <span class="est ${esc(t.estado)}">${esc(t.estado)}</span>
+    ${t.estado==="pendiente"?`<button class="btn sm" data-a="aprobar" data-id="${esc(t.id)}">Aprobar</button><button class="btn ghost sm" data-a="rechazar" data-id="${esc(t.id)}">Rechazar</button>`:""}
+  </div>`).join("");
 }
 mostrarLogin();
 </script>

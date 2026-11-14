@@ -254,6 +254,17 @@
   .paycard .primary{width:100%;padding:14px}
   .mini-txt{font-size:.74rem;margin-top:12px;color:var(--muted)}
   .linkout{background:none;border:0;color:var(--muted);cursor:pointer;margin-top:14px;font-size:.82rem;text-decoration:underline}
+  .tf-open{display:block;width:100%;margin-top:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);color:var(--txt,#f3eefb);border-radius:14px;padding:12px;font:inherit;font-weight:700;font-size:.88rem;cursor:pointer}
+  .tf{margin-top:12px;text-align:left;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:16px}
+  .tf h3{margin:0 0 6px;font-size:1rem}
+  .tf .amt{font-size:1.7rem;font-weight:900;letter-spacing:-.5px}
+  .tf .llave{display:flex;align-items:center;gap:8px;background:#1b1426;border-radius:12px;padding:10px 12px;margin:10px 0;font-weight:800;word-break:break-all}
+  .tf .llave button{margin-left:auto;flex:0 0 auto}
+  .tf ol{margin:8px 0 12px;padding-left:18px;font-size:.84rem;color:var(--muted);line-height:1.5}
+  .tf input[type=file]{width:100%;font-size:.82rem;color:var(--muted);margin-bottom:10px}
+  .tf .estado{border-radius:12px;padding:12px 14px;font-size:.86rem;margin-top:4px}
+  .tf .estado.rev{background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.3);color:#f5d29a}
+  .tf .estado.rech{background:rgba(239,71,87,.1);border:1px solid rgba(239,71,87,.3);color:#f7a5ae;margin-bottom:10px}
   .steps{display:flex;gap:8px;justify-content:center;margin-bottom:18px}
   .stepdot{width:34px;height:5px;border-radius:3px;background:var(--line2)}
   .stepdot.on{background:var(--brand)}
@@ -432,6 +443,25 @@
     </div>
     <button class="primary" id="payBtn" onclick="irAPagar()">Suscribirme</button>
     <p class="mini-txt" id="payNote">Pago seguro con Stripe · Renovación automática · Cancela cuando quieras.<br>Al suscribirte aceptas los <a href="/legal/terminos/" target="_blank" rel="noopener">Términos</a>, la <a href="/legal/privacidad/" target="_blank" rel="noopener">Privacidad</a> y la <a href="/legal/reembolsos/" target="_blank" rel="noopener">Política de Reembolsos</a>.</p>
+    <button class="tf-open" id="tfOpen" style="display:none" onclick="abrirTransferencia()">¿No tienes tarjeta? Paga por transferencia (Bre-B)</button>
+    <div class="tf" id="tfBox" style="display:none">
+      <div id="tfRevision" class="estado rev" style="display:none"></div>
+      <div id="tfForm">
+        <div id="tfRechazo" class="estado rech" style="display:none"></div>
+        <h3>Pago por transferencia · <span id="tfPlan"></span></h3>
+        <div class="amt" id="tfMonto"></div>
+        <div class="mini-txt" style="margin-top:2px" id="tfCalc"></div>
+        <div class="llave"><span><small style="display:block;font-weight:600;color:var(--muted);font-size:.72rem">Llave Bre-B</small><span id="tfLlave"></span></span><button class="btn-ghost" id="tfCopy" type="button">Copiar</button></div>
+        <div class="mini-txt" id="tfTitular" style="margin:-4px 0 6px"></div>
+        <ol>
+          <li>Desde la app de tu banco o billetera, envía el valor exacto a esta llave Bre-B.</li>
+          <li>Toma una captura del comprobante y súbela aquí.</li>
+          <li>Revisamos el pago y activamos tu plan, normalmente el mismo día.</li>
+        </ol>
+        <input type="file" id="tfFile" accept="image/*,application/pdf">
+        <button class="primary" id="tfSend" type="button" onclick="enviarTransferencia()">Enviar comprobante</button>
+      </div>
+    </div>
     <button class="linkout" id="logout2">Cerrar sesión</button>
   </div>
 </div>
@@ -1008,16 +1038,24 @@ async function checkAccess(){
   if(!PAYWALL_ON){ $("paywall").classList.add("hidden"); document.body.classList.remove("locked"); return; }
   const params = new URLSearchParams(location.search);
   if(params.get("pago")==="ok"){ setSync("Confirmando pago…"); await new Promise(r=>setTimeout(r,2500)); }
-  const {data} = await sb.from("finanzas_suscripciones").select("status,current_period_end,trial_end,stripe_subscription_id").eq("user_id",user.id).maybeSingle();
+  const {data} = await sb.from("finanzas_suscripciones").select("status,current_period_end,trial_end,stripe_subscription_id,price_id").eq("user_id",user.id).maybeSingle();
   const status = data?.status || "none";
-  const ok = ACTIVE_STATES.includes(status);
+  // Los planes pagados por transferencia no se renuevan solos: vencen en su fecha de fin
+  const porTransferencia = String(data?.price_id||"").startsWith("breb_");
+  const vencioTransf = porTransferencia && data?.current_period_end && new Date(data.current_period_end) < new Date();
+  const ok = ACTIVE_STATES.includes(status) && !vencioTransf;
+  $("manageSub").style.display = porTransferencia ? "none" : "";
+  if(vencioTransf) $("trialBox").innerHTML = "<b>Tu plan pagado por transferencia venció el "+new Date(data.current_period_end).toLocaleDateString("es-CO")+".</b> Renueva para seguir usando Eva; tus datos siguen guardados.";
+  if(!ok) cargarTransferencia();
   $("paywall").classList.toggle("hidden", ok);
   document.body.classList.toggle("locked", !ok);
   if(ok && data){
     const fin = data.status==="trialing" ? data.trial_end : data.current_period_end;
     $("subInfo").textContent = data.status==="trialing"
       ? "Prueba gratis · se cobra el "+(fin?new Date(fin).toLocaleDateString("es-CO"):"")
-      : "Suscripción activa · renueva el "+(fin?new Date(fin).toLocaleDateString("es-CO"):"");
+      : porTransferencia
+        ? "Plan pagado por transferencia · vence el "+(fin?new Date(fin).toLocaleDateString("es-CO"):"")
+        : "Suscripción activa · renueva el "+(fin?new Date(fin).toLocaleDateString("es-CO"):"");
   } else { $("subInfo").textContent=""; }
   if(params.get("pago")){ history.replaceState({}, "", location.pathname); }
 }
@@ -1033,11 +1071,69 @@ $("manageSub").onclick=async()=>{
   btn.disabled=false; btn.textContent=txt;
 };
 let planSel = "anual"; // plan elegido en el paywall (anual por defecto)
+
+/* ---- Pago por transferencia Bre-B (se aprueba a mano desde el admin) ---- */
+let TF = null;
+const copFmt = n => "$"+Number(n||0).toLocaleString("es-CO");
+async function cargarTransferencia(){
+  try{
+    const {data} = await sb.functions.invoke("pago-transferencia",{ body:{} });
+    TF = data && data.disponible ? data : null;
+  }catch(e){ TF = null; }
+  $("tfOpen").style.display = TF ? "" : "none";
+  if(!TF){ $("tfBox").style.display="none"; return; }
+  const {data:ult} = await sb.from("finanzas_transferencias").select("estado,plan,monto_cop,nota,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(1);
+  const u = ult && ult[0];
+  if(u && u.estado==="pendiente"){
+    $("tfOpen").style.display="none"; $("tfBox").style.display="";
+    $("tfForm").style.display="none"; $("tfRevision").style.display="";
+    $("tfRevision").innerHTML = "<b>Tu pago está en revisión.</b> Recibimos tu comprobante de "+copFmt(u.monto_cop)+" (plan "+u.plan+"). Apenas lo confirmemos se activa tu cuenta; vuelve a entrar o recarga la página.";
+    return;
+  }
+  $("tfRevision").style.display="none"; $("tfForm").style.display="";
+  if(u && u.estado==="rechazado"){
+    $("tfRechazo").style.display="";
+    $("tfRechazo").innerHTML = "<b>No pudimos confirmar tu último pago.</b> "+(u.nota?("Motivo: "+String(u.nota).replace(/[<>&]/g,"")+". "):"")+"Si ya transferiste, escríbenos a soporte@evafinanzas.us o vuelve a subir el comprobante.";
+  } else $("tfRechazo").style.display="none";
+  pintarTransferencia();
+}
+function pintarTransferencia(){
+  if(!TF) return;
+  $("tfPlan").textContent = planSel==="anual" ? "plan anual" : "plan mensual";
+  $("tfMonto").textContent = copFmt(TF.precios[planSel])+" COP";
+  $("tfCalc").textContent = (planSel==="anual"?"USD 69":"USD 9,99")+" × TRM del "+new Date(TF.fecha_trm+"T12:00:00").toLocaleDateString("es-CO")+" ("+copFmt(TF.trm)+") + IVA 19%";
+  $("tfLlave").textContent = TF.llave;
+  $("tfTitular").textContent = TF.titular ? "A nombre de: "+TF.titular : "";
+}
+function abrirTransferencia(){ $("tfBox").style.display=""; $("tfOpen").style.display="none"; pintarTransferencia(); $("tfBox").scrollIntoView({behavior:"smooth",block:"center"}); }
+$("tfCopy").onclick=e=>{ navigator.clipboard?.writeText(TF?.llave||""); e.target.textContent="¡Copiada!"; setTimeout(()=>e.target.textContent="Copiar",1500); };
+async function enviarTransferencia(){
+  const f=$("tfFile").files[0];
+  if(!f){ alert("Sube la captura del comprobante de la transferencia."); return; }
+  if(f.size>5*1024*1024){ alert("El archivo pesa más de 5 MB. Sube una captura más liviana."); return; }
+  const btn=$("tfSend"); btn.disabled=true; btn.textContent="Enviando…";
+  try{
+    const ext=(f.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,5)||"jpg";
+    const path=user.id+"/"+Date.now()+"."+ext;
+    const up=await sb.storage.from("comprobantes").upload(path,f,{contentType:f.type||undefined});
+    if(up.error) throw up.error;
+    const {data,error}=await sb.functions.invoke("pago-transferencia",{ body:{ accion:"registrar", plan:planSel, comprobante:path } });
+    if(error) throw error;
+    if(data?.error) throw new Error(data.error);
+    await cargarTransferencia();
+  }catch(e){
+    let m=e.message||String(e);
+    try{ const ctx=await e.context?.json?.(); if(ctx?.error) m=ctx.error; }catch(_){}
+    alert("No se pudo enviar el comprobante: "+m);
+  }
+  btn.disabled=false; btn.textContent="Enviar comprobante";
+}
 function selPlan(p){
   planSel = p;
   const m=$("opt-mensual"), a=$("opt-anual");
   if(m) m.classList.toggle("sel", p==="mensual");
   if(a) a.classList.toggle("sel", p==="anual");
+  pintarTransferencia();
 }
 function initPlanDesdeURL(){
   const p = new URLSearchParams(location.search).get("plan");

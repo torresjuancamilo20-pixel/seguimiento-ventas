@@ -729,7 +729,7 @@ src="https://www.facebook.com/tr?id=966627226223633&ev=PageView&noscript=1"
         </div>
         <div id="waStatus"></div>
         <div id="waSetup" style="display:none">
-          <label style="font-size:.82rem;color:#a99fb8;font-weight:600">Tu número de WhatsApp (con código de país, ej: 573001234567)</label>
+          <label style="font-size:.82rem;color:#a99fb8;font-weight:600">Tu número de WhatsApp (ej: 3001234567 o, si no es de Colombia, con código de país)</label>
           <div class="key-row" style="margin-top:6px">
             <input type="tel" id="waPhone" placeholder="573001234567" style="flex:1;background:#1b1426;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 14px;color:#f3eefb;font-size:.9rem">
             <button class="btn-ghost" id="waLink">Vincular</button>
@@ -1088,8 +1088,10 @@ async function loadWA(){
   $("waLinked").style.display="block"; $("waLinkedPhone").textContent=data.telefono; $("waStatus").innerHTML="";
 }
 $("waLink").onclick=async()=>{
-  const phone=$("waPhone").value.replace(/[^0-9]/g,"");
-  if(phone.length<10){ alert("Ingresa un número válido con código de país. Ej: 573001234567"); return; }
+  let phone=$("waPhone").value.replace(/[^0-9]/g,"");
+  // Celular colombiano sin indicativo (10 dígitos que empiezan por 3): se le agrega el 57
+  if(phone.length===10 && phone.startsWith("3")) phone="57"+phone;
+  if(phone.length<11){ alert("Ingresa tu número con código de país. Ej: 573001234567"); return; }
   const codigo=String(Math.floor(100000+Math.random()*900000));
   const {error}=await sb.from("finanzas_whatsapp").upsert({user_id:user.id, telefono:phone, codigo, verificado:false});
   if(error){ alert("Error: "+error.message); return; }

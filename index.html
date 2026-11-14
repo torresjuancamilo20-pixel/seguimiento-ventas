@@ -654,11 +654,14 @@
           </div>
         </div>
         <div id="waVerify" style="display:none;margin-top:12px">
-          <p class="card-sub" style="margin:0 0 8px">Enviamos un código de 6 dígitos a tu WhatsApp. Ingrésalo aquí:</p>
-          <div class="key-row">
-            <input type="text" id="waCode" placeholder="123456" maxlength="6" style="width:120px;background:#1b1426;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 14px;color:#f3eefb;font-size:1.1rem;text-align:center;letter-spacing:4px">
-            <button class="btn-ghost" id="waConfirm">Verificar</button>
+          <p class="card-sub" style="margin:0 0 8px">Para confirmar que el número es tuyo, envíale este código a Eva por WhatsApp:</p>
+          <div style="font-size:1.6rem;font-weight:800;letter-spacing:6px;color:#f3eefb;margin:4px 0 12px" id="waCodeShow"></div>
+          <div class="key-row" style="flex-wrap:wrap;gap:8px">
+            <a class="btn-ghost" id="waSendCode" target="_blank" rel="noopener" style="text-decoration:none">Enviar código a Eva</a>
+            <button class="btn-ghost" id="waRefresh">Ya lo envié</button>
+            <button class="btn-ghost" id="waCancel" style="font-size:.78rem;color:#a99fb8">Cambiar número</button>
           </div>
+          <p class="card-sub" style="margin:10px 0 0">Número de Eva: <b class="waEvaNum"></b></p>
         </div>
         <div id="waLinked" style="display:none;margin-top:12px">
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -666,7 +669,8 @@
             <span id="waLinkedPhone" style="color:#a99fb8"></span>
             <button class="btn-ghost" id="waUnlink" style="margin-left:auto;font-size:.78rem;color:#ef4757">Desvincular</button>
           </div>
-          <p class="card-sub" style="margin:8px 0 0">Envía mensajes al número de Eva con formato: <b>hamburguesas 25000</b><br>Para ingresos: <b>ingreso salario 5000000</b> · Para ahorro: <b>ahorro meta 200000</b></p>
+          <p class="card-sub" style="margin:8px 0 0">Escríbele a Eva al <b class="waEvaNum"></b> con este formato: <b>hamburguesas 25000</b><br>Para ingresos: <b>ingreso salario 5000000</b> · Para ahorro: <b>ahorro meta 200000</b> · Pregúntale: <b>resumen</b>, <b>gastos</b> o <b>deudas</b></p>
+          <a class="btn-ghost" id="waOpenChat" target="_blank" rel="noopener" style="display:inline-block;margin-top:10px;text-decoration:none">Abrir chat con Eva</a>
         </div>
       </div>
     </section>
@@ -864,33 +868,38 @@ $("copyApi").onclick=e=>copiar(RAPIDO_API,e.target);
 $("copyToken").onclick=e=>copiar($("tokenView").value,e.target);
 
 /* ---------------- WHATSAPP LINKING ---------------- */
-const WA_ENABLED = false; // Se activa cuando el número de WhatsApp quede verificado en Meta
+const WA_ENABLED = true;
+const EVA_WA = "13478749121";            // número de Eva en WhatsApp (sin +)
+const EVA_WA_TXT = "+1 347 874 9121";
+const waUrl = t => "https://wa.me/"+EVA_WA+(t?"?text="+encodeURIComponent(t):"");
+document.querySelectorAll(".waEvaNum").forEach(e=>e.textContent=EVA_WA_TXT);
+$("waOpenChat").href = waUrl("hola");
 async function loadWA(){
   $("waSetup").style.display="none"; $("waVerify").style.display="none"; $("waLinked").style.display="none";
   if(!WA_ENABLED){ $("waAviso").style.display="block"; $("waStatus").innerHTML=""; return; }
   $("waAviso").style.display="none";
-  const {data}=await sb.from("finanzas_whatsapp").select("telefono,verificado").eq("user_id",user.id).maybeSingle();
+  const {data}=await sb.from("finanzas_whatsapp").select("telefono,verificado,codigo").eq("user_id",user.id).maybeSingle();
   if(!data){ $("waSetup").style.display="block"; $("waStatus").innerHTML=""; return; }
-  if(!data.verificado){ $("waVerify").style.display="block"; $("waStatus").innerHTML='<span style="color:#f5a623;font-size:.85rem">⏳ Pendiente de verificación — revisa tu WhatsApp</span>'; return; }
+  if(!data.verificado){
+    $("waVerify").style.display="block";
+    $("waCodeShow").textContent=data.codigo||"";
+    $("waSendCode").href=waUrl(data.codigo||"");
+    $("waStatus").innerHTML='<span style="color:#f5a623;font-size:.85rem">⏳ Falta un paso: envíale el código a Eva por WhatsApp desde el '+data.telefono+'</span>';
+    return;
+  }
   $("waLinked").style.display="block"; $("waLinkedPhone").textContent=data.telefono; $("waStatus").innerHTML="";
 }
 $("waLink").onclick=async()=>{
   const phone=$("waPhone").value.replace(/[^0-9]/g,"");
-  if(phone.length<10){ alert("Ingresa un número válido con código de país."); return; }
+  if(phone.length<10){ alert("Ingresa un número válido con código de país. Ej: 573001234567"); return; }
   const codigo=String(Math.floor(100000+Math.random()*900000));
   const {error}=await sb.from("finanzas_whatsapp").upsert({user_id:user.id, telefono:phone, codigo, verificado:false});
   if(error){ alert("Error: "+error.message); return; }
-  alert("Código de verificación: "+codigo+"\n\nEnvía este código al número de Eva por WhatsApp para verificar tu cuenta.\n\n(Cuando Meta esté configurado, el código te llegará automáticamente por WhatsApp.)");
   loadWA();
 };
-$("waConfirm").onclick=async()=>{
-  const code=$("waCode").value.trim();
-  if(code.length!==6){ alert("El código debe tener 6 dígitos."); return; }
-  const {data}=await sb.from("finanzas_whatsapp").select("codigo").eq("user_id",user.id).maybeSingle();
-  if(!data||data.codigo!==code){ alert("Código incorrecto. Intenta de nuevo."); return; }
-  await sb.from("finanzas_whatsapp").update({verificado:true}).eq("user_id",user.id);
-  loadWA();
-};
+// La verificación la hace Eva cuando recibe el código desde ese número (así se comprueba que es tuyo)
+$("waRefresh").onclick=()=>loadWA();
+$("waCancel").onclick=async()=>{ await sb.from("finanzas_whatsapp").delete().eq("user_id",user.id); loadWA(); };
 $("waUnlink").onclick=async()=>{
   if(!confirm("¿Desvincular tu WhatsApp? Ya no podrás registrar gastos por mensaje.")) return;
   await sb.from("finanzas_whatsapp").delete().eq("user_id",user.id);

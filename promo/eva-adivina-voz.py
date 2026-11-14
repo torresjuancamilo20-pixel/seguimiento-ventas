@@ -29,7 +29,7 @@ GUION = [
     (20.1, 2.3, "Con Eva, lo vio en un segundo."),
     (22.6, 2.3, "Los domicilios se llevaban el diecisiete por ciento."),
     (25.1, 2.3, "Comenta cuál elegiste."),
-    (27.6, 4.4, "Prueba Eva, siete días gratis, en evafinanzas punto us."),
+    (27.6, 4.4, "Empieza hoy, en evafinanzas punto us."),
 ]
 
 

@@ -29,7 +29,7 @@ GUION = [
     (20.2, 2.2, "El diecisiete, ya me había ido."),
     (22.6, 2.3, "La próxima vez… dime a dónde ir."),
     (25.1, 2.3, "Con Eva, yo sé a dónde voy."),
-    (27.6, 4.4, "Prueba Eva, siete días gratis, en evafinanzas punto us."),
+    (27.6, 4.4, "Empieza hoy, en evafinanzas punto us."),
 ]
 
 

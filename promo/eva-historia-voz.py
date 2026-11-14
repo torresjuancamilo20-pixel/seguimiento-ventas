@@ -30,7 +30,7 @@ GUION = [
     (25.05, 2.2, "Entonces, Camila conoció a Eva."),
     (27.6, 2.6, "Y por fin, vio en qué se le iba la plata."),
     (30.3, 2.0, "A fin de mes, le sobró."),
-    (32.6, 4.6, "Sé del veintitrés por ciento. Prueba Eva, siete días gratis, en evafinanzas punto us."),
+    (32.6, 4.6, "Sé del veintitrés por ciento. Empieza hoy, en evafinanzas punto us."),
 ]
 
 

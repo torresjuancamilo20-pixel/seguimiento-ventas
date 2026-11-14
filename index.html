@@ -32,7 +32,8 @@
   ::-webkit-scrollbar-thumb{background:#2a2036;border-radius:20px}
 
   /* ---------- AUTH ---------- */
-  #authView{min-height:100vh;display:grid;place-items:center;padding:20px}
+  #authView,#activarView,#claveView{min-height:100vh;display:grid;place-items:center;padding:20px}
+  .olvido{background:none;border:0;color:var(--muted);font:inherit;font-size:.82rem;text-decoration:underline;cursor:pointer;justify-self:center}
   .auth{width:100%;max-width:400px;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:32px;box-shadow:var(--shadow)}
   .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.3rem}
   .brand .dot{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:grid;place-items:center}
@@ -363,9 +364,43 @@
       </label>
       <div id="authMsg" class="msg hidden"></div>
       <button class="primary" id="authBtn" type="submit">Entrar</button>
+      <button class="olvido" id="olvido" type="button">¿Olvidaste tu contraseña o pagaste y no la creaste?</button>
     </form>
     <div class="switch" id="authSwitch">¿No tienes cuenta? <b id="toggleMode">Regístrate</b></div>
     <div class="auth-legal"><a href="/legal/terminos/" target="_blank" rel="noopener">Términos</a> · <a href="/legal/privacidad/" target="_blank" rel="noopener">Privacidad</a> · <a href="/legal/reembolsos/" target="_blank" rel="noopener">Reembolsos</a></div>
+  </div>
+</div>
+
+<!-- ============ ACTIVAR CUENTA DESPUÉS DE PAGAR (sin cuenta previa) ============ -->
+<div id="activarView" class="hidden">
+  <div class="auth">
+    <div class="brand"><span class="wm"><span class="wm-e">E</span><span class="wm-va">va</span></span></div>
+    <div id="actCargando"><p class="sub">Confirmando tu pago…</p></div>
+    <form id="actForm" class="hidden">
+      <p class="sub" style="margin-bottom:8px"><b style="color:var(--txt)">¡Pago recibido!</b> Crea tu contraseña para entrar a Eva.</p>
+      <input type="email" id="actEmail" readonly>
+      <input type="password" id="actPass" placeholder="Crea tu contraseña (mín. 6 caracteres)" required minlength="6" autocomplete="new-password">
+      <label class="consent">
+        <input type="checkbox" id="actConsent">
+        <span>Acepto los <a href="/legal/terminos/" target="_blank" rel="noopener">Términos</a> y la <a href="/legal/privacidad/" target="_blank" rel="noopener">Política de Privacidad</a>.</span>
+      </label>
+      <div id="actMsg" class="msg hidden"></div>
+      <button class="primary" id="actBtn" type="submit">Crear contraseña y entrar</button>
+    </form>
+    <div id="actError" class="hidden"><div class="msg err" id="actErrTxt"></div><button class="primary" style="margin-top:12px;width:100%" onclick="location.href='/'">Ir a iniciar sesión</button></div>
+  </div>
+</div>
+
+<!-- ============ NUEVA CONTRASEÑA (enlace del correo) ============ -->
+<div id="claveView" class="hidden">
+  <div class="auth">
+    <div class="brand"><span class="wm"><span class="wm-e">E</span><span class="wm-va">va</span></span></div>
+    <p class="sub">Escribe tu nueva contraseña.</p>
+    <form id="claveForm">
+      <input type="password" id="clavePass" placeholder="Nueva contraseña (mín. 6 caracteres)" required minlength="6" autocomplete="new-password">
+      <div id="claveMsg" class="msg hidden"></div>
+      <button class="primary" type="submit">Guardar y entrar</button>
+    </form>
   </div>
 </div>
 
@@ -840,9 +875,96 @@ function traducir(m){
 $("logout").onclick=async()=>{ await sb.auth.signOut(); };
 $("logout2").onclick=async()=>{ await sb.auth.signOut(); };
 
-sb.auth.onAuthStateChange((_e,session)=>{
-  if(session && session.user){ user=session.user; enterApp(); }
-  else { user=null; $("appView").classList.add("hidden"); $("authView").classList.remove("hidden"); }
+/* ---- Pago sin cuenta: al volver de Stripe (?pago=ok&cs=...) se crea la contraseña ---- */
+const CS_PAGO = new URLSearchParams(location.search).get("cs");
+let activando = false, enRecuperacion = false;
+async function activarFn(body){
+  const r = await fetch(SUPABASE_URL+"/functions/v1/activar-cuenta",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY},body:JSON.stringify({cs:CS_PAGO,...body})});
+  let j={}; try{ j=await r.json(); }catch(_){}
+  if(!r.ok && !j.error) j.error="Error "+r.status;
+  return j;
+}
+async function mostrarActivar(){
+  activando = true;
+  $("authView").classList.add("hidden"); $("activarView").classList.remove("hidden");
+  let st = {};
+  for(let i=0;i<6;i++){ st = await activarFn({accion:"estado"}); if(st.pagado || st.error) break; await new Promise(r=>setTimeout(r,2000)); }
+  $("actCargando").classList.add("hidden");
+  if(!st.pagado){
+    $("actError").classList.remove("hidden");
+    $("actErrTxt").textContent = st.error || "Todavía no vemos tu pago confirmado. Si ya pagaste, espera un minuto y recarga, o escríbenos a soporte@evafinanzas.us.";
+    return;
+  }
+  if(st.tiene_cuenta){
+    // Ya tenía cuenta con contraseña: el pago se enlaza a esa cuenta y entra con su contraseña de siempre
+    await activarFn({accion:"activar"});
+    salirDeActivar();
+    $("email").value = st.email;
+    showMsg("¡Pago recibido! Ya tienes cuenta con "+st.email+": inicia sesión con tu contraseña.", true);
+    return;
+  }
+  $("actEmail").value = st.email;
+  $("actForm").classList.remove("hidden");
+}
+function salirDeActivar(){
+  activando = false;
+  history.replaceState({}, "", location.pathname);
+  $("activarView").classList.add("hidden"); $("authView").classList.remove("hidden");
+}
+$("actForm").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const m=$("actMsg");
+  const fail=t=>{ m.textContent=t; m.className="msg err"; m.classList.remove("hidden"); $("actBtn").disabled=false; };
+  if(!$("actConsent").checked) return fail("Debes aceptar los Términos y la Política de Privacidad.");
+  const password=$("actPass").value;
+  if(password.length<6) return fail("La contraseña debe tener mínimo 6 caracteres.");
+  $("actBtn").disabled=true;
+  const j = await activarFn({accion:"activar", password});
+  if(j.error) return fail(j.error);
+  const email=$("actEmail").value;
+  if(j.ya_tenia_cuenta){ salirDeActivar(); $("email").value=email; showMsg("Ya tenías cuenta con ese correo: inicia sesión con tu contraseña.", true); return; }
+  const {error} = await sb.auth.signInWithPassword({email,password});
+  if(error) return fail(traducir(error.message));
+});
+
+/* ---- ¿Olvidaste tu contraseña? (también sirve si pagó y no alcanzó a crearla) ---- */
+$("olvido").onclick=async()=>{
+  const email=$("email").value.trim() || (prompt("Escribe el correo de tu cuenta (o el que usaste para pagar):")||"").trim();
+  if(!email) return;
+  $("email").value=email;
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo: location.origin+"/"});
+  if(error){ showMsg(traducir(error.message), false); return; }
+  showMsg("Te enviamos un correo a "+email+" con un enlace para crear tu contraseña. Revisa también spam.", true);
+};
+$("claveForm").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const password=$("clavePass").value, m=$("claveMsg");
+  const {error}=await sb.auth.updateUser({password, data:{necesita_clave:false}});
+  if(error){ m.textContent=traducir(error.message); m.className="msg err"; m.classList.remove("hidden"); return; }
+  enRecuperacion=false; $("claveView").classList.add("hidden");
+  const {data}=await sb.auth.getSession();
+  if(data.session){ user=data.session.user; enterApp(); }
+});
+
+sb.auth.onAuthStateChange((evt,session)=>{
+  if(evt==="PASSWORD_RECOVERY"){ enRecuperacion=true; $("authView").classList.add("hidden"); $("appView").classList.add("hidden"); $("claveView").classList.remove("hidden"); return; }
+  if(enRecuperacion) return;
+  if(session && session.user){
+    user=session.user;
+    if(activando){ // acaba de crear su contraseña después de pagar
+      activando=false; $("activarView").classList.add("hidden");
+      history.replaceState({}, "", location.pathname+"?pago=ok");
+    } else if(CS_PAGO){ // ya tenía sesión abierta y pagó desde la página de ventas: enlaza el pago
+      activarFn({accion:"activar"}).catch(()=>{});
+      history.replaceState({}, "", location.pathname+"?pago=ok");
+    }
+    enterApp();
+  }
+  else {
+    user=null; $("appView").classList.add("hidden");
+    if(CS_PAGO && !activando){ mostrarActivar(); return; }
+    if(!activando) $("authView").classList.remove("hidden");
+  }
 });
 
 async function enterApp(){

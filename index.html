@@ -347,6 +347,23 @@
   .c-acc{background:var(--brand)}
   input:focus,select:focus{box-shadow:0 0 0 3px rgba(226,75,216,.25)}
 </style>
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '966627226223633');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=966627226223633&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
 </head>
 <body>
 
@@ -884,12 +901,24 @@ async function activarFn(body){
   if(!r.ok && !j.error) j.error="Error "+r.status;
   return j;
 }
+// Píxel: "Compra" una sola vez por pago (eventID = sesión de Stripe, sin duplicados)
+async function medirCompra(st){
+  try{
+    if(!CS_PAGO || !window.fbq) return;
+    const k="eva_px_"+CS_PAGO; if(localStorage.getItem(k)) return;
+    if(!st) st = await activarFn({accion:"estado"});
+    if(!st.pagado) return;
+    fbq('track','Purchase',{value:Number(st.monto||0),currency:(st.moneda||"usd").toUpperCase(),content_name:st.plan?("Plan "+st.plan):"Plan"},{eventID:CS_PAGO});
+    localStorage.setItem(k,"1");
+  }catch(_){}
+}
 async function mostrarActivar(){
   activando = true;
   $("authView").classList.add("hidden"); $("activarView").classList.remove("hidden");
   let st = {};
   for(let i=0;i<6;i++){ st = await activarFn({accion:"estado"}); if(st.pagado || st.error) break; await new Promise(r=>setTimeout(r,2000)); }
   $("actCargando").classList.add("hidden");
+  medirCompra(st);
   if(!st.pagado){
     $("actError").classList.remove("hidden");
     $("actErrTxt").textContent = st.error || "Todavía no vemos tu pago confirmado. Si ya pagaste, espera un minuto y recarga, o escríbenos a soporte@evafinanzas.us.";
@@ -956,6 +985,7 @@ sb.auth.onAuthStateChange((evt,session)=>{
       history.replaceState({}, "", location.pathname+"?pago=ok");
     } else if(CS_PAGO){ // ya tenía sesión abierta y pagó desde la página de ventas: enlaza el pago
       activarFn({accion:"activar"}).catch(()=>{});
+      medirCompra();
       history.replaceState({}, "", location.pathname+"?pago=ok");
     }
     enterApp();
@@ -1242,6 +1272,7 @@ async function enviarTransferencia(){
     const {data,error}=await sb.functions.invoke("pago-transferencia",{ body:{ accion:"registrar", plan:planSel, comprobante:path } });
     if(error) throw error;
     if(data?.error) throw new Error(data.error);
+    try{ window.fbq&&fbq('track','Lead',{value:TF.precios[planSel],currency:'COP',content_name:'Bre-B '+planSel}); }catch(_){}
     await cargarTransferencia();
   }catch(e){
     let m=e.message||String(e);

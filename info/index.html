@@ -182,6 +182,23 @@ footer a:hover{color:#fff}
 .pm-op span{display:block;font-size:.8rem;color:var(--mut);margin-top:3px}
 .pm-fine{font-size:.78rem;color:var(--mut);text-align:center;margin-top:8px}
 </style>
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '966627226223633');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=966627226223633&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
 </head>
 <body>
 
@@ -411,8 +428,11 @@ const st=document.getElementById('sticky'), hero=document.querySelector('.hero')
 new IntersectionObserver(([e])=>st.classList.toggle('show',!e.isIntersecting)).observe(hero);
 // Elegir plan -> elegir cómo pagar (tarjeta o Bre-B). En los dos casos se paga primero y luego se crea la cuenta.
 const pm=document.getElementById('paymod'); let pmPlan='anual';
+const PRECIO_USD={mensual:9.99,anual:69};
+const px=(...a)=>{ try{ window.fbq&&fbq(...a); }catch(_){} };
 function abrirPago(plan){
   pmPlan=plan;
+  px('track','InitiateCheckout',{value:PRECIO_USD[plan],currency:'USD',content_name:'Plan '+plan});
   document.getElementById('pmPlan').textContent = plan==='anual' ? 'Plan anual · $69 USD al año' : 'Plan mensual · $9,99 USD al mes';
   document.getElementById('pmBreb').href='/pagar/?plan='+plan;
   pm.classList.add('on'); pm.setAttribute('aria-hidden','false');
@@ -421,10 +441,12 @@ function cerrarPago(){ pm.classList.remove('on'); pm.setAttribute('aria-hidden',
 document.getElementById('pmX').onclick=cerrarPago;
 pm.addEventListener('click',e=>{ if(e.target===pm) cerrarPago(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') cerrarPago(); });
+document.getElementById('pmBreb').addEventListener('click',()=>px('track','AddPaymentInfo',{value:PRECIO_USD[pmPlan],currency:'USD',content_name:'Bre-B'}));
 document.querySelectorAll('[data-pagar]').forEach(a=>a.addEventListener('click',e=>{ e.preventDefault(); abrirPago(a.dataset.pagar); }));
 document.getElementById('pmTarjeta').onclick=async()=>{
   const b=document.getElementById('pmTarjeta'), t=b.innerHTML;
   b.innerHTML='<b>Abriendo pago seguro…</b>'; b.disabled=true;
+  px('track','AddPaymentInfo',{value:PRECIO_USD[pmPlan],currency:'USD',content_name:'Tarjeta'});
   try{
     const r=await fetch('https://fhixjvxztmuifrioevze.supabase.co/functions/v1/checkout-publico',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan:pmPlan})});
     const j=await r.json();

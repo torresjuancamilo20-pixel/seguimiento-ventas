@@ -50,6 +50,23 @@ input[type=file]{width:100%;font-size:.85rem;color:var(--mut)}
 .foot{text-align:center;color:var(--mut);font-size:.8rem;margin-top:18px}
 .hidden{display:none!important}
 </style>
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '966627226223633');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=966627226223633&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
 </head>
 <body>
 <div class="wrap">
@@ -156,6 +173,8 @@ $("form").addEventListener("submit",async e=>{
     const j=await r.json().catch(()=>({}));
     if(!r.ok||j.error) return err(j.error||("No se pudo enviar (error "+r.status+")."));
     PAGO={id:j.id, token:j.token, email:email.toLowerCase()};
+    // Envió el comprobante: todavía no está confirmado, se mide como "Lead" (en pesos)
+    try{ window.fbq&&fbq('track','Lead',{value:D.precios[plan],currency:'COP',content_name:'Bre-B '+plan},{eventID:'breb-'+j.id}); }catch(_){}
     $("form").classList.add("hidden");
     if(j.tiene_cuenta){
       // Ya tenía cuenta: el pago se enlaza a esa cuenta y entra con su contraseña de siempre

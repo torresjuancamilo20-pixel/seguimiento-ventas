@@ -894,6 +894,8 @@ $("logout2").onclick=async()=>{ await sb.auth.signOut(); };
 
 /* ---- Pago sin cuenta: al volver de Stripe (?pago=ok&cs=...) se crea la contraseña ---- */
 const CS_PAGO = new URLSearchParams(location.search).get("cs");
+// Enlace del correo "crear/restablecer contraseña" (lo arma Eva: ?token_hash=...&type=recovery)
+const TOKEN_CLAVE = (()=>{ const q=new URLSearchParams(location.search); return q.get("type")==="recovery" ? q.get("token_hash") : null; })();
 let activando = false, enRecuperacion = false;
 async function activarFn(body){
   const r = await fetch(SUPABASE_URL+"/functions/v1/activar-cuenta",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY},body:JSON.stringify({cs:CS_PAGO,...body})});
@@ -965,8 +967,22 @@ $("olvido").onclick=async()=>{
   if(error){ showMsg(traducir(error.message), false); return; }
   showMsg("Te enviamos un correo a "+email+" con un enlace para crear tu contraseña. Revisa también spam.", true);
 };
+let claveInvalida=false;
+async function abrirEnlaceClave(){
+  enRecuperacion=true;
+  $("authView").classList.add("hidden"); $("appView").classList.add("hidden"); $("claveView").classList.remove("hidden");
+  history.replaceState({}, "", location.pathname);
+  const {error}=await sb.auth.verifyOtp({token_hash:TOKEN_CLAVE, type:"recovery"});
+  if(error){
+    const m=$("claveMsg"); m.textContent="Este enlace ya se usó o venció. Pide uno nuevo con \"¿Olvidaste tu contraseña?\"."; m.className="msg err"; m.classList.remove("hidden");
+    claveInvalida=true; $("clavePass").style.display="none";
+    $("claveForm").querySelector("button").textContent="Ir a iniciar sesión";
+  }
+}
+if(TOKEN_CLAVE) abrirEnlaceClave();
 $("claveForm").addEventListener("submit", async e=>{
   e.preventDefault();
+  if(claveInvalida){ location.href="/"; return; }
   const password=$("clavePass").value, m=$("claveMsg");
   const {error}=await sb.auth.updateUser({password, data:{necesita_clave:false}});
   if(error){ m.textContent=traducir(error.message); m.className="msg err"; m.classList.remove("hidden"); return; }

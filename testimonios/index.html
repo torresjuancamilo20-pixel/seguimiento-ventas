@@ -1,0 +1,272 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuéntanos tu testimonio · Nexus</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&display=swap');
+:root{
+ --gold:#f5c518;--gold2:#fbbf24;--goldd:#b8860b;--goldl:#fff2c0;
+ --ink:#f3f0e6;--mut:#b0a98f;--line:rgba(245,197,24,.16);--glass:rgba(255,255,255,.04)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:hidden}
+body{background:#050403;color:var(--ink);font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;position:relative}
+/* ---------- AURORA DORADA DE FONDO ---------- */
+.aurora{position:fixed;inset:-20%;z-index:0;filter:blur(80px);opacity:.8;pointer-events:none}
+.aurora b{position:absolute;display:block;border-radius:50%;mix-blend-mode:screen}
+.a1{width:60vw;height:60vw;background:radial-gradient(circle,rgba(245,197,24,.55),transparent 65%);top:-10%;left:-12%;animation:drift1 17s ease-in-out infinite}
+.a2{width:52vw;height:52vw;background:radial-gradient(circle,rgba(184,134,11,.5),transparent 65%);top:22%;right:-16%;animation:drift2 20s ease-in-out infinite}
+.a3{width:48vw;height:48vw;background:radial-gradient(circle,rgba(251,191,36,.4),transparent 65%);bottom:-12%;left:14%;animation:drift3 23s ease-in-out infinite}
+@keyframes drift1{50%{transform:translate(12%,10%) scale(1.12)}}
+@keyframes drift2{50%{transform:translate(-10%,14%) scale(1.08)}}
+@keyframes drift3{50%{transform:translate(8%,-12%) scale(1.15)}}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.vign{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(120% 90% at 50% 0%,transparent 38%,rgba(2,2,4,.78) 100%)}
+/* reseñas flotando */
+.floaters{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.qt{position:absolute;max-width:220px;padding:12px 15px;border-radius:16px;background:rgba(245,197,24,.05);border:1px solid rgba(245,197,24,.14);
+ backdrop-filter:blur(6px);font-size:12.5px;color:#e4dcc4;opacity:.55;animation:floaty 12s ease-in-out infinite}
+.qt .st{color:var(--gold);font-size:11px;letter-spacing:2px;margin-bottom:4px}
+.qt.q1{top:16%;left:-2%;transform:rotate(-5deg);animation-delay:0s}
+.qt.q2{top:46%;right:-3%;transform:rotate(4deg);animation-delay:2.4s}
+.qt.q3{bottom:11%;left:2%;transform:rotate(3deg);animation-delay:4.1s}
+@keyframes floaty{50%{transform:translateY(-14px) rotate(0deg)}}
+@media(max-width:640px){.qt{display:none}}
+
+.wrap{position:relative;z-index:2;max-width:540px;margin:0 auto;padding:30px 20px 64px}
+.brand{display:flex;align-items:center;justify-content:center;gap:11px;margin-bottom:26px}
+.brand .mk{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-family:'Anton';font-size:19px;color:#1a1400;
+ background:linear-gradient(135deg,var(--goldl),var(--gold) 55%,var(--goldd));box-shadow:0 6px 20px rgba(245,197,24,.4)}
+.brand .tx{font-family:'Anton';letter-spacing:.30em;font-size:17px;color:#d8cfae}
+
+.hero{text-align:center;margin-bottom:8px}
+.kick{display:inline-block;font-family:'Manrope';font-weight:700;font-size:11px;letter-spacing:.36em;text-transform:uppercase;color:var(--gold);
+ padding:6px 15px;border:1px solid rgba(245,197,24,.4);border-radius:30px;margin-bottom:18px;background:rgba(245,197,24,.06)}
+.title{font-family:'Anton';font-weight:400;line-height:.92;letter-spacing:.01em;text-transform:uppercase;margin:2px 0}
+.title .l{display:block;
+ background:linear-gradient(180deg,#fff6d5,#f5c518 46%,#b8860b);
+ -webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 5px 22px rgba(245,197,24,.4))}
+.title .a{font-size:clamp(30px,8.5vw,44px)}
+.title .b{font-size:clamp(44px,13.5vw,74px);white-space:nowrap}
+.subt{font-family:'Manrope';font-weight:600;font-size:clamp(15px,4vw,18px);color:#ddd3b6;margin-top:16px;line-height:1.4}
+.subt b{color:var(--gold);font-weight:800}
+.time{display:inline-flex;align-items:center;gap:9px;margin-top:20px;padding:11px 22px;border-radius:30px;color:#1a1400;font-family:'Anton';font-size:17px;letter-spacing:.02em;
+ background:linear-gradient(135deg,var(--goldl),var(--gold) 60%,var(--gold2));box-shadow:0 10px 30px rgba(245,197,24,.4)}
+.time i{width:8px;height:8px;border-radius:50%;background:#7a1f1f;box-shadow:0 0 8px rgba(0,0,0,.4);animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.35}}
+
+
+/* tarjeta glass */
+.card{position:relative;background:var(--glass);border:1px solid var(--line);border-radius:24px;padding:28px 24px;
+ backdrop-filter:blur(16px);box-shadow:0 30px 80px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.05)}
+.card::before{content:"";position:absolute;inset:0;border-radius:24px;padding:1px;pointer-events:none;
+ background:linear-gradient(135deg,rgba(245,197,24,.55),transparent 42%,transparent 58%,rgba(184,134,11,.5));
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.card h2{font-family:'Anton';font-weight:400;font-size:25px;letter-spacing:.02em;text-align:center;margin-bottom:6px;color:#f3ecd6}
+.card p.sub{text-align:center;color:var(--mut);font-size:13px;margin-bottom:22px}
+label{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);font-weight:700;margin:16px 0 8px}
+.inp{width:100%;padding:14px 16px;border:1.5px solid rgba(245,197,24,.18);border-radius:14px;background:rgba(255,255,255,.03);color:#fff;font-family:'Manrope';font-size:15px;transition:.18s}
+.inp::placeholder{color:#8a8266}
+.inp:focus{outline:none;border-color:var(--gold);background:rgba(245,197,24,.06);box-shadow:0 0 0 4px rgba(245,197,24,.14)}
+.btn{width:100%;margin-top:26px;padding:16px;border:none;border-radius:14px;color:#1a1400;font-family:'Anton';font-size:18px;letter-spacing:.03em;cursor:pointer;transition:.18s;
+ background:linear-gradient(135deg,var(--goldl),var(--gold) 55%,var(--gold2));background-size:180% auto;box-shadow:0 14px 36px rgba(245,197,24,.42)}
+.btn:hover{background-position:100% center;transform:translateY(-1px)}
+.btn:disabled{opacity:.6;cursor:default;transform:none}
+.err{color:#ff8f8f;font-size:13px;margin-top:12px;font-weight:600;min-height:16px;text-align:center}
+.ok{text-align:center;padding:16px 6px}
+.ok .big{font-size:56px;margin-bottom:12px}
+.ok h2{font-family:'Anton';font-weight:400;font-size:28px;letter-spacing:.02em;margin-bottom:10px;
+ background:linear-gradient(180deg,#fff6d5,#f5c518 55%,#b8860b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ok p{color:#ddd3b6;font-size:14.5px;line-height:1.55}
+.foot{text-align:center;margin-top:26px;color:#7d7657;font-size:12px}
+.foot a{color:#a89d76;cursor:pointer;text-decoration:underline}
+.hide{display:none!important}
+/* admin */
+.admin{margin-top:26px}
+.adm-bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.adm-bar .cnt{font-family:'Anton';font-weight:400;font-size:16px;letter-spacing:.02em}
+.adm-bar .cnt b{color:var(--gold)}
+.mini{padding:9px 13px;border:1px solid var(--line);border-radius:10px;background:rgba(245,197,24,.05);color:#fff;font-size:12.5px;font-weight:600;cursor:pointer}
+.mini:hover{border-color:var(--gold)}
+.reg{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:9px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.reg .nm{font-weight:700;font-size:14.5px}
+.reg .meta{font-size:12px;color:var(--mut);margin-top:3px}
+.reg .wa{flex-shrink:0;background:#25d366;color:#fff;font-weight:700;font-size:12px;text-decoration:none;padding:7px 11px;border-radius:20px;white-space:nowrap}
+.resumen{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:14px;padding:12px 15px;margin-bottom:14px}
+.resumen:empty{display:none}
+.resumen h4{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);margin-bottom:9px}
+.resumen .row{display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;border-bottom:1px solid rgba(245,197,24,.08);color:#e4dcc4}
+.resumen .row:last-child{border-bottom:none}
+.resumen .row b{color:var(--gold)}
+#admFiltro{max-width:180px}
+.bigcount{text-align:center;margin:2px 0 18px}
+.bignum{font-family:'Anton';font-weight:400;font-size:64px;line-height:1;
+ background:linear-gradient(180deg,#fff6d5,#f5c518 55%,#b8860b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.biglbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);font-weight:700;margin-top:6px}
+textarea.inp{min-height:150px;resize:vertical;line-height:1.5}
+.stars{display:flex;gap:4px;justify-content:center}
+.stars button{background:none;border:none;font-size:36px;cursor:pointer;color:rgba(245,197,24,.25);transition:.15s;padding:0 2px;line-height:1}
+.stars button.on{color:var(--gold);text-shadow:0 0 14px rgba(245,197,24,.5)}
+.chk{display:flex;gap:10px;align-items:flex-start;margin-top:18px;font-size:13px;color:#ddd3b6;line-height:1.45;cursor:pointer;text-transform:none;letter-spacing:0;font-weight:500}
+.chk input{margin-top:2px;width:18px;height:18px;accent-color:#f5c518;flex-shrink:0}
+.cc{text-align:right;font-size:11px;color:var(--mut);margin-top:5px}
+.opt{color:var(--mut);font-weight:600;text-transform:none;letter-spacing:0}
+.reg{flex-direction:column;align-items:stretch}
+.reg .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.reg .tx{font-size:14px;line-height:1.55;color:#ece5cf;margin-top:9px;white-space:pre-wrap;overflow-wrap:anywhere}
+.reg .st{color:var(--gold);letter-spacing:2px;font-size:13px}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:20px;margin-left:6px;vertical-align:middle}
+.tag.y{background:rgba(37,211,102,.15);color:#5ee08f}.tag.n{background:rgba(255,143,143,.12);color:#ff9d9d}
+.qrbox{text-align:center;margin-bottom:18px}
+.qrbox img{width:150px;border-radius:12px;background:#fff;padding:8px;display:block;margin:0 auto 10px}
+.qrbox a{color:var(--gold);font-size:12.5px;font-weight:700}
+</style></head><body>
+<div class="aurora"><b class="a1"></b><b class="a2"></b><b class="a3"></b></div>
+<div class="grain"></div>
+<div class="vign"></div>
+<div class="floaters">
+ <div class="qt q1"><div class="st">★★★★★</div>"Pasé al siguiente nivel y todo cambió."</div>
+ <div class="qt q2"><div class="st">★★★★★</div>"Mi historia puede inspirar a alguien más."</div>
+ <div class="qt q3"><div class="st">★★★★★</div>"Nexus me mostró de qué soy capaz."</div>
+</div>
+
+<div class="wrap">
+ <div class="brand"><div class="mk">NX</div><div class="tx">NEXUS</div></div>
+
+ <div class="hero" style="margin-bottom:26px">
+  <div class="kick">Tu historia importa</div>
+  <div class="title"><span class="l a" style="padding-top:.12em">Cuéntanos tu</span><span class="l b">Testimonio</span></div>
+  <div class="subt">Comparte tu experiencia con <b>Nexus</b> e inspira a otros a dar el siguiente paso.</div>
+ </div>
+
+ <!-- FORM -->
+ <div class="card" id="formCard">
+  <h2>Comparte tu experiencia</h2>
+  <p class="sub">Solo te toma un minuto.</p>
+  <label for="nombre">Nombre completo</label>
+  <input class="inp" id="nombre" type="text" placeholder="Tu nombre y apellido" autocomplete="name" maxlength="120">
+  <label for="celular">Teléfono / WhatsApp <span class="opt">(opcional)</span></label>
+  <input class="inp" id="celular" type="tel" placeholder="Ej: +57 300 123 4567" autocomplete="tel" maxlength="40">
+  <label for="ciudad">Ciudad / País <span class="opt">(opcional)</span></label>
+  <input class="inp" id="ciudad" type="text" placeholder="Ej: Medellín, Colombia" maxlength="80">
+  <label for="agenteInp">Agente que te acompaña <span class="opt">(opcional)</span></label>
+  <input class="inp" id="agenteInp" type="text" placeholder="Nombre de tu agente" autocomplete="off" maxlength="120">
+  <label>¿Cómo calificas tu experiencia?</label>
+  <div class="stars" id="stars">
+   <button type="button" data-v="1" aria-label="1 estrella">★</button><button type="button" data-v="2" aria-label="2 estrellas">★</button><button type="button" data-v="3" aria-label="3 estrellas">★</button><button type="button" data-v="4" aria-label="4 estrellas">★</button><button type="button" data-v="5" aria-label="5 estrellas">★</button>
+  </div>
+  <label for="testimonio">Tu testimonio</label>
+  <textarea class="inp" id="testimonio" maxlength="4000" placeholder="¿Cómo llegaste a Nexus? ¿Qué ha cambiado para ti? ¿Qué le dirías a alguien que está empezando?"></textarea>
+  <div class="cc"><span id="cc">0</span> / 4000</div>
+  <label class="chk"><input type="checkbox" id="autoriza" checked> Autorizo a Nexus a compartir mi testimonio (con mi nombre) en sus canales.</label>
+  <div class="err" id="err"></div>
+  <button class="btn" id="enviar">Enviar mi testimonio →</button>
+  <div class="foot"><a id="verLink">· Ver testimonios (organizador) ·</a></div>
+ </div>
+
+ <!-- SUCCESS -->
+ <div class="card hide" id="okCard">
+  <div class="ok">
+   <div class="big">✨</div>
+   <h2>¡Gracias por compartir!</h2>
+   <p>Recibimos tu testimonio. Tu historia puede ser justo lo que otra persona necesita para dar el siguiente paso.</p>
+   <button class="btn" id="otro" style="max-width:280px;margin:24px auto 0">Enviar otro testimonio</button>
+  </div>
+ </div>
+
+ <!-- ADMIN -->
+ <div class="card admin hide" id="admCard">
+  <div class="bigcount"><div class="bignum" id="admBig">0</div><div class="biglbl">Testimonios recibidos</div></div>
+  <div class="qrbox"><img src="qr.png" alt="Código QR del formulario de testimonios"><a href="qr-afiche.png" download>⭳ Descargar QR para imprimir</a></div>
+  <div class="adm-bar">
+   <select class="mini" id="admFiltro"><option value="">Todos</option><option value="si">Autorizan publicar</option><option value="no">No autorizan</option></select>
+   <button class="mini" id="admRefresh">↻ Actualizar</button>
+   <button class="mini" id="admCsv">⭳ CSV (Google Sheets)</button>
+   <button class="mini" id="admClose">Cerrar</button>
+  </div>
+  <div id="admList"></div>
+ </div>
+</div>
+
+<script>
+const SUPABASE_URL="https://fhixjvxztmuifrioevze.supabase.co";
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoaXhqdnh6dG11aWZyaW9ldnplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjgxNTUsImV4cCI6MjA5OTM0NDE1NX0.sTBxjWYr5m90-usvIJQyvTXon3TkD9Nk0V9z6IDQtmo";
+const HDRS={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
+const $=id=>document.getElementById(id);
+const esc=s=>(s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const waNum=t=>(t||'').replace(/[^0-9]/g,'');
+
+/* estrellas */
+let RATING=0;
+const starBtns=[...document.querySelectorAll('#stars button')];
+function paintStars(){starBtns.forEach(b=>b.classList.toggle('on',+b.dataset.v<=RATING));}
+starBtns.forEach(b=>b.onclick=()=>{RATING=+b.dataset.v;paintStars();});
+$('testimonio').addEventListener('input',()=>{$('cc').textContent=$('testimonio').value.length;});
+
+/* enviar */
+$('enviar').onclick=async()=>{
+ const d={
+  nombre:$('nombre').value.trim(),
+  celular:$('celular').value.trim(),
+  ciudad:$('ciudad').value.trim(),
+  agente:$('agenteInp').value.trim(),
+  calificacion:RATING||null,
+  testimonio:$('testimonio').value.trim(),
+  autoriza_publicar:$('autoriza').checked
+ };
+ if(d.nombre.length<2){$('err').textContent='Escribe tu nombre.';return;}
+ if(d.testimonio.length<10){$('err').textContent='Cuéntanos un poco más en tu testimonio.';return;}
+ $('err').textContent='';$('enviar').disabled=true;$('enviar').textContent='Enviando…';
+ try{
+  const r=await fetch(SUPABASE_URL+'/rest/v1/testimonios',{method:'POST',headers:{...HDRS,'Prefer':'return=minimal'},body:JSON.stringify(d)});
+  if(!r.ok)throw new Error(await r.text());
+  $('formCard').classList.add('hide');$('okCard').classList.remove('hide');window.scrollTo(0,0);
+ }catch(e){$('err').textContent='No se pudo enviar. Revisa tu conexión e intenta de nuevo.';}
+ $('enviar').disabled=false;$('enviar').textContent='Enviar mi testimonio →';
+};
+$('otro').onclick=()=>{
+ ['nombre','celular','ciudad','agenteInp','testimonio'].forEach(id=>$(id).value='');
+ $('cc').textContent='0';RATING=0;paintStars();$('autoriza').checked=true;
+ $('okCard').classList.add('hide');$('formCard').classList.remove('hide');
+};
+
+/* ---- ORGANIZADOR ---- */
+let PASS=null, ROWS=[];
+async function fetchRows(){
+ const r=await fetch(SUPABASE_URL+'/rest/v1/rpc/listar_testimonios',{method:'POST',headers:HDRS,body:JSON.stringify({p_pass:PASS})});
+ if(!r.ok)throw new Error('no_autorizado');
+ return r.json();
+}
+$('verLink').onclick=async()=>{
+ const p=prompt('Contraseña de organizador:');
+ if(p===null)return;
+ PASS=p;
+ try{ROWS=await fetchRows();}catch(_){PASS=null;alert('Contraseña incorrecta.');return;}
+ $('formCard').classList.add('hide');$('admCard').classList.remove('hide');
+ render();
+};
+$('admClose').onclick=()=>{PASS=null;ROWS=[];$('admList').innerHTML='';$('admCard').classList.add('hide');$('formCard').classList.remove('hide');};
+$('admRefresh').onclick=async()=>{try{ROWS=await fetchRows();render();}catch(_){alert('No se pudo actualizar.');}};
+$('admFiltro').addEventListener('change',render);
+function render(){
+ $('admBig').textContent=ROWS.length;
+ const f=$('admFiltro').value;
+ const rows=ROWS.filter(d=>!f||(f==='si'?d.autoriza_publicar:!d.autoriza_publicar));
+ if(!rows.length){$('admList').innerHTML='<p style="color:#888;text-align:center;padding:20px">Aún no hay testimonios.</p>';return;}
+ $('admList').innerHTML=rows.map(d=>{
+  const fe=new Date(d.creado).toLocaleString('es-CO',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const st=d.calificacion?'★'.repeat(d.calificacion)+'☆'.repeat(5-d.calificacion):'';
+  const meta=[d.celular&&'📱 '+esc(d.celular),d.ciudad&&'📍 '+esc(d.ciudad),d.agente&&'👤 '+esc(d.agente),'🕐 '+fe].filter(Boolean).join(' · ');
+  return `<div class="reg"><div class="top"><div><div class="nm">${esc(d.nombre)}${d.autoriza_publicar?'<span class="tag y">Autoriza publicar</span>':'<span class="tag n">No publicar</span>'}</div>
+   <div class="meta">${meta}</div>${st?`<div class="st">${st}</div>`:''}</div>
+   ${waNum(d.celular).length>=7?`<a class="wa" href="https://wa.me/${waNum(d.celular)}" target="_blank" rel="noopener">WhatsApp</a>`:''}</div>
+   <div class="tx">${esc(d.testimonio)}</div></div>`;
+ }).join('');
+}
+$('admCsv').onclick=()=>{
+ const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+ let csv='Fecha,Nombre,Telefono,Ciudad,Agente,Calificacion,Autoriza publicar,Testimonio\n';
+ ROWS.forEach(d=>{csv+=[q(new Date(d.creado).toLocaleString('es-CO')),q(d.nombre),q(d.celular),q(d.ciudad),q(d.agente),q(d.calificacion||''),q(d.autoriza_publicar?'Sí':'No'),q(d.testimonio)].join(',')+'\n';});
+ const b=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');
+ a.href=URL.createObjectURL(b);a.download='testimonios_nexus.csv';a.click();
+};
+</script></body></html>

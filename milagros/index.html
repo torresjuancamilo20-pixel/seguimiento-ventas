@@ -1,0 +1,184 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Cuéntanos tu milagro</title>
+<meta name="theme-color" content="#1a0605">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--fire:#ff6a2b;--fire2:#ffb067;--glow:#ffd7a8;--ink:#fff3ea;--mut:#e6b9a3;--line:rgba(255,140,90,.22);--glass:rgba(30,6,5,.55)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:hidden}
+body{background:#140403;color:var(--ink);font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;position:relative}
+.bg{position:fixed;inset:0;z-index:0;background:url(fondo.jpg) center/cover no-repeat;transform:scale(1.08);animation:breathe 16s ease-in-out infinite}
+@keyframes breathe{50%{transform:scale(1.16) rotate(1.5deg)}}
+.shade{position:fixed;inset:0;z-index:1;background:linear-gradient(180deg,rgba(18,3,2,.55) 0%,rgba(18,3,2,.2) 28%,rgba(18,3,2,.55) 60%,rgba(12,2,2,.92) 100%)}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.08;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.wrap{position:relative;z-index:2;max-width:520px;margin:0 auto;padding:44px 18px 60px}
+.hero{text-align:center;margin-bottom:26px}
+.kick{font-weight:700;font-size:11.5px;letter-spacing:.42em;text-transform:uppercase;color:var(--glow);opacity:.9}
+h1{font-family:'Anton';font-weight:400;text-transform:uppercase;line-height:.95;margin-top:16px}
+h1 .a{display:block;font-size:clamp(34px,10vw,48px);color:#fff4ea;letter-spacing:.01em;padding-top:.1em}
+h1 .b{display:block;font-size:clamp(68px,22vw,112px);color:#ffc98f;letter-spacing:.02em;
+ text-shadow:0 0 30px rgba(255,100,30,.75),0 0 80px rgba(255,70,20,.5)}
+.subt{font-size:clamp(15px,4.2vw,17px);font-weight:500;line-height:1.5;color:#ffe6d6;margin:16px auto 0;max-width:380px}
+.card{background:var(--glass);border:1px solid var(--line);border-radius:24px;padding:26px 20px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+ box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06)}
+label{display:block;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--fire2);font-weight:800;margin:18px 0 8px}
+label:first-child{margin-top:0}
+.inp{width:100%;padding:14px 16px;border:1.5px solid rgba(255,150,100,.22);border-radius:14px;background:rgba(255,255,255,.05);color:#fff;font-family:inherit;font-size:16px;transition:.18s}
+.inp::placeholder{color:#b88d7c}
+.inp:focus{outline:none;border-color:var(--fire2);background:rgba(255,120,60,.08);box-shadow:0 0 0 4px rgba(255,120,60,.16)}
+textarea.inp{min-height:150px;resize:vertical;line-height:1.5}
+.cc{text-align:right;font-size:11px;color:var(--mut);margin-top:5px}
+.btn{width:100%;margin-top:24px;padding:16px;border:none;border-radius:14px;color:#2a0700;font-family:'Anton';font-size:19px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:.18s;
+ background:linear-gradient(135deg,#ffe2bf,#ffab5c 50%,#ff6a2b);box-shadow:0 14px 40px rgba(255,90,30,.45)}
+.btn:hover{transform:translateY(-1px);box-shadow:0 18px 46px rgba(255,90,30,.6)}
+.btn:disabled{opacity:.6;cursor:default;transform:none}
+.err{color:#ffb3a6;font-size:13.5px;margin-top:12px;font-weight:700;min-height:16px;text-align:center}
+.ok{text-align:center;padding:14px 4px}
+.ok .big{font-size:54px;margin-bottom:10px}
+.ok h2{font-family:'Anton';font-weight:400;font-size:34px;letter-spacing:.02em;text-transform:uppercase;color:#ffc98f;text-shadow:0 0 30px rgba(255,100,30,.6);margin-bottom:12px}
+.ok p{color:#ffe6d6;font-size:16px;line-height:1.6}
+.foot{text-align:center;margin-top:22px;font-size:12px}
+.foot a{color:#c99a86;cursor:pointer;text-decoration:underline}
+.hide{display:none!important}
+/* equipo */
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.mini{padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:rgba(255,120,60,.08);color:#fff;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+.mini:hover{border-color:var(--fire2)}
+.count{text-align:center;margin-bottom:16px}
+.count b{font-family:'Anton';font-weight:400;font-size:58px;color:#ffc98f;text-shadow:0 0 26px rgba(255,100,30,.6);display:block;line-height:1}
+.count span{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);font-weight:800}
+.reg{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:13px 14px;margin-bottom:10px}
+.reg.done{opacity:.6}
+.reg .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.reg .nm{font-weight:800;font-size:15px}
+.reg .meta{font-size:12.5px;color:var(--mut);margin-top:3px}
+.reg .tx{font-size:14.5px;line-height:1.55;margin-top:10px;white-space:pre-wrap;overflow-wrap:anywhere;color:#fff1e8}
+.reg .acts{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap}
+.wa{background:#25d366;color:#fff;font-weight:800;font-size:12px;text-decoration:none;padding:7px 12px;border-radius:20px}
+.chk{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:#ffd9c4;cursor:pointer}
+.chk input{width:17px;height:17px;accent-color:#ff6a2b}
+</style></head><body>
+<div class="bg"></div><div class="shade"></div><div class="grain"></div>
+
+<div class="wrap">
+ <div class="hero">
+  <div class="kick">Tu testimonio</div>
+  <h1><span class="a">Cuéntanos tu</span><span class="b">Milagro</span></h1>
+  <p class="subt">Lo que Dios hizo en tu vida puede encender la fe de alguien más.</p>
+ </div>
+
+ <!-- FORMULARIO -->
+ <div class="card" id="formCard">
+  <label for="nombre">Nombre</label>
+  <input class="inp" id="nombre" type="text" placeholder="Tu nombre completo" autocomplete="name" maxlength="120">
+  <label for="celular">Número de celular</label>
+  <input class="inp" id="celular" type="tel" inputmode="tel" placeholder="Ej: 300 123 4567" autocomplete="tel" maxlength="40">
+  <label for="edad">Edad</label>
+  <input class="inp" id="edad" type="number" inputmode="numeric" min="1" max="120" placeholder="Tu edad">
+  <label for="milagro">Cuéntanos tu milagro brevemente</label>
+  <textarea class="inp" id="milagro" maxlength="4000" placeholder="¿Qué hizo Dios en tu vida?"></textarea>
+  <div class="cc"><span id="cc">0</span> / 4000</div>
+  <div class="err" id="err"></div>
+  <button class="btn" id="enviar">Enviar mi testimonio</button>
+ </div>
+
+ <!-- CONFIRMACIÓN -->
+ <div class="card hide" id="okCard">
+  <div class="ok">
+   <div class="big">🔥</div>
+   <h2>¡Gracias!</h2>
+   <p>Nuestro equipo se contactará contigo para que muchos conozcan lo que Dios hizo en tu vida.</p>
+  </div>
+ </div>
+
+ <!-- EQUIPO -->
+ <div class="card hide" id="admCard">
+  <div class="count"><b id="admBig">0</b><span>Testimonios recibidos</span></div>
+  <div class="bar">
+   <select class="mini" id="admFiltro"><option value="">Todos</option><option value="pend">Por contactar</option><option value="ok">Contactados</option></select>
+   <button class="mini" id="admRefresh">↻ Actualizar</button>
+   <button class="mini" id="admCsv">⭳ Excel / Google Sheets</button>
+   <button class="mini" id="admClose">Salir</button>
+  </div>
+  <div id="admList"></div>
+ </div>
+
+ <div class="foot"><a id="verLink">Equipo</a></div>
+</div>
+
+<script>
+const SUPABASE_URL="https://fhixjvxztmuifrioevze.supabase.co";
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoaXhqdnh6dG11aWZyaW9ldnplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjgxNTUsImV4cCI6MjA5OTM0NDE1NX0.sTBxjWYr5m90-usvIJQyvTXon3TkD9Nk0V9z6IDQtmo";
+const HDRS={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
+const $=id=>document.getElementById(id);
+const esc=s=>(s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const digits=t=>(t||'').replace(/[^0-9]/g,'');
+// número para WhatsApp: si es un celular colombiano de 10 dígitos, se agrega el 57
+const waNum=t=>{const d=digits(t);return d.length===10&&d[0]==='3'?'57'+d:d;};
+
+$('milagro').addEventListener('input',()=>{$('cc').textContent=$('milagro').value.length;});
+
+$('enviar').onclick=async()=>{
+ const d={nombre:$('nombre').value.trim(),celular:$('celular').value.trim(),edad:parseInt($('edad').value,10),milagro:$('milagro').value.trim()};
+ if(d.nombre.length<2){$('err').textContent='Escribe tu nombre.';return;}
+ if(digits(d.celular).length<7){$('err').textContent='Escribe un número de celular válido.';return;}
+ if(!(d.edad>=1&&d.edad<=120)){$('err').textContent='Escribe tu edad.';return;}
+ if(d.milagro.length<5){$('err').textContent='Cuéntanos tu milagro.';return;}
+ $('err').textContent='';$('enviar').disabled=true;$('enviar').textContent='Enviando…';
+ try{
+  const r=await fetch(SUPABASE_URL+'/rest/v1/milagros',{method:'POST',headers:{...HDRS,'Prefer':'return=minimal'},body:JSON.stringify(d)});
+  if(!r.ok)throw new Error(await r.text());
+  $('formCard').classList.add('hide');$('okCard').classList.remove('hide');window.scrollTo(0,0);
+ }catch(e){$('err').textContent='No se pudo enviar. Revisa tu conexión e intenta de nuevo.';$('enviar').disabled=false;$('enviar').textContent='Enviar mi testimonio';}
+};
+
+/* ---- vista del equipo ---- */
+let PASS=null,ROWS=[];
+async function rpc(fn,body){
+ const r=await fetch(SUPABASE_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:HDRS,body:JSON.stringify(body)});
+ if(!r.ok)throw new Error('error');
+ return r.status===204?null:r.json();
+}
+$('verLink').onclick=async()=>{
+ const p=prompt('Clave del equipo:');
+ if(p===null)return;
+ try{ROWS=await rpc('listar_milagros',{p_pass:p});}catch(_){alert('Clave incorrecta.');return;}
+ PASS=p;
+ ['formCard','okCard'].forEach(id=>$(id).classList.add('hide'));$('admCard').classList.remove('hide');$('verLink').classList.add('hide');
+ render();
+};
+$('admClose').onclick=()=>{PASS=null;ROWS=[];$('admList').innerHTML='';$('admCard').classList.add('hide');$('formCard').classList.remove('hide');$('verLink').classList.remove('hide');};
+$('admRefresh').onclick=async()=>{try{ROWS=await rpc('listar_milagros',{p_pass:PASS});render();}catch(_){alert('No se pudo actualizar.');}};
+$('admFiltro').addEventListener('change',render);
+function render(){
+ $('admBig').textContent=ROWS.length;
+ const f=$('admFiltro').value;
+ const rows=ROWS.filter(d=>!f||(f==='ok'?d.contactado:!d.contactado));
+ if(!rows.length){$('admList').innerHTML='<p style="color:#c99a86;text-align:center;padding:20px">No hay testimonios aquí todavía.</p>';return;}
+ $('admList').innerHTML=rows.map(d=>{
+  const fe=new Date(d.creado).toLocaleString('es-CO',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const wa=waNum(d.celular);
+  return `<div class="reg${d.contactado?' done':''}"><div class="top"><div><div class="nm">${esc(d.nombre)}</div>
+   <div class="meta">${esc(d.edad)} años · 📱 ${esc(d.celular)} · ${fe}</div></div></div>
+   <div class="tx">${esc(d.milagro)}</div>
+   <div class="acts">${wa.length>=7?`<a class="wa" href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp</a>`:''}
+   <label class="chk"><input type="checkbox" data-id="${d.id}" ${d.contactado?'checked':''}> Ya lo contactamos</label></div></div>`;
+ }).join('');
+ document.querySelectorAll('#admList input[data-id]').forEach(cb=>cb.onchange=async()=>{
+  const row=ROWS.find(x=>x.id===cb.dataset.id);
+  try{await rpc('marcar_milagro',{p_pass:PASS,p_id:row.id,p_contactado:cb.checked});row.contactado=cb.checked;render();}
+  catch(_){cb.checked=!cb.checked;alert('No se pudo guardar.');}
+ });
+}
+$('admCsv').onclick=()=>{
+ const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+ let csv='Fecha,Nombre,Celular,Edad,Milagro,Contactado\n';
+ ROWS.forEach(d=>{csv+=[q(new Date(d.creado).toLocaleString('es-CO')),q(d.nombre),q(d.celular),q(d.edad),q(d.milagro),q(d.contactado?'Sí':'No')].join(',')+'\n';});
+ const b=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');
+ a.href=URL.createObjectURL(b);a.download='testimonios_milagros.csv';a.click();
+};
+</script></body></html>

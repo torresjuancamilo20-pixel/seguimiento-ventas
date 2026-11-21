@@ -166,6 +166,7 @@
   .seg label:has(input[value="ahorro"]:checked){background:rgba(245,166,35,.16);color:var(--save)}
   form.add{display:grid;gap:10px}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .moneda-sel{cursor:pointer;appearance:auto;max-width:170px;font:inherit;font-size:.78rem}
   .btn-ghost{background:var(--tile);border:1px solid var(--line);color:var(--txt);padding:9px 14px;border-radius:10px;cursor:pointer;font-size:.82rem;font-weight:600}
   .btn-ghost:hover{border-color:var(--line2)}
 
@@ -430,7 +431,9 @@ src="https://www.facebook.com/tr?id=966627226223633&ev=PageView&noscript=1"
       <div class="badge">Paso 1 de 3</div>
       <h2>¿Cuánto <span class="grad">ingresas</span> al mes?</h2>
       <p class="muted">Tu ingreso mensual aproximado (salario, ventas, etc.). Con esto calculamos tu plan.</p>
-      <input type="number" id="obIngreso" placeholder="Ej. 2000000" min="0" step="any" inputmode="numeric">
+      <label class="muted" for="obMoneda" style="display:block;font-size:.8rem;margin:4px 0 6px">Tu moneda</label>
+      <select id="obMoneda" onchange="cambiarMoneda(this.value)" style="margin-bottom:10px"></select>
+      <input type="number" id="obIngreso" placeholder="Ej. 2000000" min="0" step="any" inputmode="decimal">
       <button class="primary" onclick="obNext()">Continuar</button>
     </div>
     <div class="ob-step hidden" data-step="1">
@@ -440,7 +443,7 @@ src="https://www.facebook.com/tr?id=966627226223633&ev=PageView&noscript=1"
       <div class="fijo-add">
         <select id="obFijoCat"></select>
         <input type="text" id="obFijoNom" placeholder="Nombre (ej. Arriendo)">
-        <input type="number" id="obFijoMonto" placeholder="Valor" min="0" step="any" inputmode="numeric">
+        <input type="number" id="obFijoMonto" placeholder="Valor" min="0" step="any" inputmode="decimal">
         <button class="btn-ghost" onclick="obAddFijo()">＋</button>
       </div>
       <div id="obFijosList" class="fijos-list"></div>
@@ -454,7 +457,7 @@ src="https://www.facebook.com/tr?id=966627226223633&ev=PageView&noscript=1"
       <div class="badge">Paso 3 de 3</div>
       <h2>Tu <span class="grad">meta de ahorro</span> mensual</h2>
       <p class="muted">¿Cuánto quieres apartar cada mes? Puede ser un monto o dejarlo en 0 por ahora.</p>
-      <input type="number" id="obAhorro" placeholder="Ej. 300000" min="0" step="any" inputmode="numeric">
+      <input type="number" id="obAhorro" placeholder="Ej. 300000" min="0" step="any" inputmode="decimal">
       <div class="ob-preview" id="obPreview"></div>
       <div class="ob-nav">
         <button class="linkout" onclick="obPrev()">Atrás</button>
@@ -558,6 +561,7 @@ src="https://www.facebook.com/tr?id=966627226223633&ev=PageView&noscript=1"
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
         <input type="text" id="search" placeholder="Buscar movimiento…" autocomplete="off">
       </label>
+      <select id="monedaSel" class="sync-chip moneda-sel" title="Tu moneda" aria-label="Tu moneda" onchange="cambiarMoneda(this.value)"></select>
       <span id="subInfo" class="sync-chip"></span>
       <span id="syncState" class="sync-chip"></span>
       <div class="month-nav">
@@ -825,7 +829,33 @@ let isRegister = false;
 let movFilter = "todos";
 
 const $ = id => document.getElementById(id);
-function money(n){ return "$"+ (n||0).toLocaleString("es-CO",{maximumFractionDigits:0}); }
+/* Moneda y zona horaria del usuario: Eva funciona en cualquier país. */
+const MONEDAS={COP:["Peso colombiano","es-CO",0],USD:["Dólar (USD)","en-US",2],MXN:["Peso mexicano","es-MX",2],EUR:["Euro","es-ES",2],PEN:["Sol peruano","es-PE",2],CLP:["Peso chileno","es-CL",0],ARS:["Peso argentino","es-AR",2],UYU:["Peso uruguayo","es-UY",2],PYG:["Guaraní","es-PY",0],BOB:["Boliviano","es-BO",2],GTQ:["Quetzal","es-GT",2],HNL:["Lempira","es-HN",2],NIO:["Córdoba","es-NI",2],CRC:["Colón costarricense","es-CR",0],DOP:["Peso dominicano","es-DO",2],VES:["Bolívar","es-VE",2],BRL:["Real brasileño","pt-BR",2],CAD:["Dólar canadiense","en-CA",2],GBP:["Libra esterlina","en-GB",2]};
+const TZ_MONEDA={"America/Bogota":"COP","America/Mexico_City":"MXN","America/Monterrey":"MXN","America/Cancun":"MXN","America/Tijuana":"MXN","America/Lima":"PEN","America/Santiago":"CLP","America/Argentina/Buenos_Aires":"ARS","America/Buenos_Aires":"ARS","America/Montevideo":"UYU","America/Asuncion":"PYG","America/La_Paz":"BOB","America/Guatemala":"GTQ","America/Tegucigalpa":"HNL","America/Managua":"NIO","America/Costa_Rica":"CRC","America/Santo_Domingo":"DOP","America/Caracas":"VES","America/Sao_Paulo":"BRL","America/Toronto":"CAD","America/Vancouver":"CAD","Europe/London":"GBP"};
+function tzLocal(){ try{ return Intl.DateTimeFormat().resolvedOptions().timeZone||"America/Bogota"; }catch(_){ return "America/Bogota"; } }
+function monedaDetectada(){ const tz=tzLocal(); if(TZ_MONEDA[tz]) return TZ_MONEDA[tz]; if(/^Europe\//.test(tz)) return "EUR"; if(/^America\//.test(tz)) return "USD"; return "USD"; }
+function monedaActual(){ return (config&&MONEDAS[config.moneda])?config.moneda:"COP"; }
+let _fmtCache={};
+function money(n){
+  const c=monedaActual(), [,loc,dec]=MONEDAS[c], v=Number(n)||0;
+  const cent=dec&&Math.round(v*100)%100!==0?dec:0, k=c+cent; // $12.50, pero $12 si no hay centavos
+  const f=_fmtCache[k]||(_fmtCache[k]=new Intl.NumberFormat(loc,{style:"currency",currency:c,currencyDisplay:"narrowSymbol",minimumFractionDigits:cent,maximumFractionDigits:cent}));
+  return f.format(v).replace(/^(-?[^\d\s-]+)\s/,"$1");
+}
+function hoyLocal(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function ejemploMonto(grande,chico){ return MONEDAS[monedaActual()][2]===0 ? grande : chico; } // monedas sin centavos usan cifras grandes
+function pintarMoneda(){
+  const sel=$("monedaSel"), ob=$("obMoneda");
+  const opts=Object.entries(MONEDAS).map(([k,v])=>`<option value="${k}">${k} · ${v[0]}</option>`).join("");
+  [sel,ob].forEach(x=>{ if(x){ if(!x.options.length) x.innerHTML=opts; x.value=monedaActual(); } });
+  const ing=$("obIngreso"), aho=$("obAhorro");
+  if(ing) ing.placeholder="Ej. "+ejemploMonto("2000000","2500");
+  if(aho) aho.placeholder="Ej. "+ejemploMonto("300000","300");
+}
+async function cambiarMoneda(c){
+  if(!MONEDAS[c]) return;
+  config.moneda=c; pintarMoneda(); render(); await saveConfig();
+}
 function ymKey(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); }
 function monthName(d){ return d.toLocaleDateString("es-CO",{month:"long",year:"numeric"}); }
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -1021,6 +1051,10 @@ async function enterApp(){
   $("avatar").textContent = (user.email[0]||"U").toUpperCase();
   { const nom=(user.email||"").split("@")[0]; const cap=nom.charAt(0).toUpperCase()+nom.slice(1); $("welcomeName").textContent=cap; $("welcomeName2").textContent=cap; }
   await loadAll();
+  { let cambio=false;
+    if(!MONEDAS[config.moneda]){ config.moneda = (config.perfil&&config.perfil.onboarded) ? "COP" : monedaDetectada(); cambio=true; }
+    const tz=tzLocal(); if(config.tz!==tz){ config.tz=tz; cambio=true; }
+    pintarMoneda(); if(cambio) saveConfig(); }
   fillCats(); fillBudCats();
   if(!config.perfil || !config.perfil.onboarded){ startOnboarding(); }
   else { await aplicarFijosMesActual(); }
@@ -1375,14 +1409,14 @@ let catManual=false;
 $("desc").addEventListener("input",autoCat);
 $("cat").addEventListener("change",()=>{ catManual=true; });
 document.querySelectorAll('input[name=tipo]').forEach(r=>r.addEventListener("change",()=>{fillCats();autoCat();}));
-$("fecha").valueAsDate=new Date();
+$("fecha").value=hoyLocal();
 
 $("frm").addEventListener("submit", async e=>{
   e.preventDefault();
   const tipo=document.querySelector('input[name=tipo]:checked').value;
   const m=parseFloat($("monto").value);
   if(!(m>0)) return;
-  const rec={tipo, descripcion:$("desc").value.trim(), monto:m, categoria:$("cat").value, fecha:$("fecha").value||new Date().toISOString().slice(0,10), user_id:user.id};
+  const rec={tipo, descripcion:$("desc").value.trim(), monto:m, categoria:$("cat").value, fecha:$("fecha").value||hoyLocal(), user_id:user.id};
   setSync("Guardando…");
   const {data,error}=await sb.from("finanzas_movimientos").insert(rec).select().single();
   if(error){ setSync("Error al guardar"); alert("No se pudo guardar: "+error.message); return; }

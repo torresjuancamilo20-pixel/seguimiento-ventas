@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>Eva · Black Friday y moneda</title>
+<!-- Carrusel "Black Friday: 4 preguntas" (6 láminas) + flyer "Eva habla tu moneda". Cada .lam se exporta a PNG 1080x1350. -->
+<style>
+@font-face{font-family:'Montserrat';font-weight:500;src:url(../fonts/montserrat-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:600;src:url(../fonts/montserrat-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:700;src:url(../fonts/montserrat-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:800;src:url(../fonts/montserrat-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:900;src:url(../fonts/montserrat-latin-900-normal.woff2) format('woff2')}
+@font-face{font-family:'Playfair Display';font-weight:700;src:url(../fonts/playfair-display-latin-700-normal.woff2) format('woff2')}
+:root{--bg:#0A0711;--rosa:#F06CE0;--brand:#E24BD8;--morado:#A855F7;--txt:#F3EEFB;--muted:#A99FB8;--ok:#2DD4A0;--bad:#F2557A;--oro:#F5B342}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#222;font-family:'Montserrat',sans-serif;color:var(--txt)}
+.lam{width:1080px;height:1350px;position:relative;overflow:hidden;background:radial-gradient(900px 700px at 100% 0%,rgba(168,40,180,.35),transparent 65%),var(--bg);margin-bottom:20px}
+.sil{position:absolute;right:-180px;bottom:-120px;height:1100px;opacity:.07}
+.pad{position:absolute;left:80px;right:80px;top:80px;bottom:80px}
+.kick{font-size:30px;font-weight:800;letter-spacing:8px;color:var(--rosa)}
+.pg{position:absolute;right:0;top:0;font-size:26px;font-weight:800;color:#6e6480}
+h1{font-size:118px;font-weight:900;letter-spacing:-5px;line-height:.98;margin-top:40px}
+h2{font-size:84px;font-weight:900;letter-spacing:-3px;line-height:1.02;margin-top:30px}
+.grad{background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--morado));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.lead{font-size:40px;font-weight:500;line-height:1.38;color:var(--muted);margin-top:34px}
+.lead b{color:#fff;font-weight:800}
+.num{font-size:150px;font-weight:900;line-height:.8;letter-spacing:-8px}
+.pie{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:center}
+.logo{display:flex;align-items:baseline}
+.logo .E{font-family:'Playfair Display';font-weight:700;font-size:92px;line-height:.8}
+.logo .va{font-weight:700;font-size:48px;letter-spacing:-1px;margin-left:-2px;color:#fff}
+.url{font-size:30px;font-weight:800;padding:20px 30px;border-radius:999px;background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--morado));color:#fff}
+.desliza{font-size:32px;font-weight:600;color:var(--muted)}
+.card{border-radius:36px;background:linear-gradient(180deg,rgba(36,27,54,.95),rgba(20,15,30,.95));border:2px solid rgba(255,255,255,.08);padding:40px 46px}
+.tag{display:inline-block;font-size:28px;font-weight:800;padding:12px 24px;border-radius:14px}
+.row{white-space:nowrap;gap:30px;display:flex;justify-content:space-between;align-items:center;font-size:38px;font-weight:700;padding:22px 0;border-bottom:2px solid rgba(255,255,255,.07)}
+.row:last-child{border:0}
+.tachado{position:relative;color:#6e6480}
+.tachado::after{content:"";position:absolute;left:-6px;right:-6px;top:52%;height:6px;border-radius:3px;background:var(--bad)}
+.chips{display:flex;flex-wrap:wrap;gap:16px;margin-top:40px}
+.chip{font-size:34px;font-weight:800;padding:18px 28px;border-radius:24px;background:rgba(255,255,255,.05);border:2px solid rgba(240,108,224,.35)}
+.chip small{font-size:26px;font-weight:600;color:var(--muted);margin-left:12px}
+.wa{border-radius:30px;background:#0f1a17;border:2px solid rgba(45,212,160,.3);padding:30px 36px;font-size:36px}
+.wa .yo{background:#1f6f54;color:#fff;border-radius:22px 22px 6px 22px;padding:18px 26px;margin-left:auto;width:fit-content;font-weight:700}
+.wa .eva{background:#1d2622;border-radius:22px 22px 22px 6px;padding:18px 26px;margin-top:18px;width:fit-content;line-height:1.35;color:#dfeee8}
+</style></head><body>
+
+<!-- 1 Portada -->
+<section class="lam" id="bf1">
+  <img class="sil" src="../marca/eva-silueta.svg" alt="">
+  <div class="pad">
+    <div class="kick">BLACK FRIDAY · VIERNES 27</div><div class="pg">1/6</div>
+    <h1>Antes de comprar, hazte <span class="grad">4 preguntas.</span></h1>
+    <p class="lead">Un descuento solo es ahorro <b>si igual lo ibas a comprar.</b> Lo demás es gasto con etiqueta roja.</p>
+    <div class="card" style="margin-top:70px;width:800px">
+      <div class="row"><span>Audífonos</span><span><span class="tachado">$320.000</span>&nbsp; <span style="color:var(--ok)">$199.000</span></span></div>
+      <div class="row"><span>¿Estaban en tu lista?</span><span style="color:var(--bad)">No</span></div>
+    </div>
+    <div class="desliza" style="margin-top:56px">Desliza antes de pagar →</div>
+    <div class="pie"><div class="logo"><span class="E grad">E</span><span class="va">va</span></div><span class="url">evafinanzas.us</span></div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="lam" id="bf2">
+  <img class="sil" src="../marca/eva-silueta.svg" alt="">
+  <div class="pad">
+    <div class="kick">PREGUNTA</div><div class="pg">2/6</div>
+    <div class="num grad" style="margin-top:40px">1</div>
+    <h2>¿Lo iba a comprar <span class="grad">igual?</span></h2>
+    <p class="lead">Si no estaba en tu lista <b>antes</b> de ver el descuento, no te estás ahorrando nada: estás gastando en algo que no tenías pensado.</p>
+    <div class="card" style="margin-top:60px"><span class="tag" style="color:var(--ok);background:rgba(45,212,160,.12)">TRUCO</span><p style="font-size:38px;font-weight:600;margin-top:20px;line-height:1.35">Haz tu lista <b>hoy</b>, antes de que salgan las ofertas. Lo que no esté ahí, no entra al carrito.</p></div>
+    <div class="pie"><div class="logo"><span class="E grad">E</span><span class="va">va</span></div><span class="desliza">→</span></div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="lam" id="bf3">
+  <img class="sil" src="../marca/eva-silueta.svg" alt="">
+  <div class="pad">
+    <div class="kick">PREGUNTA</div><div class="pg">3/6</div>
+    <div class="num grad" style="margin-top:40px">2</div>
+    <h2>¿Cuánto costaba <span class="grad">hace un mes?</span></h2>
+    <p class="lead">A veces el precio "antes" se sube unos días antes para que el descuento se vea más grande. <b>Compara el precio en 2 o 3 tiendas</b> y mira el historial si la tienda lo muestra.</p>
+    <div class="card" style="margin-top:60px">
+      <div class="row"><span style="color:var(--muted)">Octubre</span><span>$219.000</span></div>
+      <div class="row"><span style="color:var(--muted)">"Antes" en Black Friday</span><span class="tachado">$320.000</span></div>
+      <div class="row"><span>Descuento real</span><span style="color:var(--oro)">$20.000, no $121.000</span></div>
+    </div>
+    <div class="pie"><div class="logo"><span class="E grad">E</span><span class="va">va</span></div><span class="desliza">→</span></div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="lam" id="bf4">
+  <img class="sil" src="../marca/eva-silueta.svg" alt="">
+  <div class="pad">
+    <div class="kick">PREGUNTA</div><div class="pg">4/6</div>
+    <div class="num grad" style="margin-top:40px">3</div>
+    <h2>¿De contado <span class="grad">o a cuotas?</span></h2>
+    <p class="lead">Si lo pasas a muchas cuotas con la tarjeta de crédito, <b>los intereses se pueden comer el descuento</b> y terminas pagando más que el precio normal.</p>
+    <div class="card" style="margin-top:60px"><span class="tag" style="color:var(--oro);background:rgba(245,179,66,.12)">ANTES DE PAGAR</span><p style="font-size:38px;font-weight:600;margin-top:20px;line-height:1.35">Pregunta cuánto pagarías <b>en total</b> con intereses. Si no lo puedes pagar a una cuota, mejor espera.</p></div>
+    <div class="pie"><div class="logo"><span class="E grad">E</span><span class="va">va</span></div><span class="desliza">→</span></div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="lam" id="bf5">
+  <img class="sil" src="../marca/eva-silueta.svg" alt="">
+  <div class="pad">
+    <div class="kick">PREGUNTA</div><div class="pg">5/6</div>
+    <div class="num grad" style="margin-top:40px">4</div>
+    <h2>¿Cabe en tu <span class="grad">presupuesto?</span></h2>
+    <p class="lead">Si para comprarlo tienes que tocar la plata del <b>arriendo, el mercado o tu ahorro</b>, no es oferta: es un hueco para el otro mes.</p>
+    <div class="card" style="margin-top:60px">
+      <div style="font-size:32px;font-weight:700;color:var(--muted)">Tu presupuesto del mes</div>
+      <div style="height:40px;border-radius:20px;background:#0d0a15;margin-top:22px;overflow:hidden;border:2px solid rgba(255,255,255,.08)"><div style="width:72%;height:100%;background:linear-gradient(90deg,var(--rosa),var(--morado))"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:32px;font-weight:700;margin-top:18px"><span>Llevas 72%</span><span style="color:var(--muted)">Tope fijo</span></div>
+    </div>
+    <div class="pie"><div class="logo"><span class="E grad">E</span><span class="va">va</span></div><span class="desliza">→</span></div>
+  </div>
+</section>
+
+<!-- 6 CTA -->
+<section class="lam" id="bf6">
+  <img class="sil" src="../marca/eva-silueta.svg" alt="" style="opacity:.12">
+  <div class="pad">
+    <div class="kick">EL PLAN</div><div class="pg">6/6</div>
+    <h2 style="margin-top:50px">Lista, tope y <span class="grad">cada compra anotada.</span></h2>
+    <p class="lead">En Eva le pones tope a tus gastos del mes, registras cada compra con un WhatsApp y en la app ves <b>cuánto te queda</b>.</p>
+    <div class="wa" style="margin-top:56px">
+      <div class="yo">audífonos 199000</div>
+      <div class="eva">¡Listo! Audífonos — $199.000<br>Quedó guardado en tu mes.</div>
+    </div>
+    <p class="lead" style="margin-top:44px;color:#fff;font-weight:700">Guarda este post para el viernes.</p>
+    <div class="pie"><div class="logo"><span class="E grad">E</span><span class="va">va</span></div><span class="url">evafinanzas.us</span></div>
+  </div>
+</section>
+
+<!-- Flyer: Eva habla tu moneda -->
+<section class="lam" id="moneda">
+  <img class="sil" src="../marca/eva-silueta.svg" alt="" style="opacity:.14;height:1000px;right:-120px;bottom:-60px">
+  <div class="pad">
+    <div class="kick">NUEVO EN EVA</div>
+    <h1 style="font-size:104px">Eva ahora habla <span class="grad">tu moneda.</span></h1>
+    <p class="lead">Vivas donde vivas: <b>elige tu moneda y lleva tus cuentas como se usan en tu país.</b></p>
+    <div class="chips">
+      <div class="chip">COP<small>pesos</small></div>
+      <div class="chip">USD<small>dólares</small></div>
+      <div class="chip">EUR<small>euros</small></div>
+      <div class="chip">MXN<small>pesos</small></div>
+      <div class="chip">PEN<small>soles</small></div>
+      <div class="chip">CLP<small>pesos</small></div>
+      <div class="chip">ARS<small>pesos</small></div>
+      <div class="chip" style="border-color:rgba(255,255,255,.12);color:var(--muted)">y más</div>
+    </div>
+    <div class="wa" style="margin-top:40px;width:920px">
+      <div class="yo">lunch 12.50</div>
+      <div class="eva" style="white-space:nowrap">¡Anotado! Lunch — Alimentación · $12.50</div>
+    </div>
+    <div class="pie"><div class="logo"><span class="E grad">E</span><span class="va">va</span></div><span class="url">evafinanzas.us</span></div>
+  </div>
+</section>
+</body></html>

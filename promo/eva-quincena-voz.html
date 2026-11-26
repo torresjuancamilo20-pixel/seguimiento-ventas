@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>Eva · La quincena (con voz)</title>
+<!-- Reel 9:16 (21 s). Un cuarto isométrico que cambia de color según cómo va la quincena.
+     Animaciones con Web Animations para renderizar cuadro a cuadro (tools/render.js). -->
+<style>
+@font-face{font-family:'Montserrat';font-weight:600;src:url(fonts/montserrat-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:700;src:url(fonts/montserrat-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:800;src:url(fonts/montserrat-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:900;src:url(fonts/montserrat-latin-900-normal.woff2) format('woff2')}
+@font-face{font-family:'Playfair Display';font-weight:700;src:url(fonts/playfair-display-latin-700-normal.woff2) format('woff2')}
+:root{--bg:#07050B;--rosa:#F06CE0;--brand:#E24BD8;--morado:#A855F7;--txt:#F3EEFB;--muted:#A99FB8;--ok:#2DD4A0;--bad:#F2557A;--naranja:#F59E42}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--bg);font-family:'Montserrat',sans-serif;color:var(--txt)}
+#stars{position:absolute;inset:0;background:radial-gradient(1px 1px at 20% 30%,#fff3,transparent),radial-gradient(1px 1px at 70% 20%,#fff2,transparent),radial-gradient(1.5px 1.5px at 85% 70%,#fff2,transparent),radial-gradient(1px 1px at 12% 80%,#fff2,transparent)}
+.kick{position:absolute;left:0;right:0;top:250px;text-align:center;font-size:30px;font-weight:800;letter-spacing:9px;color:var(--rosa);opacity:0}
+.tit{position:absolute;left:60px;right:60px;top:300px;text-align:center;font-size:100px;font-weight:900;letter-spacing:-4px;line-height:1.05;opacity:0}
+.tit b{display:inline-block;padding:0 18px 6px;border-radius:10px;background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--morado));color:#fff;font-weight:900}
+.tit b.rojo{background:var(--bad)}
+#room{position:absolute;left:90px;top:560px;width:900px;height:900px}
+#room svg{width:100%;height:100%}
+.card{position:absolute;opacity:0;padding:22px 30px;border-radius:24px;background:rgba(20,14,30,.92);border:2px solid rgba(255,255,255,.12);box-shadow:0 20px 50px rgba(0,0,0,.5);font-size:34px;font-weight:700;white-space:nowrap;backdrop-filter:blur(6px)}
+.card small{display:block;font-size:22px;font-weight:600;color:var(--muted);margin-bottom:4px}
+.card .v{font-weight:900}
+.chat{position:absolute;left:150px;right:150px;top:1420px;opacity:0}
+.b{padding:22px 30px;border-radius:28px;font-size:38px;font-weight:700;width:fit-content;margin-bottom:16px;line-height:1.3}
+.b.yo{margin-left:auto;background:#1f6f54;border-bottom-right-radius:8px}
+.b.eva{background:#1d1a26;border:2px solid rgba(240,108,224,.4);border-bottom-left-radius:8px;font-weight:600}
+.big{position:absolute;left:0;right:0;top:1430px;text-align:center;opacity:0}
+.big small{display:block;font-size:28px;font-weight:800;letter-spacing:6px;color:var(--muted)}
+.big div{font-size:130px;font-weight:900;letter-spacing:-5px;background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--morado));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+#fin{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px;opacity:0;background:radial-gradient(800px 700px at 50% 45%,rgba(226,75,216,.25),transparent 70%),var(--bg)}
+.logo{display:flex;align-items:baseline}
+.logo .E{font-family:'Playfair Display';font-weight:700;font-size:260px;line-height:.8;background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--morado));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.logo .va{font-weight:700;font-size:130px;letter-spacing:-4px;color:#fff}
+.url{font-size:54px;font-weight:800;padding:30px 60px;border-radius:999px;background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--morado))}
+#fin p{font-size:40px;font-weight:600;color:var(--muted)}
+</style></head><body>
+<div id="stars"></div>
+
+<div class="kick" id="k1">DÍA 1 · QUINCENA</div>
+<div class="tit" id="t1">Llega la <b>quincena.</b></div>
+<div class="kick" id="k2">DÍA 4</div>
+<div class="tit" id="t2">Un gusto <b>aquí…</b></div>
+<div class="kick" id="k3">DÍA 12</div>
+<div class="tit" id="t3">¿Y la <b class="rojo">plata?</b></div>
+<div class="kick" id="k4">CON EVA</div>
+<div class="tit" id="t4">Anótalo con un <b>WhatsApp.</b></div>
+<div class="kick" id="k5">CON EVA</div>
+<div class="tit" id="t5">Sabes cuánto te <b>queda.</b></div>
+
+<div id="room">
+<svg viewBox="0 0 900 900">
+  <defs>
+    <radialGradient id="luz" cx="50%" cy="45%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <!-- hexágono exterior (paredes + piso) -->
+  <g id="cuarto">
+    <path id="pIzq" d="M450 120 L130 305 L130 615 L450 430 Z" fill="#2a2234"/>
+    <path id="pDer" d="M450 120 L770 305 L770 615 L450 430 Z" fill="#221b2b"/>
+    <path id="piso" d="M450 430 L130 615 L450 800 L770 615 Z" fill="#3a2f47"/>
+    <!-- tablas del piso -->
+    <g stroke="#000" stroke-opacity=".18" stroke-width="3">
+      <path d="M370 476 L690 661"/><path d="M290 522 L610 707"/><path d="M210 568 L530 753"/>
+    </g>
+    <!-- ventana -->
+    <path id="ventana" d="M610 330 L700 382 L700 470 L610 418 Z" fill="#14101c" stroke="#000" stroke-opacity=".3" stroke-width="4"/>
+    <!-- cuadro -->
+    <path d="M220 330 L300 284 L300 360 L220 406 Z" fill="#1a1522" stroke="#000" stroke-opacity=".25" stroke-width="4"/>
+    <!-- escritorio -->
+    <path d="M330 560 L450 490 L570 560 L450 630 Z" fill="#6b4a33" id="mesaTop"/>
+    <path d="M330 560 L330 590 L450 660 L450 630 Z" fill="#4e3423"/>
+    <path d="M450 630 L450 660 L570 590 L570 560 Z" fill="#3f2a1c"/>
+    <!-- portátil -->
+    <path d="M410 545 L470 510 L500 527 L440 562 Z" fill="#cfc8da"/>
+    <path d="M470 510 L470 470 L500 487 L500 527 Z" fill="#9b93a8" id="pantalla"/>
+    <!-- persona -->
+    <ellipse cx="560" cy="640" rx="34" ry="16" fill="#000" opacity=".3"/>
+    <rect x="532" y="565" width="56" height="78" rx="26" fill="#e9e2f2"/>
+    <circle cx="560" cy="545" r="26" fill="#e9e2f2"/>
+    <!-- lámpara -->
+    <line x1="450" y1="120" x2="450" y2="300" stroke="#000" stroke-opacity=".5" stroke-width="3"/>
+    <circle cx="450" cy="305" r="14" fill="#fff" id="bombillo"/>
+  </g>
+  <!-- capa de luz/color que cambia por escena -->
+  <path id="tinte" d="M450 120 L130 305 L130 615 L450 800 L770 615 L770 305 Z" fill="#F59E42" opacity="0" style="mix-blend-mode:color"/>
+  <ellipse id="halo" cx="450" cy="470" rx="380" ry="300" fill="url(#luz)" opacity=".25" style="mix-blend-mode:screen"/>
+  <path id="borde" d="M450 120 L130 305 L130 615 L450 800 L770 615 L770 305 Z" fill="none" stroke="#E24BD8" stroke-width="4" opacity="0"/>
+</svg>
+</div>
+
+<div class="card" id="c1" style="left:150px;top:900px"><small>Nómina · hoy</small><span class="v" style="color:var(--ok)">+$2.400.000</span></div>
+<div class="card" id="c2" style="left:120px;top:820px"><small>Domicilio</small><span class="v" style="color:var(--bad)">−$32.000</span></div>
+<div class="card" id="c3" style="left:600px;top:760px"><small>Uber</small><span class="v" style="color:var(--bad)">−$14.500</span></div>
+<div class="card" id="c4" style="left:560px;top:960px"><small>Suscripción</small><span class="v" style="color:var(--bad)">−$26.900</span></div>
+<div class="card" id="c5" style="left:330px;top:880px"><small>Saldo · faltan 3 días</small><span class="v" style="color:var(--bad)">$86.000</span></div>
+<div class="card" id="c6" style="left:140px;top:760px"><small>Banco · hoy</small>¿En qué se me fue?</div>
+
+<div class="chat" id="chat">
+  <div class="b yo" id="m1">domicilio 32000</div>
+  <div class="b eva" id="m2">¡Listo! Domicilio — Alimentación<br><b style="color:var(--rosa)">Llevas $180.000 en Alimentación</b></div>
+</div>
+<div class="big" id="queda"><small>TE QUEDA ESTE MES</small><div>$1.180.000</div></div>
+
+<div id="fin">
+  <div class="logo"><span class="E">E</span><span class="va">va</span></div>
+  <p>Tu plata, por WhatsApp.</p>
+  <div class="url">evafinanzas.us</div>
+</div>
+
+<script>
+// Versión con voz (ElevenLabs · Lauren): los tiempos siguen la locución, 23,5 s.
+const D = 23500, $ = (q) => document.querySelector(q), EZ = 'cubic-bezier(.2,.8,.2,1)';
+function track(el, kf) {
+  kf.sort((a, b) => a[0] - b[0]);
+  const fr = kf.map(([t, p]) => ({ ...p, offset: Math.min(1, Math.max(0, t * 1000 / D)), easing: EZ }));
+  if (fr[0].offset > 0) fr.unshift({ ...fr[0], offset: 0 });
+  if (fr[fr.length - 1].offset < 1) fr.push({ ...fr[fr.length - 1], offset: 1 });
+  el.animate(fr, { duration: D, fill: 'both' });
+}
+const show = (el, t0, t1, d = .4, desde = 'translateY(40px) scale(.96)') => track(el, [
+  [t0, { opacity: 0, transform: desde }], [t0 + d, { opacity: 1, transform: 'none' }],
+  [t1 - .3, { opacity: 1, transform: 'none' }], [t1, { opacity: 0, transform: 'none' }]]);
+const pop = (el, t0, t1) => show(el, t0, t1, .35, 'scale(.7) translateY(20px)');
+const E = [[0, 2.6], [2.6, 7.3], [7.3, 9.7], [9.7, 14.3], [14.3, 17.1]];
+E.forEach(([a, b], i) => { show($('#k' + (i + 1)), a + .05, b); show($('#t' + (i + 1)), a + .1, b, .45); });
+track($('#room'), [[0, { opacity: 0, transform: 'translateY(60px) scale(.9)' }], [.7, { opacity: 1, transform: 'none' }], [16.9, { opacity: 1, transform: 'none' }], [17.3, { opacity: 0, transform: 'scale(.92)' }]]);
+track($('#tinte'), [[0, { fill: '#F59E42', opacity: 0 }], [2.8, { fill: '#F59E42', opacity: 0 }], [3.4, { fill: '#F59E42', opacity: .55 }], [7.3, { fill: '#F59E42', opacity: .55 }], [7.9, { fill: '#F2557A', opacity: .6 }], [9.8, { fill: '#F2557A', opacity: .6 }], [10.4, { fill: '#C026D3', opacity: .65 }]]);
+track($('#halo'), [[0, { opacity: .25 }], [7.3, { opacity: .3 }], [7.9, { opacity: .05 }], [9.8, { opacity: .05 }], [10.4, { opacity: .45 }]]);
+track($('#bombillo'), [[0, { fill: '#fff' }], [7.4, { fill: '#fff' }], [7.9, { fill: '#5a5064' }], [9.8, { fill: '#5a5064' }], [10.3, { fill: '#F9B8F1' }]]);
+track($('#pantalla'), [[9.8, { fill: '#9b93a8' }], [10.3, { fill: '#F06CE0' }]]);
+track($('#borde'), [[9.8, { opacity: 0 }], [10.4, { opacity: .8 }]]);
+pop($('#c1'), .9, 2.6);
+pop($('#c2'), 4.0, 7.3); pop($('#c3'), 4.9, 7.3); pop($('#c4'), 5.8, 7.3);
+pop($('#c6'), 7.7, 9.7); pop($('#c5'), 8.4, 9.7);
+track($('#chat'), [[9.9, { opacity: 1 }], [14.0, { opacity: 1 }], [14.3, { opacity: 0 }]]);
+pop($('#m1'), 10.4, 99); pop($('#m2'), 12.0, 99);
+pop($('#queda'), 15.0, 17.1);
+track($('#fin'), [[17.1, { opacity: 0 }], [17.6, { opacity: 1 }]]);
+</script>
+</body></html>

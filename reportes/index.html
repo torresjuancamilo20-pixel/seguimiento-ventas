@@ -402,7 +402,7 @@ input[type=date].minp::-webkit-calendar-picker-indicator{filter:invert(.8);curso
 .pill.reg{background:rgba(139,92,246,.16);color:#a78bfa}
 .pill.new{background:rgba(255,255,255,.06);color:var(--mut)}
 @media(max-width:760px){.mgrid,.mgrid3{grid-template-columns:1fr}}
-/* ---- Banner META LEGENDARY + vista META 24K ---- */
+/* ---- Banner META LEGENDARY + vista META 23K ---- */
 .metabanner{margin:0 0 18px}
 .mlbanner{background:linear-gradient(120deg,rgba(245,197,24,.16),rgba(139,92,246,.12) 60%,rgba(47,209,141,.10));border:1px solid rgba(245,197,24,.35);border-radius:18px;padding:16px 20px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
 .mlb-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
@@ -516,7 +516,7 @@ input[type=date].minp::-webkit-calendar-picker-indicator{filter:invert(.8);curso
    <div class="nav-item active" data-view="meta"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.3"/></svg></span> Mi Meta</div>
    <div class="nav-item" data-view="pventas"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h2l.4 2M7 13h10l3-7H6.4M7 13 5.4 5M7 13l-2 4h12"/><circle cx="9" cy="20" r="1.2"/><circle cx="17" cy="20" r="1.2"/></svg></span> Posibles ventas</div>
    <div class="nav-item" data-view="misftd"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span> Mis FTD's</div>
-   <div class="nav-item" data-view="meta24k"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></span> META 24K</div>
+   <div class="nav-item" data-view="meta24k"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></span> META 23K</div>
   </nav>
   <div class="side-foot"><button class="side-btn" id="logoutBtn">↩ Cerrar sesión</button></div>
  </aside>
@@ -1359,11 +1359,11 @@ async function showAvisoDiario(){
  ov.onclick=(e)=>{ if(e.target===ov) close(); };
  document.getElementById('appScreen').appendChild(ov);
 }
-/* ---------- META LEGENDARY (24K) ---------- */
+/* ---------- META LEGENDARY (23K) ---------- */
 // La meta se conecta con el Google Sheet de facturación (variable VENTAS),
 // la misma fuente que usa "Mi Meta": v.total es la facturación del mes de
 // cada agente. Se excluyen las filas de oficina/extensión (excluido()).
-const META_LEGENDARY=24000;   // meta de facturación del equipo (USD)
+const META_LEGENDARY=23000;   // meta de facturación del equipo (USD)
 async function loadMeta24k(){ try{ await loadVentas(); }catch(e){} }
 function metaVentasList(){
  return (Array.isArray(VENTAS)?VENTAS:[]).filter(v=>!excluido(v.name)).map(v=>({a:v.name,v:+v.total||0}));
@@ -1416,8 +1416,8 @@ function showView(v){
  $('viewMeta24k').classList.toggle('hide',!m24);
  if(m24){
    $('eyebrow').textContent='Equipo';
-   $('viewTitle').textContent='Meta Legendary · 24K';
-   $('viewSub').textContent='Cuánto lleva cada agente y cómo vamos hacia los $24,000 del mes.';
+   $('viewTitle').textContent='Meta Legendary · 23K';
+   $('viewSub').textContent='Cuánto lleva cada agente y cómo vamos hacia los $23,000 del mes.';
    loadMeta24k().then(()=>{renderMeta24k();renderMetaBanner();}); renderMeta24k();
  }else if(pv){
    $('eyebrow').textContent='Prospectos';

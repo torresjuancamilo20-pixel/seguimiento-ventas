@@ -482,11 +482,12 @@ src="https://www.facebook.com/tr?id=966627226223633&ev=PageView&noscript=1"
     <div class="trial" id="trialBox"><b>La prueba gratis de 7 días terminó.</b> Fue parte del prelanzamiento. ¡Eva ya es oficial! Elige tu plan y empieza hoy; puedes cancelar cuando quieras desde la app.</div>
     <div class="plan-opts">
       <div class="plan-opt" id="opt-mensual" data-plan="mensual" onclick="selPlan('mensual')">
+        <div class="po-tag">Oferta</div>
         <div>
           <div class="po-name">Plan mensual</div>
-          <div class="po-sub">Renovación automática · cancela cuando quieras</div>
+          <div class="po-sub">Primer mes a $4.99 · luego $9.99/mes · cancela cuando quieras</div>
         </div>
-        <div class="po-price"><span class="po-amt">$9.99</span><br><span class="po-per">USD / mes</span></div>
+        <div class="po-price"><span class="po-old">$9.99</span><span class="po-amt">$4.99</span><br><span class="po-per">USD el 1.er mes</span></div>
       </div>
       <div class="plan-opt sel" id="opt-anual" data-plan="anual" onclick="selPlan('anual')">
         <div class="po-tag">Ahorra 42%</div>
@@ -1306,7 +1307,8 @@ function pintarTransferencia(){
   if(!TF) return;
   $("tfPlan").textContent = planSel==="anual" ? "plan anual" : "plan mensual";
   $("tfMonto").textContent = copFmt(TF.precios[planSel])+" COP";
-  $("tfCalc").textContent = (planSel==="anual"?"USD 69":"USD 9,99")+" × TRM del "+new Date(TF.fecha_trm+"T12:00:00").toLocaleDateString("es-CO")+" ("+copFmt(TF.trm)+") + IVA 19%";
+  const oferta = planSel==="mensual" && TF.primer_mes;
+  $("tfCalc").textContent = (planSel==="anual"?"USD 69":(oferta?"Primer mes: USD 4,99":"USD 9,99"))+" × TRM del "+new Date(TF.fecha_trm+"T12:00:00").toLocaleDateString("es-CO")+" ("+copFmt(TF.trm)+") + IVA 19%"+(oferta&&TF.precios.mensual_normal?". Desde el segundo mes: "+copFmt(TF.precios.mensual_normal)+" COP.":"");
   $("tfLlave").textContent = TF.llave;
   $("tfTitular").textContent = TF.titular ? "A nombre de: "+TF.titular : "";
 }

@@ -83,7 +83,7 @@ src="https://www.facebook.com/tr?id=966627226223633&ev=PageView&noscript=1"
     <h1>Paga por transferencia (Bre-B)</h1>
     <p class="sub">No necesitas tarjeta. Primero pagas y subes el comprobante; después creas tu contraseña para entrar a Eva.</p>
     <div class="plans">
-      <div class="pl" data-plan="mensual"><div class="n">Mensual</div><div class="p" id="pMen"></div><div class="u">COP · 1 mes</div></div>
+      <div class="pl" data-plan="mensual"><div class="n">Mensual · oferta</div><div class="p" id="pMen"></div><div class="u" id="uMen">COP · 1 mes</div></div>
       <div class="pl" data-plan="anual"><div class="n">Anual</div><div class="p" id="pAnu"></div><div class="u">COP · 12 meses</div></div>
     </div>
     <div class="calc" id="calc"></div>
@@ -140,7 +140,10 @@ let D=null, plan=new URLSearchParams(location.search).get("plan")==="mensual"?"m
 function pintar(){
   document.querySelectorAll(".pl").forEach(p=>p.classList.toggle("sel",p.dataset.plan===plan));
   $("montoTxt").textContent=cop(D.precios[plan])+" COP";
-  $("calc").textContent="Precio en dólares (USD 9,99 / USD 69) × TRM del "+new Date(D.fecha_trm+"T12:00:00").toLocaleDateString("es-CO")+" ("+cop(D.trm)+") + IVA 19%.";
+  const f=new Date(D.fecha_trm+"T12:00:00").toLocaleDateString("es-CO");
+  $("calc").textContent = plan==="mensual" && D.primer_mes
+    ? "Primer mes en oferta: USD 4,99 × TRM del "+f+" ("+cop(D.trm)+") + IVA 19%. Desde el segundo mes: "+cop(D.precios.mensual_normal)+" COP (USD 9,99). Solo para clientes nuevos."
+    : "Precio en dólares (USD "+(plan==="anual"?"69":"9,99")+") × TRM del "+f+" ("+cop(D.trm)+") + IVA 19%.";
 }
 document.querySelectorAll(".pl").forEach(p=>p.onclick=()=>{ plan=p.dataset.plan; pintar(); });
 $("copiar").onclick=e=>{ navigator.clipboard?.writeText(D.llave); e.target.textContent="¡Copiada!"; setTimeout(()=>e.target.textContent="Copiar",1500); };
@@ -152,6 +155,7 @@ $("copiar").onclick=e=>{ navigator.clipboard?.writeText(D.llave); e.target.textC
   $("cargando").classList.add("hidden");
   if(!D||!D.disponible){ $("noDisp").classList.remove("hidden"); return; }
   $("pMen").textContent=cop(D.precios.mensual); $("pAnu").textContent=cop(D.precios.anual);
+  if(D.primer_mes && D.precios.mensual_normal) $("uMen").textContent="COP el 1.er mes · luego "+cop(D.precios.mensual_normal);
   $("llave").textContent=D.llave; $("titular").textContent=D.titular?("A nombre de: "+D.titular):"";
   pintar(); $("form").classList.remove("hidden");
 })();

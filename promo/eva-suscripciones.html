@@ -245,7 +245,7 @@ const idx = (e) => F.findIndex((f) => f.escena === e);
 { const i = idx('lista'); [['#s1','netflix'],['#s2','spotify'],['#s3','canva'],['#s4','gimnasio'],['#s5','nube']].forEach(([q,w]) => pop($(q), tw(i, w) - .15)); }
 { const i = idx('suma'); pop($('#tMes'), tw(i, 'juntas') - .1); pop($('#tAnio'), tw(i, 'año') - .2); }
 { const i = idx('sinuso'); ['#u1','#u2','#u3'].forEach((q, k) => track($(q), [[tw(i, 'usas') - .3 + k * .25, { opacity: .35, borderColor: 'rgba(255,255,255,.08)' }], [tw(i, 'usas') + k * .25, { opacity: 1, borderColor: 'rgba(242,85,122,.6)' }]])); }
-{ const i = idx('cancela'); pop($('#k1'), tw(i, 'revisa') - .15); pop($('#k2'), tw(i, 'cancela') - .15); pop($('#c-ahorro'), F[i].fin - .4); }
+{ const i = idx('cancela'); pop($('#k1'), tw(i, 'revisa') - .15); pop($('#k2'), tw(i, 'cancela') - .15); pop($('#c-ahorro'), tw(i, 'usado') - .1); }
 { const i = idx('eva'); pop($('#f1'), tw(i, 'suscripciones') - .1); pop($('#f2'), tw(i, 'fijos') - .1); pop($('#c-eva'), tw(i, 'cuánto') - .1); }
 { const i = idx('cierre'); pop($('#ctab'), tw(i, 'evafinanzas') - .2); pop($('#oferta'), tw(i, 'primer') - .2); }
 track($('#fin'), [[D / 1000 - 1.7, { opacity: 0 }], [D / 1000 - 1.2, { opacity: 1 }]]);

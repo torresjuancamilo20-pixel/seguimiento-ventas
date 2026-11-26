@@ -1,0 +1,47 @@
+{
+ "duracion": 43.0,
+ "frases": [
+  {
+   "escena": "pregunta",
+   "texto": "¿Sabes cuánto pagas al mes en *suscripciones?*",
+   "ini": 0.3,
+   "fin": 2.712
+  },
+  {
+   "escena": "lista",
+   "texto": "*Netflix,* *Spotify,* *Canva,* el gimnasio, la nube del celular…",
+   "ini": 3.097,
+   "fin": 7.974
+  },
+  {
+   "escena": "suma",
+   "texto": "Cada una parece poquito. Pero juntas, pueden pasar de *$200.000* al mes. Al año, casi *tres millones.*",
+   "ini": 8.468,
+   "fin": 16.619
+  },
+  {
+   "escena": "sinuso",
+   "texto": "Y lo peor: muchas, ni las *usas.*",
+   "ini": 17.061,
+   "fin": 19.814
+  },
+  {
+   "escena": "cancela",
+   "texto": "Haz esto hoy: revisa tu tarjeta, y *cancela* la que no hayas usado en el último mes.",
+   "ini": 20.372,
+   "fin": 25.576
+  },
+  {
+   "escena": "eva",
+   "texto": "Con Eva, tus suscripciones quedan como *gastos fijos:* ves cuánto se va cada mes, antes de que se vaya.",
+   "ini": 26.092,
+   "fin": 32.089
+  },
+  {
+   "escena": "cierre",
+   "texto": "Eva. Tu plata, bajo control. Empieza hoy en *evafinanzas.us,* con tu primer mes a *$4,99.*",
+   "ini": 32.69,
+   "fin": 40.3
+  }
+ ]
+}

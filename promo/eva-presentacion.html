@@ -66,6 +66,12 @@ svg{overflow:visible}
 .bb{position:absolute;padding:24px 32px;border-radius:30px;font-size:40px;font-weight:700;line-height:1.3;color:#fff;max-width:620px}
 .bb.yo{right:60px;background:#1f6f54;border-bottom-right-radius:8px}
 .bb.eva{left:60px;background:#1d2622;border-bottom-left-radius:8px;font-weight:600}
+.wallet{position:absolute;top:40px;width:360px;height:260px;border-radius:30px;padding:28px 30px;background:linear-gradient(135deg,#2b1f42,#120d1c);border:2px solid rgba(255,255,255,.14);text-align:center}
+.wallet small{font-size:24px;font-weight:700;color:var(--muted);letter-spacing:2px}
+.wb{margin:20px auto 18px;padding:20px 0;border-radius:18px;font-size:40px;font-weight:800}
+.wb.ap{background:#000;color:#fff;border:2px solid #444}
+.wb.gp{background:#fff;color:#1f1f1f}
+.wm{font-size:28px;font-weight:700;color:#e9e2f2}
 .tarjeta{position:absolute;left:190px;right:190px;top:40px;height:250px;border-radius:30px;padding:30px 40px;background:linear-gradient(135deg,#2b1f42,#120d1c);border:2px solid rgba(255,255,255,.14)}
 .tarjeta small{font-size:26px;font-weight:700;color:var(--muted)}
 .noti{position:absolute;left:110px;right:110px;top:380px;display:flex;gap:22px;align-items:center;padding:26px 30px;border-radius:28px;background:rgba(30,22,44,.95);border:2px solid rgba(240,108,224,.5);font-size:32px;line-height:1.35}
@@ -116,9 +122,10 @@ svg{overflow:visible}
 <section class="esc" id="e-pay">
   <div class="tit">Apple Pay y Google Pay</div>
   <div class="card">
-    <div class="tarjeta" id="tj"><small>Pago con el celular</small><div style="font-size:40px;font-weight:800;margin-top:14px">Éxito</div><div class="num" style="position:static;font-size:58px;margin-top:6px">−$85.000</div></div>
+    <div class="wallet" id="tj" style="left:60px"><small>iPhone</small><div class="wb ap">Apple Pay</div><div class="wm">Éxito · −$85.000</div></div>
+    <div class="wallet" id="tj2" style="right:60px"><small>Android</small><div class="wb gp">Google Pay</div><div class="wm">Uber · −$12.400</div></div>
     <svg class="cv" viewBox="0 0 900 600"><path id="flecha" d="M450 300 V360" stroke="var(--rosa)" stroke-width="6" fill="none" stroke-linecap="round"/></svg>
-    <div class="noti" id="nt"><span class="mini">E</span><div><b>Eva</b><br>Mercado — Éxito · $85.000<br><small style="color:var(--ok)">Anotado automáticamente</small></div></div>
+    <div class="noti" id="nt"><span class="mini">E</span><div><b>Eva</b><br>Éxito — Alimentación · $85.000<br><small style="color:var(--ok)">Anotado automáticamente</small></div></div>
   </div>
 </section>
 <!-- 5. Categorías y fijos -->
@@ -239,7 +246,7 @@ $$('.pg').forEach((g, k) => pop(g, ini.gancho + .5 + k * .45));
 pop($('#c-gancho'), tw(idx('gancho'), 'plata') - .2);
 pop($('#evaSil'), ini.eva + .4); pop($('#evaLogo'), tw(idx('eva'), 'eva') );
 pop($('#w1'), tw(idx('wa'), 'almuerzo') - .1); pop($('#w2'), tw(idx('wa'), 'listo') - .1); pop($('#c-wa'), tw(idx('wa'), 'anotado'));
-pop($('#tj'), ini.pay + .4); dibujar($('#flecha'), tw(idx('pay'), 'registra') - .4, .4); pop($('#nt'), tw(idx('pay'), 'registra'));
+pop($('#tj'), tw(idx('pay'), 'apple') - .2); pop($('#tj2'), tw(idx('pay'), 'google') - .2); dibujar($('#flecha'), tw(idx('pay'), 'registra') - .4, .4); pop($('#nt'), tw(idx('pay'), 'registra'));
 $$('.fc').forEach((g, k) => pop(g, tw(idx('cat'), 'categor') - .3 + k * .25)); pop($('#fijo'), tw(idx('cat'), 'fijos') - .1);
 { const i = idx('plan'); [['#pl1','#pb1','presupuesto',.72],['#pl2','#pb2','metas',.45],['#pl3','#pb3','deudas',.30]].forEach(([c,b,w,v]) => { const t = tw(i, w) - .15; pop($(c), t); track($(b), [[t + .2, { transform: 'scaleX(0)' }], [t + 1, { transform: `scaleX(${v})` }]]); }); }
 pop($('#r1'), tw(idx('res'), 'preguntas')); pop($('#r2'), tw(idx('res'), 'responde') - .1);

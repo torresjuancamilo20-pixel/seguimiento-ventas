@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>Eva · El efecto colador (Lauren)</title>
+<!-- Reel 9:16 explicativo. Los tiempos salen de la voz (eva-colador-tiempos.js);
+     todas las animaciones se crean con Web Animations para renderizar cuadro a cuadro. -->
+<style>
+@font-face{font-family:'Montserrat';font-weight:500;src:url(fonts/montserrat-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:600;src:url(fonts/montserrat-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:700;src:url(fonts/montserrat-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:800;src:url(fonts/montserrat-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:900;src:url(fonts/montserrat-latin-900-normal.woff2) format('woff2')}
+@font-face{font-family:'Playfair Display';font-weight:700;src:url(fonts/playfair-display-latin-700-normal.woff2) format('woff2')}
+:root{--bg:#0A0711;--panel:#141020;--panel2:#1B1529;--rosa:#F06CE0;--brand:#E24BD8;--morado:#A855F7;--txt:#F3EEFB;--muted:#8F85A3;--ok:#2DD4A0;--bad:#F2557A;--oro:#F5B342;--line:rgba(255,255,255,.09)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--bg);font-family:'Montserrat',sans-serif;color:var(--txt)}
+#fondo{position:absolute;inset:0;background:
+  radial-gradient(900px 700px at 50% 52%,rgba(168,85,247,.16),transparent 70%),
+  radial-gradient(800px 600px at 50% 110%,rgba(226,75,216,.12),transparent 70%)}
+#grid{position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:72px 72px;opacity:.35;
+  -webkit-mask-image:radial-gradient(800px 900px at 50% 55%,#000,transparent 80%)}
+/* subtítulo palabra por palabra */
+#subs{position:absolute;left:60px;right:60px;top:300px;height:190px}
+.chunk{position:absolute;inset:0;display:flex;flex-wrap:wrap;justify-content:center;align-content:flex-start;gap:6px 18px;font-size:60px;font-weight:600;line-height:1.25;text-align:center;opacity:0}
+.w{opacity:0;color:var(--muted)}
+.w.hl{position:relative;color:#fff;font-weight:800;padding:0 10px;margin:0 -6px}
+.w.hl::before{content:"";position:absolute;inset:-2px 0;border:3px solid var(--rosa);background:rgba(226,75,216,.18);border-radius:6px}
+.w.hl i{position:absolute;left:-6px;top:-8px;width:12px;height:12px;border-radius:50%;background:#fff}
+.w.hl b{position:absolute;right:-6px;bottom:-8px;width:12px;height:12px;border-radius:50%;background:#fff}
+#ig{position:absolute;right:70px;top:530px;display:flex;align-items:center;gap:12px;font-size:24px;font-weight:700;letter-spacing:1px;color:#cfc6de}
+/* escenas */
+.esc{position:absolute;left:0;right:0;top:620px;height:900px;opacity:0}
+.tit{text-align:center;font-size:74px;font-weight:800;letter-spacing:-1.5px}
+.tit small{display:block;font-size:26px;font-weight:800;letter-spacing:8px;color:var(--rosa);margin-bottom:6px}
+.tit::after{content:"";display:block;width:110px;height:5px;border-radius:3px;margin:22px auto 0;background:var(--ul,var(--rosa))}
+.card{position:absolute;left:90px;right:90px;top:200px;height:600px;border-radius:40px;background:linear-gradient(180deg,rgba(32,25,48,.92),rgba(18,14,28,.92));border:2px solid rgba(255,255,255,.1);box-shadow:0 40px 100px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden}
+.chip{position:absolute;left:0;right:0;margin:0 auto;width:fit-content;padding:14px 30px;border-radius:14px;font-size:30px;font-weight:800;white-space:nowrap}
+.cv{position:absolute;inset:0}
+svg{overflow:visible}
+.cuenta{position:absolute;left:50%;top:115px;width:440px;height:270px;margin-left:-220px;border-radius:30px;background:linear-gradient(140deg,#2b1f42,#1a1428);border:2px solid rgba(240,108,224,.35);padding:34px 38px}
+.cuenta .lb{font-size:26px;font-weight:700;color:var(--muted)}
+.cuenta .num{position:absolute;left:38px;top:84px;font-size:68px;font-weight:900;letter-spacing:-2px}
+.hueco{position:absolute;bottom:22px;width:22px;height:22px;border-radius:50%;background:#07050c;box-shadow:inset 0 3px 6px rgba(0,0,0,.8)}
+.tag{position:absolute;font-size:24px;font-weight:800;letter-spacing:3px;padding:8px 16px;border-radius:8px;border:2px solid currentColor}
+.gasto{position:absolute;left:90px;right:90px;height:96px;border-radius:22px;background:var(--panel2);border:2px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;padding:0 34px;font-size:38px;font-weight:700}
+.gasto b{color:var(--bad);font-weight:800}
+.barra{position:absolute;left:90px;right:90px;height:44px;border-radius:22px;background:#0d0a15;border:2px solid rgba(255,255,255,.08);overflow:hidden}
+.barra i{position:absolute;inset:0;border-radius:22px;transform-origin:left}
+.papel{position:absolute;width:280px;height:340px;border-radius:24px;background:linear-gradient(180deg,#d9d3e6,#b8aecb);padding:26px;color:#2a2238}
+.papel b{display:block;font-size:30px;font-weight:800;margin-bottom:24px}
+.papel s{display:block;height:12px;border-radius:6px;background:rgba(42,34,56,.35);margin:20px 0;text-decoration:none}
+.papel em{position:absolute;right:20px;bottom:14px;font-style:normal;font-size:110px;font-weight:900;color:var(--bad);line-height:1}
+.col{position:absolute;bottom:110px;width:200px;border-radius:20px 20px 8px 8px;transform-origin:bottom}
+.col span{position:absolute;top:-60px;left:0;right:0;text-align:center;font-size:30px;font-weight:800}
+.logo{display:flex;align-items:baseline;justify-content:center}
+.logo .E{font-family:'Playfair Display';font-weight:700;font-size:200px;line-height:.8;background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--morado));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.logo .va{font-weight:700;font-size:100px;letter-spacing:-3px;margin-left:-2px;color:#fff}
+.sil{position:absolute;height:250px;filter:drop-shadow(0 0 30px rgba(226,75,216,.45))}
+.mods{position:absolute;left:50px;right:50px;top:46px;display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.mod{height:220px;border-radius:24px;background:#120e1c;border:2px solid rgba(255,255,255,.07);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;font-size:27px;font-weight:800;color:#5d5470;text-align:center;line-height:1.15}
+.mod svg{width:74px;height:74px;stroke:currentColor;fill:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+.cta{display:inline-block;padding:30px 60px;border-radius:999px;font-size:50px;font-weight:800;color:#fff;background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--morado));box-shadow:0 20px 60px rgba(226,75,216,.4)}
+#fin{position:absolute;inset:0;background:#06040a;opacity:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px}
+#fin .h{font-size:52px;font-weight:800;letter-spacing:1px}
+</style></head><body>
+<div id="fondo"></div><div id="grid"></div>
+<div id="subs"></div>
+<div id="ig"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1" fill="#fff"/></svg>@EVAFINANZAS.US</div>
+
+<!-- 1. El efecto colador -->
+<section class="esc" id="e-colador">
+  <div class="tit"><small>EL EFECTO</small>COLADOR</div>
+  <div class="card">
+    <svg class="cv" viewBox="0 0 900 600">
+      <path id="l-in" d="M0 470 H170 L260 380 H330" stroke="var(--ok)" stroke-width="7" fill="none" stroke-linecap="round" filter="drop-shadow(0 0 10px #2DD4A0)"/>
+      <path class="l-out" d="M380 385 V470 L470 540 H900" stroke="var(--bad)" stroke-width="6" fill="none" stroke-linecap="round" filter="drop-shadow(0 0 10px #F2557A)"/>
+      <path class="l-out" d="M450 385 V450 L520 500 H900" stroke="var(--bad)" stroke-width="6" fill="none" stroke-linecap="round" filter="drop-shadow(0 0 10px #F2557A)"/>
+      <path class="l-out" d="M520 385 V430 L570 460 H900" stroke="var(--bad)" stroke-width="6" fill="none" stroke-linecap="round" filter="drop-shadow(0 0 10px #F2557A)"/>
+    </svg>
+    <div class="cuenta">
+      <div class="lb">Tu cuenta</div>
+      <div class="num" id="n0" style="color:#6d6380">$0</div>
+      <div class="num" id="n1" style="color:var(--ok)">$2.400.000</div>
+      <div class="num" id="n2" style="color:var(--bad)">$180.000</div>
+      <span class="hueco" style="left:142px"></span><span class="hueco" style="left:212px"></span><span class="hueco" style="left:282px"></span>
+    </div>
+    <div class="tag" id="t-in" style="left:40px;top:500px;color:#4c4560">→ ENTRA</div>
+    <div class="tag" id="t-out" style="right:40px;top:400px;color:#4c4560">SE VA →</div>
+  </div>
+</section>
+
+<!-- 2. ¿Por qué se va? -->
+<section class="esc" id="e-motivos">
+  <div class="tit">¿Por qué se va?</div>
+  <div class="card">
+    <svg class="cv" viewBox="0 0 900 600">
+      <path class="rama" d="M130 300 H330 L420 160 H640" stroke="var(--rosa)" stroke-width="7" fill="none" stroke-linecap="round" filter="drop-shadow(0 0 10px #F06CE0)"/>
+      <path class="rama" d="M130 300 H640" stroke="var(--oro)" stroke-width="7" fill="none" stroke-linecap="round" filter="drop-shadow(0 0 10px #F5B342)"/>
+      <path class="rama" d="M130 300 H330 L420 440 H640" stroke="var(--morado)" stroke-width="7" fill="none" stroke-linecap="round" filter="drop-shadow(0 0 10px #A855F7)"/>
+      <rect x="114" y="284" width="32" height="32" rx="4" transform="rotate(45 130 300)" fill="#fff" filter="drop-shadow(0 0 14px #fff)"/>
+    </svg>
+    <div class="rlab" style="position:absolute;left:680px;top:136px;font-size:34px;font-weight:800;color:var(--rosa)">1</div>
+    <div class="rlab" style="position:absolute;left:680px;top:276px;font-size:34px;font-weight:800;color:var(--oro)">2</div>
+    <div class="rlab" style="position:absolute;left:680px;top:416px;font-size:34px;font-weight:800;color:var(--morado)">3</div>
+  </div>
+</section>
+
+<!-- 3. Gastos hormiga -->
+<section class="esc" id="e-hormiga" style="--ul:var(--rosa)">
+  <div class="tit">Gastos hormiga</div>
+  <div class="card">
+    <div class="gasto" id="g1" style="top:50px"><span>Tinto</span><b>−$4.000</b></div>
+    <div class="gasto" id="g2" style="top:166px"><span>Domicilio</span><b>−$15.000</b></div>
+    <div class="gasto" id="g3" style="top:282px"><span>Suscripción</span><b>−$32.900</b></div>
+    <div id="q" style="position:absolute;left:90px;right:90px;top:420px;font-size:30px;font-weight:800;color:var(--muted)">Quincena</div>
+    <div class="barra" style="top:468px"><i id="qb" style="background:linear-gradient(90deg,var(--ok),#7be7c4)"></i></div>
+    <div class="chip" id="c-hormiga" style="top:530px;color:var(--bad);background:rgba(242,85,122,.12);border:2px solid rgba(242,85,122,.5);padding:8px 26px;font-size:26px">Se comen tu quincena</div>
+  </div>
+</section>
+
+<!-- 4. Desorden -->
+<section class="esc" id="e-desorden" style="--ul:var(--oro)">
+  <div class="tit">Desorden</div>
+  <div class="card">
+    <div class="papel" id="p1" style="left:70px;top:130px"><b>Ahorros</b><s></s><s style="width:70%"></s><s></s><s style="width:55%"></s><em>?</em></div>
+    <div class="papel" id="p2" style="left:310px;top:90px;z-index:2"><b>Tarjeta</b><s style="width:80%"></s><s></s><s style="width:60%"></s><s></s><em>?</em></div>
+    <div class="papel" id="p3" style="left:550px;top:130px"><b>Efectivo</b><s></s><s style="width:50%"></s><s style="width:85%"></s><s></s><em>?</em></div>
+    <div class="chip" id="c-desorden" style="top:500px;color:var(--oro);background:rgba(245,179,66,.12);border:2px solid rgba(245,179,66,.5)">¿En qué se te fue?</div>
+  </div>
+</section>
+
+<!-- 5. Deudas -->
+<section class="esc" id="e-deudas" style="--ul:var(--morado)">
+  <div class="tit">Deudas</div>
+  <div class="card">
+    <div style="position:absolute;left:90px;right:90px;bottom:108px;height:2px;background:rgba(255,255,255,.12)"></div>
+    <div class="col" id="d1" style="left:190px;height:150px;background:linear-gradient(180deg,#7be7c4,var(--ok))"></div><div style="position:absolute;left:140px;width:300px;bottom:50px;text-align:center;font-size:30px;font-weight:800;color:var(--ok)">Pago mínimo</div>
+    <div class="col" id="d2" style="right:190px;height:330px;background:linear-gradient(180deg,#ff8aa6,var(--bad))"></div><div style="position:absolute;right:140px;width:300px;bottom:50px;text-align:center;font-size:30px;font-weight:800;color:var(--bad)">Intereses</div>
+    <div class="chip" id="c-deudas" style="top:40px;color:#c9b8ff;background:rgba(168,85,247,.14);border:2px solid rgba(168,85,247,.5)">Tu plata se va en intereses</div>
+  </div>
+</section>
+
+<!-- 6. Eva -->
+<section class="esc" id="e-eva">
+  <div class="tit">Tapar los huecos</div>
+  <div class="card">
+    <svg class="cv" viewBox="0 0 900 600">
+      <path class="une" d="M60 170 H190 L290 300 H380" stroke="var(--rosa)" stroke-width="7" fill="none" stroke-linecap="round" filter="drop-shadow(0 0 10px #F06CE0)"/>
+      <path class="une" d="M60 300 H380" stroke="var(--oro)" stroke-width="7" fill="none" stroke-linecap="round" filter="drop-shadow(0 0 10px #F5B342)"/>
+      <path class="une" d="M60 430 H190 L290 300 H380" stroke="var(--morado)" stroke-width="7" fill="none" stroke-linecap="round" filter="drop-shadow(0 0 10px #A855F7)"/>
+    </svg>
+    <div id="evabox" style="position:absolute;left:400px;top:110px;width:400px;height:380px;border-radius:32px;background:#120e1c;border:2px solid rgba(240,108,224,.45);box-shadow:0 0 80px rgba(226,75,216,.25)">
+      <img class="sil" src="marca/eva-silueta.svg" alt="" style="left:0;right:0;margin:0 auto;top:22px">
+      <div class="logo" style="position:absolute;left:0;right:0;top:268px;transform:scale(.55);transform-origin:top center"><span class="E">E</span><span class="va">va</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. Módulos -->
+<section class="esc" id="e-modulos">
+  <div class="tit">Así funciona Eva</div>
+  <div class="card" style="height:640px">
+    <div class="mods">
+      <div class="mod" id="m0"><svg viewBox="0 0 64 64"><path d="M12 52l4-12a22 22 0 1 1 8 8z"/><path d="M24 26c2 6 8 12 14 14l4-4 6 3c-1 5-5 7-9 6-9-2-17-10-19-19-1-4 1-8 6-9l3 6z" stroke-width="3.5"/></svg>WhatsApp</div>
+      <div class="mod" id="m1"><svg viewBox="0 0 64 64"><path d="M30 8H12v18l26 26 18-18z"/><circle cx="21" cy="17" r="3"/></svg>Categorías</div>
+      <div class="mod" id="m2"><svg viewBox="0 0 64 64"><rect x="8" y="12" width="48" height="44" rx="6"/><path d="M8 24h48M20 6v12M44 6v12M22 38l6 6 12-12"/></svg>Gastos fijos</div>
+      <div class="mod" id="m3"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="22"/><path d="M32 10v22l16 14"/></svg>Presupuesto</div>
+      <div class="mod" id="m4"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="22"/><circle cx="32" cy="32" r="12"/><circle cx="32" cy="32" r="3"/></svg>Metas</div>
+      <div class="mod" id="m5"><svg viewBox="0 0 64 64"><rect x="6" y="14" width="52" height="36" rx="6"/><path d="M6 26h52M16 40h12"/></svg>Deudas</div>
+    </div>
+    <div id="modlab" style="position:absolute;left:0;right:0;bottom:44px;text-align:center;font-size:34px;font-weight:800;color:var(--rosa)"></div>
+  </div>
+</section>
+
+<!-- 8. Control -->
+<section class="esc" id="e-control" style="--ul:var(--ok)">
+  <div class="tit">Tu plata, bajo control</div>
+  <div class="card">
+    <div style="position:absolute;left:90px;top:70px;font-size:30px;font-weight:800;color:var(--muted)">Entra</div>
+    <div class="barra" style="top:116px"><i id="b-in" style="background:linear-gradient(90deg,var(--ok),#7be7c4)"></i></div>
+    <div style="position:absolute;left:90px;top:200px;font-size:30px;font-weight:800;color:var(--muted)">Gastos (con plan)</div>
+    <div class="barra" style="top:246px"><i id="b-out" style="background:linear-gradient(90deg,var(--rosa),var(--morado))"></i></div>
+    <div style="position:absolute;left:90px;top:330px;font-size:30px;font-weight:800;color:var(--muted)">Ahorro</div>
+    <div class="barra" style="top:376px"><i id="b-ah" style="background:linear-gradient(90deg,var(--oro),#ffd88a)"></i></div>
+    <div class="chip" id="c-control" style="top:474px;color:var(--ok);background:rgba(45,212,160,.12);border:2px solid rgba(45,212,160,.5)">Sabes a dónde va cada peso</div>
+  </div>
+</section>
+
+<!-- 9. Cierre -->
+<section class="esc" id="e-cierre">
+  <div class="card" style="top:40px;height:780px;text-align:center">
+    <img class="sil" src="marca/eva-silueta.svg" alt="" style="left:0;right:0;margin:0 auto;top:60px;height:260px">
+    <div class="logo" style="margin-top:340px"><span class="E">E</span><span class="va">va</span></div>
+    <div id="ctab" style="margin-top:50px"><span class="cta">evafinanzas.us</span></div>
+  </div>
+</section>
+
+<div id="fin">
+  <svg width="150" height="150" viewBox="0 0 24 24" fill="none" stroke="url(#gi)" stroke-width="2"><defs><linearGradient id="gi" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#F5B342"/><stop offset=".5" stop-color="#E24BD8"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1" fill="#E24BD8"/></svg>
+  <div class="h">@evafinanzas.us</div>
+</div>
+
+<script src="eva-colador-lauren-tiempos.js"></script>
+<script>
+const F = T.frases, D = T.duracion * 1000, $ = (q) => document.querySelector(q), $$ = (q) => [...document.querySelectorAll(q)];
+const EZ = 'cubic-bezier(.2,.8,.2,1)';
+// track(el, [[segundos, {props}], ...]) → una animación de toda la duración del video
+function track(el, kf) {
+  kf.sort((a, b) => a[0] - b[0]);
+  const fr = kf.map(([t, p]) => ({ ...p, offset: Math.min(1, Math.max(0, t * 1000 / D)), easing: EZ }));
+  if (fr[0].offset > 0) fr.unshift({ ...fr[0], offset: 0 });
+  if (fr[fr.length - 1].offset < 1) fr.push({ ...fr[fr.length - 1], offset: 1 });
+  el.animate(fr, { duration: D, fill: 'both' });
+}
+const show = (el, t0, t1, d = .4, desde = 'translateY(40px) scale(.96)') => track(el, [
+  [t0, { opacity: 0, transform: desde }], [t0 + d, { opacity: 1, transform: 'none' }],
+  [t1 - .25, { opacity: 1, transform: 'none' }], [t1, { opacity: 0, transform: 'none' }]]);
+const pop = (el, t, hasta = 99) => show(el, t, hasta, .35, 'scale(.6)');
+const dibujar = (el, t, d = .8) => { const L = el.getTotalLength(); el.style.strokeDasharray = L; track(el, [[t, { strokeDashoffset: L }], [t + d, { strokeDashoffset: 0 }]]); };
+
+// tiempos por palabra (proporcional a las letras de cada palabra dentro de la frase)
+F.forEach((f) => {
+  const toks = []; let hl = false;
+  for (let raw of f.texto.split(' ')) {
+    let a = raw.startsWith('*'), b = raw.replace(/[.,:…]+$/, '').endsWith('*');
+    if (a) hl = true;
+    toks.push({ txt: raw.replace(/\*/g, ''), hl });
+    if (b) hl = false;
+  }
+  const pesos = toks.map((w) => w.txt.length + 2), tot = pesos.reduce((a, b) => a + b, 0);
+  let acc = 0;
+  toks.forEach((w, i) => { w.t = f.ini + (f.fin - f.ini) * acc / tot; acc += pesos[i]; });
+  f.toks = toks;
+});
+const tw = (i, palabra) => { const w = F[i].toks.find((w) => w.txt.toLowerCase().includes(palabra)); return w ? w.t : F[i].ini; };
+
+// subtítulos: bloques de hasta 5 palabras
+const subs = $('#subs'), bloques = [];
+F.forEach((f, i) => {
+  let cur = [];
+  f.toks.forEach((w, k) => {
+    cur.push(w);
+    const dentro = w.hl && f.toks[k + 1] && f.toks[k + 1].hl;
+    const corte = /[.,:…]$/.test(w.txt) && cur.length >= 3;
+    if ((cur.length >= 5 && !dentro) || corte || k === f.toks.length - 1) { bloques.push(cur); cur = []; }
+  });
+});
+bloques.forEach((b, i) => {
+  const el = document.createElement('div'); el.className = 'chunk'; subs.appendChild(el);
+  const t0 = b[0].t - .05, t1 = i + 1 < bloques.length ? bloques[i + 1][0].t - .05 : D / 1000 - 1.6;
+  track(el, [[t0, { opacity: 1 }], [t1 - .001, { opacity: 1 }], [t1, { opacity: 0 }]]);
+  b.forEach((w, k) => {
+    const s = document.createElement('span'); s.className = 'w' + (w.hl ? ' hl' : ''); s.textContent = w.txt;
+    if (w.hl) { s.appendChild(document.createElement('i')); s.appendChild(document.createElement('b')); }
+    el.appendChild(s);
+    const sig = k + 1 < b.length ? b[k + 1].t : t1;
+    const kf = [[w.t - .06, { opacity: 0, transform: 'translateY(14px)' }], [w.t + .08, { opacity: 1, transform: 'none' }]];
+    if (!w.hl) { kf[0][1].color = '#ffffff'; kf[1][1].color = '#ffffff'; kf.push([sig, { color: '#ffffff' }], [sig + .15, { color: '#8F85A3' }]); }
+    track(s, kf);
+  });
+});
+
+// escenas
+const ESC = ['colador', 'motivos', 'hormiga', 'desorden', 'deudas', 'eva', 'modulos', 'control', 'cierre'];
+const ini = {}; ESC.forEach((e) => { ini[e] = F.find((f) => f.escena === e).ini - .3; });
+ESC.forEach((e, k) => show($('#e-' + e), Math.max(0, ini[e]), k + 1 < ESC.length ? ini[ESC[k + 1]] : D / 1000 - 1.6));
+const idx = (e, n = 0) => F.findIndex((f) => f.escena === e) + n;
+
+// 1. colador
+{ const i = idx('colador'); const tIn = tw(i + 1, 'entra'), tOut = tw(i + 2, 'va');
+  dibujar($('#l-in'), tIn - .2, .7);
+  $$('.l-out').forEach((p, k) => dibujar(p, tOut - .1 + k * .12, .8));
+  track($('#n0'), [[0, { opacity: 1 }], [tIn + .2, { opacity: 1 }], [tIn + .4, { opacity: 0 }]]);
+  track($('#n1'), [[tIn + .2, { opacity: 0, transform: 'translateY(20px)' }], [tIn + .45, { opacity: 1, transform: 'none' }], [tOut + .3, { opacity: 1, transform: 'none' }], [tOut + .5, { opacity: 0, transform: 'translateY(-20px)' }]]);
+  track($('#n2'), [[tOut + .4, { opacity: 0, transform: 'translateY(20px)' }], [tOut + .7, { opacity: 1, transform: 'none' }]]);
+  track($('#t-in'), [[tIn, { color: '#4c4560', background: 'transparent' }], [tIn + .3, { color: '#2DD4A0', background: 'rgba(45,212,160,.12)' }]]);
+  track($('#t-out'), [[tOut, { color: '#4c4560', background: 'transparent' }], [tOut + .3, { color: '#F2557A', background: 'rgba(242,85,122,.12)' }]]);
+}
+// 2. motivos
+{ const t = ini.motivos + .5; $$('.rama').forEach((p, k) => dibujar(p, t + k * .15, .9));
+  const tm = tw(idx('motivos'), 'motivos'); $$('.rlab').forEach((l, k) => pop(l, tm + k * .15)); }
+// 3. hormiga
+{ const i = idx('hormiga', 1);
+  pop($('#g1'), tw(i, 'tinto') - .1); pop($('#g2'), tw(i, 'domicilio') - .1); pop($('#g3'), tw(i, 'suscrip') - .1);
+  const j = idx('hormiga', 2), tj = tw(j, 'juntos'), tq = tw(j, 'quincena');
+  track($('#qb'), [[tj - .3, { transform: 'scaleX(1)', filter: 'none' }], [tq + .6, { transform: 'scaleX(.22)', filter: 'hue-rotate(160deg)' }]]);
+  pop($('#c-hormiga'), tq - .1); }
+// 4. desorden
+{ const t = ini.desorden + .35;
+  [['#p1', -12], ['#p2', 3], ['#p3', 13]].forEach(([q, r], k) => track($(q), [[t + k * .12, { opacity: 0, transform: `rotate(${r * 2}deg) translateY(60px)` }], [t + k * .12 + .45, { opacity: 1, transform: `rotate(${r}deg)` }]]));
+  pop($('#c-desorden'), tw(idx('desorden', 1), 'qué') - .1); }
+// 5. deudas
+{ const t = ini.deudas + .4, ti = tw(idx('deudas', 1), 'intereses');
+  track($('#d1'), [[t, { transform: 'scaleY(0)' }], [t + .5, { transform: 'scaleY(1)' }]]);
+  track($('#d2'), [[t + .2, { transform: 'scaleY(0)' }], [t + .6, { transform: 'scaleY(.35)' }], [ti, { transform: 'scaleY(.35)' }], [ti + 1.2, { transform: 'scaleY(1)' }]]);
+  pop($('#c-deudas'), ti + .5); }
+// 6. eva
+{ const i = idx('eva'), te = tw(i, 'eva');
+  $$('.une').forEach((p, k) => dibujar(p, ini.eva + .4 + k * .12, .9));
+  pop($('#evabox'), te - .25); }
+// 7. módulos
+{ const i = idx('modulos'), lab = $('#modlab');
+  const ts = [tw(i, 'registro'), tw(i + 1, 'categor'), tw(i + 2, 'gastos'), tw(i + 3, 'presupuesto'), tw(i + 3, 'metas'), tw(i + 4, 'deudas')];
+  const nombres = ['Registro por WhatsApp', 'Categorías automáticas', 'Gastos fijos', 'Presupuesto', 'Metas de ahorro', 'Control de deudas'];
+  ts.forEach((t, k) => track($('#m' + k), [[t - .1, { color: '#5d5470', borderColor: 'rgba(255,255,255,.07)', background: '#120e1c', transform: 'scale(1)' }],
+    [t + .12, { color: '#F06CE0', borderColor: 'rgba(240,108,224,.8)', background: '#22152e', transform: 'scale(1.06)' }],
+    [t + .45, { color: '#ffffff', borderColor: 'rgba(240,108,224,.45)', background: '#1b1426', transform: 'scale(1)' }]]));
+  nombres.forEach((n, k) => { const s = document.createElement('div'); s.textContent = n; s.style.cssText = 'position:absolute;left:0;right:0;opacity:0'; lab.appendChild(s);
+    show(s, ts[k] - .1, k + 1 < ts.length ? ts[k + 1] - .1 : ini.control, .25, 'translateY(16px)'); }); }
+// 8. control
+{ const t = ini.control + .4, td = tw(idx('control', 1), 'dónde');
+  track($('#b-in'), [[t, { transform: 'scaleX(0)' }], [t + .8, { transform: 'scaleX(1)' }]]);
+  track($('#b-out'), [[t + .3, { transform: 'scaleX(0)' }], [t + 1.1, { transform: 'scaleX(.7)' }]]);
+  track($('#b-ah'), [[t + .6, { transform: 'scaleX(0)' }], [td + .6, { transform: 'scaleX(.3)' }]]);
+  pop($('#c-control'), td - .1); }
+// 9. cierre
+{ const i = idx('cierre', 1); pop($('#ctab'), tw(i, 'evafinanzas') - .15); }
+// final: fundido a negro con el usuario de Instagram
+track($('#fin'), [[D / 1000 - 1.7, { opacity: 0 }], [D / 1000 - 1.2, { opacity: 1 }]]);
+track($('#ig'), [[D / 1000 - 1.7, { opacity: 1 }], [D / 1000 - 1.3, { opacity: 0 }]]);
+</script>
+</body></html>

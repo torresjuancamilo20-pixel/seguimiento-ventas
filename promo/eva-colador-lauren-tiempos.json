@@ -1,0 +1,143 @@
+{
+ "duracion": 61.26,
+ "frases": [
+  {
+   "escena": "colador",
+   "texto": "Existe un efecto llamado *“El efecto colador”*.",
+   "ini": 0.3,
+   "fin": 3.291
+  },
+  {
+   "escena": "colador",
+   "texto": "La plata *entra* a tu cuenta…",
+   "ini": 3.843,
+   "fin": 5.587
+  },
+  {
+   "escena": "colador",
+   "texto": "y de la misma manera, *se va*.",
+   "ini": 5.994,
+   "fin": 7.742
+  },
+  {
+   "escena": "motivos",
+   "texto": "Casi siempre se va por tres *motivos*:",
+   "ini": 8.371,
+   "fin": 10.888
+  },
+  {
+   "escena": "hormiga",
+   "texto": "1. *Gastos hormiga.*",
+   "ini": 11.394,
+   "fin": 13.1
+  },
+  {
+   "escena": "hormiga",
+   "texto": "Un tinto, un domicilio, una *suscripción* que ya no usas.",
+   "ini": 13.495,
+   "fin": 17.316
+  },
+  {
+   "escena": "hormiga",
+   "texto": "Solos no son nada. Juntos, se comen tu *quincena*.",
+   "ini": 17.693,
+   "fin": 21.595
+  },
+  {
+   "escena": "desorden",
+   "texto": "2. *Desorden.*",
+   "ini": 22.221,
+   "fin": 23.799
+  },
+  {
+   "escena": "desorden",
+   "texto": "No sabes cuánto entra, cuánto sale, ni en *qué* se te fue.",
+   "ini": 24.22,
+   "fin": 27.926
+  },
+  {
+   "escena": "deudas",
+   "texto": "3. *Deudas.*",
+   "ini": 28.6,
+   "fin": 30.113
+  },
+  {
+   "escena": "deudas",
+   "texto": "Pagas el mínimo y los *intereses* se quedan con tu plata.",
+   "ini": 30.505,
+   "fin": 33.889
+  },
+  {
+   "escena": "eva",
+   "texto": "Para tapar esos huecos, creamos *Eva*,",
+   "ini": 34.504,
+   "fin": 36.864
+  },
+  {
+   "escena": "eva",
+   "texto": "tu asistente que *organiza* tu plata a través de:",
+   "ini": 37.219,
+   "fin": 40.013
+  },
+  {
+   "escena": "modulos",
+   "texto": "*Registro* por WhatsApp,",
+   "ini": 40.396,
+   "fin": 41.46
+  },
+  {
+   "escena": "modulos",
+   "texto": "categorías *automáticas*,",
+   "ini": 41.869,
+   "fin": 43.23
+  },
+  {
+   "escena": "modulos",
+   "texto": "gastos *fijos*,",
+   "ini": 43.496,
+   "fin": 44.476
+  },
+  {
+   "escena": "modulos",
+   "texto": "presupuesto, *metas* de ahorro",
+   "ini": 44.747,
+   "fin": 46.674
+  },
+  {
+   "escena": "modulos",
+   "texto": "y control de *deudas*.",
+   "ini": 46.824,
+   "fin": 48.04
+  },
+  {
+   "escena": "control",
+   "texto": "No se trata de ganar *más*.",
+   "ini": 48.506,
+   "fin": 50.076
+  },
+  {
+   "escena": "control",
+   "texto": "Se trata de saber a *dónde* va.",
+   "ini": 50.381,
+   "fin": 52.294
+  },
+  {
+   "escena": "cierre",
+   "texto": "Si quieres que tu plata deje de *irse*,",
+   "ini": 52.802,
+   "fin": 54.69
+  },
+  {
+   "escena": "cierre",
+   "texto": "entra a *evafinanzas.us*",
+   "ini": 54.948,
+   "fin": 57.28
+  },
+  {
+   "escena": "cierre",
+   "texto": "y empieza *hoy*.",
+   "ini": 57.449,
+   "fin": 58.5
+  }
+ ]
+}

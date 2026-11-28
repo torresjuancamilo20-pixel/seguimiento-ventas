@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>Eva · Black Friday 4,99</title>
+<!-- Flyer Black Friday: primer mes a 4,99 USD. #post 1080x1350 y #story 1080x1920. -->
+<style>
+@font-face{font-family:'Montserrat';font-weight:600;src:url(../fonts/montserrat-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:700;src:url(../fonts/montserrat-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:800;src:url(../fonts/montserrat-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:900;src:url(../fonts/montserrat-latin-900-normal.woff2) format('woff2')}
+@font-face{font-family:'Playfair Display';font-weight:700;src:url(../fonts/playfair-display-latin-700-normal.woff2) format('woff2')}
+:root{--rosa:#F06CE0;--brand:#E24BD8;--morado:#A855F7;--muted:#9A90AB}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#222;font-family:'Montserrat',sans-serif;color:#fff}
+.f{position:relative;width:1080px;overflow:hidden;background:#000;margin-bottom:20px}
+#post{height:1350px}#story{height:1920px}
+.glow{position:absolute;inset:0;background:radial-gradient(700px 600px at 85% 25%,rgba(226,75,216,.35),transparent 70%),radial-gradient(800px 700px at 0% 100%,rgba(168,85,247,.28),transparent 70%)}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:60px 60px;-webkit-mask-image:radial-gradient(700px 700px at 50% 45%,#000,transparent 80%)}
+.sil{position:absolute;opacity:.9;filter:drop-shadow(0 0 40px rgba(226,75,216,.55))}
+.c{position:absolute;left:80px;right:80px}
+.bf{display:inline-block;font-size:34px;font-weight:900;letter-spacing:10px;padding:16px 28px;border:4px solid #fff}
+.grad{background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--morado));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.h{font-size:76px;font-weight:900;letter-spacing:-2.5px;line-height:1.02}
+.antes{font-size:56px;font-weight:800;color:var(--muted);position:relative;display:inline-block}
+.antes::after{content:"";position:absolute;left:-8px;right:-8px;top:52%;height:7px;border-radius:4px;background:#F2557A;transform:rotate(-8deg)}
+.precio{font-size:250px;font-weight:900;letter-spacing:-12px;line-height:.9}
+.precio small{font-size:60px;letter-spacing:0;margin-left:10px;-webkit-text-fill-color:#fff}
+.sello{position:absolute;width:250px;height:250px;border-radius:50%;background:linear-gradient(135deg,var(--rosa),var(--morado));display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(12deg);box-shadow:0 20px 60px rgba(226,75,216,.5)}
+.sello b{font-size:86px;font-weight:900;line-height:.9}.sello span{font-size:28px;font-weight:800;letter-spacing:2px}
+.lista{font-size:34px;font-weight:700;line-height:1.7;color:#e9e2f2}
+.lista i{font-style:normal;color:var(--rosa);margin-right:14px}
+.pie{position:absolute;left:80px;right:80px;display:flex;justify-content:space-between;align-items:center}
+.logo{display:flex;align-items:baseline}
+.logo .E{font-family:'Playfair Display';font-weight:700;font-size:100px;line-height:.8}
+.logo .va{font-weight:700;font-size:52px;letter-spacing:-1px;margin-left:-2px}
+.url{font-size:36px;font-weight:800;padding:24px 40px;border-radius:999px;background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--morado))}
+.fine{font-size:22px;color:#8a8199;line-height:1.4}
+</style></head><body>
+
+<section class="f" id="post">
+  <div class="glow"></div><div class="grid"></div>
+  <img class="sil" src="../marca/eva-silueta.svg" alt="" style="right:-120px;top:300px;height:760px;opacity:.22">
+  <div class="sello" style="right:90px;top:90px"><b>50%</b><span>OFF</span></div>
+  <div class="c" style="top:90px"><div class="bf">BLACK FRIDAY</div></div>
+  <div class="c" style="top:220px"><div class="h">Tu primer mes<br>de <span class="grad">Eva</span></div></div>
+  <div class="c" style="top:430px"><div class="antes">$9,99</div></div>
+  <div class="c" style="top:500px"><div class="precio grad">$4,99<small>USD</small></div></div>
+  <div class="c lista" style="top:780px"><div><i>✓</i>Anota tus gastos por WhatsApp</div><div><i>✓</i>Apple Pay y Google Pay se anotan solos</div><div><i>✓</i>Sal de tus deudas paso a paso</div></div>
+  <div class="pie" style="bottom:150px"><div class="logo"><span class="E grad">E</span><span class="va">va</span></div><span class="url">evafinanzas.us</span></div>
+  <div class="c fine" style="bottom:60px">Primer mes del plan mensual para clientes nuevos. Desde el segundo mes, 9,99 USD al mes. Cancela cuando quieras.</div>
+</section>
+
+<section class="f" id="story">
+  <div class="glow"></div><div class="grid"></div>
+  <img class="sil" src="../marca/eva-silueta.svg" alt="" style="left:0;right:0;margin:0 auto;top:1080px;height:520px;opacity:.85">
+  <div class="sello" style="right:90px;top:230px"><b>50%</b><span>OFF</span></div>
+  <div class="c" style="top:240px"><div class="bf">BLACK FRIDAY</div></div>
+  <div class="c" style="top:380px"><div class="h" style="font-size:88px">Tu primer mes<br>de <span class="grad">Eva</span></div></div>
+  <div class="c" style="top:620px"><div class="antes">$9,99</div></div>
+  <div class="c" style="top:700px"><div class="precio grad" style="font-size:280px">$4,99<small>USD</small></div></div>
+  <div class="c" style="top:1640px;text-align:center"><span class="url" style="font-size:44px;padding:30px 56px">evafinanzas.us</span></div>
+  <div class="c fine" style="top:1790px;text-align:center">Clientes nuevos · luego 9,99 USD/mes · cancela cuando quieras</div>
+</section>
+</body></html>

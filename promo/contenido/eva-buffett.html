@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>Eva · Cómo ve la plata Buffett</title>
+<!-- Dos carruseles 1080x1350 estilo "pantallas de producto": A) Tu mes en un chat (6), B) ¿Cuánto te queda de verdad? (5). -->
+<style>
+@font-face{font-family:'Montserrat';font-weight:500;src:url(../fonts/montserrat-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:600;src:url(../fonts/montserrat-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:700;src:url(../fonts/montserrat-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:800;src:url(../fonts/montserrat-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Playfair Display';font-weight:700;src:url(../fonts/playfair-display-latin-700-normal.woff2) format('woff2')}
+:root{--bg:#0C0A12;--rosa:#F06CE0;--brand:#E24BD8;--morado:#A855F7;--txt:#F3EEFB;--muted:#9A90AB;--ok:#2DD4A0;--bad:#F2557A;--oro:#F5B342}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#222;font-family:'Montserrat',sans-serif;color:var(--txt)}
+.lam{width:1080px;height:1350px;position:relative;overflow:hidden;background:radial-gradient(1000px 800px at 85% 110%,rgba(168,85,247,.16),transparent 65%),radial-gradient(700px 600px at 0% 0%,rgba(226,75,216,.10),transparent 65%),var(--bg);margin-bottom:20px}
+.hd{position:absolute;left:70px;right:70px;top:60px;display:flex;justify-content:space-between;align-items:center;font-size:26px;font-weight:700;color:var(--muted)}
+.mk{display:flex;align-items:center;gap:14px;color:#fff}
+.mk i{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--rosa),var(--morado));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display';font-style:normal;font-size:30px}
+.cp{position:absolute;left:70px;right:70px;top:190px}
+.lbl{font-size:28px;font-weight:700;color:var(--muted)}
+h1{font-size:88px;font-weight:800;letter-spacing:-3px;line-height:1.04;margin-top:14px}
+h2{font-size:72px;font-weight:800;letter-spacing:-2.5px;line-height:1.06;margin-top:14px}
+.sub{font-size:34px;font-weight:500;color:var(--muted);margin-top:24px;line-height:1.4}
+.grad{background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--morado));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.desl{position:absolute;left:70px;bottom:70px;font-size:26px;font-weight:700;padding:16px 28px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)}
+.panel{position:absolute;left:70px;right:70px;border-radius:36px;background:linear-gradient(180deg,#17131f,#110e18);border:1px solid rgba(255,255,255,.08);padding:36px 40px}
+.fila{display:flex;align-items:center;gap:24px;padding:22px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:34px;font-weight:700}
+.fila:last-child{border:0}
+.fila .ic{width:66px;height:66px;border-radius:18px;display:flex;align-items:center;justify-content:center;flex:none}
+.fila .ic svg{width:36px;height:36px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.fila .tx{flex:1}.fila .tx small{display:block;font-size:24px;font-weight:600;color:var(--muted);margin-top:4px}
+.fila .v{font-weight:800}
+.bar{height:12px;border-radius:6px;background:rgba(255,255,255,.08);margin-top:12px;overflow:hidden}.bar i{display:block;height:100%;border-radius:6px}
+/* teléfono */
+.tel{position:absolute;width:560px;height:900px;border-radius:70px;background:#05040a;border:3px solid #2a2433;padding:22px;box-shadow:0 40px 100px rgba(0,0,0,.6)}
+.tel .scr{width:100%;height:100%;border-radius:52px;background:#0d1714;overflow:hidden;position:relative}
+.tel .top{height:150px;background:#132420;display:flex;align-items:flex-end;gap:18px;padding:0 30px 22px;font-size:30px;font-weight:800}
+.tel .top span{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--rosa),var(--morado));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display';font-size:34px}
+.tel .top small{display:block;font-size:20px;font-weight:600;color:#8fb5a8}
+.msgs{padding:26px 24px}
+.b{padding:16px 22px;border-radius:22px;font-size:25px;font-weight:600;width:fit-content;max-width:88%;margin-bottom:14px;line-height:1.35}
+.b.yo{margin-left:auto;background:#1f6f54;border-bottom-right-radius:6px;font-weight:700}
+.b.eva{background:#1d2622;border-bottom-left-radius:6px;color:#dfeee8}
+.b.eva b{color:#F9A8F0}
+.chatL .b{font-size:34px;padding:22px 30px;border-radius:28px}
+.op{display:flex;justify-content:space-between;align-items:center;font-size:40px;font-weight:700;padding:20px 0}
+.op .v{font-weight:800}
+.tot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:26px;border-top:2px dashed rgba(255,255,255,.18)}
+.cta{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.cta .ico{width:150px;height:150px;border-radius:40px;background:linear-gradient(135deg,var(--rosa),var(--brand) 50%,var(--morado));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display';font-size:110px;box-shadow:0 30px 80px rgba(226,75,216,.35)}
+.cta h2{margin-top:50px;font-size:76px}
+.cta p{font-size:32px;color:var(--muted);margin-top:20px;max-width:780px;line-height:1.4}
+.cta .url{margin-top:44px;font-size:36px;font-weight:800;padding:24px 50px;border-radius:999px;background:#fff;color:#160F22}
+.cta .fine{position:absolute;bottom:70px;font-size:22px;color:#6f6680}
+</style><style>
+.n{font-size:30px;font-weight:800;color:var(--rosa);letter-spacing:4px}
+.vs{position:absolute;left:70px;right:70px;top:560px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.col{border-radius:30px;padding:30px 30px 18px;border:1px solid rgba(255,255,255,.08);background:#141019}
+.col.eva{background:linear-gradient(180deg,rgba(226,75,216,.16),rgba(168,85,247,.08));border-color:rgba(240,108,224,.5)}
+.col h3{font-size:34px;font-weight:800;margin-bottom:14px}
+.it{display:flex;gap:16px;align-items:flex-start;font-size:28px;font-weight:600;line-height:1.3;padding:14px 0;border-top:1px solid rgba(255,255,255,.07);color:#cfc6de}
+.it b{flex:none;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px}
+.no b{background:rgba(242,85,122,.15);color:var(--bad)} .si b{background:rgba(45,212,160,.15);color:var(--ok)}
+.chipz{display:flex;flex-wrap:wrap;gap:16px}
+.chipz span{font-size:36px;font-weight:800;padding:18px 28px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid rgba(240,108,224,.4)}
+</style>
+<style>
+.quote{position:absolute;left:70px;right:70px;border-radius:36px;padding:44px 48px;background:linear-gradient(180deg,#17131f,#110e18);border:1px solid rgba(255,255,255,.08)}
+.quote q{display:block;font-size:46px;font-weight:700;line-height:1.3;quotes:"“" "”"}
+.quote small{display:block;margin-top:22px;font-size:24px;font-weight:600;color:var(--muted)}
+.lec{position:absolute;left:70px;right:70px;border-radius:28px;padding:30px 36px;background:linear-gradient(135deg,rgba(240,108,224,.14),rgba(168,85,247,.10));border:1px solid rgba(240,108,224,.45);font-size:32px;font-weight:600;line-height:1.4}
+.lec b{display:block;font-size:24px;font-weight:800;letter-spacing:4px;color:var(--rosa);margin-bottom:8px}
+.big2{font-size:140px;font-weight:900;letter-spacing:-6px;line-height:1}
+</style>
+</head><body>
+
+
+
+<section class="lam" id="b1"><div class="hd"><span class="mk"><i>E</i>Eva</span><span>1/7</span></div>
+  <div class="cp"><div class="lbl">Guárdalo</div><h1>Cómo ve la plata<br><span class="grad">Warren Buffett.</span></h1><p class="sub">Uno de los hombres más ricos del mundo… con hábitos que tú puedes copiar desde hoy.</p></div>
+  <div class="panel" style="top:780px;text-align:center;padding:50px 40px"><div class="lbl">5 lecciones · sin tener que ser millonario</div><div style="font-size:46px;font-weight:800;margin-top:14px">Desliza <span class="grad">→</span></div></div>
+</section>
+
+<section class="lam" id="b2"><div class="hd"><span class="mk"><i>E</i>Eva</span><span>2/7</span></div>
+  <div class="cp"><div class="n">01 · TU CASA</div><h2>Vive en la misma casa<br><span class="grad">desde 1958.</span></h2><p class="sub">La compró en Omaha por 31.500 dólares, y siguió viviendo ahí aunque su fortuna creció muchísimo. Él la llama una de sus mejores inversiones.</p></div>
+  <div class="panel" style="top:740px;text-align:center"><div class="lbl">Precio de la casa en 1958</div><div class="big2 grad" style="margin-top:10px">US$31.500</div></div>
+  <div class="lec" style="top:1040px"><b>LA LECCIÓN</b>Que tus ingresos suban no significa que tus gastos tengan que subir igual.</div>
+</section>
+
+<section class="lam" id="b3"><div class="hd"><span class="mk"><i>E</i>Eva</span><span>3/7</span></div>
+  <div class="cp"><div class="n">02 · DEUDAS</div><h2>Primero mata<br>las deudas <span class="grad">caras.</span></h2></div>
+  <div class="quote" style="top:470px"><q>Si yo debiera dinero al 18%, lo primero que haría con cualquier plata que tuviera sería pagarlo.</q><small>Warren Buffett, reunión anual de Berkshire Hathaway, hablando de las tarjetas de crédito</small></div>
+  <div class="lec" style="top:960px"><b>LA LECCIÓN</b>No hay inversión que le gane a dejar de pagar intereses de tarjeta.</div>
+</section>
+
+<section class="lam" id="b4"><div class="hd"><span class="mk"><i>E</i>Eva</span><span>4/7</span></div>
+  <div class="cp"><div class="n">03 · COMPRAS</div><h2>Precio no es<br>lo mismo que <span class="grad">valor.</span></h2></div>
+  <div class="quote" style="top:470px"><q>El precio es lo que pagas. El valor es lo que recibes.</q><small>Frase de su maestro Benjamin Graham que Buffett cita en su carta a los accionistas de 2008</small></div>
+  <div class="lec" style="top:900px"><b>LA LECCIÓN</b>Antes de comprar, pregúntate qué te va a dar de verdad, no solo cuánto descuento tiene.</div>
+</section>
+
+<section class="lam" id="b5"><div class="hd"><span class="mk"><i>E</i>Eva</span><span>5/7</span></div>
+  <div class="cp"><div class="n">04 · SIMPLE</div><h2>Lo simple <span class="grad">gana.</span></h2><p class="sub">En su carta de 2013 dejó instrucciones para la herencia de su esposa: 90% en un fondo indexado de bajo costo del S&amp;P 500 y 10% en bonos del gobierno a corto plazo.</p></div>
+  <div class="panel" style="top:760px;display:flex;gap:24px;text-align:center">
+    <div style="flex:9"><div class="big2 grad">90%</div><div class="lbl" style="margin-top:8px">Fondo indexado</div></div>
+    <div style="flex:4"><div class="big2" style="color:var(--oro)">10%</div><div class="lbl" style="margin-top:8px">Bonos</div></div>
+  </div>
+  <div class="lec" style="top:1060px"><b>LA LECCIÓN</b>No necesitas un plan complicado; necesitas uno que puedas seguir. (No es una recomendación de inversión.)</div>
+</section>
+
+<section class="lam" id="b6"><div class="hd"><span class="mk"><i>E</i>Eva</span><span>6/7</span></div>
+  <div class="cp"><div class="n">05 · ORDEN</div><h2>Sabe exactamente<br><span class="grad">a dónde va su plata.</span></h2><p class="sub">Buffett es conocido por ser frugal y por tomar decisiones con números claros, no por impulso. El primer paso para pensar así es simple: saber en qué se te va.</p></div>
+  <div class="panel chatL" style="top:820px;background:#0d1714">
+    <div class="b yo">resumen</div>
+    <div class="b eva">Ingresos: <b>$2.400.000</b> · Gastos: <b>$1.064.000</b><br>Te queda: <b>$1.336.000</b></div>
+  </div>
+</section>
+
+<section class="lam" id="b7"><div class="hd"><span class="mk"><i>E</i>Eva</span><span>7/7</span></div>
+  <div class="cta" style="padding-bottom:160px"><div class="ico">E</div><h2>Piensa como<br><span class="grad">Buffett.</span></h2><p>Empieza por saber a dónde va tu plata. Eva lo hace contigo por WhatsApp. Primer mes a $4,99 USD.</p><div class="url">evafinanzas.us</div></div>
+  <div style="position:absolute;left:70px;right:70px;bottom:50px;font-size:19px;line-height:1.5;color:#6f6680">Fuentes: Fortune (2023 y 2025) sobre su casa de Omaha; Yahoo Finance y Motley Fool sobre su frase de las deudas al 18%; carta de Berkshire Hathaway a los accionistas de 2008 (precio y valor) y de 2013 (90/10). Contenido educativo, no es asesoría de inversión. Eva no tiene relación con Warren Buffett ni con Berkshire Hathaway.</div>
+</section>
+</body></html>

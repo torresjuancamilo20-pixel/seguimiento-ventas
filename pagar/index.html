@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pagar por transferencia · Eva</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07060c;--card:rgba(32,22,46,.55);--line:rgba(255,255,255,.08);--txt:#f3eefb;--mut:#a99fb8;--mag:#e24bd8;--pur:#a855f7;--grn:#22c55e;--amb:#f5a623;--red:#ef4757;
+  --grad:linear-gradient(135deg,#f06ce0,#c026d3 50%,#a855f7)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Montserrat',sans-serif;color:var(--txt);background:radial-gradient(900px 600px at 80% -10%,#3a0f44,transparent 70%),var(--bg);min-height:100vh;line-height:1.5;padding:24px 16px 60px}
+a{color:inherit}
+.wrap{max-width:520px;margin:0 auto}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.logo{display:flex;align-items:baseline;text-decoration:none}
+.logo .E{font-family:'Playfair Display',serif;font-weight:700;font-size:2.4rem;line-height:.8;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.logo .va{font-weight:600;font-size:1.3rem}
+.top a.back{font-size:.85rem;color:var(--mut);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px}
+h1{font-size:1.5rem;font-weight:900;letter-spacing:-.5px;line-height:1.2}
+.sub{color:var(--mut);font-size:.9rem;margin-top:6px}
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0 6px}
+.pl{border:2px solid var(--line);border-radius:16px;padding:14px;cursor:pointer;background:rgba(255,255,255,.03)}
+.pl.sel{border-color:var(--mag);background:rgba(226,75,216,.1)}
+.pl .n{font-weight:800;font-size:.95rem}.pl .p{font-weight:900;font-size:1.25rem;margin-top:4px}.pl .u{font-size:.75rem;color:var(--mut)}
+.calc{font-size:.76rem;color:var(--mut);margin-top:8px}
+.box{margin-top:18px;border-radius:16px;background:#1b1426;padding:14px 16px}
+.box small{display:block;color:var(--mut);font-size:.75rem;font-weight:600}
+.llave{display:flex;align-items:center;gap:10px}
+.llave b{font-size:1.25rem;font-weight:900;word-break:break-all}
+.llave button{margin-left:auto}
+.ghost{background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--txt);border-radius:999px;padding:8px 14px;font:inherit;font-weight:700;font-size:.82rem;cursor:pointer}
+ol{margin:16px 0 4px;padding-left:20px;color:var(--mut);font-size:.88rem}
+ol li{margin-bottom:4px}
+label.f{display:block;font-size:.82rem;font-weight:700;margin:16px 0 6px}
+input[type=email]{width:100%;background:#1b1426;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px 14px;color:var(--txt);font:inherit;font-size:.95rem}
+input[type=file]{width:100%;font-size:.85rem;color:var(--mut)}
+.chk{display:flex;gap:9px;align-items:flex-start;font-size:.8rem;color:var(--mut);margin-top:16px}
+.chk a{color:#f06ce0}
+.btn{display:block;width:100%;margin-top:18px;border:0;cursor:pointer;font:inherit;font-weight:800;background:var(--grad);color:#fff;padding:15px;border-radius:999px;font-size:1rem;box-shadow:0 14px 40px -12px rgba(226,75,216,.85)}
+.btn:disabled{opacity:.6;cursor:default}
+.msg{margin-top:14px;border-radius:12px;padding:12px 14px;font-size:.88rem}
+.msg.err{background:rgba(239,71,87,.12);border:1px solid rgba(239,71,87,.35);color:#f7a5ae}
+.ok{text-align:center;padding:10px 4px}
+.ok .ic{width:64px;height:64px;border-radius:50%;margin:0 auto 14px;background:rgba(34,197,94,.15);display:grid;place-items:center}
+.ok .ic::after{content:"";width:16px;height:30px;border:solid var(--grn);border-width:0 6px 6px 0;transform:rotate(45deg) translate(-2px,-4px)}
+.foot{text-align:center;color:var(--mut);font-size:.8rem;margin-top:18px}
+.hidden{display:none!important}
+</style>
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '966627226223633');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=966627226223633&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a class="logo" href="/info/"><span class="E">E</span><span class="va">va</span></a><a class="back" href="/info/#precio">← Volver</a></div>
+
+  <div class="card" id="cargando"><p class="sub">Cargando…</p></div>
+
+  <div class="card hidden" id="noDisp">
+    <h1>Pago por transferencia no disponible</h1>
+    <p class="sub">En este momento no estamos recibiendo transferencias. Puedes <a href="/info/#precio">pagar con tarjeta</a> o escribirnos a soporte@evafinanzas.us.</p>
+  </div>
+
+  <form class="card hidden" id="form">
+    <h1>Paga por transferencia (Bre-B)</h1>
+    <p class="sub">No necesitas tarjeta. Primero pagas y subes el comprobante; después creas tu contraseña para entrar a Eva.</p>
+    <div class="plans">
+      <div class="pl" data-plan="mensual"><div class="n">Mensual · oferta</div><div class="p" id="pMen"></div><div class="u" id="uMen">COP · 1 mes</div></div>
+      <div class="pl" data-plan="anual"><div class="n">Anual</div><div class="p" id="pAnu"></div><div class="u">COP · 12 meses</div></div>
+    </div>
+    <div class="calc" id="calc"></div>
+    <div class="box">
+      <small>Transfiere el valor exacto a esta llave Bre-B</small>
+      <div class="llave"><b id="llave"></b><button type="button" class="ghost" id="copiar">Copiar</button></div>
+      <small id="titular" style="margin-top:4px"></small>
+    </div>
+    <ol>
+      <li>Desde la app de tu banco o billetera, envía <b id="montoTxt" style="color:var(--txt)"></b> a la llave.</li>
+      <li>Toma una captura del comprobante.</li>
+      <li>Escribe tu correo y sube la captura aquí.</li>
+    </ol>
+    <label class="f" for="email">Tu correo (con este entras a Eva)</label>
+    <input type="email" id="email" required placeholder="tucorreo@gmail.com" autocomplete="email">
+    <label class="f" for="file">Comprobante de la transferencia</label>
+    <input type="file" id="file" accept="image/*,application/pdf" required>
+    <label class="chk"><input type="checkbox" id="consent"><span>Acepto los <a href="/legal/terminos/" target="_blank" rel="noopener">Términos</a> y la <a href="/legal/privacidad/" target="_blank" rel="noopener">Política de Privacidad</a>. Entiendo que el plan por transferencia no se renueva solo.</span></label>
+    <div class="msg err hidden" id="err"></div>
+    <button class="btn" id="enviar" type="submit">Enviar comprobante</button>
+    <p class="foot">¿Prefieres tarjeta? <a href="/info/#precio">Paga con tarjeta</a> · ¿Ya tienes cuenta? <a href="/">Inicia sesión</a></p>
+  </form>
+
+  <form class="card hidden" id="clave">
+    <div class="ok" style="padding-bottom:0">
+      <div class="ic"></div>
+      <h1>¡Recibimos tu comprobante!</h1>
+      <p class="sub" style="margin-top:8px">Ahora crea tu contraseña. Tu cuenta queda lista y el plan se activa apenas confirmemos la transferencia, normalmente el mismo día.</p>
+    </div>
+    <label class="f" for="email2">Tu correo</label>
+    <input type="email" id="email2" readonly>
+    <label class="f" for="pass">Crea tu contraseña</label>
+    <input type="password" id="pass" minlength="6" placeholder="Mínimo 6 caracteres" autocomplete="new-password" style="width:100%;background:#1b1426;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px 14px;color:var(--txt);font:inherit;font-size:.95rem">
+    <div class="msg err hidden" id="err2"></div>
+    <button class="btn" id="crear" type="submit">Crear contraseña y entrar</button>
+  </form>
+
+  <div class="card hidden" id="listo">
+    <div class="ok">
+      <div class="ic"></div>
+      <h1 id="listoTit">¡Recibimos tu comprobante!</h1>
+      <p class="sub" style="margin-top:10px" id="listoTxt"></p>
+      <a class="btn" href="/" style="text-decoration:none;text-align:center">Iniciar sesión</a>
+    </div>
+  </div>
+</div>
+<script>
+const SB="https://fhixjvxztmuifrioevze.supabase.co", KEY="sb_publishable_FchHwJHM1BNH-2z-2KXTgg_nZv4CP7d";
+const FN=SB+"/functions/v1/pago-transferencia";
+let PAGO=null; // {id, token, email}
+const $=id=>document.getElementById(id);
+const cop=n=>"$"+Number(n||0).toLocaleString("es-CO");
+let D=null, plan=new URLSearchParams(location.search).get("plan")==="mensual"?"mensual":"anual";
+function pintar(){
+  document.querySelectorAll(".pl").forEach(p=>p.classList.toggle("sel",p.dataset.plan===plan));
+  $("montoTxt").textContent=cop(D.precios[plan])+" COP";
+  const f=new Date(D.fecha_trm+"T12:00:00").toLocaleDateString("es-CO");
+  $("calc").textContent = plan==="mensual" && D.primer_mes
+    ? "Primer mes en oferta: USD 4,99 × TRM del "+f+" ("+cop(D.trm)+") + IVA 19%. Desde el segundo mes: "+cop(D.precios.mensual_normal)+" COP (USD 9,99). Solo para clientes nuevos."
+    : "Precio en dólares (USD "+(plan==="anual"?"69":"9,99")+") × TRM del "+f+" ("+cop(D.trm)+") + IVA 19%.";
+}
+document.querySelectorAll(".pl").forEach(p=>p.onclick=()=>{ plan=p.dataset.plan; pintar(); });
+$("copiar").onclick=e=>{ navigator.clipboard?.writeText(D.llave); e.target.textContent="¡Copiada!"; setTimeout(()=>e.target.textContent="Copiar",1500); };
+(async()=>{
+  try{
+    const r=await fetch(FN,{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"});
+    D=await r.json();
+  }catch(e){ D=null; }
+  $("cargando").classList.add("hidden");
+  if(!D||!D.disponible){ $("noDisp").classList.remove("hidden"); return; }
+  $("pMen").textContent=cop(D.precios.mensual); $("pAnu").textContent=cop(D.precios.anual);
+  if(D.primer_mes && D.precios.mensual_normal) $("uMen").textContent="COP el 1.er mes · luego "+cop(D.precios.mensual_normal);
+  $("llave").textContent=D.llave; $("titular").textContent=D.titular?("A nombre de: "+D.titular):"";
+  pintar(); $("form").classList.remove("hidden");
+})();
+function leer(f){ return new Promise((ok,no)=>{ const r=new FileReader(); r.onload=()=>ok(r.result); r.onerror=no; r.readAsDataURL(f); }); }
+$("form").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const err=t=>{ $("err").textContent=t; $("err").classList.remove("hidden"); $("enviar").disabled=false; $("enviar").textContent="Enviar comprobante"; };
+  $("err").classList.add("hidden");
+  const email=$("email").value.trim(), f=$("file").files[0];
+  if(!email) return err("Escribe tu correo.");
+  if(!f) return err("Sube la captura del comprobante.");
+  if(f.size>5*1024*1024) return err("El comprobante pesa más de 5 MB. Sube una captura más liviana.");
+  if(!$("consent").checked) return err("Debes aceptar los Términos y la Política de Privacidad.");
+  $("enviar").disabled=true; $("enviar").textContent="Enviando…";
+  try{
+    const tipo=f.type||(f.name.toLowerCase().endsWith(".pdf")?"application/pdf":"image/jpeg");
+    const archivo=await leer(f);
+    const r=await fetch(FN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({accion:"registrar_publico",plan,email,tipo,archivo})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok||j.error) return err(j.error||("No se pudo enviar (error "+r.status+")."));
+    PAGO={id:j.id, token:j.token, email:email.toLowerCase()};
+    // Envió el comprobante: todavía no está confirmado, se mide como "Lead" (en pesos)
+    try{ window.fbq&&fbq('track','Lead',{value:D.precios[plan],currency:'COP',content_name:'Bre-B '+plan},{eventID:'breb-'+j.id}); }catch(_){}
+    $("form").classList.add("hidden");
+    if(j.tiene_cuenta){
+      // Ya tenía cuenta: el pago se enlaza a esa cuenta y entra con su contraseña de siempre
+      await fetch(FN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({accion:"crear_cuenta",id:j.id,token:j.token})}).catch(()=>{});
+      $("listoTxt").innerHTML="Ya tienes una cuenta con <b>"+email.replace(/[<>&]/g,"")+"</b>. Inicia sesión con tu contraseña de siempre: tu plan se activa apenas confirmemos la transferencia.";
+      $("listo").classList.remove("hidden");
+    } else { $("email2").value=PAGO.email; $("clave").classList.remove("hidden"); }
+    window.scrollTo({top:0,behavior:"smooth"});
+  }catch(x){ err("No se pudo enviar. Revisa tu conexión e intenta de nuevo."); }
+});
+// Crear la contraseña y entrar directo a Eva
+$("clave").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const err=t=>{ $("err2").textContent=t; $("err2").classList.remove("hidden"); $("crear").disabled=false; $("crear").textContent="Crear contraseña y entrar"; };
+  const password=$("pass").value;
+  if(password.length<6) return err("La contraseña debe tener mínimo 6 caracteres.");
+  $("crear").disabled=true; $("crear").textContent="Creando tu cuenta…";
+  try{
+    const r=await fetch(FN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({accion:"crear_cuenta",id:PAGO.id,token:PAGO.token,password})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok||j.error) return err(j.error||("Error "+r.status));
+    if(j.ya_tenia_cuenta){ location.href="/"; return; }
+    // Inicia sesión y abre la app con la sesión guardada
+    const t=await fetch(SB+"/auth/v1/token?grant_type=password",{method:"POST",headers:{"Content-Type":"application/json","apikey":KEY},body:JSON.stringify({email:PAGO.email,password})});
+    const ses=await t.json().catch(()=>({}));
+    if(t.ok && ses.access_token){
+      if(!ses.expires_at) ses.expires_at=Math.floor(Date.now()/1000)+(ses.expires_in||3600);
+      try{ localStorage.setItem("sb-fhixjvxztmuifrioevze-auth-token", JSON.stringify(ses)); }catch(_){}
+    }
+    location.href="/";
+  }catch(x){ err("No se pudo crear la cuenta. Revisa tu conexión e intenta de nuevo."); }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>Eva · 3 segundos</title>
+<!-- Reel 9:16 (18 s), tipografía cinética sobre fondo claro: anotar un gasto con Eva toma 3 segundos. -->
+<style>
+@font-face{font-family:'Montserrat';font-weight:600;src:url(fonts/montserrat-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:700;src:url(fonts/montserrat-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:800;src:url(fonts/montserrat-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:900;src:url(fonts/montserrat-latin-900-normal.woff2) format('woff2')}
+@font-face{font-family:'Playfair Display';font-weight:700;src:url(fonts/playfair-display-latin-700-normal.woff2) format('woff2')}
+:root{--bg:#EFE9F6;--tinta:#160F22;--rosa:#F06CE0;--brand:#E24BD8;--morado:#A855F7;--muted:#7A6F8C;--bad:#E0405F}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--bg);font-family:'Montserrat',sans-serif;color:var(--tinta)}
+#bg{position:absolute;inset:0;background:radial-gradient(900px 700px at 50% 45%,#fff,transparent 70%)}
+.t{position:absolute;left:70px;right:70px;top:760px;text-align:center;font-size:104px;font-weight:900;letter-spacing:-4px;line-height:1.05;opacity:0}
+.grad{background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--morado));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.pasos{position:absolute;left:150px;right:150px;top:640px;opacity:0}
+.paso{display:flex;align-items:center;gap:30px;font-size:54px;font-weight:800;padding:26px 36px;margin-bottom:22px;border-radius:28px;background:#fff;box-shadow:0 14px 40px rgba(60,20,90,.08);opacity:0;position:relative}
+.paso i{font-style:normal;width:64px;height:64px;border-radius:50%;background:#efe7f8;color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:32px}
+.paso .raya{position:absolute;left:24px;right:24px;top:50%;height:8px;border-radius:4px;background:var(--bad);transform-origin:left;transform:scaleX(0)}
+.reloj{position:absolute;left:50%;top:560px;width:420px;height:420px;margin-left:-210px;opacity:0}
+.reloj svg{width:100%;height:100%;transform:rotate(-90deg)}
+.reloj b{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:170px;font-weight:900;letter-spacing:-6px}
+.reloj b small{font-size:34px;font-weight:800;letter-spacing:4px;color:var(--muted);margin-top:-10px}
+.n{position:absolute;opacity:0}
+.chat{position:absolute;left:110px;right:110px;top:640px;padding:40px;border-radius:44px;background:#0f1a17;opacity:0;box-shadow:0 30px 80px rgba(20,10,40,.25)}
+.chat .hd{display:flex;align-items:center;gap:20px;color:#fff;font-size:36px;font-weight:800;padding-bottom:26px;border-bottom:2px solid rgba(255,255,255,.08);margin-bottom:30px}
+.chat .hd span{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--rosa),var(--morado));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display';font-size:44px}
+.b{padding:24px 32px;border-radius:30px;font-size:42px;font-weight:700;width:fit-content;margin-bottom:20px;line-height:1.3;color:#fff;opacity:0}
+.b.yo{margin-left:auto;background:#1f6f54;border-bottom-right-radius:8px}
+.b.eva{background:#1d2622;border-bottom-left-radius:8px;font-weight:600}
+.tipeo{display:inline-block;overflow:hidden;white-space:nowrap;vertical-align:bottom}
+#fin{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px;opacity:0;background:var(--bg)}
+.logo{display:flex;align-items:baseline}
+.logo .E{font-family:'Playfair Display';font-weight:700;font-size:260px;line-height:.8}
+.logo .va{font-weight:700;font-size:130px;letter-spacing:-4px}
+.url{font-size:54px;font-weight:800;padding:30px 60px;border-radius:999px;color:#fff;background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--morado))}
+#fin p{font-size:42px;font-weight:700;color:var(--muted)}
+</style></head><body>
+<div id="bg"></div>
+
+<div class="t" id="t1">¿Cuánto te demoras<br>anotando un <span class="grad">gasto?</span></div>
+
+<div class="pasos" id="pasos">
+  <div class="paso" id="p1"><i>1</i>Abrir la app<span class="raya"></span></div>
+  <div class="paso" id="p2"><i>2</i>Buscar la categoría<span class="raya"></span></div>
+  <div class="paso" id="p3"><i>3</i>Escribir el valor<span class="raya"></span></div>
+  <div class="paso" id="p4"><i>4</i>Guardar<span class="raya"></span></div>
+  <div class="paso" id="p5"><i>5</i>Rendirte al día 3<span class="raya"></span></div>
+</div>
+
+<div class="reloj" id="reloj">
+  <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="#e2d8ef" stroke-width="7"/><circle id="arco" cx="50" cy="50" r="44" fill="none" stroke="url(#g)" stroke-width="7" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="276.5"/><defs><linearGradient id="g"><stop offset="0" stop-color="#F06CE0"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs></svg>
+  <b><span class="n" id="n1">1</span><span class="n" id="n2">2</span><span class="n" id="n3">3</span><small style="position:absolute;top:290px">SEGUNDOS</small></b>
+</div>
+<div class="t" id="t2" style="top:1060px;font-size:84px">Con Eva, <span class="grad">3 segundos.</span></div>
+
+<div class="chat" id="chat">
+  <div class="hd"><span>E</span>Eva</div>
+  <div class="b yo" id="m1"><span class="tipeo" id="tip">almuerzo 18000</span></div>
+  <div class="b eva" id="m2">¡Listo! Almuerzo — Alimentación<br><b style="color:#F9A8F0">$18.000</b></div>
+</div>
+<div class="t" id="t3" style="top:1330px;font-size:70px;letter-spacing:-2px">Escríbele como<br>a un <span class="grad">amigo.</span></div>
+
+<div class="t" id="t4" style="top:700px">Sin descargar<br><span class="grad">nada.</span></div>
+<div class="t" id="t5" style="top:960px;font-size:80px;color:var(--muted)">Sin hojas de cálculo.</div>
+
+<div id="fin">
+  <div class="logo"><span class="E grad">E</span><span class="va">va</span></div>
+  <p>Solo un WhatsApp.</p>
+  <div class="url">evafinanzas.us</div>
+</div>
+
+<script>
+const D = 18000, $ = (q) => document.querySelector(q), EZ = 'cubic-bezier(.2,.8,.2,1)';
+function track(el, kf, ez = EZ) {
+  kf.sort((a, b) => a[0] - b[0]);
+  const fr = kf.map(([t, p]) => ({ ...p, offset: Math.min(1, Math.max(0, t * 1000 / D)), easing: ez }));
+  if (fr[0].offset > 0) fr.unshift({ ...fr[0], offset: 0 });
+  if (fr[fr.length - 1].offset < 1) fr.push({ ...fr[fr.length - 1], offset: 1 });
+  el.animate(fr, { duration: D, fill: 'both' });
+}
+const show = (el, t0, t1, d = .4, desde = 'translateY(50px)') => track(el, [
+  [t0, { opacity: 0, transform: desde }], [t0 + d, { opacity: 1, transform: 'none' }],
+  [t1 - .25, { opacity: 1, transform: 'none' }], [t1, { opacity: 0, transform: 'none' }]]);
+// 1. pregunta
+show($('#t1'), .2, 2.4, .5);
+// 2. pasos que se tachan
+track($('#pasos'), [[2.3, { opacity: 1 }], [6, { opacity: 1 }], [6.3, { opacity: 0 }]]);
+['#p1', '#p2', '#p3', '#p4', '#p5'].forEach((q, k) => {
+  show($(q), 2.4 + k * .35, 6.3, .3, 'translateX(-60px)');
+  track($(q + ' .raya'), [[4.4 + k * .2, { transform: 'scaleX(0)' }], [4.65 + k * .2, { transform: 'scaleX(1)' }]]);
+  track($(q + ' i'), [[4.4 + k * .2, { color: '#7A6F8C' }], [4.6 + k * .2, { color: '#E0405F' }]]);
+});
+// 3. reloj 1-2-3
+track($('#reloj'), [[6.3, { opacity: 0, transform: 'scale(.8)' }], [6.7, { opacity: 1, transform: 'none' }], [9.3, { opacity: 1, transform: 'none' }], [9.6, { opacity: 0, transform: 'scale(.9)' }]]);
+track($('#arco'), [[6.7, { strokeDashoffset: 276.5 }], [8.7, { strokeDashoffset: 0 }]], 'linear');
+[6.7, 7.4, 8.1].forEach((t, k) => track($('#n' + (k + 1)), [[t, { opacity: 0, transform: 'scale(1.4)' }], [t + .15, { opacity: 1, transform: 'none' }], [k < 2 ? t + .65 : 9.3, { opacity: 1 }], [k < 2 ? t + .7 : 9.6, { opacity: 0 }]]));
+show($('#t2'), 8.2, 9.6, .4);
+// 4. chat
+track($('#chat'), [[9.6, { opacity: 0, transform: 'translateY(60px)' }], [10, { opacity: 1, transform: 'none' }], [13.4, { opacity: 1, transform: 'none' }], [13.7, { opacity: 0 }]]);
+track($('#m1'), [[10.1, { opacity: 1 }]]);
+track($('#tip'), [[10.1, { maxWidth: '0px' }], [11.1, { maxWidth: '520px' }]], 'steps(14,end)');
+track($('#m2'), [[11.7, { opacity: 0, transform: 'translateY(20px)' }], [12, { opacity: 1, transform: 'none' }]]);
+show($('#t3'), 12.1, 13.7, .4);
+// 5. sin descargar / sin hojas
+show($('#t4'), 13.8, 16, .4);
+show($('#t5'), 14.6, 16, .4);
+// cierre
+track($('#fin'), [[16, { opacity: 0 }], [16.4, { opacity: 1 }]]);
+</script>
+</body></html>

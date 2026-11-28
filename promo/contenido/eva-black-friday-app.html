@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>Eva · Black Friday (estilo app)</title>
+<!-- Dos carruseles 1080x1350 estilo "pantallas de producto": A) Tu mes en un chat (6), B) ¿Cuánto te queda de verdad? (5). -->
+<style>
+@font-face{font-family:'Montserrat';font-weight:500;src:url(../fonts/montserrat-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:600;src:url(../fonts/montserrat-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:700;src:url(../fonts/montserrat-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:800;src:url(../fonts/montserrat-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Playfair Display';font-weight:700;src:url(../fonts/playfair-display-latin-700-normal.woff2) format('woff2')}
+:root{--bg:#0C0A12;--rosa:#F06CE0;--brand:#E24BD8;--morado:#A855F7;--txt:#F3EEFB;--muted:#9A90AB;--ok:#2DD4A0;--bad:#F2557A;--oro:#F5B342}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#222;font-family:'Montserrat',sans-serif;color:var(--txt)}
+.lam{width:1080px;height:1350px;position:relative;overflow:hidden;background:radial-gradient(1000px 800px at 85% 110%,rgba(168,85,247,.16),transparent 65%),radial-gradient(700px 600px at 0% 0%,rgba(226,75,216,.10),transparent 65%),var(--bg);margin-bottom:20px}
+.hd{position:absolute;left:70px;right:70px;top:60px;display:flex;justify-content:space-between;align-items:center;font-size:26px;font-weight:700;color:var(--muted)}
+.mk{display:flex;align-items:center;gap:14px;color:#fff}
+.mk i{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--rosa),var(--morado));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display';font-style:normal;font-size:30px}
+.cp{position:absolute;left:70px;right:70px;top:190px}
+.lbl{font-size:28px;font-weight:700;color:var(--muted)}
+h1{font-size:88px;font-weight:800;letter-spacing:-3px;line-height:1.04;margin-top:14px}
+h2{font-size:72px;font-weight:800;letter-spacing:-2.5px;line-height:1.06;margin-top:14px}
+.sub{font-size:34px;font-weight:500;color:var(--muted);margin-top:24px;line-height:1.4}
+.grad{background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--morado));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.desl{position:absolute;left:70px;bottom:70px;font-size:26px;font-weight:700;padding:16px 28px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)}
+.panel{position:absolute;left:70px;right:70px;border-radius:36px;background:linear-gradient(180deg,#17131f,#110e18);border:1px solid rgba(255,255,255,.08);padding:36px 40px}
+.fila{display:flex;align-items:center;gap:24px;padding:22px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:34px;font-weight:700}
+.fila:last-child{border:0}
+.fila .ic{width:66px;height:66px;border-radius:18px;display:flex;align-items:center;justify-content:center;flex:none}
+.fila .ic svg{width:36px;height:36px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.fila .tx{flex:1}.fila .tx small{display:block;font-size:24px;font-weight:600;color:var(--muted);margin-top:4px}
+.fila .v{font-weight:800}
+.bar{height:12px;border-radius:6px;background:rgba(255,255,255,.08);margin-top:12px;overflow:hidden}.bar i{display:block;height:100%;border-radius:6px}
+/* teléfono */
+.tel{position:absolute;width:560px;height:900px;border-radius:70px;background:#05040a;border:3px solid #2a2433;padding:22px;box-shadow:0 40px 100px rgba(0,0,0,.6)}
+.tel .scr{width:100%;height:100%;border-radius:52px;background:#0d1714;overflow:hidden;position:relative}
+.tel .top{height:150px;background:#132420;display:flex;align-items:flex-end;gap:18px;padding:0 30px 22px;font-size:30px;font-weight:800}
+.tel .top span{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--rosa),var(--morado));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display';font-size:34px}
+.tel .top small{display:block;font-size:20px;font-weight:600;color:#8fb5a8}
+.msgs{padding:26px 24px}
+.b{padding:16px 22px;border-radius:22px;font-size:25px;font-weight:600;width:fit-content;max-width:88%;margin-bottom:14px;line-height:1.35}
+.b.yo{margin-left:auto;background:#1f6f54;border-bottom-right-radius:6px;font-weight:700}
+.b.eva{background:#1d2622;border-bottom-left-radius:6px;color:#dfeee8}
+.b.eva b{color:#F9A8F0}
+.chatL .b{font-size:34px;padding:22px 30px;border-radius:28px}
+.op{display:flex;justify-content:space-between;align-items:center;font-size:40px;font-weight:700;padding:20px 0}
+.op .v{font-weight:800}
+.tot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:26px;border-top:2px dashed rgba(255,255,255,.18)}
+.cta{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.cta .ico{width:150px;height:150px;border-radius:40px;background:linear-gradient(135deg,var(--rosa),var(--brand) 50%,var(--morado));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display';font-size:110px;box-shadow:0 30px 80px rgba(226,75,216,.35)}
+.cta h2{margin-top:50px;font-size:76px}
+.cta p{font-size:32px;color:var(--muted);margin-top:20px;max-width:780px;line-height:1.4}
+.cta .url{margin-top:44px;font-size:36px;font-weight:800;padding:24px 50px;border-radius:999px;background:#fff;color:#160F22}
+.cta .fine{position:absolute;bottom:70px;font-size:22px;color:#6f6680}
+</style><style>
+.hl{display:inline-block;padding:0 16px 6px;border-radius:12px;background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--morado));color:#fff}
+.pago{position:absolute;left:70px;right:70px;border-radius:36px;background:linear-gradient(180deg,#17131f,#110e18);border:1px solid rgba(255,255,255,.1);padding:40px 44px;box-shadow:0 40px 100px rgba(0,0,0,.5)}
+.pago .t{display:flex;justify-content:space-between;align-items:center;font-size:30px;font-weight:700;color:var(--muted)}
+.pago .tag{font-size:22px;font-weight:800;letter-spacing:3px;color:#fff;background:#000;border:2px solid #fff;padding:8px 14px;border-radius:8px}
+.pago .pl{font-size:44px;font-weight:800;margin-top:26px}
+.pago .old{font-size:44px;font-weight:700;color:#6f6680;text-decoration:line-through;text-decoration-color:var(--bad);text-decoration-thickness:5px}
+.pago .new{font-size:150px;font-weight:800;letter-spacing:-6px;line-height:1}
+.pago .new small{font-size:40px;letter-spacing:0;font-weight:700;color:var(--muted);margin-left:10px}
+.pago .row{display:flex;justify-content:space-between;font-size:30px;font-weight:600;padding:18px 0;border-top:1px solid rgba(255,255,255,.08);color:#d6cde4}
+.pago .row b{color:#fff}
+.pago .btn{margin-top:26px;text-align:center;font-size:36px;font-weight:800;padding:26px;border-radius:22px;background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--morado))}
+</style>
+</head><body>
+
+
+<section class="lam" id="post">
+  <div class="hd"><span class="mk"><i>E</i>Eva</span><span>Black Friday</span></div>
+  <div class="cp" style="top:170px"><div class="lbl">Oferta de Black Friday</div><h1 style="font-size:84px">Tu primer mes,<br>a <span class="hl">mitad de precio.</span></h1></div>
+  <div class="pago" style="top:540px">
+    <div class="t"><span>Plan mensual</span><span class="tag">BLACK FRIDAY</span></div>
+    <div style="display:flex;align-items:baseline;gap:24px;margin-top:20px"><span class="old">$9,99</span><span class="new grad">$4,99<small>USD</small></span></div>
+    <div class="row"><span>Primer mes</span><b>$4,99 USD</b></div>
+    <div class="row"><span>Desde el segundo mes</span><b>$9,99 USD</b></div>
+    <div class="btn">evafinanzas.us</div>
+  </div>
+  <div style="position:absolute;left:70px;right:70px;bottom:56px;font-size:22px;color:#6f6680">Clientes nuevos · plan mensual · cancela cuando quieras.</div>
+</section>
+
+<section class="lam" id="story" style="height:1920px">
+  <div class="hd"><span class="mk"><i>E</i>Eva</span><span>Black Friday</span></div>
+  <div class="cp" style="top:260px"><div class="lbl">Oferta de Black Friday</div><h1 style="font-size:96px">Tu primer mes,<br>a <span class="hl">mitad de precio.</span></h1><p class="sub">Tu plata por WhatsApp, Apple Pay y Google Pay que se anotan solos, y tus deudas bajo control.</p></div>
+  <div class="pago" style="top:880px">
+    <div class="t"><span>Plan mensual</span><span class="tag">BLACK FRIDAY</span></div>
+    <div style="display:flex;align-items:baseline;gap:24px;margin-top:20px"><span class="old">$9,99</span><span class="new grad">$4,99<small>USD</small></span></div>
+    <div class="row"><span>Primer mes</span><b>$4,99 USD</b></div>
+    <div class="row"><span>Desde el segundo mes</span><b>$9,99 USD</b></div>
+    <div class="btn">evafinanzas.us</div>
+  </div>
+  <div style="position:absolute;left:70px;right:70px;bottom:110px;text-align:center;font-size:24px;color:#6f6680">Clientes nuevos · plan mensual · cancela cuando quieras.</div>
+</section>
+</body></html>

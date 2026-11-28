@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<title>Eva para empresas · Propuesta</title>
+<!-- Propuesta comercial B2B. Para personalizarla, cambia EMPRESA abajo y vuelve a exportar a PDF (tamaño carta). -->
+<style>
+@font-face{font-family:'Montserrat';font-weight:500;src:url(../fonts/montserrat-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:600;src:url(../fonts/montserrat-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:700;src:url(../fonts/montserrat-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:800;src:url(../fonts/montserrat-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Playfair Display';font-weight:700;src:url(../fonts/playfair-display-latin-700-normal.woff2) format('woff2')}
+@page{size:Letter;margin:0}
+:root{--bg:#0A0711;--rosa:#F06CE0;--brand:#E24BD8;--morado:#A855F7;--tinta:#1E1630;--gris:#5E5672;--claro:#F6F2FB;--linea:#E6DEF0;--ok:#16A37F}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Montserrat',sans-serif;color:var(--tinta);font-size:11.5pt;line-height:1.55;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.pag{width:8.5in;height:11in;position:relative;overflow:hidden;page-break-after:always;padding:.85in .85in .7in}
+.pag:last-child{page-break-after:auto}
+.grad{background:linear-gradient(120deg,var(--rosa),var(--brand) 55%,var(--morado));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.logo{display:flex;align-items:baseline}
+.logo .E{font-family:'Playfair Display';font-weight:700;font-size:44pt;line-height:.8}
+.logo .va{font-weight:700;font-size:23pt;letter-spacing:-.5pt;margin-left:-1pt}
+.top{position:absolute;left:.85in;right:.85in;top:.4in;display:flex;justify-content:space-between;align-items:center;font-size:8.5pt;color:var(--gris);font-weight:600}
+.top .logo .E{font-size:22pt}.top .logo .va{font-size:12pt}
+.pie{position:absolute;left:.85in;right:.85in;bottom:.4in;display:flex;justify-content:space-between;font-size:8pt;color:#9a91ab;border-top:1px solid var(--linea);padding-top:8pt}
+.kick{font-size:8.5pt;font-weight:800;letter-spacing:2.5pt;color:var(--brand);margin-bottom:8pt}
+h2{font-size:24pt;line-height:1.15;font-weight:800;letter-spacing:-.6pt;margin-bottom:14pt}
+h3{font-size:12.5pt;font-weight:800;margin-bottom:4pt}
+p{margin-bottom:10pt}
+.lead{font-size:13pt;color:var(--gris)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14pt}
+.box{background:var(--claro);border:1px solid var(--linea);border-radius:14pt;padding:16pt 18pt}
+.box p{margin:0;color:var(--gris);font-size:10.5pt}
+.num{display:inline-flex;width:24pt;height:24pt;border-radius:50%;align-items:center;justify-content:center;font-weight:800;font-size:11pt;color:#fff;background:linear-gradient(135deg,var(--rosa),var(--morado));margin-bottom:8pt}
+.ico{width:26pt;height:26pt;stroke:var(--brand);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-bottom:6pt}
+ul.check{list-style:none;margin:6pt 0 12pt}
+ul.check li{position:relative;padding-left:20pt;margin-bottom:7pt}
+ul.check li::before{content:"";position:absolute;left:2pt;top:4pt;width:6pt;height:11pt;border:solid var(--ok);border-width:0 2.5pt 2.5pt 0;transform:rotate(45deg)}
+table{width:100%;border-collapse:separate;border-spacing:0;margin:8pt 0 14pt;font-size:11pt}
+th{background:var(--tinta);color:#fff;text-align:left;font-weight:700;padding:11pt 14pt;font-size:10pt}
+th:first-child{border-radius:10pt 0 0 0}th:last-child{border-radius:0 10pt 0 0}
+td{padding:12pt 14pt;border-bottom:1px solid var(--linea)}
+tr:nth-child(even) td{background:var(--claro)}
+td b{font-size:13pt}
+.destacado{border:2px solid var(--brand);border-radius:16pt;padding:18pt 20pt;background:linear-gradient(135deg,rgba(240,108,224,.08),rgba(168,85,247,.08))}
+.nota{font-size:9pt;color:var(--gris)}
+/* portada */
+.portada{background:var(--bg);color:#fff;padding:0}
+.portada .fx{position:absolute;inset:0;background:radial-gradient(5in 4in at 80% 20%,rgba(226,75,216,.35),transparent 70%),radial-gradient(5in 5in at 0% 100%,rgba(168,85,247,.3),transparent 70%)}
+.portada .grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:.5in .5in;-webkit-mask-image:radial-gradient(6in 6in at 60% 40%,#000,transparent 80%)}
+.portada .sil{position:absolute;right:.7in;top:1.1in;height:3.9in;opacity:.95;filter:drop-shadow(0 0 30px rgba(226,75,216,.5))}
+.portada .txt{position:absolute;left:.85in;right:.85in;bottom:1.2in}
+.portada h1{font-size:40pt;line-height:1.05;font-weight:800;letter-spacing:-1.2pt;margin:14pt 0 16pt}
+.portada .sub{font-size:14pt;color:#d8cfe6;max-width:5.2in}
+.portada .para{margin-top:30pt;padding-top:16pt;border-top:1px solid rgba(255,255,255,.18);display:flex;justify-content:space-between;font-size:10pt;color:#bfb5d0}
+.portada .para b{display:block;color:#fff;font-size:13pt;margin-top:3pt}
+.portada .logo{position:absolute;left:.85in;top:.75in}
+.portada .logo .va{color:#fff}
+.cierre{background:var(--bg);color:#fff}
+.cierre .fx{position:absolute;inset:0;background:radial-gradient(5in 4in at 50% 30%,rgba(226,75,216,.3),transparent 70%)}
+</style></head><body>
+
+<!-- 1. Portada -->
+<section class="pag portada">
+  <div class="fx"></div><div class="grid"></div>
+  <div class="logo"><span class="E grad">E</span><span class="va">va</span></div>
+  <img class="sil" src="../marca/eva-silueta.svg" alt="">
+  <div class="txt">
+    <div class="kick" style="color:var(--rosa)">PROPUESTA DE BIENESTAR FINANCIERO</div>
+    <h1>Que la quincena de tu equipo <span class="grad">sí alcance.</span></h1>
+    <div class="sub">Eva es una asistente de finanzas personales que tus colaboradores usan desde WhatsApp. La empresa la entrega como beneficio; cada persona organiza su plata en privado.</div>
+    <div class="para">
+      <div>Preparada para<b id="empresa">Tu empresa</b></div>
+      <div style="text-align:right">Fecha<b id="fecha">Noviembre de 2026</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. El problema -->
+<section class="pag">
+  <div class="top"><div class="logo"><span class="E grad">E</span><span class="va">va</span></div><div>Eva para empresas</div></div>
+  <div class="kick">EL PROBLEMA</div>
+  <h2>Cuando la plata no alcanza, se nota en el trabajo.</h2>
+  <p class="lead">Muchas personas cobran, pagan lo urgente y a los pocos días no saben en qué se les fue el resto. No es falta de ganas: es falta de una herramienta sencilla y de un hábito.</p>
+  <p>Ese desorden no se queda en casa. Llega a la empresa de formas que cualquier área de talento humano reconoce:</p>
+  <div class="grid2" style="margin-top:14pt">
+    <div class="box"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg><h3>Adelantos de nómina</h3><p>Solicitudes frecuentes de anticipos y préstamos internos que generan carga administrativa.</p></div>
+    <div class="box"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><h3>Distracción y estrés</h3><p>Preocupaciones por deudas y cuentas que le quitan foco a la jornada.</p></div>
+    <div class="box"><svg class="ico" viewBox="0 0 24 24"><path d="M4 19h16M7 16V9M12 16V5M17 16v-4"/></svg><h3>Deudas que crecen</h3><p>Pagos mínimos, intereses altos y créditos de consumo que se encadenan.</p></div>
+    <div class="box"><svg class="ico" viewBox="0 0 24 24"><path d="M16 17l5-5-5-5M21 12H9M12 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"/></svg><h3>Rotación</h3><p>Personas que cambian de trabajo por una diferencia pequeña de salario, porque cada peso cuenta.</p></div>
+  </div>
+  <div class="destacado" style="margin-top:22pt"><h3>La oportunidad</h3><p style="margin:0">Un beneficio de bajo costo que ayuda a cada colaborador a saber cuánto entra, en qué se va y cómo salir de deudas, sin que la empresa tenga que montar un programa propio.</p></div>
+  <div class="pie"><span>evafinanzas.us</span><span>2</span></div>
+</section>
+
+<!-- 3. Qué es Eva -->
+<section class="pag">
+  <div class="top"><div class="logo"><span class="E grad">E</span><span class="va">va</span></div><div>Eva para empresas</div></div>
+  <div class="kick">LA SOLUCIÓN</div>
+  <h2>Eva: finanzas personales por WhatsApp, sin complicaciones.</h2>
+  <p class="lead">El colaborador le escribe a Eva lo que gastó, como le escribiría a un amigo, y Eva lo organiza. En la app ve su mes completo.</p>
+  <div class="grid2" style="margin-top:12pt">
+    <div class="box"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20l1.5-4.5A8 8 0 1 1 8.5 18.5z"/></svg><h3>Registro por WhatsApp</h3><p>"Almuerzo 18 mil" y listo. Sin formularios ni hojas de cálculo.</p></div>
+    <div class="box"><svg class="ico" viewBox="0 0 24 24"><path d="M11 3H4v7l10 10 7-7z"/><circle cx="7.5" cy="6.5" r="1"/></svg><h3>Categorías automáticas</h3><p>Cada gasto queda clasificado: comida, transporte, hogar, deudas…</p></div>
+    <div class="box"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><h3>Gastos fijos automáticos</h3><p>Arriendo, servicios y cuotas se registran solos cada mes.</p></div>
+    <div class="box"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg><h3>Metas y presupuesto</h3><p>Topes por categoría y metas de ahorro con su avance.</p></div>
+    <div class="box"><svg class="ico" viewBox="0 0 24 24"><path d="M4 19h16M7 16v-3M12 16V8M17 16V4"/></svg><h3>Control de deudas</h3><p>Plan para pagar deudas en orden y ver cuándo queda libre.</p></div>
+    <div class="box"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 15l3-3 3 2 4-5"/></svg><h3>Tu mes de un vistazo</h3><p>Cuánto entró, cuánto salió y cuánto queda, en una sola pantalla.</p></div>
+  </div>
+  <div class="pie"><span>evafinanzas.us</span><span>3</span></div>
+</section>
+
+<!-- 4. Privacidad y qué recibe la empresa -->
+<section class="pag">
+  <div class="top"><div class="logo"><span class="E grad">E</span><span class="va">va</span></div><div>Eva para empresas</div></div>
+  <div class="kick">PRIVACIDAD</div>
+  <h2>La empresa paga el beneficio. Los datos son solo de cada persona.</h2>
+  <ul class="check">
+    <li><b>La empresa no ve gastos, ingresos ni deudas</b> de ningún colaborador.</li>
+    <li><b>Eva no se conecta al banco</b> ni pide claves bancarias.</li>
+    <li>Los datos se guardan cifrados y <b>no se venden ni se usan con fines publicitarios</b>.</li>
+    <li>Política de privacidad pública en evafinanzas.us/legal/privacidad.</li>
+  </ul>
+  <div class="kick" style="margin-top:22pt">QUÉ RECIBE LA EMPRESA</div>
+  <div class="grid2">
+    <div class="box"><span class="num">1</span><h3>Licencias para tu equipo</h3><p>Una cuenta completa de Eva por colaborador, activada por nosotros.</p></div>
+    <div class="box"><span class="num">2</span><h3>Charla de lanzamiento</h3><p>45 minutos: "Cómo hacer que la quincena alcance". Al final, cada persona activa su Eva.</p></div>
+    <div class="box"><span class="num">3</span><h3>Acompañamiento</h3><p>Soporte por correo y WhatsApp para que nadie se quede sin empezar.</p></div>
+    <div class="box"><span class="num">4</span><h3>Reporte de activación</h3><p>Cuántas licencias están activas, sin ningún dato financiero personal.</p></div>
+  </div>
+  <div class="pie"><span>evafinanzas.us</span><span>4</span></div>
+</section>
+
+<!-- 5. Inversión -->
+<section class="pag">
+  <div class="top"><div class="logo"><span class="E grad">E</span><span class="va">va</span></div><div>Eva para empresas</div></div>
+  <div class="kick">INVERSIÓN</div>
+  <h2>Menos que un almuerzo al mes por persona.</h2>
+  <p class="lead">Precio por colaborador, en pesos colombianos, IVA incluido.</p>
+  <table>
+    <tr><th>Colaboradores</th><th>Precio por persona / mes</th><th>Ejemplo mensual</th></tr>
+    <tr><td>10 a 24</td><td><b>$29.900</b></td><td>15 personas: $448.500</td></tr>
+    <tr><td>25 a 49</td><td><b>$25.900</b></td><td>30 personas: $777.000</td></tr>
+    <tr><td>50 o más</td><td><b>$21.900</b></td><td>60 personas: $1.314.000</td></tr>
+  </table>
+  <p><b>Pago anticipado:</b> 10% de descuento adicional pagando 6 o 12 meses por adelantado.</p>
+  <p class="nota">Precio individual de referencia: $39.500 por persona al mes. La charla de lanzamiento está incluida sin costo.</p>
+  <div class="destacado" style="margin-top:18pt">
+    <div class="kick" style="margin-bottom:4pt">PARA EMPEZAR SIN RIESGO</div>
+    <h3 style="font-size:16pt">Piloto de 1 mes con 10 personas: $299.000</h3>
+    <p style="margin:6pt 0 0">Prueben Eva con un grupo pequeño, incluida la charla. Si al final del mes funciona, se extiende al resto del equipo con el precio de la tabla.</p>
+  </div>
+  <p class="nota" style="margin-top:14pt">Pago por transferencia o Bre-B. Precios válidos hasta el 31 de diciembre de 2026.</p>
+  <div class="pie"><span>evafinanzas.us</span><span>5</span></div>
+</section>
+
+<!-- 6. Cómo empezamos -->
+<section class="pag cierre">
+  <div class="fx"></div>
+  <div class="top" style="color:#bfb5d0"><div class="logo"><span class="E grad">E</span><span class="va" style="color:#fff">va</span></div><div>Eva para empresas</div></div>
+  <div class="kick" style="color:var(--rosa)">CÓMO EMPEZAMOS</div>
+  <h2 style="color:#fff">Cuatro pasos y tu equipo arranca en una semana.</h2>
+  <div style="display:grid;gap:14pt;margin-top:18pt">
+    <div style="display:flex;gap:14pt;align-items:flex-start"><span class="num" style="flex:none">1</span><div><h3>Definimos el grupo</h3><p style="color:#cfc6de;margin:0">Cuántas personas entran al piloto y la fecha de la charla.</p></div></div>
+    <div style="display:flex;gap:14pt;align-items:flex-start"><span class="num" style="flex:none">2</span><div><h3>Pago del piloto</h3><p style="color:#cfc6de;margin:0">Por transferencia o Bre-B.</p></div></div>
+    <div style="display:flex;gap:14pt;align-items:flex-start"><span class="num" style="flex:none">3</span><div><h3>Charla y activación</h3><p style="color:#cfc6de;margin:0">En 45 minutos cada persona sale con su Eva funcionando.</p></div></div>
+    <div style="display:flex;gap:14pt;align-items:flex-start"><span class="num" style="flex:none">4</span><div><h3>Revisión al mes</h3><p style="color:#cfc6de;margin:0">Vemos la activación y decidimos juntos si se extiende al equipo.</p></div></div>
+  </div>
+  <img src="../marca/eva-silueta.svg" alt="" style="position:absolute;right:.85in;bottom:1.1in;height:2.4in;filter:drop-shadow(0 0 24px rgba(226,75,216,.5))">
+  <div style="position:absolute;left:.85in;bottom:1.1in">
+    <div class="kick" style="color:var(--rosa)">HABLEMOS</div>
+    <div style="font-size:15pt;font-weight:800">soporte@evafinanzas.us</div>
+    <div style="font-size:13pt;color:#cfc6de;margin-top:4pt">evafinanzas.us</div>
+  </div>
+</section>
+
+<script>
+// Personalización: ?empresa=Nombre&fecha=Texto
+const q = new URLSearchParams(location.search);
+if (q.get('empresa')) document.getElementById('empresa').textContent = q.get('empresa');
+if (q.get('fecha')) document.getElementById('fecha').textContent = q.get('fecha');
+</script>
+</body></html>

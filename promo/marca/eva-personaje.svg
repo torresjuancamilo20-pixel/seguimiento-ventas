@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 900" width="800" height="900">
+  <defs>
+    <linearGradient id="blusa" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F06CE0"/><stop offset=".55" stop-color="#E24BD8"/><stop offset="1" stop-color="#A855F7"/>
+    </linearGradient>
+    <linearGradient id="pelo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3A1F2E"/><stop offset="1" stop-color="#1E0F1A"/>
+    </linearGradient>
+    <linearGradient id="brillo" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6B3A55" stop-opacity="0"/><stop offset=".5" stop-color="#7A4462" stop-opacity=".8"/><stop offset="1" stop-color="#6B3A55" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="piel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E9A47F"/><stop offset="1" stop-color="#D98E68"/>
+    </linearGradient>
+    <linearGradient id="oro" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFE3A3"/><stop offset="1" stop-color="#F5A623"/>
+    </linearGradient>
+  </defs>
+
+  <!-- cabello de atrás (largo, con ondas) -->
+  <path d="M215 330 C190 470 200 600 160 720 C230 760 300 700 330 640 L470 640 C500 700 570 760 640 720 C600 600 610 470 585 330 C560 190 480 140 400 140 C320 140 240 190 215 330 Z" fill="url(#pelo)"/>
+
+  <path d="M215 330 C190 470 200 600 160 720 M640 720 C600 600 610 470 585 330 C560 190 480 140 400 140 C320 140 240 190 215 330" stroke="#F06CE0" stroke-width="4" fill="none" opacity=".3"/>
+  <!-- cuello -->
+  <path d="M352 515 L448 515 L456 628 C430 650 370 650 344 628 Z" fill="#CF835E"/>
+  <!-- sombra del cuello -->
+  <path d="M352 520 L448 520 L450 552 C420 572 380 572 350 552 Z" fill="#B96F4E" opacity=".55"/>
+
+  <!-- torso / blusa -->
+  <path d="M110 900 C118 742 196 650 322 614 C356 642 444 642 478 614 C604 650 682 742 690 900 Z" fill="url(#blusa)"/>
+  <!-- cuello en V -->
+  <path d="M322 614 C348 650 378 684 400 700 C422 684 452 650 478 614 C456 632 430 642 400 642 C370 642 344 632 322 614 Z" fill="#CF835E"/>
+  <!-- pliegues de la blusa -->
+  <path d="M230 770 C242 830 240 870 235 900" stroke="#C026D3" stroke-width="6" fill="none" opacity=".45" stroke-linecap="round"/>
+  <path d="M572 770 C560 830 562 870 567 900" stroke="#8B3FD9" stroke-width="6" fill="none" opacity=".45" stroke-linecap="round"/>
+
+  <!-- collar con dije "E" -->
+  <path d="M350 628 C368 676 432 676 450 628" stroke="url(#oro)" stroke-width="4" fill="none"/>
+  <circle cx="400" cy="676" r="18" fill="url(#oro)"/>
+  <text x="400" y="684" font-family="Georgia, 'Playfair Display', serif" font-weight="700" font-size="24" text-anchor="middle" fill="#7A3B00">E</text>
+
+  <!-- orejas -->
+  <ellipse cx="282" cy="395" rx="22" ry="34" fill="#D98E68"/>
+  <ellipse cx="518" cy="395" rx="22" ry="34" fill="#D98E68"/>
+  <!-- aretes -->
+  <circle cx="282" cy="440" r="13" fill="none" stroke="url(#oro)" stroke-width="5"/>
+  <circle cx="518" cy="440" r="13" fill="none" stroke="url(#oro)" stroke-width="5"/>
+
+  <!-- cara -->
+  <path d="M290 330 C290 230 340 190 400 190 C460 190 510 230 510 330 C510 450 465 535 400 545 C335 535 290 450 290 330 Z" fill="url(#piel)"/>
+
+  <!-- cabello de adelante: raya al lado y mechón -->
+  <path d="M282 360 C270 240 330 158 410 160 C500 162 545 240 520 360 C505 300 480 262 430 240 C400 290 330 300 300 330 C292 340 286 350 282 360 Z" fill="url(#pelo)"/>
+  <path d="M430 240 C470 260 505 300 520 360 C528 330 530 300 525 270 C505 240 470 225 430 240 Z" fill="#2A1522"/>
+  <path d="M330 205 C370 178 440 176 480 205" stroke="url(#brillo)" stroke-width="16" fill="none" stroke-linecap="round"/>
+
+  <!-- cejas -->
+  <path d="M330 338 C345 326 368 324 385 332" stroke="#2A1522" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <path d="M415 332 C432 324 455 326 470 338" stroke="#2A1522" stroke-width="9" fill="none" stroke-linecap="round"/>
+
+  <!-- ojos -->
+  <path d="M330 376 C344 358 374 358 388 376 C374 391 344 391 330 376 Z" fill="#FFFFFF"/>
+  <path d="M412 376 C426 358 456 358 470 376 C456 391 426 391 412 376 Z" fill="#FFFFFF"/>
+  <circle cx="359" cy="375" r="13" fill="#4A2A1A"/><circle cx="359" cy="375" r="7" fill="#1E0F1A"/>
+  <circle cx="441" cy="375" r="13" fill="#4A2A1A"/><circle cx="441" cy="375" r="7" fill="#1E0F1A"/>
+  <circle cx="364" cy="370" r="4" fill="#FFFFFF"/>
+  <circle cx="446" cy="370" r="4" fill="#FFFFFF"/>
+  <!-- pestañas -->
+  <path d="M328 376 C342 356 374 355 390 372" stroke="#1E0F1A" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M410 372 C426 355 458 356 472 376" stroke="#1E0F1A" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M329 375 L319 367" stroke="#1E0F1A" stroke-width="4" stroke-linecap="round"/>
+  <path d="M471 375 L481 367" stroke="#1E0F1A" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- nariz -->
+  <path d="M390 430 C396 436 406 436 412 430" stroke="#B9724F" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M404 395 C404 410 408 420 410 426" stroke="#C98263" stroke-width="4" fill="none" stroke-linecap="round" opacity=".7"/>
+
+  <!-- mejillas -->
+  <ellipse cx="335" cy="430" rx="26" ry="15" fill="#F06CE0" opacity=".28"/>
+  <ellipse cx="465" cy="430" rx="26" ry="15" fill="#F06CE0" opacity=".28"/>
+
+  <!-- sonrisa -->
+  <path d="M362 466 C380 488 420 488 438 466 C420 474 380 474 362 466 Z" fill="#C2185B"/>
+  <path d="M368 468 C385 476 415 476 432 468 C420 482 380 482 368 468 Z" fill="#FFFFFF"/>
+  <path d="M358 464 C378 495 422 495 442 464" stroke="#A0154C" stroke-width="5" fill="none" stroke-linecap="round"/>
+</svg>
